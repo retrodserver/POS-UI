@@ -3,19 +3,18 @@ import {
   Sparkles,
   ShieldCheck,
   Globe,
-  BedDouble,
-  Building2,
-  BarChart3,
-  Brain,
+  ShoppingBag,
+  UtensilsCrossed,
+  Truck,
+  Package,
+  CircleDollarSign,
   Users,
-  Wallet,
   TrendingUp,
-  CalendarDays,
-  ChevronLeft,
-  ChevronRight,
-  CircleCheck,
+  Clock,
   Quote,
-  ArrowUpRight,
+  CheckCircle2,
+  Receipt,
+  Flame,
 } from "lucide-react";
 
 export function BloombergDashboard() {
@@ -50,108 +49,108 @@ export function BloombergDashboard() {
             R
           </div>
           <span className="font-display text-[26px] font-semibold tracking-tight">Retrod</span>
-          <span className="ml-1 rounded-sm bg-white/10 px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-white/70">
-            PMS
+          <span className="ml-1 rounded-sm bg-primary/30 border border-primary/40 px-1.5 py-0.5 text-[10px] uppercase font-bold tracking-wider text-white">
+            POS
           </span>
         </div>
         <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] text-white/70 backdrop-blur">
           <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_oklch(0.7_0.18_155)]" />
-          All systems operational
+          POS Server Online · Cloud Synced
         </div>
       </div>
 
       {/* Body grid */}
-      <div className="relative grid flex-1 grid-cols-12 gap-8 px-12 pt-12 pb-10">
+      <div className="relative grid flex-1 grid-cols-12 gap-8 px-12 pt-10 pb-10">
         {/* Left col: hero + benefits + trust */}
-        <div className="col-span-7 flex flex-col">
-          <div className="inline-flex w-fit items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[11px] font-medium uppercase tracking-[0.14em] text-white/70 backdrop-blur">
-            <Sparkles className="h-3 w-3 text-[oklch(0.78_0.14_85)]" />
-            All-in-one operating system
-          </div>
+        <div className="col-span-7 flex flex-col justify-between">
+          <div>
+            <div className="inline-flex w-fit items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[11px] font-medium uppercase tracking-[0.14em] text-white/70 backdrop-blur">
+              <Sparkles className="h-3 w-3 text-[oklch(0.78_0.14_85)]" />
+              Restaurant Point of Sale & Operations
+            </div>
 
-          <h1 className="mt-5 font-display text-[52px] leading-[1.02] tracking-tight">
-            Smart hospitality
-            <br />
-            starts with{" "}
-            <span className="bg-gradient-to-r from-[oklch(0.78_0.14_85)] via-[oklch(0.72_0.18_310)] to-primary bg-clip-text text-transparent">
-              Retrod.
-            </span>
-          </h1>
+            <h1 className="mt-4 font-display text-[46px] leading-[1.05] tracking-tight">
+              Fast restaurant operations
+              <br />
+              start with{" "}
+              <span className="bg-gradient-to-r from-[oklch(0.78_0.14_85)] via-[oklch(0.72_0.18_310)] to-primary bg-clip-text text-transparent">
+                Retrod POS.
+              </span>
+            </h1>
 
-          <p className="mt-5 max-w-xl text-[14px] leading-relaxed text-white/60">
-            The unified operating system for modern hotels — reservations, front office,
-            housekeeping, billing and revenue, orchestrated by AI-powered hospitality workflows
-            across every property you run.
-          </p>
+            <p className="mt-4 max-w-xl text-[13.5px] leading-relaxed text-white/65">
+              The unified cloud POS platform for modern dining — lightning touch billing,
+              real-time KOT kitchen display, multi-channel aggregator sync (Swiggy/Zomato), and automated inventory deductions.
+            </p>
 
-          {/* Benefits */}
-          <div className="mt-9 grid grid-cols-2 gap-3">
-            {[
-              {
-                icon: BedDouble,
-                title: "Reservation OS",
-                body: "Real-time inventory across all channels.",
-              },
-              {
-                icon: Building2,
-                title: "Multi-property",
-                body: "Operate every property from one cockpit.",
-              },
-              {
-                icon: BarChart3,
-                title: "Revenue optimization",
-                body: "Dynamic rates, RevPAR you can defend.",
-              },
-              {
-                icon: Brain,
-                title: "AI hospitality insights",
-                body: "Anticipate demand, automate decisions.",
-              },
-              {
-                icon: Users,
-                title: "Guest experience",
-                body: "Personalized stays at every touchpoint.",
-              },
-              {
-                icon: Wallet,
-                title: "Centralized billing",
-                body: "Folios, POS and payouts — unified.",
-              },
-            ].map(({ icon: Icon, title, body }) => (
-              <div
-                key={title}
-                className="group rounded-xl border border-white/8 bg-white/[0.03] p-3.5 backdrop-blur transition-colors hover:border-white/15 hover:bg-white/[0.05]"
-              >
-                <div className="flex items-center gap-2.5">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-md bg-gradient-to-br from-primary/25 to-[oklch(0.55_0.22_295)]/20 text-[oklch(0.85_0.10_290)] ring-1 ring-white/10">
-                    <Icon className="h-4 w-4" />
+            {/* Benefits */}
+            <div className="mt-7 grid grid-cols-2 gap-3">
+              {[
+                {
+                  icon: ShoppingBag,
+                  title: "Fast Touch Billing",
+                  body: "Sub-10s checkout, dynamic QR UPI & split payments.",
+                },
+                {
+                  icon: UtensilsCrossed,
+                  title: "Live Kitchen Display (KOT)",
+                  body: "Real-time kitchen ticket flow & preparation timers.",
+                },
+                {
+                  icon: Truck,
+                  title: "Online Aggregator Sync",
+                  body: "1-click accept & dispatch for Swiggy & Zomato.",
+                },
+                {
+                  icon: Package,
+                  title: "Inventory & Recipe BOM",
+                  body: "Automatic raw material deductions on every punch.",
+                },
+                {
+                  icon: CircleDollarSign,
+                  title: "Shift Float & EOD Audits",
+                  body: "Cash register reconciliation & Z-Reports.",
+                },
+                {
+                  icon: Users,
+                  title: "Customer Khata & CRM",
+                  body: "Loyalty points, spend metrics & credit ledger.",
+                },
+              ].map(({ icon: Icon, title, body }) => (
+                <div
+                  key={title}
+                  className="group rounded-xl border border-white/8 bg-white/[0.03] p-3 backdrop-blur transition-colors hover:border-white/15 hover:bg-white/[0.05]"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-md bg-gradient-to-br from-primary/25 to-[oklch(0.55_0.22_295)]/20 text-[oklch(0.85_0.10_290)] ring-1 ring-white/10">
+                      <Icon className="h-3.5 w-3.5" />
+                    </div>
+                    <div className="text-[12.5px] font-semibold text-white">{title}</div>
                   </div>
-                  <div className="text-[13px] font-medium text-white">{title}</div>
+                  <p className="mt-1.5 text-[11.5px] leading-relaxed text-white/55">{body}</p>
                 </div>
-                <p className="mt-2 text-[12px] leading-relaxed text-white/55">{body}</p>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
 
           {/* Trust strip */}
-          <div className="mt-auto pt-8">
-            <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
-              <Trust icon={ShieldCheck} label="SOC 2 Type II" />
-              <Trust icon={ShieldCheck} label="ISO 27001" />
-              <Trust icon={Globe} label="PCI-DSS · GDPR" />
+          <div className="pt-6">
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+              <Trust icon={ShieldCheck} label="Offline-Resilient POS" />
+              <Trust icon={Receipt} label="ESC/POS Thermal Printing" />
+              <Trust icon={Globe} label="Multi-Outlet Ready" />
               <div className="hidden h-4 w-px bg-white/10 md:block" />
               <span className="text-[11px] text-white/45">
-                Trusted by 1,200+ properties worldwide
+                Built for High-Velocity Restaurants & Cafes
               </span>
             </div>
           </div>
         </div>
 
-        {/* Right col: KPI + calendar + testimonial */}
-        <div className="col-span-5 flex flex-col gap-4">
+        {/* Right col: KPI + Live restaurant status + testimonial */}
+        <div className="col-span-5 flex flex-col gap-3.5">
           <KPIRow />
-          <CalendarCard />
-          <OccupancyCard />
+          <LiveOperationsCard />
           <TestimonialCard />
         </div>
       </div>
@@ -176,9 +175,9 @@ function Trust({
 
 function KPIRow() {
   const kpis = [
-    { label: "Occupancy", value: "82%", delta: "+4.2%", tone: "emerald" },
-    { label: "ADR", value: "₹9,240", delta: "+1.8%", tone: "emerald" },
-    { label: "RevPAR", value: "₹7,580", delta: "+6.1%", tone: "emerald" },
+    { label: "Today's Sales", value: "₹48,250", delta: "+14.8%", tone: "emerald" },
+    { label: "Active Tables", value: "14 / 18", delta: "78% Occ", tone: "emerald" },
+    { label: "Live KOTs", value: "6 Pending", delta: "Avg 8m", tone: "amber" },
   ];
   return (
     <div className="grid grid-cols-3 gap-2.5">
@@ -187,11 +186,11 @@ function KPIRow() {
           key={k.label}
           className="rounded-xl border border-white/8 bg-white/[0.03] p-3 backdrop-blur"
         >
-          <div className="text-[10.5px] font-medium uppercase tracking-wider text-white/45">
+          <div className="text-[10px] font-medium uppercase tracking-wider text-white/45">
             {k.label}
           </div>
-          <div className="mt-1.5 font-display text-[18px] font-semibold text-white">{k.value}</div>
-          <div className="mt-1 inline-flex items-center gap-1 text-[10.5px] text-emerald-300/90">
+          <div className="mt-1 font-display text-[17px] font-semibold text-white">{k.value}</div>
+          <div className="mt-1 inline-flex items-center gap-1 text-[10px] text-emerald-300/90 font-medium">
             <TrendingUp className="h-3 w-3" />
             {k.delta}
           </div>
@@ -201,114 +200,47 @@ function KPIRow() {
   );
 }
 
-function CalendarCard() {
-  const today = 14;
-  const arrivals = new Set([3, 7, 10, 14, 18, 22, 27]);
-  const checkouts = new Set([5, 9, 13, 17, 21, 25, 30]);
-  const days = useMemo(() => {
-    const empty = Array.from({ length: 4 }, () => null);
-    const cur = Array.from({ length: 31 }, (_, i) => i + 1);
-    return [...empty, ...cur];
-  }, []);
+function LiveOperationsCard() {
+  const hourlyOrders = [12, 28, 45, 62, 85, 94, 76, 52];
+  const hours = ["12 PM", "1 PM", "2 PM", "3 PM", "7 PM", "8 PM", "9 PM", "10 PM"];
 
-  return (
-    <div className="rounded-xl border border-white/8 bg-white/[0.03] p-4 backdrop-blur">
-      <div className="mb-3 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <CalendarDays className="h-4 w-4 text-white/70" />
-          <div className="text-[13px] font-medium text-white/90">May 2026</div>
-        </div>
-        <div className="flex items-center gap-1">
-          <button className="flex h-6 w-6 items-center justify-center rounded text-white/60 hover:bg-white/5">
-            <ChevronLeft className="h-3.5 w-3.5" />
-          </button>
-          <button className="flex h-6 w-6 items-center justify-center rounded text-white/60 hover:bg-white/5">
-            <ChevronRight className="h-3.5 w-3.5" />
-          </button>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-7 gap-y-1.5 text-center">
-        {["M", "T", "W", "T", "F", "S", "S"].map((d, i) => (
-          <div key={i} className="text-[9.5px] font-medium tracking-wider text-white/35">
-            {d}
-          </div>
-        ))}
-        {days.map((d, idx) => {
-          const isToday = d === today;
-          const isArr = d !== null && arrivals.has(d);
-          const isOut = d !== null && checkouts.has(d);
-          return (
-            <div key={idx} className="flex items-center justify-center">
-              {d !== null ? (
-                <div
-                  className={[
-                    "relative flex h-7 w-7 items-center justify-center rounded-full text-[11px]",
-                    isToday
-                      ? "bg-gradient-to-br from-primary to-[oklch(0.55_0.22_295)] font-semibold text-white shadow-md shadow-primary/40"
-                      : "text-white/75 hover:bg-white/5",
-                  ].join(" ")}
-                >
-                  {d}
-                  {!isToday && (isArr || isOut) && (
-                    <span
-                      className={[
-                        "absolute -bottom-0.5 h-1 w-1 rounded-full",
-                        isArr ? "bg-emerald-400" : "bg-[oklch(0.78_0.14_85)]",
-                      ].join(" ")}
-                    />
-                  )}
-                </div>
-              ) : (
-                <div className="h-7 w-7" />
-              )}
-            </div>
-          );
-        })}
-      </div>
-
-      <div className="mt-3 flex items-center gap-3 text-[10.5px] text-white/55">
-        <span className="flex items-center gap-1">
-          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" /> Arrivals
-        </span>
-        <span className="flex items-center gap-1">
-          <span className="h-1.5 w-1.5 rounded-full bg-[oklch(0.78_0.14_85)]" /> Check-outs
-        </span>
-        <span className="ml-auto flex items-center gap-1 text-white/70 hover:text-white cursor-pointer">
-          View calendar <ArrowUpRight className="h-3 w-3" />
-        </span>
-      </div>
-    </div>
-  );
-}
-
-function OccupancyCard() {
-  const bars = [62, 71, 58, 80, 74, 88, 82];
-  const labels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   return (
     <div className="rounded-xl border border-white/8 bg-white/[0.03] p-4 backdrop-blur">
       <div className="flex items-center justify-between">
         <div>
-          <div className="text-[10.5px] font-medium uppercase tracking-wider text-white/45">
-            Occupancy · This week
+          <div className="text-[10px] font-semibold uppercase tracking-wider text-primary">
+            Live Restaurant Velocity
           </div>
           <div className="mt-1 flex items-baseline gap-2">
-            <div className="font-display text-[20px] font-semibold text-white">73.8%</div>
-            <div className="text-[11px] text-emerald-300/90">▲ 5.2 vs last week</div>
+            <div className="font-display text-[19px] font-semibold text-white">184 Orders Today</div>
+            <div className="text-[11px] text-emerald-300/90">● 98.2% on time</div>
           </div>
         </div>
-        <CircleCheck className="h-4 w-4 text-emerald-400/80" />
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+          <Flame className="h-4 w-4" />
+        </div>
       </div>
-      <div className="mt-3 flex h-16 items-end gap-1.5">
-        {bars.map((b, i) => (
-          <div key={i} className="flex flex-1 flex-col items-center gap-1">
+
+      {/* Hourly Bar Chart */}
+      <div className="mt-4 flex h-20 items-end gap-2">
+        {hourlyOrders.map((val, idx) => (
+          <div key={idx} className="flex flex-1 flex-col items-center gap-1.5">
             <div
-              className="w-full rounded-sm bg-gradient-to-t from-primary/40 to-[oklch(0.72_0.18_310)]/80"
-              style={{ height: `${b}%` }}
+              className="w-full rounded-sm bg-gradient-to-t from-primary/50 to-[oklch(0.72_0.18_310)] transition-all hover:brightness-125"
+              style={{ height: `${(val / 100) * 100}%` }}
             />
-            <div className="text-[9px] text-white/40">{labels[i]}</div>
+            <div className="text-[8.5px] text-white/40">{hours[idx]}</div>
           </div>
         ))}
+      </div>
+
+      <div className="mt-3 flex items-center justify-between border-t border-white/10 pt-3 text-[11px] text-white/60">
+        <span className="flex items-center gap-1.5">
+          <Clock className="h-3.5 w-3.5 text-primary" /> Avg Bill Turnaround: <b className="text-white">42s</b>
+        </span>
+        <span className="flex items-center gap-1 text-emerald-300">
+          <CheckCircle2 className="h-3.5 w-3.5" /> 0 KOT Leakages
+        </span>
       </div>
     </div>
   );
@@ -318,21 +250,21 @@ function TestimonialCard() {
   return (
     <div className="relative overflow-hidden rounded-xl border border-white/8 bg-gradient-to-br from-white/[0.05] to-white/[0.02] p-4">
       <Quote className="h-4 w-4 text-[oklch(0.78_0.14_85)]" />
-      <p className="mt-2 text-[12.5px] leading-relaxed text-white/80">
-        "Retrod transformed our operations across 14 properties. RevPAR is up 18% and our teams
-        finally work from a single source of truth."
+      <p className="mt-2 text-[12px] leading-relaxed text-white/80">
+        "Retrod POS slashed our checkout time by 60% and unified our Swiggy, Zomato, and Dine-in operations effortlessly across all shifts."
       </p>
       <div className="mt-3 flex items-center gap-2.5">
-        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-primary to-[oklch(0.55_0.22_295)] text-[11px] font-semibold text-white">
-          AV
+        <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-primary to-[oklch(0.55_0.22_295)] text-[10px] font-semibold text-white">
+          AS
         </div>
         <div>
-          <div className="text-[12px] font-medium text-white">Aman Verma</div>
-          <div className="text-[10.5px] text-white/45">VP Operations · Palace Hotels Group</div>
+          <div className="text-[11.5px] font-semibold text-white">Aarav Sharma</div>
+          <div className="text-[10px] text-white/45">Store Owner · Retrod Bistro & Cafe</div>
         </div>
       </div>
-      <Sparkles className="absolute -right-2 -bottom-2 h-20 w-20 text-white/[0.04]" />
+      <Sparkles className="absolute -right-2 -bottom-2 h-16 w-16 text-white/[0.04]" />
     </div>
   );
 }
+
 export default BloombergDashboard;

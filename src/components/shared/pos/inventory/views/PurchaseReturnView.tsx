@@ -1,0 +1,256 @@
+import { useState } from "react";
+import {
+  Plus,
+  Download,
+  Search,
+  Trash2,
+  Eye,
+  SlidersHorizontal,
+  ChevronDown,
+} from "lucide-react";
+import {
+  usePurchaseReturns,
+  useInventoryVendors,
+  useDeletePurchaseReturn,
+} from "@/hooks/queries/usePosInventory";
+import { CreatePurchaseReturnModal } from "../modals/CreatePurchaseReturnModal";
+import { toast } from "sonner";
+
+export function PurchaseReturnView() {
+  const { data: purchaseReturns } = usePurchaseReturns();
+  const { data: vendors } = useInventoryVendors();
+  const deleteMutation = useDeletePurchaseReturn();
+
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [startDate, setStartDate] = useState("2026-08-26");
+  const [endDate, setEndDate] = useState("2026-09-02");
+  const [vendorFilter, setVendorFilter] = useState("All");
+  const [debitNoteFilter, setDebitNoteFilter] = useState("");
+
+  const filteredReturns = (purchaseReturns ?? []).filter((pr) => {
+    if (vendorFilter !== "All" && pr.vendorName !== vendorFilter) return false;
+    if (debitNoteFilter && !pr.debitNoteNo.toLowerCase().includes(debitNoteFilter.toLowerCase())) {
+      return false;
+    }
+    return true;
+  });
+
+  const handleClear = () => {
+    setVendorFilter("All");
+    setDebitNoteFilter("");
+    toast.info("Filters cleared");
+  };
+
+  return (
+    <div className="space-y-4">
+      {/* 1. Header & Actions matching Screenshot 3 */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="text-[18px] font-bold text-slate-900 tracking-tight">Purchase Return List</h2>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setIsCreateOpen(true)}
+            className="flex items-center gap-1.5 rounded-lg bg-teal-600 px-4 py-2 text-[12.5px] font-semibold text-white shadow-2xs hover:bg-teal-700 transition cursor-pointer"
+          >
+            <Plus className="h-4 w-4" />
+            Create New
+          </button>
+
+          <button
+            type="button"
+            onClick={() => toast.success("Exporting purchase returns...")}
+            className="flex items-center gap-1 rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-[12.5px] font-medium text-slate-700 hover:bg-slate-50 transition cursor-pointer"
+          >
+            <Download className="h-4 w-4 text-slate-500" />
+            Export <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => toast.info("Column preferences")}
+            className="rounded-lg border border-slate-300 bg-white p-2 text-slate-600 hover:bg-slate-50 transition cursor-pointer"
+            title="Columns view"
+          >
+            <SlidersHorizontal className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+
+      {/* 2. Filter Bar matching Screenshot 3 */}
+      <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs">
+        <div className="flex flex-wrap items-end gap-3">
+          <div className="w-36">
+            <label className="block text-[11.5px] font-medium text-slate-600 mb-1">
+              Start Date
+            </label>
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-[12.5px] text-slate-800 focus:border-teal-500 focus:outline-none"
+            />
+          </div>
+
+          <div className="w-36">
+            <label className="block text-[11.5px] font-medium text-slate-600 mb-1">
+              End Date
+            </label>
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-[12.5px] text-slate-800 focus:border-teal-500 focus:outline-none"
+            />
+          </div>
+
+          <div className="min-w-[160px]">
+            <label className="block text-[11.5px] font-medium text-slate-600 mb-1">
+              To
+            </label>
+            <select
+              value={vendorFilter}
+              onChange={(e) => setVendorFilter(e.target.value)}
+              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-[12.5px] text-slate-800 focus:border-teal-500 focus:outline-none cursor-pointer"
+            >
+              <option value="All">All</option>
+              {vendors?.map((v) => (
+                <option key={v.id} value={v.name}>{v.name}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="min-w-[150px]">
+            <label className="block text-[11.5px] font-medium text-slate-600 mb-1">
+              Debit Note No.
+            </label>
+            <input
+              type="text"
+              placeholder="Debit note no..."
+              value={debitNoteFilter}
+              onChange={(e) => setDebitNoteFilter(e.target.value)}
+              className="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-[12.5px] text-slate-800 focus:border-teal-500 focus:outline-none"
+            />
+          </div>
+
+          <button
+            type="button"
+            onClick={() => toast.info("More filter options")}
+            className="rounded-lg border border-slate-300 bg-white px-3.5 py-1.5 text-[12.5px] font-medium text-slate-700 hover:bg-slate-50 transition cursor-pointer"
+          >
+            More Filters
+          </button>
+
+          <button
+            type="button"
+            onClick={() => toast.info(`Found ${filteredReturns.length} debit notes`)}
+            className="rounded-lg border border-teal-600 bg-white px-5 py-1.5 text-[12.5px] font-semibold text-teal-600 hover:bg-teal-50 transition cursor-pointer"
+          >
+            Search
+          </button>
+
+          <button
+            type="button"
+            onClick={handleClear}
+            className="rounded-lg border border-slate-300 bg-white px-4 py-1.5 text-[12.5px] font-medium text-slate-700 hover:bg-slate-50 transition cursor-pointer"
+          >
+            Clear
+          </button>
+        </div>
+      </div>
+
+      {/* 3. Empty State or Returns Data Table from Screenshot 3 */}
+      <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-xs min-h-[380px] flex flex-col justify-center">
+        {filteredReturns.length === 0 ? (
+          /* Empty State exactly matching Screenshot 3 */
+          <div className="text-center py-12">
+            <div className="relative mx-auto mb-4 flex h-16 w-16 items-center justify-center">
+              <div className="h-14 w-12 rounded-lg border-2 border-slate-300 bg-slate-50 p-2 shadow-2xs">
+                <div className="h-1 w-full rounded bg-slate-200 mb-1.5" />
+                <div className="h-1 w-3/4 rounded bg-slate-200 mb-1.5" />
+                <div className="h-1 w-1/2 rounded bg-slate-200" />
+              </div>
+              <div className="absolute -bottom-1 -right-1 flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-md border border-slate-200">
+                <Search className="h-4 w-4 text-slate-500" />
+              </div>
+            </div>
+            <h4 className="text-[15px] font-semibold text-slate-800">No Purchase Return Found</h4>
+            <p className="text-[12.5px] text-slate-400 mt-1">
+              Debit notes for returned inventory or damaged stock will appear here.
+            </p>
+            <button
+              type="button"
+              onClick={() => setIsCreateOpen(true)}
+              className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-teal-600 px-4 py-2 text-[13px] font-semibold text-white shadow-sm hover:bg-teal-700 transition cursor-pointer"
+            >
+              <Plus className="h-4 w-4" />
+              Create Purchase Return
+            </button>
+          </div>
+        ) : (
+          /* Returns Table */
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-[13px]">
+              <thead>
+                <tr className="border-b border-slate-200 bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                  <th className="px-4 py-3">Debit Note No</th>
+                  <th className="px-4 py-3">Vendor</th>
+                  <th className="px-4 py-3">Return Date</th>
+                  <th className="px-4 py-3">Reason</th>
+                  <th className="px-4 py-3">Item Count</th>
+                  <th className="px-4 py-3">Amount</th>
+                  <th className="px-4 py-3">Status</th>
+                  <th className="px-4 py-3 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {filteredReturns.map((pr) => (
+                  <tr key={pr.id} className="hover:bg-slate-50/80 transition">
+                    <td className="px-4 py-3 font-bold text-slate-900 font-mono">{pr.debitNoteNo}</td>
+                    <td className="px-4 py-3 font-medium text-slate-800">{pr.vendorName}</td>
+                    <td className="px-4 py-3 text-slate-600">{pr.returnDate}</td>
+                    <td className="px-4 py-3 text-slate-600">{pr.reason}</td>
+                    <td className="px-4 py-3 text-slate-600">{pr.itemCount} Items</td>
+                    <td className="px-4 py-3 font-mono font-bold text-slate-900">
+                      ₹{pr.returnAmount}
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700">
+                        {pr.status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <div className="flex items-center justify-end gap-1.5 text-slate-400">
+                        <button
+                          type="button"
+                          onClick={() => toast.info(`Viewing Debit Note ${pr.debitNoteNo}`)}
+                          className="p-1 hover:text-teal-600 hover:bg-slate-100 rounded transition cursor-pointer"
+                          title="View"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            deleteMutation.mutate(pr.id);
+                            toast.success(`Deleted Debit Note ${pr.debitNoteNo}`);
+                          }}
+                          className="p-1 hover:text-red-600 hover:bg-slate-100 rounded transition cursor-pointer"
+                          title="Delete"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      <CreatePurchaseReturnModal isOpen={isCreateOpen} onClose={() => setIsCreateOpen(false)} />
+    </div>
+  );
+}

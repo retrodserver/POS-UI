@@ -75,9 +75,9 @@
   --radius: 8px;
 
   /* Backgrounds */
-  --background: oklch(0.975 0.038 338);          /* vibrant rose canvas */
-  --surface: oklch(1 0 0);                        /* #FFFFFF */
-  --surface-2: oklch(0.958 0.05 332);            /* richer rose tint */
+  --background: #f6f5f0;                          /* subtle light beige / soft offwhite canvas */
+  --surface: #ffffff;                             /* crisp pure white cards */
+  --surface-2: #eae9e3;                           /* subtle neutral surface */
   --foreground: oklch(0.198 0.022 264);          /* #111827 */
 
   --card: oklch(1 0 0);
@@ -85,27 +85,27 @@
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.198 0.022 264);
 
-  /* Brand Rose #C7346A */
-  --primary: oklch(0.57 0.215 355);
-  --primary-foreground: oklch(1 0 0);
-  --primary-pressed: oklch(0.495 0.22 355);
-  --primary-tint: oklch(0.952 0.06 350);
+  /* Brand Teal #0f766e / #0d9488 */
+  --primary: #0f766e;
+  --primary-foreground: #ffffff;
+  --primary-pressed: #115e59;
+  --primary-tint: #f0fdfa;
 
-  --secondary: oklch(0.955 0.048 332);
-  --secondary-foreground: oklch(0.198 0.022 264);
-  --muted: oklch(0.955 0.048 332);
-  --muted-foreground: oklch(0.5 0.12 328);
-  --accent: oklch(0.94 0.095 312);
-  --accent-foreground: oklch(0.198 0.022 264);
+  --secondary: #f1f5f9;
+  --secondary-foreground: #0f172a;
+  --muted: #f8fafc;
+  --muted-foreground: #64748b;
+  --accent: #f0fdfa;
+  --accent-foreground: #0f766e;
 
-  --destructive: oklch(0.577 0.221 27);          /* #DC2626 */
-  --destructive-foreground: oklch(1 0 0);
+  --destructive: #dc2626;                        /* #DC2626 */
+  --destructive-foreground: #ffffff;
 
-  --border: oklch(0.89 0.06 330);
-  --border-subtle: oklch(0.935 0.04 330);
-  --border-strong: oklch(0.81 0.085 330);
-  --input: oklch(0.89 0.06 330);
-  --ring: oklch(0.555 0.184 357);
+  --border: #cbd5e1;
+  --border-subtle: #e2e8f0;
+  --border-strong: #94a3b8;
+  --input: #cbd5e1;
+  --ring: #0f766e;
 
   /* Semantic */
   --success: oklch(0.66 0.18 152);

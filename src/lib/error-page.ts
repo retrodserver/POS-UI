@@ -12,7 +12,7 @@ export function renderErrorPage(): string {
       p { color: #7a1f4c; margin: 0 0 1.5rem; }
       .actions { display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap; }
       a, button { padding: 0.5rem 1rem; border-radius: 0.375rem; font: inherit; cursor: pointer; text-decoration: none; border: 1px solid transparent; }
-      .primary { background: #c7346a; color: #fff; }
+      .primary { background: #0d9488; color: #fff; }
       .secondary { background: #fff; color: #4f1239; border-color: #f2bfd4; }
     </style>
   </head>
@@ -22,7 +22,7 @@ export function renderErrorPage(): string {
       <p>Something went wrong on our end. You can try refreshing or head back home.</p>
       <div class="actions">
         <button class="primary" onclick="location.reload()">Try again</button>
-        <a class="secondary" href="/">Go home</a>
+        <a class="secondary" href="/pos">Go home</a>
       </div>
     </div>
   </body>

@@ -1,12 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { DashboardFeature } from "@/features/dashboard/components/DashboardFeature";
+import { createFileRoute, Navigate } from "@tanstack/react-router";
 
+/** Root redirects into the POS app (SRS dashboard). */
 export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "Dashboard — Retrod PMS" },
-      { name: "description", content: "Operational heartbeat for The Grand Palace, New Delhi." },
-    ],
-  }),
-  component: DashboardFeature,
+  component: () => <Navigate to="/pos" />,
 });

@@ -1,0 +1,119 @@
+import { useState } from "react";
+import { Search, Calendar, Download, Filter, TrendingDown, ArrowUpRight } from "lucide-react";
+import { toast } from "sonner";
+
+export function SalesConsumptionView() {
+  const [search, setSearch] = useState("");
+  const [selectedDate, setSelectedDate] = useState("2026-09-02");
+
+  const consumptionRecords = [
+    { id: "SC-101", item: "Chicken Breast", category: "Meat", quantity: "14.5 kg", salesVolume: "29 orders", cost: "₹ 4,350", wastage: "0.5 kg" },
+    { id: "SC-102", item: "Paneer (Cottage Cheese)", category: "Dairy", quantity: "8.2 kg", salesVolume: "41 orders", cost: "₹ 2,870", wastage: "0.2 kg" },
+    { id: "SC-103", item: "Basmati Rice", category: "Groceries", quantity: "22.0 kg", salesVolume: "68 orders", cost: "₹ 1,980", wastage: "0.8 kg" },
+    { id: "SC-104", item: "Cooking Oil (Sunflower)", category: "Groceries", quantity: "12.0 L", salesVolume: "105 orders", cost: "₹ 1,680", wastage: "0.1 L" },
+    { id: "SC-105", item: "Sprite Cans (330ml)", category: "Beverages", quantity: "34 units", salesVolume: "34 orders", cost: "₹ 1,020", wastage: "0 units" },
+  ];
+
+  const filtered = consumptionRecords.filter(
+    (r) =>
+      r.item.toLowerCase().includes(search.toLowerCase()) ||
+      r.category.toLowerCase().includes(search.toLowerCase())
+  );
+
+  return (
+    <div className="space-y-4">
+      {/* Top Header Bar */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 className="text-[18px] font-bold text-slate-900 tracking-tight">Sales Consumption</h2>
+          <p className="text-[12.5px] text-slate-500 mt-0.5">
+            Automatic consumption calculated from billed recipes, item sales, and add-ons.
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <input
+            type="date"
+            value={selectedDate}
+            onChange={(e) => setSelectedDate(e.target.value)}
+            className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-[12.5px] font-medium text-slate-800 shadow-2xs focus:border-teal-500 focus:outline-none cursor-pointer"
+          />
+
+          <button
+            type="button"
+            onClick={() => toast.success("Exporting consumption summary to Excel...")}
+            className="flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3.5 py-1.5 text-[12.5px] font-medium text-slate-700 hover:bg-slate-50 transition cursor-pointer"
+          >
+            <Download className="h-3.5 w-3.5 text-slate-500" />
+            Export Excel
+          </button>
+        </div>
+      </div>
+
+      {/* Summary KPI Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-2xs">
+          <div className="text-[12px] font-medium text-slate-500">Total Ingredients Consumed</div>
+          <div className="text-[22px] font-extrabold text-slate-900 mt-1">94.7 kg / L</div>
+          <div className="text-[11px] text-emerald-600 font-semibold mt-0.5">Across 277 customer orders</div>
+        </div>
+        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-2xs">
+          <div className="text-[12px] font-medium text-slate-500">Total Consumption Value</div>
+          <div className="text-[22px] font-extrabold text-teal-600 mt-1">₹ 11,900</div>
+          <div className="text-[11px] text-slate-500 mt-0.5">Calculated at purchase rate</div>
+        </div>
+        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-2xs">
+          <div className="text-[12px] font-medium text-slate-500">Recorded Prep Wastage</div>
+          <div className="text-[22px] font-extrabold text-amber-600 mt-1">1.6 kg</div>
+          <div className="text-[11px] text-slate-500 mt-0.5">1.3% of total consumption</div>
+        </div>
+      </div>
+
+      {/* Table Card */}
+      <div className="rounded-2xl border border-slate-200 bg-white shadow-xs overflow-hidden">
+        <div className="p-4 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3">
+          <div className="relative flex-1 min-w-[240px] max-w-sm">
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400 pointer-events-none" />
+            <input
+              type="text"
+              placeholder="Search raw material or category"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full rounded-lg border border-slate-300 bg-white pl-9 pr-3 py-1.5 text-[12.5px] text-slate-800 focus:border-teal-500 focus:outline-none"
+            />
+          </div>
+          <span className="text-[12px] text-slate-500">{filtered.length} items consumed today</span>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-[13px]">
+            <thead>
+              <tr className="border-b border-slate-200 bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                <th className="px-4 py-3">Code</th>
+                <th className="px-4 py-3">Raw Material</th>
+                <th className="px-4 py-3">Category</th>
+                <th className="px-4 py-3">Quantity Consumed</th>
+                <th className="px-4 py-3">Billed In</th>
+                <th className="px-4 py-3">Cost Value</th>
+                <th className="px-4 py-3">Prep Variance</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {filtered.map((r) => (
+                <tr key={r.id} className="hover:bg-slate-50/60 transition">
+                  <td className="px-4 py-3 font-mono text-[12px] text-slate-500">{r.id}</td>
+                  <td className="px-4 py-3 font-bold text-slate-800">{r.item}</td>
+                  <td className="px-4 py-3 text-slate-600">{r.category}</td>
+                  <td className="px-4 py-3 font-mono font-bold text-slate-900">{r.quantity}</td>
+                  <td className="px-4 py-3 text-slate-600">{r.salesVolume}</td>
+                  <td className="px-4 py-3 font-semibold text-slate-900">{r.cost}</td>
+                  <td className="px-4 py-3 font-mono text-amber-600 text-[12px]">{r.wastage}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}

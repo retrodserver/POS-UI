@@ -9,218 +9,94 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as WebsiteBuilderRouteImport } from './routes/website-builder'
-import { Route as UsersRouteImport } from './routes/users'
-import { Route as TransportRouteImport } from './routes/transport'
-import { Route as TasksRouteImport } from './routes/tasks'
-import { Route as StyleguideRouteImport } from './routes/styleguide'
-import { Route as StaffRouteImport } from './routes/staff'
-import { Route as SettingsRouteImport } from './routes/settings'
-import { Route as ServicesRouteImport } from './routes/services'
-import { Route as SearchRouteImport } from './routes/search'
-import { Route as RoomsRouteImport } from './routes/rooms'
-import { Route as RolesRouteImport } from './routes/roles'
-import { Route as RevenueDrilldownRouteImport } from './routes/revenue-drilldown'
-import { Route as RevenueRouteImport } from './routes/revenue'
-import { Route as ReservationsRouteImport } from './routes/reservations'
-import { Route as ReportsRouteImport } from './routes/reports'
-import { Route as RegistrationCardsRouteImport } from './routes/registration-cards'
-import { Route as PropertyRouteImport } from './routes/property'
-import { Route as PricingRouteImport } from './routes/pricing'
-import { Route as PmsIntegrationsRouteImport } from './routes/pms-integrations'
-import { Route as PaymentsRouteImport } from './routes/payments'
-import { Route as PackagesRouteImport } from './routes/packages'
-import { Route as OtaRouteImport } from './routes/ota'
-import { Route as OnboardingRouteImport } from './routes/onboarding'
-import { Route as NotificationsRouteImport } from './routes/notifications'
-import { Route as MastersRouteImport } from './routes/masters'
-import { Route as MaintenanceRouteImport } from './routes/maintenance'
-import { Route as LoyaltyRouteImport } from './routes/loyalty'
-import { Route as LostFoundRouteImport } from './routes/lost-found'
+import { Route as PosRouteImport } from './routes/pos'
 import { Route as LoginRouteImport } from './routes/login'
-import { Route as LeadsRouteImport } from './routes/leads'
-import { Route as HousekeepingRouteImport } from './routes/housekeeping'
-import { Route as HotelsRouteImport } from './routes/hotels'
-import { Route as GuestsRouteImport } from './routes/guests'
-import { Route as GuestRequestsRouteImport } from './routes/guest-requests'
-import { Route as GroupsRouteImport } from './routes/groups'
-import { Route as FrontDeskRouteImport } from './routes/front-desk'
-import { Route as FeedbackRouteImport } from './routes/feedback'
-import { Route as CorporateRouteImport } from './routes/corporate'
-import { Route as ConciergeRouteImport } from './routes/concierge'
-import { Route as CommunicationsRouteImport } from './routes/communications'
-import { Route as CheckInRouteImport } from './routes/check-in'
-import { Route as ChannelManagerRouteImport } from './routes/channel-manager'
-import { Route as BookingReadinessRouteImport } from './routes/booking-readiness'
-import { Route as BookingEngineRouteImport } from './routes/booking-engine'
-import { Route as BillingRouteImport } from './routes/billing'
-import { Route as AuditRouteImport } from './routes/audit'
-import { Route as AnomalyMonitorRouteImport } from './routes/anomaly-monitor'
-import { Route as AiInsightsRouteImport } from './routes/ai-insights'
-import { Route as AddOnsRouteImport } from './routes/add-ons'
-import { Route as ActivityTimelineRouteImport } from './routes/activity-timeline'
-import { Route as ActivitiesRouteImport } from './routes/activities'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as RevenueAiDashboardRouteImport } from './routes/revenue.ai-dashboard'
-import { Route as ReservationsNewRouteImport } from './routes/reservations.new'
-import { Route as HousekeepingMobileRouteImport } from './routes/housekeeping.mobile'
-import { Route as DashboardMultiPropertyRouteImport } from './routes/dashboard.multi-property'
-import { Route as ChannelManagerSyncLogsRouteImport } from './routes/channel-manager.sync-logs'
-import { Route as ChannelManagerRoomMappingRouteImport } from './routes/channel-manager.room-mapping'
-import { Route as ChannelManagerRoomContentRouteImport } from './routes/channel-manager.room-content'
-import { Route as ChannelManagerRevenueRouteImport } from './routes/channel-manager.revenue'
-import { Route as ChannelManagerRestrictionsRouteImport } from './routes/channel-manager.restrictions'
-import { Route as ChannelManagerReservationsRouteImport } from './routes/channel-manager.reservations'
-import { Route as ChannelManagerRatesRouteImport } from './routes/channel-manager.rates'
-import { Route as ChannelManagerRatePlansRouteImport } from './routes/channel-manager.rate-plans'
-import { Route as ChannelManagerPropertyContentRouteImport } from './routes/channel-manager.property-content'
-import { Route as ChannelManagerMultiPropertyRouteImport } from './routes/channel-manager.multi-property'
-import { Route as ChannelManagerInventoryRouteImport } from './routes/channel-manager.inventory'
-import { Route as ChannelManagerIncidentsRouteImport } from './routes/channel-manager.incidents'
-import { Route as ChannelManagerImagesRouteImport } from './routes/channel-manager.images'
-import { Route as ChannelManagerConnectionsRouteImport } from './routes/channel-manager.connections'
-import { Route as ChannelManagerAvailabilityRouteImport } from './routes/channel-manager.availability'
-import { Route as ChannelManagerAnalyticsRouteImport } from './routes/channel-manager.analytics'
-import { Route as AnalyticsExecutiveRouteImport } from './routes/analytics.executive'
+import { Route as PosTablesRouteImport } from './routes/pos.tables'
+import { Route as PosSettlementRouteImport } from './routes/pos.settlement'
+import { Route as PosSettingsRouteImport } from './routes/pos.settings'
+import { Route as PosRoomServiceRouteImport } from './routes/pos.room-service'
+import { Route as PosReportsRouteImport } from './routes/pos.reports'
+import { Route as PosOrdersRouteImport } from './routes/pos.orders'
+import { Route as PosMenuRouteImport } from './routes/pos.menu'
+import { Route as PosMarketingRouteImport } from './routes/pos.marketing'
+import { Route as PosManagementRouteImport } from './routes/pos.management'
+import { Route as PosKotRouteImport } from './routes/pos.kot'
+import { Route as PosInventoryRouteImport } from './routes/pos.inventory'
+import { Route as PosHelpRouteImport } from './routes/pos.help'
+import { Route as PosCrmRouteImport } from './routes/pos.crm'
+import { Route as PosBillingRouteImport } from './routes/pos.billing'
+import { Route as PosAggregatorsRouteImport } from './routes/pos.aggregators'
+import { Route as PosReportsOtherRouteImport } from './routes/pos.reports.other'
+import { Route as PosReportsNotificationsRouteImport } from './routes/pos.reports.notifications'
+import { Route as PosReportsDeliveryRouteImport } from './routes/pos.reports.delivery'
+import { Route as PosReportsDayEndRouteImport } from './routes/pos.reports.day-end'
+import { Route as PosOrdersOnlineRouteImport } from './routes/pos.orders.online'
+import { Route as PosOrdersAllRouteImport } from './routes/pos.orders.all'
+import { Route as PosMenuSpecialNotesRouteImport } from './routes/pos.menu.special-notes'
+import { Route as PosMenuScheduleRouteImport } from './routes/pos.menu.schedule'
+import { Route as PosMenuPhysicalRouteImport } from './routes/pos.menu.physical'
+import { Route as PosMenuOnOffRouteImport } from './routes/pos.menu.on-off'
+import { Route as PosMenuImagesRouteImport } from './routes/pos.menu.images'
+import { Route as PosMenuCommissionRouteImport } from './routes/pos.menu.commission'
+import { Route as PosManagementDeviceMappingRouteImport } from './routes/pos.management.device-mapping'
+import { Route as PosManagementDataManagementRouteImport } from './routes/pos.management.data-management'
+import { Route as PosManagementAuditTrailRouteImport } from './routes/pos.management.audit-trail'
+import { Route as PosInventoryWastageRouteImport } from './routes/pos.inventory.wastage'
+import { Route as PosInventoryTransferRouteImport } from './routes/pos.inventory.transfer'
+import { Route as PosInventorySettingsRouteImport } from './routes/pos.inventory.settings'
+import { Route as PosInventorySalesReturnRouteImport } from './routes/pos.inventory.sales-return'
+import { Route as PosInventorySalesRouteImport } from './routes/pos.inventory.sales'
+import { Route as PosInventoryReturnRouteImport } from './routes/pos.inventory.return'
+import { Route as PosInventoryReportsRouteImport } from './routes/pos.inventory.reports'
+import { Route as PosInventoryPurchaseRouteImport } from './routes/pos.inventory.purchase'
+import { Route as PosInventoryProductionRouteImport } from './routes/pos.inventory.production'
+import { Route as PosInventoryOrderRouteImport } from './routes/pos.inventory.order'
+import { Route as PosInventoryMastersRouteImport } from './routes/pos.inventory.masters'
+import { Route as PosInventoryClosingStockRouteImport } from './routes/pos.inventory.closing-stock'
+import { Route as PosInventoryAvailableStockRouteImport } from './routes/pos.inventory.available-stock'
+import { Route as PosManagementMarketplaceIndexRouteImport } from './routes/pos.management.marketplace.index'
+import { Route as PosManagementUsersBillerGroupsRouteImport } from './routes/pos.management.users.biller-groups'
+import { Route as PosManagementUsersBillerAppRouteImport } from './routes/pos.management.users.biller-app'
+import { Route as PosManagementUsersAdminManagementRouteImport } from './routes/pos.management.users.admin-management'
+import { Route as PosManagementUsersAdminGroupsRouteImport } from './routes/pos.management.users.admin-groups'
+import { Route as PosManagementOutletKitchenRouteImport } from './routes/pos.management.outlet.kitchen'
+import { Route as PosManagementOutletHoRouteImport } from './routes/pos.management.outlet.ho'
+import { Route as PosManagementMarketplaceSettingsRouteImport } from './routes/pos.management.marketplace.settings'
+import { Route as PosManagementLogsSupportRouteImport } from './routes/pos.management.logs.support'
+import { Route as PosManagementLogsOnlineStoreRouteImport } from './routes/pos.management.logs.online-store'
+import { Route as PosManagementConfigurationSubOrderTypeRouteImport } from './routes/pos.management.configuration.sub-order-type'
+import { Route as PosManagementConfigurationOutletRouteImport } from './routes/pos.management.configuration.outlet'
+import { Route as PosManagementConfigurationFloorPlanRouteImport } from './routes/pos.management.configuration.floor-plan'
+import { Route as PosManagementConfigurationEmailTemplatesRouteImport } from './routes/pos.management.configuration.email-templates'
+import { Route as PosManagementConfigurationDeliveryDistanceRouteImport } from './routes/pos.management.configuration.delivery-distance'
+import { Route as PosManagementConfigurationAreaDeliveryChargesRouteImport } from './routes/pos.management.configuration.area-delivery-charges'
+import { Route as PosManagementAccountingUtilityBillsRouteImport } from './routes/pos.management.accounting.utility-bills'
+import { Route as PosManagementAccountingServicePaymentsRouteImport } from './routes/pos.management.accounting.service-payments'
+import { Route as PosManagementAccountingOnlineReconciliationRouteImport } from './routes/pos.management.accounting.online-reconciliation'
+import { Route as PosManagementAccountingLoansRouteImport } from './routes/pos.management.accounting.loans'
+import { Route as PosManagementAccountingKycRouteImport } from './routes/pos.management.accounting.kyc'
+import { Route as PosManagementAccountingGstRouteImport } from './routes/pos.management.accounting.gst'
+import { Route as PosManagementAccountingExpensesRouteImport } from './routes/pos.management.accounting.expenses'
+import { Route as PosManagementAccountingDenominationRouteImport } from './routes/pos.management.accounting.denomination'
+import { Route as PosManagementAccountingBankDetailsRouteImport } from './routes/pos.management.accounting.bank-details'
+import { Route as PosInventoryReportsStockSummaryRouteImport } from './routes/pos.inventory.reports.stock-summary'
+import { Route as PosInventoryReportsOtherReportsRouteImport } from './routes/pos.inventory.reports.other-reports'
+import { Route as PosInventoryReportsOrderwiseConsumptionRouteImport } from './routes/pos.inventory.reports.orderwise-consumption'
+import { Route as PosInventoryProductionExecutionRouteImport } from './routes/pos.inventory.production.execution'
+import { Route as PosInventoryProductionBarcodeRouteImport } from './routes/pos.inventory.production.barcode'
+import { Route as PosInventoryMastersUnitsRouteImport } from './routes/pos.inventory.masters.units'
+import { Route as PosInventoryMastersSuppliersRouteImport } from './routes/pos.inventory.masters.suppliers'
+import { Route as PosInventoryMastersRecipesRouteImport } from './routes/pos.inventory.masters.recipes'
+import { Route as PosInventoryMastersRawMaterialsRouteImport } from './routes/pos.inventory.masters.raw-materials'
+import { Route as PosInventoryMastersPurchasePaymentsRouteImport } from './routes/pos.inventory.masters.purchase-payments'
+import { Route as PosInventoryMastersInvoiceTemplatesRouteImport } from './routes/pos.inventory.masters.invoice-templates'
+import { Route as PosManagementAccountingPaymentsWalletRouteImport } from './routes/pos.management.accounting.payments.wallet'
+import { Route as PosManagementAccountingPaymentsInformationRouteImport } from './routes/pos.management.accounting.payments.information'
 
-const WebsiteBuilderRoute = WebsiteBuilderRouteImport.update({
-  id: '/website-builder',
-  path: '/website-builder',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const UsersRoute = UsersRouteImport.update({
-  id: '/users',
-  path: '/users',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const TransportRoute = TransportRouteImport.update({
-  id: '/transport',
-  path: '/transport',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const TasksRoute = TasksRouteImport.update({
-  id: '/tasks',
-  path: '/tasks',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const StyleguideRoute = StyleguideRouteImport.update({
-  id: '/styleguide',
-  path: '/styleguide',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const StaffRoute = StaffRouteImport.update({
-  id: '/staff',
-  path: '/staff',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SettingsRoute = SettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ServicesRoute = ServicesRouteImport.update({
-  id: '/services',
-  path: '/services',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SearchRoute = SearchRouteImport.update({
-  id: '/search',
-  path: '/search',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RoomsRoute = RoomsRouteImport.update({
-  id: '/rooms',
-  path: '/rooms',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RolesRoute = RolesRouteImport.update({
-  id: '/roles',
-  path: '/roles',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RevenueDrilldownRoute = RevenueDrilldownRouteImport.update({
-  id: '/revenue-drilldown',
-  path: '/revenue-drilldown',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RevenueRoute = RevenueRouteImport.update({
-  id: '/revenue',
-  path: '/revenue',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ReservationsRoute = ReservationsRouteImport.update({
-  id: '/reservations',
-  path: '/reservations',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ReportsRoute = ReportsRouteImport.update({
-  id: '/reports',
-  path: '/reports',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RegistrationCardsRoute = RegistrationCardsRouteImport.update({
-  id: '/registration-cards',
-  path: '/registration-cards',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PropertyRoute = PropertyRouteImport.update({
-  id: '/property',
-  path: '/property',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PricingRoute = PricingRouteImport.update({
-  id: '/pricing',
-  path: '/pricing',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PmsIntegrationsRoute = PmsIntegrationsRouteImport.update({
-  id: '/pms-integrations',
-  path: '/pms-integrations',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PaymentsRoute = PaymentsRouteImport.update({
-  id: '/payments',
-  path: '/payments',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PackagesRoute = PackagesRouteImport.update({
-  id: '/packages',
-  path: '/packages',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const OtaRoute = OtaRouteImport.update({
-  id: '/ota',
-  path: '/ota',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const OnboardingRoute = OnboardingRouteImport.update({
-  id: '/onboarding',
-  path: '/onboarding',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const NotificationsRoute = NotificationsRouteImport.update({
-  id: '/notifications',
-  path: '/notifications',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MastersRoute = MastersRouteImport.update({
-  id: '/masters',
-  path: '/masters',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MaintenanceRoute = MaintenanceRouteImport.update({
-  id: '/maintenance',
-  path: '/maintenance',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LoyaltyRoute = LoyaltyRouteImport.update({
-  id: '/loyalty',
-  path: '/loyalty',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LostFoundRoute = LostFoundRouteImport.update({
-  id: '/lost-found',
-  path: '/lost-found',
+const PosRoute = PosRouteImport.update({
+  id: '/pos',
+  path: '/pos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -228,942 +104,991 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const LeadsRoute = LeadsRouteImport.update({
-  id: '/leads',
-  path: '/leads',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const HousekeepingRoute = HousekeepingRouteImport.update({
-  id: '/housekeeping',
-  path: '/housekeeping',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const HotelsRoute = HotelsRouteImport.update({
-  id: '/hotels',
-  path: '/hotels',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const GuestsRoute = GuestsRouteImport.update({
-  id: '/guests',
-  path: '/guests',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const GuestRequestsRoute = GuestRequestsRouteImport.update({
-  id: '/guest-requests',
-  path: '/guest-requests',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const GroupsRoute = GroupsRouteImport.update({
-  id: '/groups',
-  path: '/groups',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FrontDeskRoute = FrontDeskRouteImport.update({
-  id: '/front-desk',
-  path: '/front-desk',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FeedbackRoute = FeedbackRouteImport.update({
-  id: '/feedback',
-  path: '/feedback',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CorporateRoute = CorporateRouteImport.update({
-  id: '/corporate',
-  path: '/corporate',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ConciergeRoute = ConciergeRouteImport.update({
-  id: '/concierge',
-  path: '/concierge',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CommunicationsRoute = CommunicationsRouteImport.update({
-  id: '/communications',
-  path: '/communications',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CheckInRoute = CheckInRouteImport.update({
-  id: '/check-in',
-  path: '/check-in',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ChannelManagerRoute = ChannelManagerRouteImport.update({
-  id: '/channel-manager',
-  path: '/channel-manager',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const BookingReadinessRoute = BookingReadinessRouteImport.update({
-  id: '/booking-readiness',
-  path: '/booking-readiness',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const BookingEngineRoute = BookingEngineRouteImport.update({
-  id: '/booking-engine',
-  path: '/booking-engine',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const BillingRoute = BillingRouteImport.update({
-  id: '/billing',
-  path: '/billing',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuditRoute = AuditRouteImport.update({
-  id: '/audit',
-  path: '/audit',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AnomalyMonitorRoute = AnomalyMonitorRouteImport.update({
-  id: '/anomaly-monitor',
-  path: '/anomaly-monitor',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AiInsightsRoute = AiInsightsRouteImport.update({
-  id: '/ai-insights',
-  path: '/ai-insights',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AddOnsRoute = AddOnsRouteImport.update({
-  id: '/add-ons',
-  path: '/add-ons',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ActivityTimelineRoute = ActivityTimelineRouteImport.update({
-  id: '/activity-timeline',
-  path: '/activity-timeline',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ActivitiesRoute = ActivitiesRouteImport.update({
-  id: '/activities',
-  path: '/activities',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const RevenueAiDashboardRoute = RevenueAiDashboardRouteImport.update({
-  id: '/ai-dashboard',
-  path: '/ai-dashboard',
-  getParentRoute: () => RevenueRoute,
+const PosTablesRoute = PosTablesRouteImport.update({
+  id: '/tables',
+  path: '/tables',
+  getParentRoute: () => PosRoute,
 } as any)
-const ReservationsNewRoute = ReservationsNewRouteImport.update({
-  id: '/new',
-  path: '/new',
-  getParentRoute: () => ReservationsRoute,
+const PosSettlementRoute = PosSettlementRouteImport.update({
+  id: '/settlement',
+  path: '/settlement',
+  getParentRoute: () => PosRoute,
 } as any)
-const HousekeepingMobileRoute = HousekeepingMobileRouteImport.update({
-  id: '/mobile',
-  path: '/mobile',
-  getParentRoute: () => HousekeepingRoute,
+const PosSettingsRoute = PosSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => PosRoute,
 } as any)
-const DashboardMultiPropertyRoute = DashboardMultiPropertyRouteImport.update({
-  id: '/dashboard/multi-property',
-  path: '/dashboard/multi-property',
-  getParentRoute: () => rootRouteImport,
+const PosRoomServiceRoute = PosRoomServiceRouteImport.update({
+  id: '/room-service',
+  path: '/room-service',
+  getParentRoute: () => PosRoute,
 } as any)
-const ChannelManagerSyncLogsRoute = ChannelManagerSyncLogsRouteImport.update({
-  id: '/sync-logs',
-  path: '/sync-logs',
-  getParentRoute: () => ChannelManagerRoute,
+const PosReportsRoute = PosReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => PosRoute,
 } as any)
-const ChannelManagerRoomMappingRoute =
-  ChannelManagerRoomMappingRouteImport.update({
-    id: '/room-mapping',
-    path: '/room-mapping',
-    getParentRoute: () => ChannelManagerRoute,
-  } as any)
-const ChannelManagerRoomContentRoute =
-  ChannelManagerRoomContentRouteImport.update({
-    id: '/room-content',
-    path: '/room-content',
-    getParentRoute: () => ChannelManagerRoute,
-  } as any)
-const ChannelManagerRevenueRoute = ChannelManagerRevenueRouteImport.update({
-  id: '/revenue',
-  path: '/revenue',
-  getParentRoute: () => ChannelManagerRoute,
+const PosOrdersRoute = PosOrdersRouteImport.update({
+  id: '/orders',
+  path: '/orders',
+  getParentRoute: () => PosRoute,
 } as any)
-const ChannelManagerRestrictionsRoute =
-  ChannelManagerRestrictionsRouteImport.update({
-    id: '/restrictions',
-    path: '/restrictions',
-    getParentRoute: () => ChannelManagerRoute,
-  } as any)
-const ChannelManagerReservationsRoute =
-  ChannelManagerReservationsRouteImport.update({
-    id: '/reservations',
-    path: '/reservations',
-    getParentRoute: () => ChannelManagerRoute,
-  } as any)
-const ChannelManagerRatesRoute = ChannelManagerRatesRouteImport.update({
-  id: '/rates',
-  path: '/rates',
-  getParentRoute: () => ChannelManagerRoute,
+const PosMenuRoute = PosMenuRouteImport.update({
+  id: '/menu',
+  path: '/menu',
+  getParentRoute: () => PosRoute,
 } as any)
-const ChannelManagerRatePlansRoute = ChannelManagerRatePlansRouteImport.update({
-  id: '/rate-plans',
-  path: '/rate-plans',
-  getParentRoute: () => ChannelManagerRoute,
+const PosMarketingRoute = PosMarketingRouteImport.update({
+  id: '/marketing',
+  path: '/marketing',
+  getParentRoute: () => PosRoute,
 } as any)
-const ChannelManagerPropertyContentRoute =
-  ChannelManagerPropertyContentRouteImport.update({
-    id: '/property-content',
-    path: '/property-content',
-    getParentRoute: () => ChannelManagerRoute,
-  } as any)
-const ChannelManagerMultiPropertyRoute =
-  ChannelManagerMultiPropertyRouteImport.update({
-    id: '/multi-property',
-    path: '/multi-property',
-    getParentRoute: () => ChannelManagerRoute,
-  } as any)
-const ChannelManagerInventoryRoute = ChannelManagerInventoryRouteImport.update({
+const PosManagementRoute = PosManagementRouteImport.update({
+  id: '/management',
+  path: '/management',
+  getParentRoute: () => PosRoute,
+} as any)
+const PosKotRoute = PosKotRouteImport.update({
+  id: '/kot',
+  path: '/kot',
+  getParentRoute: () => PosRoute,
+} as any)
+const PosInventoryRoute = PosInventoryRouteImport.update({
   id: '/inventory',
   path: '/inventory',
-  getParentRoute: () => ChannelManagerRoute,
+  getParentRoute: () => PosRoute,
 } as any)
-const ChannelManagerIncidentsRoute = ChannelManagerIncidentsRouteImport.update({
-  id: '/incidents',
-  path: '/incidents',
-  getParentRoute: () => ChannelManagerRoute,
+const PosHelpRoute = PosHelpRouteImport.update({
+  id: '/help',
+  path: '/help',
+  getParentRoute: () => PosRoute,
 } as any)
-const ChannelManagerImagesRoute = ChannelManagerImagesRouteImport.update({
+const PosCrmRoute = PosCrmRouteImport.update({
+  id: '/crm',
+  path: '/crm',
+  getParentRoute: () => PosRoute,
+} as any)
+const PosBillingRoute = PosBillingRouteImport.update({
+  id: '/billing',
+  path: '/billing',
+  getParentRoute: () => PosRoute,
+} as any)
+const PosAggregatorsRoute = PosAggregatorsRouteImport.update({
+  id: '/aggregators',
+  path: '/aggregators',
+  getParentRoute: () => PosRoute,
+} as any)
+const PosReportsOtherRoute = PosReportsOtherRouteImport.update({
+  id: '/other',
+  path: '/other',
+  getParentRoute: () => PosReportsRoute,
+} as any)
+const PosReportsNotificationsRoute = PosReportsNotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => PosReportsRoute,
+} as any)
+const PosReportsDeliveryRoute = PosReportsDeliveryRouteImport.update({
+  id: '/delivery',
+  path: '/delivery',
+  getParentRoute: () => PosReportsRoute,
+} as any)
+const PosReportsDayEndRoute = PosReportsDayEndRouteImport.update({
+  id: '/day-end',
+  path: '/day-end',
+  getParentRoute: () => PosReportsRoute,
+} as any)
+const PosOrdersOnlineRoute = PosOrdersOnlineRouteImport.update({
+  id: '/online',
+  path: '/online',
+  getParentRoute: () => PosOrdersRoute,
+} as any)
+const PosOrdersAllRoute = PosOrdersAllRouteImport.update({
+  id: '/all',
+  path: '/all',
+  getParentRoute: () => PosOrdersRoute,
+} as any)
+const PosMenuSpecialNotesRoute = PosMenuSpecialNotesRouteImport.update({
+  id: '/special-notes',
+  path: '/special-notes',
+  getParentRoute: () => PosMenuRoute,
+} as any)
+const PosMenuScheduleRoute = PosMenuScheduleRouteImport.update({
+  id: '/schedule',
+  path: '/schedule',
+  getParentRoute: () => PosMenuRoute,
+} as any)
+const PosMenuPhysicalRoute = PosMenuPhysicalRouteImport.update({
+  id: '/physical',
+  path: '/physical',
+  getParentRoute: () => PosMenuRoute,
+} as any)
+const PosMenuOnOffRoute = PosMenuOnOffRouteImport.update({
+  id: '/on-off',
+  path: '/on-off',
+  getParentRoute: () => PosMenuRoute,
+} as any)
+const PosMenuImagesRoute = PosMenuImagesRouteImport.update({
   id: '/images',
   path: '/images',
-  getParentRoute: () => ChannelManagerRoute,
+  getParentRoute: () => PosMenuRoute,
 } as any)
-const ChannelManagerConnectionsRoute =
-  ChannelManagerConnectionsRouteImport.update({
-    id: '/connections',
-    path: '/connections',
-    getParentRoute: () => ChannelManagerRoute,
+const PosMenuCommissionRoute = PosMenuCommissionRouteImport.update({
+  id: '/commission',
+  path: '/commission',
+  getParentRoute: () => PosMenuRoute,
+} as any)
+const PosManagementDeviceMappingRoute =
+  PosManagementDeviceMappingRouteImport.update({
+    id: '/device-mapping',
+    path: '/device-mapping',
+    getParentRoute: () => PosManagementRoute,
   } as any)
-const ChannelManagerAvailabilityRoute =
-  ChannelManagerAvailabilityRouteImport.update({
-    id: '/availability',
-    path: '/availability',
-    getParentRoute: () => ChannelManagerRoute,
+const PosManagementDataManagementRoute =
+  PosManagementDataManagementRouteImport.update({
+    id: '/data-management',
+    path: '/data-management',
+    getParentRoute: () => PosManagementRoute,
   } as any)
-const ChannelManagerAnalyticsRoute = ChannelManagerAnalyticsRouteImport.update({
-  id: '/analytics',
-  path: '/analytics',
-  getParentRoute: () => ChannelManagerRoute,
+const PosManagementAuditTrailRoute = PosManagementAuditTrailRouteImport.update({
+  id: '/audit-trail',
+  path: '/audit-trail',
+  getParentRoute: () => PosManagementRoute,
 } as any)
-const AnalyticsExecutiveRoute = AnalyticsExecutiveRouteImport.update({
-  id: '/analytics/executive',
-  path: '/analytics/executive',
-  getParentRoute: () => rootRouteImport,
+const PosInventoryWastageRoute = PosInventoryWastageRouteImport.update({
+  id: '/wastage',
+  path: '/wastage',
+  getParentRoute: () => PosInventoryRoute,
 } as any)
+const PosInventoryTransferRoute = PosInventoryTransferRouteImport.update({
+  id: '/transfer',
+  path: '/transfer',
+  getParentRoute: () => PosInventoryRoute,
+} as any)
+const PosInventorySettingsRoute = PosInventorySettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => PosInventoryRoute,
+} as any)
+const PosInventorySalesReturnRoute = PosInventorySalesReturnRouteImport.update({
+  id: '/sales-return',
+  path: '/sales-return',
+  getParentRoute: () => PosInventoryRoute,
+} as any)
+const PosInventorySalesRoute = PosInventorySalesRouteImport.update({
+  id: '/sales',
+  path: '/sales',
+  getParentRoute: () => PosInventoryRoute,
+} as any)
+const PosInventoryReturnRoute = PosInventoryReturnRouteImport.update({
+  id: '/return',
+  path: '/return',
+  getParentRoute: () => PosInventoryRoute,
+} as any)
+const PosInventoryReportsRoute = PosInventoryReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => PosInventoryRoute,
+} as any)
+const PosInventoryPurchaseRoute = PosInventoryPurchaseRouteImport.update({
+  id: '/purchase',
+  path: '/purchase',
+  getParentRoute: () => PosInventoryRoute,
+} as any)
+const PosInventoryProductionRoute = PosInventoryProductionRouteImport.update({
+  id: '/production',
+  path: '/production',
+  getParentRoute: () => PosInventoryRoute,
+} as any)
+const PosInventoryOrderRoute = PosInventoryOrderRouteImport.update({
+  id: '/order',
+  path: '/order',
+  getParentRoute: () => PosInventoryRoute,
+} as any)
+const PosInventoryMastersRoute = PosInventoryMastersRouteImport.update({
+  id: '/masters',
+  path: '/masters',
+  getParentRoute: () => PosInventoryRoute,
+} as any)
+const PosInventoryClosingStockRoute =
+  PosInventoryClosingStockRouteImport.update({
+    id: '/closing-stock',
+    path: '/closing-stock',
+    getParentRoute: () => PosInventoryRoute,
+  } as any)
+const PosInventoryAvailableStockRoute =
+  PosInventoryAvailableStockRouteImport.update({
+    id: '/available-stock',
+    path: '/available-stock',
+    getParentRoute: () => PosInventoryRoute,
+  } as any)
+const PosManagementMarketplaceIndexRoute =
+  PosManagementMarketplaceIndexRouteImport.update({
+    id: '/marketplace/',
+    path: '/marketplace/',
+    getParentRoute: () => PosManagementRoute,
+  } as any)
+const PosManagementUsersBillerGroupsRoute =
+  PosManagementUsersBillerGroupsRouteImport.update({
+    id: '/users/biller-groups',
+    path: '/users/biller-groups',
+    getParentRoute: () => PosManagementRoute,
+  } as any)
+const PosManagementUsersBillerAppRoute =
+  PosManagementUsersBillerAppRouteImport.update({
+    id: '/users/biller-app',
+    path: '/users/biller-app',
+    getParentRoute: () => PosManagementRoute,
+  } as any)
+const PosManagementUsersAdminManagementRoute =
+  PosManagementUsersAdminManagementRouteImport.update({
+    id: '/users/admin-management',
+    path: '/users/admin-management',
+    getParentRoute: () => PosManagementRoute,
+  } as any)
+const PosManagementUsersAdminGroupsRoute =
+  PosManagementUsersAdminGroupsRouteImport.update({
+    id: '/users/admin-groups',
+    path: '/users/admin-groups',
+    getParentRoute: () => PosManagementRoute,
+  } as any)
+const PosManagementOutletKitchenRoute =
+  PosManagementOutletKitchenRouteImport.update({
+    id: '/outlet/kitchen',
+    path: '/outlet/kitchen',
+    getParentRoute: () => PosManagementRoute,
+  } as any)
+const PosManagementOutletHoRoute = PosManagementOutletHoRouteImport.update({
+  id: '/outlet/ho',
+  path: '/outlet/ho',
+  getParentRoute: () => PosManagementRoute,
+} as any)
+const PosManagementMarketplaceSettingsRoute =
+  PosManagementMarketplaceSettingsRouteImport.update({
+    id: '/marketplace/settings',
+    path: '/marketplace/settings',
+    getParentRoute: () => PosManagementRoute,
+  } as any)
+const PosManagementLogsSupportRoute =
+  PosManagementLogsSupportRouteImport.update({
+    id: '/logs/support',
+    path: '/logs/support',
+    getParentRoute: () => PosManagementRoute,
+  } as any)
+const PosManagementLogsOnlineStoreRoute =
+  PosManagementLogsOnlineStoreRouteImport.update({
+    id: '/logs/online-store',
+    path: '/logs/online-store',
+    getParentRoute: () => PosManagementRoute,
+  } as any)
+const PosManagementConfigurationSubOrderTypeRoute =
+  PosManagementConfigurationSubOrderTypeRouteImport.update({
+    id: '/configuration/sub-order-type',
+    path: '/configuration/sub-order-type',
+    getParentRoute: () => PosManagementRoute,
+  } as any)
+const PosManagementConfigurationOutletRoute =
+  PosManagementConfigurationOutletRouteImport.update({
+    id: '/configuration/outlet',
+    path: '/configuration/outlet',
+    getParentRoute: () => PosManagementRoute,
+  } as any)
+const PosManagementConfigurationFloorPlanRoute =
+  PosManagementConfigurationFloorPlanRouteImport.update({
+    id: '/configuration/floor-plan',
+    path: '/configuration/floor-plan',
+    getParentRoute: () => PosManagementRoute,
+  } as any)
+const PosManagementConfigurationEmailTemplatesRoute =
+  PosManagementConfigurationEmailTemplatesRouteImport.update({
+    id: '/configuration/email-templates',
+    path: '/configuration/email-templates',
+    getParentRoute: () => PosManagementRoute,
+  } as any)
+const PosManagementConfigurationDeliveryDistanceRoute =
+  PosManagementConfigurationDeliveryDistanceRouteImport.update({
+    id: '/configuration/delivery-distance',
+    path: '/configuration/delivery-distance',
+    getParentRoute: () => PosManagementRoute,
+  } as any)
+const PosManagementConfigurationAreaDeliveryChargesRoute =
+  PosManagementConfigurationAreaDeliveryChargesRouteImport.update({
+    id: '/configuration/area-delivery-charges',
+    path: '/configuration/area-delivery-charges',
+    getParentRoute: () => PosManagementRoute,
+  } as any)
+const PosManagementAccountingUtilityBillsRoute =
+  PosManagementAccountingUtilityBillsRouteImport.update({
+    id: '/accounting/utility-bills',
+    path: '/accounting/utility-bills',
+    getParentRoute: () => PosManagementRoute,
+  } as any)
+const PosManagementAccountingServicePaymentsRoute =
+  PosManagementAccountingServicePaymentsRouteImport.update({
+    id: '/accounting/service-payments',
+    path: '/accounting/service-payments',
+    getParentRoute: () => PosManagementRoute,
+  } as any)
+const PosManagementAccountingOnlineReconciliationRoute =
+  PosManagementAccountingOnlineReconciliationRouteImport.update({
+    id: '/accounting/online-reconciliation',
+    path: '/accounting/online-reconciliation',
+    getParentRoute: () => PosManagementRoute,
+  } as any)
+const PosManagementAccountingLoansRoute =
+  PosManagementAccountingLoansRouteImport.update({
+    id: '/accounting/loans',
+    path: '/accounting/loans',
+    getParentRoute: () => PosManagementRoute,
+  } as any)
+const PosManagementAccountingKycRoute =
+  PosManagementAccountingKycRouteImport.update({
+    id: '/accounting/kyc',
+    path: '/accounting/kyc',
+    getParentRoute: () => PosManagementRoute,
+  } as any)
+const PosManagementAccountingGstRoute =
+  PosManagementAccountingGstRouteImport.update({
+    id: '/accounting/gst',
+    path: '/accounting/gst',
+    getParentRoute: () => PosManagementRoute,
+  } as any)
+const PosManagementAccountingExpensesRoute =
+  PosManagementAccountingExpensesRouteImport.update({
+    id: '/accounting/expenses',
+    path: '/accounting/expenses',
+    getParentRoute: () => PosManagementRoute,
+  } as any)
+const PosManagementAccountingDenominationRoute =
+  PosManagementAccountingDenominationRouteImport.update({
+    id: '/accounting/denomination',
+    path: '/accounting/denomination',
+    getParentRoute: () => PosManagementRoute,
+  } as any)
+const PosManagementAccountingBankDetailsRoute =
+  PosManagementAccountingBankDetailsRouteImport.update({
+    id: '/accounting/bank-details',
+    path: '/accounting/bank-details',
+    getParentRoute: () => PosManagementRoute,
+  } as any)
+const PosInventoryReportsStockSummaryRoute =
+  PosInventoryReportsStockSummaryRouteImport.update({
+    id: '/stock-summary',
+    path: '/stock-summary',
+    getParentRoute: () => PosInventoryReportsRoute,
+  } as any)
+const PosInventoryReportsOtherReportsRoute =
+  PosInventoryReportsOtherReportsRouteImport.update({
+    id: '/other-reports',
+    path: '/other-reports',
+    getParentRoute: () => PosInventoryReportsRoute,
+  } as any)
+const PosInventoryReportsOrderwiseConsumptionRoute =
+  PosInventoryReportsOrderwiseConsumptionRouteImport.update({
+    id: '/orderwise-consumption',
+    path: '/orderwise-consumption',
+    getParentRoute: () => PosInventoryReportsRoute,
+  } as any)
+const PosInventoryProductionExecutionRoute =
+  PosInventoryProductionExecutionRouteImport.update({
+    id: '/execution',
+    path: '/execution',
+    getParentRoute: () => PosInventoryProductionRoute,
+  } as any)
+const PosInventoryProductionBarcodeRoute =
+  PosInventoryProductionBarcodeRouteImport.update({
+    id: '/barcode',
+    path: '/barcode',
+    getParentRoute: () => PosInventoryProductionRoute,
+  } as any)
+const PosInventoryMastersUnitsRoute =
+  PosInventoryMastersUnitsRouteImport.update({
+    id: '/units',
+    path: '/units',
+    getParentRoute: () => PosInventoryMastersRoute,
+  } as any)
+const PosInventoryMastersSuppliersRoute =
+  PosInventoryMastersSuppliersRouteImport.update({
+    id: '/suppliers',
+    path: '/suppliers',
+    getParentRoute: () => PosInventoryMastersRoute,
+  } as any)
+const PosInventoryMastersRecipesRoute =
+  PosInventoryMastersRecipesRouteImport.update({
+    id: '/recipes',
+    path: '/recipes',
+    getParentRoute: () => PosInventoryMastersRoute,
+  } as any)
+const PosInventoryMastersRawMaterialsRoute =
+  PosInventoryMastersRawMaterialsRouteImport.update({
+    id: '/raw-materials',
+    path: '/raw-materials',
+    getParentRoute: () => PosInventoryMastersRoute,
+  } as any)
+const PosInventoryMastersPurchasePaymentsRoute =
+  PosInventoryMastersPurchasePaymentsRouteImport.update({
+    id: '/purchase-payments',
+    path: '/purchase-payments',
+    getParentRoute: () => PosInventoryMastersRoute,
+  } as any)
+const PosInventoryMastersInvoiceTemplatesRoute =
+  PosInventoryMastersInvoiceTemplatesRouteImport.update({
+    id: '/invoice-templates',
+    path: '/invoice-templates',
+    getParentRoute: () => PosInventoryMastersRoute,
+  } as any)
+const PosManagementAccountingPaymentsWalletRoute =
+  PosManagementAccountingPaymentsWalletRouteImport.update({
+    id: '/accounting/payments/wallet',
+    path: '/accounting/payments/wallet',
+    getParentRoute: () => PosManagementRoute,
+  } as any)
+const PosManagementAccountingPaymentsInformationRoute =
+  PosManagementAccountingPaymentsInformationRouteImport.update({
+    id: '/accounting/payments/information',
+    path: '/accounting/payments/information',
+    getParentRoute: () => PosManagementRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/activities': typeof ActivitiesRoute
-  '/activity-timeline': typeof ActivityTimelineRoute
-  '/add-ons': typeof AddOnsRoute
-  '/ai-insights': typeof AiInsightsRoute
-  '/anomaly-monitor': typeof AnomalyMonitorRoute
-  '/audit': typeof AuditRoute
-  '/billing': typeof BillingRoute
-  '/booking-engine': typeof BookingEngineRoute
-  '/booking-readiness': typeof BookingReadinessRoute
-  '/channel-manager': typeof ChannelManagerRouteWithChildren
-  '/check-in': typeof CheckInRoute
-  '/communications': typeof CommunicationsRoute
-  '/concierge': typeof ConciergeRoute
-  '/corporate': typeof CorporateRoute
-  '/feedback': typeof FeedbackRoute
-  '/front-desk': typeof FrontDeskRoute
-  '/groups': typeof GroupsRoute
-  '/guest-requests': typeof GuestRequestsRoute
-  '/guests': typeof GuestsRoute
-  '/hotels': typeof HotelsRoute
-  '/housekeeping': typeof HousekeepingRouteWithChildren
-  '/leads': typeof LeadsRoute
   '/login': typeof LoginRoute
-  '/lost-found': typeof LostFoundRoute
-  '/loyalty': typeof LoyaltyRoute
-  '/maintenance': typeof MaintenanceRoute
-  '/masters': typeof MastersRoute
-  '/notifications': typeof NotificationsRoute
-  '/onboarding': typeof OnboardingRoute
-  '/ota': typeof OtaRoute
-  '/packages': typeof PackagesRoute
-  '/payments': typeof PaymentsRoute
-  '/pms-integrations': typeof PmsIntegrationsRoute
-  '/pricing': typeof PricingRoute
-  '/property': typeof PropertyRoute
-  '/registration-cards': typeof RegistrationCardsRoute
-  '/reports': typeof ReportsRoute
-  '/reservations': typeof ReservationsRouteWithChildren
-  '/revenue': typeof RevenueRouteWithChildren
-  '/revenue-drilldown': typeof RevenueDrilldownRoute
-  '/roles': typeof RolesRoute
-  '/rooms': typeof RoomsRoute
-  '/search': typeof SearchRoute
-  '/services': typeof ServicesRoute
-  '/settings': typeof SettingsRoute
-  '/staff': typeof StaffRoute
-  '/styleguide': typeof StyleguideRoute
-  '/tasks': typeof TasksRoute
-  '/transport': typeof TransportRoute
-  '/users': typeof UsersRoute
-  '/website-builder': typeof WebsiteBuilderRoute
-  '/analytics/executive': typeof AnalyticsExecutiveRoute
-  '/channel-manager/analytics': typeof ChannelManagerAnalyticsRoute
-  '/channel-manager/availability': typeof ChannelManagerAvailabilityRoute
-  '/channel-manager/connections': typeof ChannelManagerConnectionsRoute
-  '/channel-manager/images': typeof ChannelManagerImagesRoute
-  '/channel-manager/incidents': typeof ChannelManagerIncidentsRoute
-  '/channel-manager/inventory': typeof ChannelManagerInventoryRoute
-  '/channel-manager/multi-property': typeof ChannelManagerMultiPropertyRoute
-  '/channel-manager/property-content': typeof ChannelManagerPropertyContentRoute
-  '/channel-manager/rate-plans': typeof ChannelManagerRatePlansRoute
-  '/channel-manager/rates': typeof ChannelManagerRatesRoute
-  '/channel-manager/reservations': typeof ChannelManagerReservationsRoute
-  '/channel-manager/restrictions': typeof ChannelManagerRestrictionsRoute
-  '/channel-manager/revenue': typeof ChannelManagerRevenueRoute
-  '/channel-manager/room-content': typeof ChannelManagerRoomContentRoute
-  '/channel-manager/room-mapping': typeof ChannelManagerRoomMappingRoute
-  '/channel-manager/sync-logs': typeof ChannelManagerSyncLogsRoute
-  '/dashboard/multi-property': typeof DashboardMultiPropertyRoute
-  '/housekeeping/mobile': typeof HousekeepingMobileRoute
-  '/reservations/new': typeof ReservationsNewRoute
-  '/revenue/ai-dashboard': typeof RevenueAiDashboardRoute
+  '/pos': typeof PosRouteWithChildren
+  '/pos/aggregators': typeof PosAggregatorsRoute
+  '/pos/billing': typeof PosBillingRoute
+  '/pos/crm': typeof PosCrmRoute
+  '/pos/help': typeof PosHelpRoute
+  '/pos/inventory': typeof PosInventoryRouteWithChildren
+  '/pos/kot': typeof PosKotRoute
+  '/pos/management': typeof PosManagementRouteWithChildren
+  '/pos/marketing': typeof PosMarketingRoute
+  '/pos/menu': typeof PosMenuRouteWithChildren
+  '/pos/orders': typeof PosOrdersRouteWithChildren
+  '/pos/reports': typeof PosReportsRouteWithChildren
+  '/pos/room-service': typeof PosRoomServiceRoute
+  '/pos/settings': typeof PosSettingsRoute
+  '/pos/settlement': typeof PosSettlementRoute
+  '/pos/tables': typeof PosTablesRoute
+  '/pos/inventory/available-stock': typeof PosInventoryAvailableStockRoute
+  '/pos/inventory/closing-stock': typeof PosInventoryClosingStockRoute
+  '/pos/inventory/masters': typeof PosInventoryMastersRouteWithChildren
+  '/pos/inventory/order': typeof PosInventoryOrderRoute
+  '/pos/inventory/production': typeof PosInventoryProductionRouteWithChildren
+  '/pos/inventory/purchase': typeof PosInventoryPurchaseRoute
+  '/pos/inventory/reports': typeof PosInventoryReportsRouteWithChildren
+  '/pos/inventory/return': typeof PosInventoryReturnRoute
+  '/pos/inventory/sales': typeof PosInventorySalesRoute
+  '/pos/inventory/sales-return': typeof PosInventorySalesReturnRoute
+  '/pos/inventory/settings': typeof PosInventorySettingsRoute
+  '/pos/inventory/transfer': typeof PosInventoryTransferRoute
+  '/pos/inventory/wastage': typeof PosInventoryWastageRoute
+  '/pos/management/audit-trail': typeof PosManagementAuditTrailRoute
+  '/pos/management/data-management': typeof PosManagementDataManagementRoute
+  '/pos/management/device-mapping': typeof PosManagementDeviceMappingRoute
+  '/pos/menu/commission': typeof PosMenuCommissionRoute
+  '/pos/menu/images': typeof PosMenuImagesRoute
+  '/pos/menu/on-off': typeof PosMenuOnOffRoute
+  '/pos/menu/physical': typeof PosMenuPhysicalRoute
+  '/pos/menu/schedule': typeof PosMenuScheduleRoute
+  '/pos/menu/special-notes': typeof PosMenuSpecialNotesRoute
+  '/pos/orders/all': typeof PosOrdersAllRoute
+  '/pos/orders/online': typeof PosOrdersOnlineRoute
+  '/pos/reports/day-end': typeof PosReportsDayEndRoute
+  '/pos/reports/delivery': typeof PosReportsDeliveryRoute
+  '/pos/reports/notifications': typeof PosReportsNotificationsRoute
+  '/pos/reports/other': typeof PosReportsOtherRoute
+  '/pos/inventory/masters/invoice-templates': typeof PosInventoryMastersInvoiceTemplatesRoute
+  '/pos/inventory/masters/purchase-payments': typeof PosInventoryMastersPurchasePaymentsRoute
+  '/pos/inventory/masters/raw-materials': typeof PosInventoryMastersRawMaterialsRoute
+  '/pos/inventory/masters/recipes': typeof PosInventoryMastersRecipesRoute
+  '/pos/inventory/masters/suppliers': typeof PosInventoryMastersSuppliersRoute
+  '/pos/inventory/masters/units': typeof PosInventoryMastersUnitsRoute
+  '/pos/inventory/production/barcode': typeof PosInventoryProductionBarcodeRoute
+  '/pos/inventory/production/execution': typeof PosInventoryProductionExecutionRoute
+  '/pos/inventory/reports/orderwise-consumption': typeof PosInventoryReportsOrderwiseConsumptionRoute
+  '/pos/inventory/reports/other-reports': typeof PosInventoryReportsOtherReportsRoute
+  '/pos/inventory/reports/stock-summary': typeof PosInventoryReportsStockSummaryRoute
+  '/pos/management/accounting/bank-details': typeof PosManagementAccountingBankDetailsRoute
+  '/pos/management/accounting/denomination': typeof PosManagementAccountingDenominationRoute
+  '/pos/management/accounting/expenses': typeof PosManagementAccountingExpensesRoute
+  '/pos/management/accounting/gst': typeof PosManagementAccountingGstRoute
+  '/pos/management/accounting/kyc': typeof PosManagementAccountingKycRoute
+  '/pos/management/accounting/loans': typeof PosManagementAccountingLoansRoute
+  '/pos/management/accounting/online-reconciliation': typeof PosManagementAccountingOnlineReconciliationRoute
+  '/pos/management/accounting/service-payments': typeof PosManagementAccountingServicePaymentsRoute
+  '/pos/management/accounting/utility-bills': typeof PosManagementAccountingUtilityBillsRoute
+  '/pos/management/configuration/area-delivery-charges': typeof PosManagementConfigurationAreaDeliveryChargesRoute
+  '/pos/management/configuration/delivery-distance': typeof PosManagementConfigurationDeliveryDistanceRoute
+  '/pos/management/configuration/email-templates': typeof PosManagementConfigurationEmailTemplatesRoute
+  '/pos/management/configuration/floor-plan': typeof PosManagementConfigurationFloorPlanRoute
+  '/pos/management/configuration/outlet': typeof PosManagementConfigurationOutletRoute
+  '/pos/management/configuration/sub-order-type': typeof PosManagementConfigurationSubOrderTypeRoute
+  '/pos/management/logs/online-store': typeof PosManagementLogsOnlineStoreRoute
+  '/pos/management/logs/support': typeof PosManagementLogsSupportRoute
+  '/pos/management/marketplace/settings': typeof PosManagementMarketplaceSettingsRoute
+  '/pos/management/outlet/ho': typeof PosManagementOutletHoRoute
+  '/pos/management/outlet/kitchen': typeof PosManagementOutletKitchenRoute
+  '/pos/management/users/admin-groups': typeof PosManagementUsersAdminGroupsRoute
+  '/pos/management/users/admin-management': typeof PosManagementUsersAdminManagementRoute
+  '/pos/management/users/biller-app': typeof PosManagementUsersBillerAppRoute
+  '/pos/management/users/biller-groups': typeof PosManagementUsersBillerGroupsRoute
+  '/pos/management/marketplace/': typeof PosManagementMarketplaceIndexRoute
+  '/pos/management/accounting/payments/information': typeof PosManagementAccountingPaymentsInformationRoute
+  '/pos/management/accounting/payments/wallet': typeof PosManagementAccountingPaymentsWalletRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/activities': typeof ActivitiesRoute
-  '/activity-timeline': typeof ActivityTimelineRoute
-  '/add-ons': typeof AddOnsRoute
-  '/ai-insights': typeof AiInsightsRoute
-  '/anomaly-monitor': typeof AnomalyMonitorRoute
-  '/audit': typeof AuditRoute
-  '/billing': typeof BillingRoute
-  '/booking-engine': typeof BookingEngineRoute
-  '/booking-readiness': typeof BookingReadinessRoute
-  '/channel-manager': typeof ChannelManagerRouteWithChildren
-  '/check-in': typeof CheckInRoute
-  '/communications': typeof CommunicationsRoute
-  '/concierge': typeof ConciergeRoute
-  '/corporate': typeof CorporateRoute
-  '/feedback': typeof FeedbackRoute
-  '/front-desk': typeof FrontDeskRoute
-  '/groups': typeof GroupsRoute
-  '/guest-requests': typeof GuestRequestsRoute
-  '/guests': typeof GuestsRoute
-  '/hotels': typeof HotelsRoute
-  '/housekeeping': typeof HousekeepingRouteWithChildren
-  '/leads': typeof LeadsRoute
   '/login': typeof LoginRoute
-  '/lost-found': typeof LostFoundRoute
-  '/loyalty': typeof LoyaltyRoute
-  '/maintenance': typeof MaintenanceRoute
-  '/masters': typeof MastersRoute
-  '/notifications': typeof NotificationsRoute
-  '/onboarding': typeof OnboardingRoute
-  '/ota': typeof OtaRoute
-  '/packages': typeof PackagesRoute
-  '/payments': typeof PaymentsRoute
-  '/pms-integrations': typeof PmsIntegrationsRoute
-  '/pricing': typeof PricingRoute
-  '/property': typeof PropertyRoute
-  '/registration-cards': typeof RegistrationCardsRoute
-  '/reports': typeof ReportsRoute
-  '/reservations': typeof ReservationsRouteWithChildren
-  '/revenue': typeof RevenueRouteWithChildren
-  '/revenue-drilldown': typeof RevenueDrilldownRoute
-  '/roles': typeof RolesRoute
-  '/rooms': typeof RoomsRoute
-  '/search': typeof SearchRoute
-  '/services': typeof ServicesRoute
-  '/settings': typeof SettingsRoute
-  '/staff': typeof StaffRoute
-  '/styleguide': typeof StyleguideRoute
-  '/tasks': typeof TasksRoute
-  '/transport': typeof TransportRoute
-  '/users': typeof UsersRoute
-  '/website-builder': typeof WebsiteBuilderRoute
-  '/analytics/executive': typeof AnalyticsExecutiveRoute
-  '/channel-manager/analytics': typeof ChannelManagerAnalyticsRoute
-  '/channel-manager/availability': typeof ChannelManagerAvailabilityRoute
-  '/channel-manager/connections': typeof ChannelManagerConnectionsRoute
-  '/channel-manager/images': typeof ChannelManagerImagesRoute
-  '/channel-manager/incidents': typeof ChannelManagerIncidentsRoute
-  '/channel-manager/inventory': typeof ChannelManagerInventoryRoute
-  '/channel-manager/multi-property': typeof ChannelManagerMultiPropertyRoute
-  '/channel-manager/property-content': typeof ChannelManagerPropertyContentRoute
-  '/channel-manager/rate-plans': typeof ChannelManagerRatePlansRoute
-  '/channel-manager/rates': typeof ChannelManagerRatesRoute
-  '/channel-manager/reservations': typeof ChannelManagerReservationsRoute
-  '/channel-manager/restrictions': typeof ChannelManagerRestrictionsRoute
-  '/channel-manager/revenue': typeof ChannelManagerRevenueRoute
-  '/channel-manager/room-content': typeof ChannelManagerRoomContentRoute
-  '/channel-manager/room-mapping': typeof ChannelManagerRoomMappingRoute
-  '/channel-manager/sync-logs': typeof ChannelManagerSyncLogsRoute
-  '/dashboard/multi-property': typeof DashboardMultiPropertyRoute
-  '/housekeeping/mobile': typeof HousekeepingMobileRoute
-  '/reservations/new': typeof ReservationsNewRoute
-  '/revenue/ai-dashboard': typeof RevenueAiDashboardRoute
+  '/pos': typeof PosRouteWithChildren
+  '/pos/aggregators': typeof PosAggregatorsRoute
+  '/pos/billing': typeof PosBillingRoute
+  '/pos/crm': typeof PosCrmRoute
+  '/pos/help': typeof PosHelpRoute
+  '/pos/inventory': typeof PosInventoryRouteWithChildren
+  '/pos/kot': typeof PosKotRoute
+  '/pos/management': typeof PosManagementRouteWithChildren
+  '/pos/marketing': typeof PosMarketingRoute
+  '/pos/menu': typeof PosMenuRouteWithChildren
+  '/pos/orders': typeof PosOrdersRouteWithChildren
+  '/pos/reports': typeof PosReportsRouteWithChildren
+  '/pos/room-service': typeof PosRoomServiceRoute
+  '/pos/settings': typeof PosSettingsRoute
+  '/pos/settlement': typeof PosSettlementRoute
+  '/pos/tables': typeof PosTablesRoute
+  '/pos/inventory/available-stock': typeof PosInventoryAvailableStockRoute
+  '/pos/inventory/closing-stock': typeof PosInventoryClosingStockRoute
+  '/pos/inventory/masters': typeof PosInventoryMastersRouteWithChildren
+  '/pos/inventory/order': typeof PosInventoryOrderRoute
+  '/pos/inventory/production': typeof PosInventoryProductionRouteWithChildren
+  '/pos/inventory/purchase': typeof PosInventoryPurchaseRoute
+  '/pos/inventory/reports': typeof PosInventoryReportsRouteWithChildren
+  '/pos/inventory/return': typeof PosInventoryReturnRoute
+  '/pos/inventory/sales': typeof PosInventorySalesRoute
+  '/pos/inventory/sales-return': typeof PosInventorySalesReturnRoute
+  '/pos/inventory/settings': typeof PosInventorySettingsRoute
+  '/pos/inventory/transfer': typeof PosInventoryTransferRoute
+  '/pos/inventory/wastage': typeof PosInventoryWastageRoute
+  '/pos/management/audit-trail': typeof PosManagementAuditTrailRoute
+  '/pos/management/data-management': typeof PosManagementDataManagementRoute
+  '/pos/management/device-mapping': typeof PosManagementDeviceMappingRoute
+  '/pos/menu/commission': typeof PosMenuCommissionRoute
+  '/pos/menu/images': typeof PosMenuImagesRoute
+  '/pos/menu/on-off': typeof PosMenuOnOffRoute
+  '/pos/menu/physical': typeof PosMenuPhysicalRoute
+  '/pos/menu/schedule': typeof PosMenuScheduleRoute
+  '/pos/menu/special-notes': typeof PosMenuSpecialNotesRoute
+  '/pos/orders/all': typeof PosOrdersAllRoute
+  '/pos/orders/online': typeof PosOrdersOnlineRoute
+  '/pos/reports/day-end': typeof PosReportsDayEndRoute
+  '/pos/reports/delivery': typeof PosReportsDeliveryRoute
+  '/pos/reports/notifications': typeof PosReportsNotificationsRoute
+  '/pos/reports/other': typeof PosReportsOtherRoute
+  '/pos/inventory/masters/invoice-templates': typeof PosInventoryMastersInvoiceTemplatesRoute
+  '/pos/inventory/masters/purchase-payments': typeof PosInventoryMastersPurchasePaymentsRoute
+  '/pos/inventory/masters/raw-materials': typeof PosInventoryMastersRawMaterialsRoute
+  '/pos/inventory/masters/recipes': typeof PosInventoryMastersRecipesRoute
+  '/pos/inventory/masters/suppliers': typeof PosInventoryMastersSuppliersRoute
+  '/pos/inventory/masters/units': typeof PosInventoryMastersUnitsRoute
+  '/pos/inventory/production/barcode': typeof PosInventoryProductionBarcodeRoute
+  '/pos/inventory/production/execution': typeof PosInventoryProductionExecutionRoute
+  '/pos/inventory/reports/orderwise-consumption': typeof PosInventoryReportsOrderwiseConsumptionRoute
+  '/pos/inventory/reports/other-reports': typeof PosInventoryReportsOtherReportsRoute
+  '/pos/inventory/reports/stock-summary': typeof PosInventoryReportsStockSummaryRoute
+  '/pos/management/accounting/bank-details': typeof PosManagementAccountingBankDetailsRoute
+  '/pos/management/accounting/denomination': typeof PosManagementAccountingDenominationRoute
+  '/pos/management/accounting/expenses': typeof PosManagementAccountingExpensesRoute
+  '/pos/management/accounting/gst': typeof PosManagementAccountingGstRoute
+  '/pos/management/accounting/kyc': typeof PosManagementAccountingKycRoute
+  '/pos/management/accounting/loans': typeof PosManagementAccountingLoansRoute
+  '/pos/management/accounting/online-reconciliation': typeof PosManagementAccountingOnlineReconciliationRoute
+  '/pos/management/accounting/service-payments': typeof PosManagementAccountingServicePaymentsRoute
+  '/pos/management/accounting/utility-bills': typeof PosManagementAccountingUtilityBillsRoute
+  '/pos/management/configuration/area-delivery-charges': typeof PosManagementConfigurationAreaDeliveryChargesRoute
+  '/pos/management/configuration/delivery-distance': typeof PosManagementConfigurationDeliveryDistanceRoute
+  '/pos/management/configuration/email-templates': typeof PosManagementConfigurationEmailTemplatesRoute
+  '/pos/management/configuration/floor-plan': typeof PosManagementConfigurationFloorPlanRoute
+  '/pos/management/configuration/outlet': typeof PosManagementConfigurationOutletRoute
+  '/pos/management/configuration/sub-order-type': typeof PosManagementConfigurationSubOrderTypeRoute
+  '/pos/management/logs/online-store': typeof PosManagementLogsOnlineStoreRoute
+  '/pos/management/logs/support': typeof PosManagementLogsSupportRoute
+  '/pos/management/marketplace/settings': typeof PosManagementMarketplaceSettingsRoute
+  '/pos/management/outlet/ho': typeof PosManagementOutletHoRoute
+  '/pos/management/outlet/kitchen': typeof PosManagementOutletKitchenRoute
+  '/pos/management/users/admin-groups': typeof PosManagementUsersAdminGroupsRoute
+  '/pos/management/users/admin-management': typeof PosManagementUsersAdminManagementRoute
+  '/pos/management/users/biller-app': typeof PosManagementUsersBillerAppRoute
+  '/pos/management/users/biller-groups': typeof PosManagementUsersBillerGroupsRoute
+  '/pos/management/marketplace': typeof PosManagementMarketplaceIndexRoute
+  '/pos/management/accounting/payments/information': typeof PosManagementAccountingPaymentsInformationRoute
+  '/pos/management/accounting/payments/wallet': typeof PosManagementAccountingPaymentsWalletRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/activities': typeof ActivitiesRoute
-  '/activity-timeline': typeof ActivityTimelineRoute
-  '/add-ons': typeof AddOnsRoute
-  '/ai-insights': typeof AiInsightsRoute
-  '/anomaly-monitor': typeof AnomalyMonitorRoute
-  '/audit': typeof AuditRoute
-  '/billing': typeof BillingRoute
-  '/booking-engine': typeof BookingEngineRoute
-  '/booking-readiness': typeof BookingReadinessRoute
-  '/channel-manager': typeof ChannelManagerRouteWithChildren
-  '/check-in': typeof CheckInRoute
-  '/communications': typeof CommunicationsRoute
-  '/concierge': typeof ConciergeRoute
-  '/corporate': typeof CorporateRoute
-  '/feedback': typeof FeedbackRoute
-  '/front-desk': typeof FrontDeskRoute
-  '/groups': typeof GroupsRoute
-  '/guest-requests': typeof GuestRequestsRoute
-  '/guests': typeof GuestsRoute
-  '/hotels': typeof HotelsRoute
-  '/housekeeping': typeof HousekeepingRouteWithChildren
-  '/leads': typeof LeadsRoute
   '/login': typeof LoginRoute
-  '/lost-found': typeof LostFoundRoute
-  '/loyalty': typeof LoyaltyRoute
-  '/maintenance': typeof MaintenanceRoute
-  '/masters': typeof MastersRoute
-  '/notifications': typeof NotificationsRoute
-  '/onboarding': typeof OnboardingRoute
-  '/ota': typeof OtaRoute
-  '/packages': typeof PackagesRoute
-  '/payments': typeof PaymentsRoute
-  '/pms-integrations': typeof PmsIntegrationsRoute
-  '/pricing': typeof PricingRoute
-  '/property': typeof PropertyRoute
-  '/registration-cards': typeof RegistrationCardsRoute
-  '/reports': typeof ReportsRoute
-  '/reservations': typeof ReservationsRouteWithChildren
-  '/revenue': typeof RevenueRouteWithChildren
-  '/revenue-drilldown': typeof RevenueDrilldownRoute
-  '/roles': typeof RolesRoute
-  '/rooms': typeof RoomsRoute
-  '/search': typeof SearchRoute
-  '/services': typeof ServicesRoute
-  '/settings': typeof SettingsRoute
-  '/staff': typeof StaffRoute
-  '/styleguide': typeof StyleguideRoute
-  '/tasks': typeof TasksRoute
-  '/transport': typeof TransportRoute
-  '/users': typeof UsersRoute
-  '/website-builder': typeof WebsiteBuilderRoute
-  '/analytics/executive': typeof AnalyticsExecutiveRoute
-  '/channel-manager/analytics': typeof ChannelManagerAnalyticsRoute
-  '/channel-manager/availability': typeof ChannelManagerAvailabilityRoute
-  '/channel-manager/connections': typeof ChannelManagerConnectionsRoute
-  '/channel-manager/images': typeof ChannelManagerImagesRoute
-  '/channel-manager/incidents': typeof ChannelManagerIncidentsRoute
-  '/channel-manager/inventory': typeof ChannelManagerInventoryRoute
-  '/channel-manager/multi-property': typeof ChannelManagerMultiPropertyRoute
-  '/channel-manager/property-content': typeof ChannelManagerPropertyContentRoute
-  '/channel-manager/rate-plans': typeof ChannelManagerRatePlansRoute
-  '/channel-manager/rates': typeof ChannelManagerRatesRoute
-  '/channel-manager/reservations': typeof ChannelManagerReservationsRoute
-  '/channel-manager/restrictions': typeof ChannelManagerRestrictionsRoute
-  '/channel-manager/revenue': typeof ChannelManagerRevenueRoute
-  '/channel-manager/room-content': typeof ChannelManagerRoomContentRoute
-  '/channel-manager/room-mapping': typeof ChannelManagerRoomMappingRoute
-  '/channel-manager/sync-logs': typeof ChannelManagerSyncLogsRoute
-  '/dashboard/multi-property': typeof DashboardMultiPropertyRoute
-  '/housekeeping/mobile': typeof HousekeepingMobileRoute
-  '/reservations/new': typeof ReservationsNewRoute
-  '/revenue/ai-dashboard': typeof RevenueAiDashboardRoute
+  '/pos': typeof PosRouteWithChildren
+  '/pos/aggregators': typeof PosAggregatorsRoute
+  '/pos/billing': typeof PosBillingRoute
+  '/pos/crm': typeof PosCrmRoute
+  '/pos/help': typeof PosHelpRoute
+  '/pos/inventory': typeof PosInventoryRouteWithChildren
+  '/pos/kot': typeof PosKotRoute
+  '/pos/management': typeof PosManagementRouteWithChildren
+  '/pos/marketing': typeof PosMarketingRoute
+  '/pos/menu': typeof PosMenuRouteWithChildren
+  '/pos/orders': typeof PosOrdersRouteWithChildren
+  '/pos/reports': typeof PosReportsRouteWithChildren
+  '/pos/room-service': typeof PosRoomServiceRoute
+  '/pos/settings': typeof PosSettingsRoute
+  '/pos/settlement': typeof PosSettlementRoute
+  '/pos/tables': typeof PosTablesRoute
+  '/pos/inventory/available-stock': typeof PosInventoryAvailableStockRoute
+  '/pos/inventory/closing-stock': typeof PosInventoryClosingStockRoute
+  '/pos/inventory/masters': typeof PosInventoryMastersRouteWithChildren
+  '/pos/inventory/order': typeof PosInventoryOrderRoute
+  '/pos/inventory/production': typeof PosInventoryProductionRouteWithChildren
+  '/pos/inventory/purchase': typeof PosInventoryPurchaseRoute
+  '/pos/inventory/reports': typeof PosInventoryReportsRouteWithChildren
+  '/pos/inventory/return': typeof PosInventoryReturnRoute
+  '/pos/inventory/sales': typeof PosInventorySalesRoute
+  '/pos/inventory/sales-return': typeof PosInventorySalesReturnRoute
+  '/pos/inventory/settings': typeof PosInventorySettingsRoute
+  '/pos/inventory/transfer': typeof PosInventoryTransferRoute
+  '/pos/inventory/wastage': typeof PosInventoryWastageRoute
+  '/pos/management/audit-trail': typeof PosManagementAuditTrailRoute
+  '/pos/management/data-management': typeof PosManagementDataManagementRoute
+  '/pos/management/device-mapping': typeof PosManagementDeviceMappingRoute
+  '/pos/menu/commission': typeof PosMenuCommissionRoute
+  '/pos/menu/images': typeof PosMenuImagesRoute
+  '/pos/menu/on-off': typeof PosMenuOnOffRoute
+  '/pos/menu/physical': typeof PosMenuPhysicalRoute
+  '/pos/menu/schedule': typeof PosMenuScheduleRoute
+  '/pos/menu/special-notes': typeof PosMenuSpecialNotesRoute
+  '/pos/orders/all': typeof PosOrdersAllRoute
+  '/pos/orders/online': typeof PosOrdersOnlineRoute
+  '/pos/reports/day-end': typeof PosReportsDayEndRoute
+  '/pos/reports/delivery': typeof PosReportsDeliveryRoute
+  '/pos/reports/notifications': typeof PosReportsNotificationsRoute
+  '/pos/reports/other': typeof PosReportsOtherRoute
+  '/pos/inventory/masters/invoice-templates': typeof PosInventoryMastersInvoiceTemplatesRoute
+  '/pos/inventory/masters/purchase-payments': typeof PosInventoryMastersPurchasePaymentsRoute
+  '/pos/inventory/masters/raw-materials': typeof PosInventoryMastersRawMaterialsRoute
+  '/pos/inventory/masters/recipes': typeof PosInventoryMastersRecipesRoute
+  '/pos/inventory/masters/suppliers': typeof PosInventoryMastersSuppliersRoute
+  '/pos/inventory/masters/units': typeof PosInventoryMastersUnitsRoute
+  '/pos/inventory/production/barcode': typeof PosInventoryProductionBarcodeRoute
+  '/pos/inventory/production/execution': typeof PosInventoryProductionExecutionRoute
+  '/pos/inventory/reports/orderwise-consumption': typeof PosInventoryReportsOrderwiseConsumptionRoute
+  '/pos/inventory/reports/other-reports': typeof PosInventoryReportsOtherReportsRoute
+  '/pos/inventory/reports/stock-summary': typeof PosInventoryReportsStockSummaryRoute
+  '/pos/management/accounting/bank-details': typeof PosManagementAccountingBankDetailsRoute
+  '/pos/management/accounting/denomination': typeof PosManagementAccountingDenominationRoute
+  '/pos/management/accounting/expenses': typeof PosManagementAccountingExpensesRoute
+  '/pos/management/accounting/gst': typeof PosManagementAccountingGstRoute
+  '/pos/management/accounting/kyc': typeof PosManagementAccountingKycRoute
+  '/pos/management/accounting/loans': typeof PosManagementAccountingLoansRoute
+  '/pos/management/accounting/online-reconciliation': typeof PosManagementAccountingOnlineReconciliationRoute
+  '/pos/management/accounting/service-payments': typeof PosManagementAccountingServicePaymentsRoute
+  '/pos/management/accounting/utility-bills': typeof PosManagementAccountingUtilityBillsRoute
+  '/pos/management/configuration/area-delivery-charges': typeof PosManagementConfigurationAreaDeliveryChargesRoute
+  '/pos/management/configuration/delivery-distance': typeof PosManagementConfigurationDeliveryDistanceRoute
+  '/pos/management/configuration/email-templates': typeof PosManagementConfigurationEmailTemplatesRoute
+  '/pos/management/configuration/floor-plan': typeof PosManagementConfigurationFloorPlanRoute
+  '/pos/management/configuration/outlet': typeof PosManagementConfigurationOutletRoute
+  '/pos/management/configuration/sub-order-type': typeof PosManagementConfigurationSubOrderTypeRoute
+  '/pos/management/logs/online-store': typeof PosManagementLogsOnlineStoreRoute
+  '/pos/management/logs/support': typeof PosManagementLogsSupportRoute
+  '/pos/management/marketplace/settings': typeof PosManagementMarketplaceSettingsRoute
+  '/pos/management/outlet/ho': typeof PosManagementOutletHoRoute
+  '/pos/management/outlet/kitchen': typeof PosManagementOutletKitchenRoute
+  '/pos/management/users/admin-groups': typeof PosManagementUsersAdminGroupsRoute
+  '/pos/management/users/admin-management': typeof PosManagementUsersAdminManagementRoute
+  '/pos/management/users/biller-app': typeof PosManagementUsersBillerAppRoute
+  '/pos/management/users/biller-groups': typeof PosManagementUsersBillerGroupsRoute
+  '/pos/management/marketplace/': typeof PosManagementMarketplaceIndexRoute
+  '/pos/management/accounting/payments/information': typeof PosManagementAccountingPaymentsInformationRoute
+  '/pos/management/accounting/payments/wallet': typeof PosManagementAccountingPaymentsWalletRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/activities'
-    | '/activity-timeline'
-    | '/add-ons'
-    | '/ai-insights'
-    | '/anomaly-monitor'
-    | '/audit'
-    | '/billing'
-    | '/booking-engine'
-    | '/booking-readiness'
-    | '/channel-manager'
-    | '/check-in'
-    | '/communications'
-    | '/concierge'
-    | '/corporate'
-    | '/feedback'
-    | '/front-desk'
-    | '/groups'
-    | '/guest-requests'
-    | '/guests'
-    | '/hotels'
-    | '/housekeeping'
-    | '/leads'
     | '/login'
-    | '/lost-found'
-    | '/loyalty'
-    | '/maintenance'
-    | '/masters'
-    | '/notifications'
-    | '/onboarding'
-    | '/ota'
-    | '/packages'
-    | '/payments'
-    | '/pms-integrations'
-    | '/pricing'
-    | '/property'
-    | '/registration-cards'
-    | '/reports'
-    | '/reservations'
-    | '/revenue'
-    | '/revenue-drilldown'
-    | '/roles'
-    | '/rooms'
-    | '/search'
-    | '/services'
-    | '/settings'
-    | '/staff'
-    | '/styleguide'
-    | '/tasks'
-    | '/transport'
-    | '/users'
-    | '/website-builder'
-    | '/analytics/executive'
-    | '/channel-manager/analytics'
-    | '/channel-manager/availability'
-    | '/channel-manager/connections'
-    | '/channel-manager/images'
-    | '/channel-manager/incidents'
-    | '/channel-manager/inventory'
-    | '/channel-manager/multi-property'
-    | '/channel-manager/property-content'
-    | '/channel-manager/rate-plans'
-    | '/channel-manager/rates'
-    | '/channel-manager/reservations'
-    | '/channel-manager/restrictions'
-    | '/channel-manager/revenue'
-    | '/channel-manager/room-content'
-    | '/channel-manager/room-mapping'
-    | '/channel-manager/sync-logs'
-    | '/dashboard/multi-property'
-    | '/housekeeping/mobile'
-    | '/reservations/new'
-    | '/revenue/ai-dashboard'
+    | '/pos'
+    | '/pos/aggregators'
+    | '/pos/billing'
+    | '/pos/crm'
+    | '/pos/help'
+    | '/pos/inventory'
+    | '/pos/kot'
+    | '/pos/management'
+    | '/pos/marketing'
+    | '/pos/menu'
+    | '/pos/orders'
+    | '/pos/reports'
+    | '/pos/room-service'
+    | '/pos/settings'
+    | '/pos/settlement'
+    | '/pos/tables'
+    | '/pos/inventory/available-stock'
+    | '/pos/inventory/closing-stock'
+    | '/pos/inventory/masters'
+    | '/pos/inventory/order'
+    | '/pos/inventory/production'
+    | '/pos/inventory/purchase'
+    | '/pos/inventory/reports'
+    | '/pos/inventory/return'
+    | '/pos/inventory/sales'
+    | '/pos/inventory/sales-return'
+    | '/pos/inventory/settings'
+    | '/pos/inventory/transfer'
+    | '/pos/inventory/wastage'
+    | '/pos/management/audit-trail'
+    | '/pos/management/data-management'
+    | '/pos/management/device-mapping'
+    | '/pos/menu/commission'
+    | '/pos/menu/images'
+    | '/pos/menu/on-off'
+    | '/pos/menu/physical'
+    | '/pos/menu/schedule'
+    | '/pos/menu/special-notes'
+    | '/pos/orders/all'
+    | '/pos/orders/online'
+    | '/pos/reports/day-end'
+    | '/pos/reports/delivery'
+    | '/pos/reports/notifications'
+    | '/pos/reports/other'
+    | '/pos/inventory/masters/invoice-templates'
+    | '/pos/inventory/masters/purchase-payments'
+    | '/pos/inventory/masters/raw-materials'
+    | '/pos/inventory/masters/recipes'
+    | '/pos/inventory/masters/suppliers'
+    | '/pos/inventory/masters/units'
+    | '/pos/inventory/production/barcode'
+    | '/pos/inventory/production/execution'
+    | '/pos/inventory/reports/orderwise-consumption'
+    | '/pos/inventory/reports/other-reports'
+    | '/pos/inventory/reports/stock-summary'
+    | '/pos/management/accounting/bank-details'
+    | '/pos/management/accounting/denomination'
+    | '/pos/management/accounting/expenses'
+    | '/pos/management/accounting/gst'
+    | '/pos/management/accounting/kyc'
+    | '/pos/management/accounting/loans'
+    | '/pos/management/accounting/online-reconciliation'
+    | '/pos/management/accounting/service-payments'
+    | '/pos/management/accounting/utility-bills'
+    | '/pos/management/configuration/area-delivery-charges'
+    | '/pos/management/configuration/delivery-distance'
+    | '/pos/management/configuration/email-templates'
+    | '/pos/management/configuration/floor-plan'
+    | '/pos/management/configuration/outlet'
+    | '/pos/management/configuration/sub-order-type'
+    | '/pos/management/logs/online-store'
+    | '/pos/management/logs/support'
+    | '/pos/management/marketplace/settings'
+    | '/pos/management/outlet/ho'
+    | '/pos/management/outlet/kitchen'
+    | '/pos/management/users/admin-groups'
+    | '/pos/management/users/admin-management'
+    | '/pos/management/users/biller-app'
+    | '/pos/management/users/biller-groups'
+    | '/pos/management/marketplace/'
+    | '/pos/management/accounting/payments/information'
+    | '/pos/management/accounting/payments/wallet'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/activities'
-    | '/activity-timeline'
-    | '/add-ons'
-    | '/ai-insights'
-    | '/anomaly-monitor'
-    | '/audit'
-    | '/billing'
-    | '/booking-engine'
-    | '/booking-readiness'
-    | '/channel-manager'
-    | '/check-in'
-    | '/communications'
-    | '/concierge'
-    | '/corporate'
-    | '/feedback'
-    | '/front-desk'
-    | '/groups'
-    | '/guest-requests'
-    | '/guests'
-    | '/hotels'
-    | '/housekeeping'
-    | '/leads'
     | '/login'
-    | '/lost-found'
-    | '/loyalty'
-    | '/maintenance'
-    | '/masters'
-    | '/notifications'
-    | '/onboarding'
-    | '/ota'
-    | '/packages'
-    | '/payments'
-    | '/pms-integrations'
-    | '/pricing'
-    | '/property'
-    | '/registration-cards'
-    | '/reports'
-    | '/reservations'
-    | '/revenue'
-    | '/revenue-drilldown'
-    | '/roles'
-    | '/rooms'
-    | '/search'
-    | '/services'
-    | '/settings'
-    | '/staff'
-    | '/styleguide'
-    | '/tasks'
-    | '/transport'
-    | '/users'
-    | '/website-builder'
-    | '/analytics/executive'
-    | '/channel-manager/analytics'
-    | '/channel-manager/availability'
-    | '/channel-manager/connections'
-    | '/channel-manager/images'
-    | '/channel-manager/incidents'
-    | '/channel-manager/inventory'
-    | '/channel-manager/multi-property'
-    | '/channel-manager/property-content'
-    | '/channel-manager/rate-plans'
-    | '/channel-manager/rates'
-    | '/channel-manager/reservations'
-    | '/channel-manager/restrictions'
-    | '/channel-manager/revenue'
-    | '/channel-manager/room-content'
-    | '/channel-manager/room-mapping'
-    | '/channel-manager/sync-logs'
-    | '/dashboard/multi-property'
-    | '/housekeeping/mobile'
-    | '/reservations/new'
-    | '/revenue/ai-dashboard'
+    | '/pos'
+    | '/pos/aggregators'
+    | '/pos/billing'
+    | '/pos/crm'
+    | '/pos/help'
+    | '/pos/inventory'
+    | '/pos/kot'
+    | '/pos/management'
+    | '/pos/marketing'
+    | '/pos/menu'
+    | '/pos/orders'
+    | '/pos/reports'
+    | '/pos/room-service'
+    | '/pos/settings'
+    | '/pos/settlement'
+    | '/pos/tables'
+    | '/pos/inventory/available-stock'
+    | '/pos/inventory/closing-stock'
+    | '/pos/inventory/masters'
+    | '/pos/inventory/order'
+    | '/pos/inventory/production'
+    | '/pos/inventory/purchase'
+    | '/pos/inventory/reports'
+    | '/pos/inventory/return'
+    | '/pos/inventory/sales'
+    | '/pos/inventory/sales-return'
+    | '/pos/inventory/settings'
+    | '/pos/inventory/transfer'
+    | '/pos/inventory/wastage'
+    | '/pos/management/audit-trail'
+    | '/pos/management/data-management'
+    | '/pos/management/device-mapping'
+    | '/pos/menu/commission'
+    | '/pos/menu/images'
+    | '/pos/menu/on-off'
+    | '/pos/menu/physical'
+    | '/pos/menu/schedule'
+    | '/pos/menu/special-notes'
+    | '/pos/orders/all'
+    | '/pos/orders/online'
+    | '/pos/reports/day-end'
+    | '/pos/reports/delivery'
+    | '/pos/reports/notifications'
+    | '/pos/reports/other'
+    | '/pos/inventory/masters/invoice-templates'
+    | '/pos/inventory/masters/purchase-payments'
+    | '/pos/inventory/masters/raw-materials'
+    | '/pos/inventory/masters/recipes'
+    | '/pos/inventory/masters/suppliers'
+    | '/pos/inventory/masters/units'
+    | '/pos/inventory/production/barcode'
+    | '/pos/inventory/production/execution'
+    | '/pos/inventory/reports/orderwise-consumption'
+    | '/pos/inventory/reports/other-reports'
+    | '/pos/inventory/reports/stock-summary'
+    | '/pos/management/accounting/bank-details'
+    | '/pos/management/accounting/denomination'
+    | '/pos/management/accounting/expenses'
+    | '/pos/management/accounting/gst'
+    | '/pos/management/accounting/kyc'
+    | '/pos/management/accounting/loans'
+    | '/pos/management/accounting/online-reconciliation'
+    | '/pos/management/accounting/service-payments'
+    | '/pos/management/accounting/utility-bills'
+    | '/pos/management/configuration/area-delivery-charges'
+    | '/pos/management/configuration/delivery-distance'
+    | '/pos/management/configuration/email-templates'
+    | '/pos/management/configuration/floor-plan'
+    | '/pos/management/configuration/outlet'
+    | '/pos/management/configuration/sub-order-type'
+    | '/pos/management/logs/online-store'
+    | '/pos/management/logs/support'
+    | '/pos/management/marketplace/settings'
+    | '/pos/management/outlet/ho'
+    | '/pos/management/outlet/kitchen'
+    | '/pos/management/users/admin-groups'
+    | '/pos/management/users/admin-management'
+    | '/pos/management/users/biller-app'
+    | '/pos/management/users/biller-groups'
+    | '/pos/management/marketplace'
+    | '/pos/management/accounting/payments/information'
+    | '/pos/management/accounting/payments/wallet'
   id:
     | '__root__'
     | '/'
-    | '/activities'
-    | '/activity-timeline'
-    | '/add-ons'
-    | '/ai-insights'
-    | '/anomaly-monitor'
-    | '/audit'
-    | '/billing'
-    | '/booking-engine'
-    | '/booking-readiness'
-    | '/channel-manager'
-    | '/check-in'
-    | '/communications'
-    | '/concierge'
-    | '/corporate'
-    | '/feedback'
-    | '/front-desk'
-    | '/groups'
-    | '/guest-requests'
-    | '/guests'
-    | '/hotels'
-    | '/housekeeping'
-    | '/leads'
     | '/login'
-    | '/lost-found'
-    | '/loyalty'
-    | '/maintenance'
-    | '/masters'
-    | '/notifications'
-    | '/onboarding'
-    | '/ota'
-    | '/packages'
-    | '/payments'
-    | '/pms-integrations'
-    | '/pricing'
-    | '/property'
-    | '/registration-cards'
-    | '/reports'
-    | '/reservations'
-    | '/revenue'
-    | '/revenue-drilldown'
-    | '/roles'
-    | '/rooms'
-    | '/search'
-    | '/services'
-    | '/settings'
-    | '/staff'
-    | '/styleguide'
-    | '/tasks'
-    | '/transport'
-    | '/users'
-    | '/website-builder'
-    | '/analytics/executive'
-    | '/channel-manager/analytics'
-    | '/channel-manager/availability'
-    | '/channel-manager/connections'
-    | '/channel-manager/images'
-    | '/channel-manager/incidents'
-    | '/channel-manager/inventory'
-    | '/channel-manager/multi-property'
-    | '/channel-manager/property-content'
-    | '/channel-manager/rate-plans'
-    | '/channel-manager/rates'
-    | '/channel-manager/reservations'
-    | '/channel-manager/restrictions'
-    | '/channel-manager/revenue'
-    | '/channel-manager/room-content'
-    | '/channel-manager/room-mapping'
-    | '/channel-manager/sync-logs'
-    | '/dashboard/multi-property'
-    | '/housekeeping/mobile'
-    | '/reservations/new'
-    | '/revenue/ai-dashboard'
+    | '/pos'
+    | '/pos/aggregators'
+    | '/pos/billing'
+    | '/pos/crm'
+    | '/pos/help'
+    | '/pos/inventory'
+    | '/pos/kot'
+    | '/pos/management'
+    | '/pos/marketing'
+    | '/pos/menu'
+    | '/pos/orders'
+    | '/pos/reports'
+    | '/pos/room-service'
+    | '/pos/settings'
+    | '/pos/settlement'
+    | '/pos/tables'
+    | '/pos/inventory/available-stock'
+    | '/pos/inventory/closing-stock'
+    | '/pos/inventory/masters'
+    | '/pos/inventory/order'
+    | '/pos/inventory/production'
+    | '/pos/inventory/purchase'
+    | '/pos/inventory/reports'
+    | '/pos/inventory/return'
+    | '/pos/inventory/sales'
+    | '/pos/inventory/sales-return'
+    | '/pos/inventory/settings'
+    | '/pos/inventory/transfer'
+    | '/pos/inventory/wastage'
+    | '/pos/management/audit-trail'
+    | '/pos/management/data-management'
+    | '/pos/management/device-mapping'
+    | '/pos/menu/commission'
+    | '/pos/menu/images'
+    | '/pos/menu/on-off'
+    | '/pos/menu/physical'
+    | '/pos/menu/schedule'
+    | '/pos/menu/special-notes'
+    | '/pos/orders/all'
+    | '/pos/orders/online'
+    | '/pos/reports/day-end'
+    | '/pos/reports/delivery'
+    | '/pos/reports/notifications'
+    | '/pos/reports/other'
+    | '/pos/inventory/masters/invoice-templates'
+    | '/pos/inventory/masters/purchase-payments'
+    | '/pos/inventory/masters/raw-materials'
+    | '/pos/inventory/masters/recipes'
+    | '/pos/inventory/masters/suppliers'
+    | '/pos/inventory/masters/units'
+    | '/pos/inventory/production/barcode'
+    | '/pos/inventory/production/execution'
+    | '/pos/inventory/reports/orderwise-consumption'
+    | '/pos/inventory/reports/other-reports'
+    | '/pos/inventory/reports/stock-summary'
+    | '/pos/management/accounting/bank-details'
+    | '/pos/management/accounting/denomination'
+    | '/pos/management/accounting/expenses'
+    | '/pos/management/accounting/gst'
+    | '/pos/management/accounting/kyc'
+    | '/pos/management/accounting/loans'
+    | '/pos/management/accounting/online-reconciliation'
+    | '/pos/management/accounting/service-payments'
+    | '/pos/management/accounting/utility-bills'
+    | '/pos/management/configuration/area-delivery-charges'
+    | '/pos/management/configuration/delivery-distance'
+    | '/pos/management/configuration/email-templates'
+    | '/pos/management/configuration/floor-plan'
+    | '/pos/management/configuration/outlet'
+    | '/pos/management/configuration/sub-order-type'
+    | '/pos/management/logs/online-store'
+    | '/pos/management/logs/support'
+    | '/pos/management/marketplace/settings'
+    | '/pos/management/outlet/ho'
+    | '/pos/management/outlet/kitchen'
+    | '/pos/management/users/admin-groups'
+    | '/pos/management/users/admin-management'
+    | '/pos/management/users/biller-app'
+    | '/pos/management/users/biller-groups'
+    | '/pos/management/marketplace/'
+    | '/pos/management/accounting/payments/information'
+    | '/pos/management/accounting/payments/wallet'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  ActivitiesRoute: typeof ActivitiesRoute
-  ActivityTimelineRoute: typeof ActivityTimelineRoute
-  AddOnsRoute: typeof AddOnsRoute
-  AiInsightsRoute: typeof AiInsightsRoute
-  AnomalyMonitorRoute: typeof AnomalyMonitorRoute
-  AuditRoute: typeof AuditRoute
-  BillingRoute: typeof BillingRoute
-  BookingEngineRoute: typeof BookingEngineRoute
-  BookingReadinessRoute: typeof BookingReadinessRoute
-  ChannelManagerRoute: typeof ChannelManagerRouteWithChildren
-  CheckInRoute: typeof CheckInRoute
-  CommunicationsRoute: typeof CommunicationsRoute
-  ConciergeRoute: typeof ConciergeRoute
-  CorporateRoute: typeof CorporateRoute
-  FeedbackRoute: typeof FeedbackRoute
-  FrontDeskRoute: typeof FrontDeskRoute
-  GroupsRoute: typeof GroupsRoute
-  GuestRequestsRoute: typeof GuestRequestsRoute
-  GuestsRoute: typeof GuestsRoute
-  HotelsRoute: typeof HotelsRoute
-  HousekeepingRoute: typeof HousekeepingRouteWithChildren
-  LeadsRoute: typeof LeadsRoute
   LoginRoute: typeof LoginRoute
-  LostFoundRoute: typeof LostFoundRoute
-  LoyaltyRoute: typeof LoyaltyRoute
-  MaintenanceRoute: typeof MaintenanceRoute
-  MastersRoute: typeof MastersRoute
-  NotificationsRoute: typeof NotificationsRoute
-  OnboardingRoute: typeof OnboardingRoute
-  OtaRoute: typeof OtaRoute
-  PackagesRoute: typeof PackagesRoute
-  PaymentsRoute: typeof PaymentsRoute
-  PmsIntegrationsRoute: typeof PmsIntegrationsRoute
-  PricingRoute: typeof PricingRoute
-  PropertyRoute: typeof PropertyRoute
-  RegistrationCardsRoute: typeof RegistrationCardsRoute
-  ReportsRoute: typeof ReportsRoute
-  ReservationsRoute: typeof ReservationsRouteWithChildren
-  RevenueRoute: typeof RevenueRouteWithChildren
-  RevenueDrilldownRoute: typeof RevenueDrilldownRoute
-  RolesRoute: typeof RolesRoute
-  RoomsRoute: typeof RoomsRoute
-  SearchRoute: typeof SearchRoute
-  ServicesRoute: typeof ServicesRoute
-  SettingsRoute: typeof SettingsRoute
-  StaffRoute: typeof StaffRoute
-  StyleguideRoute: typeof StyleguideRoute
-  TasksRoute: typeof TasksRoute
-  TransportRoute: typeof TransportRoute
-  UsersRoute: typeof UsersRoute
-  WebsiteBuilderRoute: typeof WebsiteBuilderRoute
-  AnalyticsExecutiveRoute: typeof AnalyticsExecutiveRoute
-  DashboardMultiPropertyRoute: typeof DashboardMultiPropertyRoute
+  PosRoute: typeof PosRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/website-builder': {
-      id: '/website-builder'
-      path: '/website-builder'
-      fullPath: '/website-builder'
-      preLoaderRoute: typeof WebsiteBuilderRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/users': {
-      id: '/users'
-      path: '/users'
-      fullPath: '/users'
-      preLoaderRoute: typeof UsersRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/transport': {
-      id: '/transport'
-      path: '/transport'
-      fullPath: '/transport'
-      preLoaderRoute: typeof TransportRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/tasks': {
-      id: '/tasks'
-      path: '/tasks'
-      fullPath: '/tasks'
-      preLoaderRoute: typeof TasksRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/styleguide': {
-      id: '/styleguide'
-      path: '/styleguide'
-      fullPath: '/styleguide'
-      preLoaderRoute: typeof StyleguideRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/staff': {
-      id: '/staff'
-      path: '/staff'
-      fullPath: '/staff'
-      preLoaderRoute: typeof StaffRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/settings': {
-      id: '/settings'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof SettingsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/services': {
-      id: '/services'
-      path: '/services'
-      fullPath: '/services'
-      preLoaderRoute: typeof ServicesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/search': {
-      id: '/search'
-      path: '/search'
-      fullPath: '/search'
-      preLoaderRoute: typeof SearchRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/rooms': {
-      id: '/rooms'
-      path: '/rooms'
-      fullPath: '/rooms'
-      preLoaderRoute: typeof RoomsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/roles': {
-      id: '/roles'
-      path: '/roles'
-      fullPath: '/roles'
-      preLoaderRoute: typeof RolesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/revenue-drilldown': {
-      id: '/revenue-drilldown'
-      path: '/revenue-drilldown'
-      fullPath: '/revenue-drilldown'
-      preLoaderRoute: typeof RevenueDrilldownRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/revenue': {
-      id: '/revenue'
-      path: '/revenue'
-      fullPath: '/revenue'
-      preLoaderRoute: typeof RevenueRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/reservations': {
-      id: '/reservations'
-      path: '/reservations'
-      fullPath: '/reservations'
-      preLoaderRoute: typeof ReservationsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/reports': {
-      id: '/reports'
-      path: '/reports'
-      fullPath: '/reports'
-      preLoaderRoute: typeof ReportsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/registration-cards': {
-      id: '/registration-cards'
-      path: '/registration-cards'
-      fullPath: '/registration-cards'
-      preLoaderRoute: typeof RegistrationCardsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/property': {
-      id: '/property'
-      path: '/property'
-      fullPath: '/property'
-      preLoaderRoute: typeof PropertyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/pricing': {
-      id: '/pricing'
-      path: '/pricing'
-      fullPath: '/pricing'
-      preLoaderRoute: typeof PricingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/pms-integrations': {
-      id: '/pms-integrations'
-      path: '/pms-integrations'
-      fullPath: '/pms-integrations'
-      preLoaderRoute: typeof PmsIntegrationsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/payments': {
-      id: '/payments'
-      path: '/payments'
-      fullPath: '/payments'
-      preLoaderRoute: typeof PaymentsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/packages': {
-      id: '/packages'
-      path: '/packages'
-      fullPath: '/packages'
-      preLoaderRoute: typeof PackagesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/ota': {
-      id: '/ota'
-      path: '/ota'
-      fullPath: '/ota'
-      preLoaderRoute: typeof OtaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/onboarding': {
-      id: '/onboarding'
-      path: '/onboarding'
-      fullPath: '/onboarding'
-      preLoaderRoute: typeof OnboardingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/notifications': {
-      id: '/notifications'
-      path: '/notifications'
-      fullPath: '/notifications'
-      preLoaderRoute: typeof NotificationsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/masters': {
-      id: '/masters'
-      path: '/masters'
-      fullPath: '/masters'
-      preLoaderRoute: typeof MastersRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/maintenance': {
-      id: '/maintenance'
-      path: '/maintenance'
-      fullPath: '/maintenance'
-      preLoaderRoute: typeof MaintenanceRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/loyalty': {
-      id: '/loyalty'
-      path: '/loyalty'
-      fullPath: '/loyalty'
-      preLoaderRoute: typeof LoyaltyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/lost-found': {
-      id: '/lost-found'
-      path: '/lost-found'
-      fullPath: '/lost-found'
-      preLoaderRoute: typeof LostFoundRouteImport
+    '/pos': {
+      id: '/pos'
+      path: '/pos'
+      fullPath: '/pos'
+      preLoaderRoute: typeof PosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -1173,160 +1098,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/leads': {
-      id: '/leads'
-      path: '/leads'
-      fullPath: '/leads'
-      preLoaderRoute: typeof LeadsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/housekeeping': {
-      id: '/housekeeping'
-      path: '/housekeeping'
-      fullPath: '/housekeeping'
-      preLoaderRoute: typeof HousekeepingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/hotels': {
-      id: '/hotels'
-      path: '/hotels'
-      fullPath: '/hotels'
-      preLoaderRoute: typeof HotelsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/guests': {
-      id: '/guests'
-      path: '/guests'
-      fullPath: '/guests'
-      preLoaderRoute: typeof GuestsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/guest-requests': {
-      id: '/guest-requests'
-      path: '/guest-requests'
-      fullPath: '/guest-requests'
-      preLoaderRoute: typeof GuestRequestsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/groups': {
-      id: '/groups'
-      path: '/groups'
-      fullPath: '/groups'
-      preLoaderRoute: typeof GroupsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/front-desk': {
-      id: '/front-desk'
-      path: '/front-desk'
-      fullPath: '/front-desk'
-      preLoaderRoute: typeof FrontDeskRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/feedback': {
-      id: '/feedback'
-      path: '/feedback'
-      fullPath: '/feedback'
-      preLoaderRoute: typeof FeedbackRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/corporate': {
-      id: '/corporate'
-      path: '/corporate'
-      fullPath: '/corporate'
-      preLoaderRoute: typeof CorporateRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/concierge': {
-      id: '/concierge'
-      path: '/concierge'
-      fullPath: '/concierge'
-      preLoaderRoute: typeof ConciergeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/communications': {
-      id: '/communications'
-      path: '/communications'
-      fullPath: '/communications'
-      preLoaderRoute: typeof CommunicationsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/check-in': {
-      id: '/check-in'
-      path: '/check-in'
-      fullPath: '/check-in'
-      preLoaderRoute: typeof CheckInRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/channel-manager': {
-      id: '/channel-manager'
-      path: '/channel-manager'
-      fullPath: '/channel-manager'
-      preLoaderRoute: typeof ChannelManagerRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/booking-readiness': {
-      id: '/booking-readiness'
-      path: '/booking-readiness'
-      fullPath: '/booking-readiness'
-      preLoaderRoute: typeof BookingReadinessRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/booking-engine': {
-      id: '/booking-engine'
-      path: '/booking-engine'
-      fullPath: '/booking-engine'
-      preLoaderRoute: typeof BookingEngineRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/billing': {
-      id: '/billing'
-      path: '/billing'
-      fullPath: '/billing'
-      preLoaderRoute: typeof BillingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/audit': {
-      id: '/audit'
-      path: '/audit'
-      fullPath: '/audit'
-      preLoaderRoute: typeof AuditRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/anomaly-monitor': {
-      id: '/anomaly-monitor'
-      path: '/anomaly-monitor'
-      fullPath: '/anomaly-monitor'
-      preLoaderRoute: typeof AnomalyMonitorRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/ai-insights': {
-      id: '/ai-insights'
-      path: '/ai-insights'
-      fullPath: '/ai-insights'
-      preLoaderRoute: typeof AiInsightsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/add-ons': {
-      id: '/add-ons'
-      path: '/add-ons'
-      fullPath: '/add-ons'
-      preLoaderRoute: typeof AddOnsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/activity-timeline': {
-      id: '/activity-timeline'
-      path: '/activity-timeline'
-      fullPath: '/activity-timeline'
-      preLoaderRoute: typeof ActivityTimelineRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/activities': {
-      id: '/activities'
-      path: '/activities'
-      fullPath: '/activities'
-      preLoaderRoute: typeof ActivitiesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
@@ -1334,288 +1105,845 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/revenue/ai-dashboard': {
-      id: '/revenue/ai-dashboard'
-      path: '/ai-dashboard'
-      fullPath: '/revenue/ai-dashboard'
-      preLoaderRoute: typeof RevenueAiDashboardRouteImport
-      parentRoute: typeof RevenueRoute
+    '/pos/tables': {
+      id: '/pos/tables'
+      path: '/tables'
+      fullPath: '/pos/tables'
+      preLoaderRoute: typeof PosTablesRouteImport
+      parentRoute: typeof PosRoute
     }
-    '/reservations/new': {
-      id: '/reservations/new'
-      path: '/new'
-      fullPath: '/reservations/new'
-      preLoaderRoute: typeof ReservationsNewRouteImport
-      parentRoute: typeof ReservationsRoute
+    '/pos/settlement': {
+      id: '/pos/settlement'
+      path: '/settlement'
+      fullPath: '/pos/settlement'
+      preLoaderRoute: typeof PosSettlementRouteImport
+      parentRoute: typeof PosRoute
     }
-    '/housekeeping/mobile': {
-      id: '/housekeeping/mobile'
-      path: '/mobile'
-      fullPath: '/housekeeping/mobile'
-      preLoaderRoute: typeof HousekeepingMobileRouteImport
-      parentRoute: typeof HousekeepingRoute
+    '/pos/settings': {
+      id: '/pos/settings'
+      path: '/settings'
+      fullPath: '/pos/settings'
+      preLoaderRoute: typeof PosSettingsRouteImport
+      parentRoute: typeof PosRoute
     }
-    '/dashboard/multi-property': {
-      id: '/dashboard/multi-property'
-      path: '/dashboard/multi-property'
-      fullPath: '/dashboard/multi-property'
-      preLoaderRoute: typeof DashboardMultiPropertyRouteImport
-      parentRoute: typeof rootRouteImport
+    '/pos/room-service': {
+      id: '/pos/room-service'
+      path: '/room-service'
+      fullPath: '/pos/room-service'
+      preLoaderRoute: typeof PosRoomServiceRouteImport
+      parentRoute: typeof PosRoute
     }
-    '/channel-manager/sync-logs': {
-      id: '/channel-manager/sync-logs'
-      path: '/sync-logs'
-      fullPath: '/channel-manager/sync-logs'
-      preLoaderRoute: typeof ChannelManagerSyncLogsRouteImport
-      parentRoute: typeof ChannelManagerRoute
+    '/pos/reports': {
+      id: '/pos/reports'
+      path: '/reports'
+      fullPath: '/pos/reports'
+      preLoaderRoute: typeof PosReportsRouteImport
+      parentRoute: typeof PosRoute
     }
-    '/channel-manager/room-mapping': {
-      id: '/channel-manager/room-mapping'
-      path: '/room-mapping'
-      fullPath: '/channel-manager/room-mapping'
-      preLoaderRoute: typeof ChannelManagerRoomMappingRouteImport
-      parentRoute: typeof ChannelManagerRoute
+    '/pos/orders': {
+      id: '/pos/orders'
+      path: '/orders'
+      fullPath: '/pos/orders'
+      preLoaderRoute: typeof PosOrdersRouteImport
+      parentRoute: typeof PosRoute
     }
-    '/channel-manager/room-content': {
-      id: '/channel-manager/room-content'
-      path: '/room-content'
-      fullPath: '/channel-manager/room-content'
-      preLoaderRoute: typeof ChannelManagerRoomContentRouteImport
-      parentRoute: typeof ChannelManagerRoute
+    '/pos/menu': {
+      id: '/pos/menu'
+      path: '/menu'
+      fullPath: '/pos/menu'
+      preLoaderRoute: typeof PosMenuRouteImport
+      parentRoute: typeof PosRoute
     }
-    '/channel-manager/revenue': {
-      id: '/channel-manager/revenue'
-      path: '/revenue'
-      fullPath: '/channel-manager/revenue'
-      preLoaderRoute: typeof ChannelManagerRevenueRouteImport
-      parentRoute: typeof ChannelManagerRoute
+    '/pos/marketing': {
+      id: '/pos/marketing'
+      path: '/marketing'
+      fullPath: '/pos/marketing'
+      preLoaderRoute: typeof PosMarketingRouteImport
+      parentRoute: typeof PosRoute
     }
-    '/channel-manager/restrictions': {
-      id: '/channel-manager/restrictions'
-      path: '/restrictions'
-      fullPath: '/channel-manager/restrictions'
-      preLoaderRoute: typeof ChannelManagerRestrictionsRouteImport
-      parentRoute: typeof ChannelManagerRoute
+    '/pos/management': {
+      id: '/pos/management'
+      path: '/management'
+      fullPath: '/pos/management'
+      preLoaderRoute: typeof PosManagementRouteImport
+      parentRoute: typeof PosRoute
     }
-    '/channel-manager/reservations': {
-      id: '/channel-manager/reservations'
-      path: '/reservations'
-      fullPath: '/channel-manager/reservations'
-      preLoaderRoute: typeof ChannelManagerReservationsRouteImport
-      parentRoute: typeof ChannelManagerRoute
+    '/pos/kot': {
+      id: '/pos/kot'
+      path: '/kot'
+      fullPath: '/pos/kot'
+      preLoaderRoute: typeof PosKotRouteImport
+      parentRoute: typeof PosRoute
     }
-    '/channel-manager/rates': {
-      id: '/channel-manager/rates'
-      path: '/rates'
-      fullPath: '/channel-manager/rates'
-      preLoaderRoute: typeof ChannelManagerRatesRouteImport
-      parentRoute: typeof ChannelManagerRoute
-    }
-    '/channel-manager/rate-plans': {
-      id: '/channel-manager/rate-plans'
-      path: '/rate-plans'
-      fullPath: '/channel-manager/rate-plans'
-      preLoaderRoute: typeof ChannelManagerRatePlansRouteImport
-      parentRoute: typeof ChannelManagerRoute
-    }
-    '/channel-manager/property-content': {
-      id: '/channel-manager/property-content'
-      path: '/property-content'
-      fullPath: '/channel-manager/property-content'
-      preLoaderRoute: typeof ChannelManagerPropertyContentRouteImport
-      parentRoute: typeof ChannelManagerRoute
-    }
-    '/channel-manager/multi-property': {
-      id: '/channel-manager/multi-property'
-      path: '/multi-property'
-      fullPath: '/channel-manager/multi-property'
-      preLoaderRoute: typeof ChannelManagerMultiPropertyRouteImport
-      parentRoute: typeof ChannelManagerRoute
-    }
-    '/channel-manager/inventory': {
-      id: '/channel-manager/inventory'
+    '/pos/inventory': {
+      id: '/pos/inventory'
       path: '/inventory'
-      fullPath: '/channel-manager/inventory'
-      preLoaderRoute: typeof ChannelManagerInventoryRouteImport
-      parentRoute: typeof ChannelManagerRoute
+      fullPath: '/pos/inventory'
+      preLoaderRoute: typeof PosInventoryRouteImport
+      parentRoute: typeof PosRoute
     }
-    '/channel-manager/incidents': {
-      id: '/channel-manager/incidents'
-      path: '/incidents'
-      fullPath: '/channel-manager/incidents'
-      preLoaderRoute: typeof ChannelManagerIncidentsRouteImport
-      parentRoute: typeof ChannelManagerRoute
+    '/pos/help': {
+      id: '/pos/help'
+      path: '/help'
+      fullPath: '/pos/help'
+      preLoaderRoute: typeof PosHelpRouteImport
+      parentRoute: typeof PosRoute
     }
-    '/channel-manager/images': {
-      id: '/channel-manager/images'
+    '/pos/crm': {
+      id: '/pos/crm'
+      path: '/crm'
+      fullPath: '/pos/crm'
+      preLoaderRoute: typeof PosCrmRouteImport
+      parentRoute: typeof PosRoute
+    }
+    '/pos/billing': {
+      id: '/pos/billing'
+      path: '/billing'
+      fullPath: '/pos/billing'
+      preLoaderRoute: typeof PosBillingRouteImport
+      parentRoute: typeof PosRoute
+    }
+    '/pos/aggregators': {
+      id: '/pos/aggregators'
+      path: '/aggregators'
+      fullPath: '/pos/aggregators'
+      preLoaderRoute: typeof PosAggregatorsRouteImport
+      parentRoute: typeof PosRoute
+    }
+    '/pos/reports/other': {
+      id: '/pos/reports/other'
+      path: '/other'
+      fullPath: '/pos/reports/other'
+      preLoaderRoute: typeof PosReportsOtherRouteImport
+      parentRoute: typeof PosReportsRoute
+    }
+    '/pos/reports/notifications': {
+      id: '/pos/reports/notifications'
+      path: '/notifications'
+      fullPath: '/pos/reports/notifications'
+      preLoaderRoute: typeof PosReportsNotificationsRouteImport
+      parentRoute: typeof PosReportsRoute
+    }
+    '/pos/reports/delivery': {
+      id: '/pos/reports/delivery'
+      path: '/delivery'
+      fullPath: '/pos/reports/delivery'
+      preLoaderRoute: typeof PosReportsDeliveryRouteImport
+      parentRoute: typeof PosReportsRoute
+    }
+    '/pos/reports/day-end': {
+      id: '/pos/reports/day-end'
+      path: '/day-end'
+      fullPath: '/pos/reports/day-end'
+      preLoaderRoute: typeof PosReportsDayEndRouteImport
+      parentRoute: typeof PosReportsRoute
+    }
+    '/pos/orders/online': {
+      id: '/pos/orders/online'
+      path: '/online'
+      fullPath: '/pos/orders/online'
+      preLoaderRoute: typeof PosOrdersOnlineRouteImport
+      parentRoute: typeof PosOrdersRoute
+    }
+    '/pos/orders/all': {
+      id: '/pos/orders/all'
+      path: '/all'
+      fullPath: '/pos/orders/all'
+      preLoaderRoute: typeof PosOrdersAllRouteImport
+      parentRoute: typeof PosOrdersRoute
+    }
+    '/pos/menu/special-notes': {
+      id: '/pos/menu/special-notes'
+      path: '/special-notes'
+      fullPath: '/pos/menu/special-notes'
+      preLoaderRoute: typeof PosMenuSpecialNotesRouteImport
+      parentRoute: typeof PosMenuRoute
+    }
+    '/pos/menu/schedule': {
+      id: '/pos/menu/schedule'
+      path: '/schedule'
+      fullPath: '/pos/menu/schedule'
+      preLoaderRoute: typeof PosMenuScheduleRouteImport
+      parentRoute: typeof PosMenuRoute
+    }
+    '/pos/menu/physical': {
+      id: '/pos/menu/physical'
+      path: '/physical'
+      fullPath: '/pos/menu/physical'
+      preLoaderRoute: typeof PosMenuPhysicalRouteImport
+      parentRoute: typeof PosMenuRoute
+    }
+    '/pos/menu/on-off': {
+      id: '/pos/menu/on-off'
+      path: '/on-off'
+      fullPath: '/pos/menu/on-off'
+      preLoaderRoute: typeof PosMenuOnOffRouteImport
+      parentRoute: typeof PosMenuRoute
+    }
+    '/pos/menu/images': {
+      id: '/pos/menu/images'
       path: '/images'
-      fullPath: '/channel-manager/images'
-      preLoaderRoute: typeof ChannelManagerImagesRouteImport
-      parentRoute: typeof ChannelManagerRoute
+      fullPath: '/pos/menu/images'
+      preLoaderRoute: typeof PosMenuImagesRouteImport
+      parentRoute: typeof PosMenuRoute
     }
-    '/channel-manager/connections': {
-      id: '/channel-manager/connections'
-      path: '/connections'
-      fullPath: '/channel-manager/connections'
-      preLoaderRoute: typeof ChannelManagerConnectionsRouteImport
-      parentRoute: typeof ChannelManagerRoute
+    '/pos/menu/commission': {
+      id: '/pos/menu/commission'
+      path: '/commission'
+      fullPath: '/pos/menu/commission'
+      preLoaderRoute: typeof PosMenuCommissionRouteImport
+      parentRoute: typeof PosMenuRoute
     }
-    '/channel-manager/availability': {
-      id: '/channel-manager/availability'
-      path: '/availability'
-      fullPath: '/channel-manager/availability'
-      preLoaderRoute: typeof ChannelManagerAvailabilityRouteImport
-      parentRoute: typeof ChannelManagerRoute
+    '/pos/management/device-mapping': {
+      id: '/pos/management/device-mapping'
+      path: '/device-mapping'
+      fullPath: '/pos/management/device-mapping'
+      preLoaderRoute: typeof PosManagementDeviceMappingRouteImport
+      parentRoute: typeof PosManagementRoute
     }
-    '/channel-manager/analytics': {
-      id: '/channel-manager/analytics'
-      path: '/analytics'
-      fullPath: '/channel-manager/analytics'
-      preLoaderRoute: typeof ChannelManagerAnalyticsRouteImport
-      parentRoute: typeof ChannelManagerRoute
+    '/pos/management/data-management': {
+      id: '/pos/management/data-management'
+      path: '/data-management'
+      fullPath: '/pos/management/data-management'
+      preLoaderRoute: typeof PosManagementDataManagementRouteImport
+      parentRoute: typeof PosManagementRoute
     }
-    '/analytics/executive': {
-      id: '/analytics/executive'
-      path: '/analytics/executive'
-      fullPath: '/analytics/executive'
-      preLoaderRoute: typeof AnalyticsExecutiveRouteImport
-      parentRoute: typeof rootRouteImport
+    '/pos/management/audit-trail': {
+      id: '/pos/management/audit-trail'
+      path: '/audit-trail'
+      fullPath: '/pos/management/audit-trail'
+      preLoaderRoute: typeof PosManagementAuditTrailRouteImport
+      parentRoute: typeof PosManagementRoute
+    }
+    '/pos/inventory/wastage': {
+      id: '/pos/inventory/wastage'
+      path: '/wastage'
+      fullPath: '/pos/inventory/wastage'
+      preLoaderRoute: typeof PosInventoryWastageRouteImport
+      parentRoute: typeof PosInventoryRoute
+    }
+    '/pos/inventory/transfer': {
+      id: '/pos/inventory/transfer'
+      path: '/transfer'
+      fullPath: '/pos/inventory/transfer'
+      preLoaderRoute: typeof PosInventoryTransferRouteImport
+      parentRoute: typeof PosInventoryRoute
+    }
+    '/pos/inventory/settings': {
+      id: '/pos/inventory/settings'
+      path: '/settings'
+      fullPath: '/pos/inventory/settings'
+      preLoaderRoute: typeof PosInventorySettingsRouteImport
+      parentRoute: typeof PosInventoryRoute
+    }
+    '/pos/inventory/sales-return': {
+      id: '/pos/inventory/sales-return'
+      path: '/sales-return'
+      fullPath: '/pos/inventory/sales-return'
+      preLoaderRoute: typeof PosInventorySalesReturnRouteImport
+      parentRoute: typeof PosInventoryRoute
+    }
+    '/pos/inventory/sales': {
+      id: '/pos/inventory/sales'
+      path: '/sales'
+      fullPath: '/pos/inventory/sales'
+      preLoaderRoute: typeof PosInventorySalesRouteImport
+      parentRoute: typeof PosInventoryRoute
+    }
+    '/pos/inventory/return': {
+      id: '/pos/inventory/return'
+      path: '/return'
+      fullPath: '/pos/inventory/return'
+      preLoaderRoute: typeof PosInventoryReturnRouteImport
+      parentRoute: typeof PosInventoryRoute
+    }
+    '/pos/inventory/reports': {
+      id: '/pos/inventory/reports'
+      path: '/reports'
+      fullPath: '/pos/inventory/reports'
+      preLoaderRoute: typeof PosInventoryReportsRouteImport
+      parentRoute: typeof PosInventoryRoute
+    }
+    '/pos/inventory/purchase': {
+      id: '/pos/inventory/purchase'
+      path: '/purchase'
+      fullPath: '/pos/inventory/purchase'
+      preLoaderRoute: typeof PosInventoryPurchaseRouteImport
+      parentRoute: typeof PosInventoryRoute
+    }
+    '/pos/inventory/production': {
+      id: '/pos/inventory/production'
+      path: '/production'
+      fullPath: '/pos/inventory/production'
+      preLoaderRoute: typeof PosInventoryProductionRouteImport
+      parentRoute: typeof PosInventoryRoute
+    }
+    '/pos/inventory/order': {
+      id: '/pos/inventory/order'
+      path: '/order'
+      fullPath: '/pos/inventory/order'
+      preLoaderRoute: typeof PosInventoryOrderRouteImport
+      parentRoute: typeof PosInventoryRoute
+    }
+    '/pos/inventory/masters': {
+      id: '/pos/inventory/masters'
+      path: '/masters'
+      fullPath: '/pos/inventory/masters'
+      preLoaderRoute: typeof PosInventoryMastersRouteImport
+      parentRoute: typeof PosInventoryRoute
+    }
+    '/pos/inventory/closing-stock': {
+      id: '/pos/inventory/closing-stock'
+      path: '/closing-stock'
+      fullPath: '/pos/inventory/closing-stock'
+      preLoaderRoute: typeof PosInventoryClosingStockRouteImport
+      parentRoute: typeof PosInventoryRoute
+    }
+    '/pos/inventory/available-stock': {
+      id: '/pos/inventory/available-stock'
+      path: '/available-stock'
+      fullPath: '/pos/inventory/available-stock'
+      preLoaderRoute: typeof PosInventoryAvailableStockRouteImport
+      parentRoute: typeof PosInventoryRoute
+    }
+    '/pos/management/marketplace/': {
+      id: '/pos/management/marketplace/'
+      path: '/marketplace'
+      fullPath: '/pos/management/marketplace/'
+      preLoaderRoute: typeof PosManagementMarketplaceIndexRouteImport
+      parentRoute: typeof PosManagementRoute
+    }
+    '/pos/management/users/biller-groups': {
+      id: '/pos/management/users/biller-groups'
+      path: '/users/biller-groups'
+      fullPath: '/pos/management/users/biller-groups'
+      preLoaderRoute: typeof PosManagementUsersBillerGroupsRouteImport
+      parentRoute: typeof PosManagementRoute
+    }
+    '/pos/management/users/biller-app': {
+      id: '/pos/management/users/biller-app'
+      path: '/users/biller-app'
+      fullPath: '/pos/management/users/biller-app'
+      preLoaderRoute: typeof PosManagementUsersBillerAppRouteImport
+      parentRoute: typeof PosManagementRoute
+    }
+    '/pos/management/users/admin-management': {
+      id: '/pos/management/users/admin-management'
+      path: '/users/admin-management'
+      fullPath: '/pos/management/users/admin-management'
+      preLoaderRoute: typeof PosManagementUsersAdminManagementRouteImport
+      parentRoute: typeof PosManagementRoute
+    }
+    '/pos/management/users/admin-groups': {
+      id: '/pos/management/users/admin-groups'
+      path: '/users/admin-groups'
+      fullPath: '/pos/management/users/admin-groups'
+      preLoaderRoute: typeof PosManagementUsersAdminGroupsRouteImport
+      parentRoute: typeof PosManagementRoute
+    }
+    '/pos/management/outlet/kitchen': {
+      id: '/pos/management/outlet/kitchen'
+      path: '/outlet/kitchen'
+      fullPath: '/pos/management/outlet/kitchen'
+      preLoaderRoute: typeof PosManagementOutletKitchenRouteImport
+      parentRoute: typeof PosManagementRoute
+    }
+    '/pos/management/outlet/ho': {
+      id: '/pos/management/outlet/ho'
+      path: '/outlet/ho'
+      fullPath: '/pos/management/outlet/ho'
+      preLoaderRoute: typeof PosManagementOutletHoRouteImport
+      parentRoute: typeof PosManagementRoute
+    }
+    '/pos/management/marketplace/settings': {
+      id: '/pos/management/marketplace/settings'
+      path: '/marketplace/settings'
+      fullPath: '/pos/management/marketplace/settings'
+      preLoaderRoute: typeof PosManagementMarketplaceSettingsRouteImport
+      parentRoute: typeof PosManagementRoute
+    }
+    '/pos/management/logs/support': {
+      id: '/pos/management/logs/support'
+      path: '/logs/support'
+      fullPath: '/pos/management/logs/support'
+      preLoaderRoute: typeof PosManagementLogsSupportRouteImport
+      parentRoute: typeof PosManagementRoute
+    }
+    '/pos/management/logs/online-store': {
+      id: '/pos/management/logs/online-store'
+      path: '/logs/online-store'
+      fullPath: '/pos/management/logs/online-store'
+      preLoaderRoute: typeof PosManagementLogsOnlineStoreRouteImport
+      parentRoute: typeof PosManagementRoute
+    }
+    '/pos/management/configuration/sub-order-type': {
+      id: '/pos/management/configuration/sub-order-type'
+      path: '/configuration/sub-order-type'
+      fullPath: '/pos/management/configuration/sub-order-type'
+      preLoaderRoute: typeof PosManagementConfigurationSubOrderTypeRouteImport
+      parentRoute: typeof PosManagementRoute
+    }
+    '/pos/management/configuration/outlet': {
+      id: '/pos/management/configuration/outlet'
+      path: '/configuration/outlet'
+      fullPath: '/pos/management/configuration/outlet'
+      preLoaderRoute: typeof PosManagementConfigurationOutletRouteImport
+      parentRoute: typeof PosManagementRoute
+    }
+    '/pos/management/configuration/floor-plan': {
+      id: '/pos/management/configuration/floor-plan'
+      path: '/configuration/floor-plan'
+      fullPath: '/pos/management/configuration/floor-plan'
+      preLoaderRoute: typeof PosManagementConfigurationFloorPlanRouteImport
+      parentRoute: typeof PosManagementRoute
+    }
+    '/pos/management/configuration/email-templates': {
+      id: '/pos/management/configuration/email-templates'
+      path: '/configuration/email-templates'
+      fullPath: '/pos/management/configuration/email-templates'
+      preLoaderRoute: typeof PosManagementConfigurationEmailTemplatesRouteImport
+      parentRoute: typeof PosManagementRoute
+    }
+    '/pos/management/configuration/delivery-distance': {
+      id: '/pos/management/configuration/delivery-distance'
+      path: '/configuration/delivery-distance'
+      fullPath: '/pos/management/configuration/delivery-distance'
+      preLoaderRoute: typeof PosManagementConfigurationDeliveryDistanceRouteImport
+      parentRoute: typeof PosManagementRoute
+    }
+    '/pos/management/configuration/area-delivery-charges': {
+      id: '/pos/management/configuration/area-delivery-charges'
+      path: '/configuration/area-delivery-charges'
+      fullPath: '/pos/management/configuration/area-delivery-charges'
+      preLoaderRoute: typeof PosManagementConfigurationAreaDeliveryChargesRouteImport
+      parentRoute: typeof PosManagementRoute
+    }
+    '/pos/management/accounting/utility-bills': {
+      id: '/pos/management/accounting/utility-bills'
+      path: '/accounting/utility-bills'
+      fullPath: '/pos/management/accounting/utility-bills'
+      preLoaderRoute: typeof PosManagementAccountingUtilityBillsRouteImport
+      parentRoute: typeof PosManagementRoute
+    }
+    '/pos/management/accounting/service-payments': {
+      id: '/pos/management/accounting/service-payments'
+      path: '/accounting/service-payments'
+      fullPath: '/pos/management/accounting/service-payments'
+      preLoaderRoute: typeof PosManagementAccountingServicePaymentsRouteImport
+      parentRoute: typeof PosManagementRoute
+    }
+    '/pos/management/accounting/online-reconciliation': {
+      id: '/pos/management/accounting/online-reconciliation'
+      path: '/accounting/online-reconciliation'
+      fullPath: '/pos/management/accounting/online-reconciliation'
+      preLoaderRoute: typeof PosManagementAccountingOnlineReconciliationRouteImport
+      parentRoute: typeof PosManagementRoute
+    }
+    '/pos/management/accounting/loans': {
+      id: '/pos/management/accounting/loans'
+      path: '/accounting/loans'
+      fullPath: '/pos/management/accounting/loans'
+      preLoaderRoute: typeof PosManagementAccountingLoansRouteImport
+      parentRoute: typeof PosManagementRoute
+    }
+    '/pos/management/accounting/kyc': {
+      id: '/pos/management/accounting/kyc'
+      path: '/accounting/kyc'
+      fullPath: '/pos/management/accounting/kyc'
+      preLoaderRoute: typeof PosManagementAccountingKycRouteImport
+      parentRoute: typeof PosManagementRoute
+    }
+    '/pos/management/accounting/gst': {
+      id: '/pos/management/accounting/gst'
+      path: '/accounting/gst'
+      fullPath: '/pos/management/accounting/gst'
+      preLoaderRoute: typeof PosManagementAccountingGstRouteImport
+      parentRoute: typeof PosManagementRoute
+    }
+    '/pos/management/accounting/expenses': {
+      id: '/pos/management/accounting/expenses'
+      path: '/accounting/expenses'
+      fullPath: '/pos/management/accounting/expenses'
+      preLoaderRoute: typeof PosManagementAccountingExpensesRouteImport
+      parentRoute: typeof PosManagementRoute
+    }
+    '/pos/management/accounting/denomination': {
+      id: '/pos/management/accounting/denomination'
+      path: '/accounting/denomination'
+      fullPath: '/pos/management/accounting/denomination'
+      preLoaderRoute: typeof PosManagementAccountingDenominationRouteImport
+      parentRoute: typeof PosManagementRoute
+    }
+    '/pos/management/accounting/bank-details': {
+      id: '/pos/management/accounting/bank-details'
+      path: '/accounting/bank-details'
+      fullPath: '/pos/management/accounting/bank-details'
+      preLoaderRoute: typeof PosManagementAccountingBankDetailsRouteImport
+      parentRoute: typeof PosManagementRoute
+    }
+    '/pos/inventory/reports/stock-summary': {
+      id: '/pos/inventory/reports/stock-summary'
+      path: '/stock-summary'
+      fullPath: '/pos/inventory/reports/stock-summary'
+      preLoaderRoute: typeof PosInventoryReportsStockSummaryRouteImport
+      parentRoute: typeof PosInventoryReportsRoute
+    }
+    '/pos/inventory/reports/other-reports': {
+      id: '/pos/inventory/reports/other-reports'
+      path: '/other-reports'
+      fullPath: '/pos/inventory/reports/other-reports'
+      preLoaderRoute: typeof PosInventoryReportsOtherReportsRouteImport
+      parentRoute: typeof PosInventoryReportsRoute
+    }
+    '/pos/inventory/reports/orderwise-consumption': {
+      id: '/pos/inventory/reports/orderwise-consumption'
+      path: '/orderwise-consumption'
+      fullPath: '/pos/inventory/reports/orderwise-consumption'
+      preLoaderRoute: typeof PosInventoryReportsOrderwiseConsumptionRouteImport
+      parentRoute: typeof PosInventoryReportsRoute
+    }
+    '/pos/inventory/production/execution': {
+      id: '/pos/inventory/production/execution'
+      path: '/execution'
+      fullPath: '/pos/inventory/production/execution'
+      preLoaderRoute: typeof PosInventoryProductionExecutionRouteImport
+      parentRoute: typeof PosInventoryProductionRoute
+    }
+    '/pos/inventory/production/barcode': {
+      id: '/pos/inventory/production/barcode'
+      path: '/barcode'
+      fullPath: '/pos/inventory/production/barcode'
+      preLoaderRoute: typeof PosInventoryProductionBarcodeRouteImport
+      parentRoute: typeof PosInventoryProductionRoute
+    }
+    '/pos/inventory/masters/units': {
+      id: '/pos/inventory/masters/units'
+      path: '/units'
+      fullPath: '/pos/inventory/masters/units'
+      preLoaderRoute: typeof PosInventoryMastersUnitsRouteImport
+      parentRoute: typeof PosInventoryMastersRoute
+    }
+    '/pos/inventory/masters/suppliers': {
+      id: '/pos/inventory/masters/suppliers'
+      path: '/suppliers'
+      fullPath: '/pos/inventory/masters/suppliers'
+      preLoaderRoute: typeof PosInventoryMastersSuppliersRouteImport
+      parentRoute: typeof PosInventoryMastersRoute
+    }
+    '/pos/inventory/masters/recipes': {
+      id: '/pos/inventory/masters/recipes'
+      path: '/recipes'
+      fullPath: '/pos/inventory/masters/recipes'
+      preLoaderRoute: typeof PosInventoryMastersRecipesRouteImport
+      parentRoute: typeof PosInventoryMastersRoute
+    }
+    '/pos/inventory/masters/raw-materials': {
+      id: '/pos/inventory/masters/raw-materials'
+      path: '/raw-materials'
+      fullPath: '/pos/inventory/masters/raw-materials'
+      preLoaderRoute: typeof PosInventoryMastersRawMaterialsRouteImport
+      parentRoute: typeof PosInventoryMastersRoute
+    }
+    '/pos/inventory/masters/purchase-payments': {
+      id: '/pos/inventory/masters/purchase-payments'
+      path: '/purchase-payments'
+      fullPath: '/pos/inventory/masters/purchase-payments'
+      preLoaderRoute: typeof PosInventoryMastersPurchasePaymentsRouteImport
+      parentRoute: typeof PosInventoryMastersRoute
+    }
+    '/pos/inventory/masters/invoice-templates': {
+      id: '/pos/inventory/masters/invoice-templates'
+      path: '/invoice-templates'
+      fullPath: '/pos/inventory/masters/invoice-templates'
+      preLoaderRoute: typeof PosInventoryMastersInvoiceTemplatesRouteImport
+      parentRoute: typeof PosInventoryMastersRoute
+    }
+    '/pos/management/accounting/payments/wallet': {
+      id: '/pos/management/accounting/payments/wallet'
+      path: '/accounting/payments/wallet'
+      fullPath: '/pos/management/accounting/payments/wallet'
+      preLoaderRoute: typeof PosManagementAccountingPaymentsWalletRouteImport
+      parentRoute: typeof PosManagementRoute
+    }
+    '/pos/management/accounting/payments/information': {
+      id: '/pos/management/accounting/payments/information'
+      path: '/accounting/payments/information'
+      fullPath: '/pos/management/accounting/payments/information'
+      preLoaderRoute: typeof PosManagementAccountingPaymentsInformationRouteImport
+      parentRoute: typeof PosManagementRoute
     }
   }
 }
 
-interface ChannelManagerRouteChildren {
-  ChannelManagerAnalyticsRoute: typeof ChannelManagerAnalyticsRoute
-  ChannelManagerAvailabilityRoute: typeof ChannelManagerAvailabilityRoute
-  ChannelManagerConnectionsRoute: typeof ChannelManagerConnectionsRoute
-  ChannelManagerImagesRoute: typeof ChannelManagerImagesRoute
-  ChannelManagerIncidentsRoute: typeof ChannelManagerIncidentsRoute
-  ChannelManagerInventoryRoute: typeof ChannelManagerInventoryRoute
-  ChannelManagerMultiPropertyRoute: typeof ChannelManagerMultiPropertyRoute
-  ChannelManagerPropertyContentRoute: typeof ChannelManagerPropertyContentRoute
-  ChannelManagerRatePlansRoute: typeof ChannelManagerRatePlansRoute
-  ChannelManagerRatesRoute: typeof ChannelManagerRatesRoute
-  ChannelManagerReservationsRoute: typeof ChannelManagerReservationsRoute
-  ChannelManagerRestrictionsRoute: typeof ChannelManagerRestrictionsRoute
-  ChannelManagerRevenueRoute: typeof ChannelManagerRevenueRoute
-  ChannelManagerRoomContentRoute: typeof ChannelManagerRoomContentRoute
-  ChannelManagerRoomMappingRoute: typeof ChannelManagerRoomMappingRoute
-  ChannelManagerSyncLogsRoute: typeof ChannelManagerSyncLogsRoute
+interface PosInventoryMastersRouteChildren {
+  PosInventoryMastersInvoiceTemplatesRoute: typeof PosInventoryMastersInvoiceTemplatesRoute
+  PosInventoryMastersPurchasePaymentsRoute: typeof PosInventoryMastersPurchasePaymentsRoute
+  PosInventoryMastersRawMaterialsRoute: typeof PosInventoryMastersRawMaterialsRoute
+  PosInventoryMastersRecipesRoute: typeof PosInventoryMastersRecipesRoute
+  PosInventoryMastersSuppliersRoute: typeof PosInventoryMastersSuppliersRoute
+  PosInventoryMastersUnitsRoute: typeof PosInventoryMastersUnitsRoute
 }
 
-const ChannelManagerRouteChildren: ChannelManagerRouteChildren = {
-  ChannelManagerAnalyticsRoute: ChannelManagerAnalyticsRoute,
-  ChannelManagerAvailabilityRoute: ChannelManagerAvailabilityRoute,
-  ChannelManagerConnectionsRoute: ChannelManagerConnectionsRoute,
-  ChannelManagerImagesRoute: ChannelManagerImagesRoute,
-  ChannelManagerIncidentsRoute: ChannelManagerIncidentsRoute,
-  ChannelManagerInventoryRoute: ChannelManagerInventoryRoute,
-  ChannelManagerMultiPropertyRoute: ChannelManagerMultiPropertyRoute,
-  ChannelManagerPropertyContentRoute: ChannelManagerPropertyContentRoute,
-  ChannelManagerRatePlansRoute: ChannelManagerRatePlansRoute,
-  ChannelManagerRatesRoute: ChannelManagerRatesRoute,
-  ChannelManagerReservationsRoute: ChannelManagerReservationsRoute,
-  ChannelManagerRestrictionsRoute: ChannelManagerRestrictionsRoute,
-  ChannelManagerRevenueRoute: ChannelManagerRevenueRoute,
-  ChannelManagerRoomContentRoute: ChannelManagerRoomContentRoute,
-  ChannelManagerRoomMappingRoute: ChannelManagerRoomMappingRoute,
-  ChannelManagerSyncLogsRoute: ChannelManagerSyncLogsRoute,
+const PosInventoryMastersRouteChildren: PosInventoryMastersRouteChildren = {
+  PosInventoryMastersInvoiceTemplatesRoute:
+    PosInventoryMastersInvoiceTemplatesRoute,
+  PosInventoryMastersPurchasePaymentsRoute:
+    PosInventoryMastersPurchasePaymentsRoute,
+  PosInventoryMastersRawMaterialsRoute: PosInventoryMastersRawMaterialsRoute,
+  PosInventoryMastersRecipesRoute: PosInventoryMastersRecipesRoute,
+  PosInventoryMastersSuppliersRoute: PosInventoryMastersSuppliersRoute,
+  PosInventoryMastersUnitsRoute: PosInventoryMastersUnitsRoute,
 }
 
-const ChannelManagerRouteWithChildren = ChannelManagerRoute._addFileChildren(
-  ChannelManagerRouteChildren,
+const PosInventoryMastersRouteWithChildren =
+  PosInventoryMastersRoute._addFileChildren(PosInventoryMastersRouteChildren)
+
+interface PosInventoryProductionRouteChildren {
+  PosInventoryProductionBarcodeRoute: typeof PosInventoryProductionBarcodeRoute
+  PosInventoryProductionExecutionRoute: typeof PosInventoryProductionExecutionRoute
+}
+
+const PosInventoryProductionRouteChildren: PosInventoryProductionRouteChildren =
+  {
+    PosInventoryProductionBarcodeRoute: PosInventoryProductionBarcodeRoute,
+    PosInventoryProductionExecutionRoute: PosInventoryProductionExecutionRoute,
+  }
+
+const PosInventoryProductionRouteWithChildren =
+  PosInventoryProductionRoute._addFileChildren(
+    PosInventoryProductionRouteChildren,
+  )
+
+interface PosInventoryReportsRouteChildren {
+  PosInventoryReportsOrderwiseConsumptionRoute: typeof PosInventoryReportsOrderwiseConsumptionRoute
+  PosInventoryReportsOtherReportsRoute: typeof PosInventoryReportsOtherReportsRoute
+  PosInventoryReportsStockSummaryRoute: typeof PosInventoryReportsStockSummaryRoute
+}
+
+const PosInventoryReportsRouteChildren: PosInventoryReportsRouteChildren = {
+  PosInventoryReportsOrderwiseConsumptionRoute:
+    PosInventoryReportsOrderwiseConsumptionRoute,
+  PosInventoryReportsOtherReportsRoute: PosInventoryReportsOtherReportsRoute,
+  PosInventoryReportsStockSummaryRoute: PosInventoryReportsStockSummaryRoute,
+}
+
+const PosInventoryReportsRouteWithChildren =
+  PosInventoryReportsRoute._addFileChildren(PosInventoryReportsRouteChildren)
+
+interface PosInventoryRouteChildren {
+  PosInventoryAvailableStockRoute: typeof PosInventoryAvailableStockRoute
+  PosInventoryClosingStockRoute: typeof PosInventoryClosingStockRoute
+  PosInventoryMastersRoute: typeof PosInventoryMastersRouteWithChildren
+  PosInventoryOrderRoute: typeof PosInventoryOrderRoute
+  PosInventoryProductionRoute: typeof PosInventoryProductionRouteWithChildren
+  PosInventoryPurchaseRoute: typeof PosInventoryPurchaseRoute
+  PosInventoryReportsRoute: typeof PosInventoryReportsRouteWithChildren
+  PosInventoryReturnRoute: typeof PosInventoryReturnRoute
+  PosInventorySalesRoute: typeof PosInventorySalesRoute
+  PosInventorySalesReturnRoute: typeof PosInventorySalesReturnRoute
+  PosInventorySettingsRoute: typeof PosInventorySettingsRoute
+  PosInventoryTransferRoute: typeof PosInventoryTransferRoute
+  PosInventoryWastageRoute: typeof PosInventoryWastageRoute
+}
+
+const PosInventoryRouteChildren: PosInventoryRouteChildren = {
+  PosInventoryAvailableStockRoute: PosInventoryAvailableStockRoute,
+  PosInventoryClosingStockRoute: PosInventoryClosingStockRoute,
+  PosInventoryMastersRoute: PosInventoryMastersRouteWithChildren,
+  PosInventoryOrderRoute: PosInventoryOrderRoute,
+  PosInventoryProductionRoute: PosInventoryProductionRouteWithChildren,
+  PosInventoryPurchaseRoute: PosInventoryPurchaseRoute,
+  PosInventoryReportsRoute: PosInventoryReportsRouteWithChildren,
+  PosInventoryReturnRoute: PosInventoryReturnRoute,
+  PosInventorySalesRoute: PosInventorySalesRoute,
+  PosInventorySalesReturnRoute: PosInventorySalesReturnRoute,
+  PosInventorySettingsRoute: PosInventorySettingsRoute,
+  PosInventoryTransferRoute: PosInventoryTransferRoute,
+  PosInventoryWastageRoute: PosInventoryWastageRoute,
+}
+
+const PosInventoryRouteWithChildren = PosInventoryRoute._addFileChildren(
+  PosInventoryRouteChildren,
 )
 
-interface HousekeepingRouteChildren {
-  HousekeepingMobileRoute: typeof HousekeepingMobileRoute
+interface PosManagementRouteChildren {
+  PosManagementAuditTrailRoute: typeof PosManagementAuditTrailRoute
+  PosManagementDataManagementRoute: typeof PosManagementDataManagementRoute
+  PosManagementDeviceMappingRoute: typeof PosManagementDeviceMappingRoute
+  PosManagementAccountingBankDetailsRoute: typeof PosManagementAccountingBankDetailsRoute
+  PosManagementAccountingDenominationRoute: typeof PosManagementAccountingDenominationRoute
+  PosManagementAccountingExpensesRoute: typeof PosManagementAccountingExpensesRoute
+  PosManagementAccountingGstRoute: typeof PosManagementAccountingGstRoute
+  PosManagementAccountingKycRoute: typeof PosManagementAccountingKycRoute
+  PosManagementAccountingLoansRoute: typeof PosManagementAccountingLoansRoute
+  PosManagementAccountingOnlineReconciliationRoute: typeof PosManagementAccountingOnlineReconciliationRoute
+  PosManagementAccountingServicePaymentsRoute: typeof PosManagementAccountingServicePaymentsRoute
+  PosManagementAccountingUtilityBillsRoute: typeof PosManagementAccountingUtilityBillsRoute
+  PosManagementConfigurationAreaDeliveryChargesRoute: typeof PosManagementConfigurationAreaDeliveryChargesRoute
+  PosManagementConfigurationDeliveryDistanceRoute: typeof PosManagementConfigurationDeliveryDistanceRoute
+  PosManagementConfigurationEmailTemplatesRoute: typeof PosManagementConfigurationEmailTemplatesRoute
+  PosManagementConfigurationFloorPlanRoute: typeof PosManagementConfigurationFloorPlanRoute
+  PosManagementConfigurationOutletRoute: typeof PosManagementConfigurationOutletRoute
+  PosManagementConfigurationSubOrderTypeRoute: typeof PosManagementConfigurationSubOrderTypeRoute
+  PosManagementLogsOnlineStoreRoute: typeof PosManagementLogsOnlineStoreRoute
+  PosManagementLogsSupportRoute: typeof PosManagementLogsSupportRoute
+  PosManagementMarketplaceSettingsRoute: typeof PosManagementMarketplaceSettingsRoute
+  PosManagementOutletHoRoute: typeof PosManagementOutletHoRoute
+  PosManagementOutletKitchenRoute: typeof PosManagementOutletKitchenRoute
+  PosManagementUsersAdminGroupsRoute: typeof PosManagementUsersAdminGroupsRoute
+  PosManagementUsersAdminManagementRoute: typeof PosManagementUsersAdminManagementRoute
+  PosManagementUsersBillerAppRoute: typeof PosManagementUsersBillerAppRoute
+  PosManagementUsersBillerGroupsRoute: typeof PosManagementUsersBillerGroupsRoute
+  PosManagementMarketplaceIndexRoute: typeof PosManagementMarketplaceIndexRoute
+  PosManagementAccountingPaymentsInformationRoute: typeof PosManagementAccountingPaymentsInformationRoute
+  PosManagementAccountingPaymentsWalletRoute: typeof PosManagementAccountingPaymentsWalletRoute
 }
 
-const HousekeepingRouteChildren: HousekeepingRouteChildren = {
-  HousekeepingMobileRoute: HousekeepingMobileRoute,
+const PosManagementRouteChildren: PosManagementRouteChildren = {
+  PosManagementAuditTrailRoute: PosManagementAuditTrailRoute,
+  PosManagementDataManagementRoute: PosManagementDataManagementRoute,
+  PosManagementDeviceMappingRoute: PosManagementDeviceMappingRoute,
+  PosManagementAccountingBankDetailsRoute:
+    PosManagementAccountingBankDetailsRoute,
+  PosManagementAccountingDenominationRoute:
+    PosManagementAccountingDenominationRoute,
+  PosManagementAccountingExpensesRoute: PosManagementAccountingExpensesRoute,
+  PosManagementAccountingGstRoute: PosManagementAccountingGstRoute,
+  PosManagementAccountingKycRoute: PosManagementAccountingKycRoute,
+  PosManagementAccountingLoansRoute: PosManagementAccountingLoansRoute,
+  PosManagementAccountingOnlineReconciliationRoute:
+    PosManagementAccountingOnlineReconciliationRoute,
+  PosManagementAccountingServicePaymentsRoute:
+    PosManagementAccountingServicePaymentsRoute,
+  PosManagementAccountingUtilityBillsRoute:
+    PosManagementAccountingUtilityBillsRoute,
+  PosManagementConfigurationAreaDeliveryChargesRoute:
+    PosManagementConfigurationAreaDeliveryChargesRoute,
+  PosManagementConfigurationDeliveryDistanceRoute:
+    PosManagementConfigurationDeliveryDistanceRoute,
+  PosManagementConfigurationEmailTemplatesRoute:
+    PosManagementConfigurationEmailTemplatesRoute,
+  PosManagementConfigurationFloorPlanRoute:
+    PosManagementConfigurationFloorPlanRoute,
+  PosManagementConfigurationOutletRoute: PosManagementConfigurationOutletRoute,
+  PosManagementConfigurationSubOrderTypeRoute:
+    PosManagementConfigurationSubOrderTypeRoute,
+  PosManagementLogsOnlineStoreRoute: PosManagementLogsOnlineStoreRoute,
+  PosManagementLogsSupportRoute: PosManagementLogsSupportRoute,
+  PosManagementMarketplaceSettingsRoute: PosManagementMarketplaceSettingsRoute,
+  PosManagementOutletHoRoute: PosManagementOutletHoRoute,
+  PosManagementOutletKitchenRoute: PosManagementOutletKitchenRoute,
+  PosManagementUsersAdminGroupsRoute: PosManagementUsersAdminGroupsRoute,
+  PosManagementUsersAdminManagementRoute:
+    PosManagementUsersAdminManagementRoute,
+  PosManagementUsersBillerAppRoute: PosManagementUsersBillerAppRoute,
+  PosManagementUsersBillerGroupsRoute: PosManagementUsersBillerGroupsRoute,
+  PosManagementMarketplaceIndexRoute: PosManagementMarketplaceIndexRoute,
+  PosManagementAccountingPaymentsInformationRoute:
+    PosManagementAccountingPaymentsInformationRoute,
+  PosManagementAccountingPaymentsWalletRoute:
+    PosManagementAccountingPaymentsWalletRoute,
 }
 
-const HousekeepingRouteWithChildren = HousekeepingRoute._addFileChildren(
-  HousekeepingRouteChildren,
+const PosManagementRouteWithChildren = PosManagementRoute._addFileChildren(
+  PosManagementRouteChildren,
 )
 
-interface ReservationsRouteChildren {
-  ReservationsNewRoute: typeof ReservationsNewRoute
+interface PosMenuRouteChildren {
+  PosMenuCommissionRoute: typeof PosMenuCommissionRoute
+  PosMenuImagesRoute: typeof PosMenuImagesRoute
+  PosMenuOnOffRoute: typeof PosMenuOnOffRoute
+  PosMenuPhysicalRoute: typeof PosMenuPhysicalRoute
+  PosMenuScheduleRoute: typeof PosMenuScheduleRoute
+  PosMenuSpecialNotesRoute: typeof PosMenuSpecialNotesRoute
 }
 
-const ReservationsRouteChildren: ReservationsRouteChildren = {
-  ReservationsNewRoute: ReservationsNewRoute,
+const PosMenuRouteChildren: PosMenuRouteChildren = {
+  PosMenuCommissionRoute: PosMenuCommissionRoute,
+  PosMenuImagesRoute: PosMenuImagesRoute,
+  PosMenuOnOffRoute: PosMenuOnOffRoute,
+  PosMenuPhysicalRoute: PosMenuPhysicalRoute,
+  PosMenuScheduleRoute: PosMenuScheduleRoute,
+  PosMenuSpecialNotesRoute: PosMenuSpecialNotesRoute,
 }
 
-const ReservationsRouteWithChildren = ReservationsRoute._addFileChildren(
-  ReservationsRouteChildren,
+const PosMenuRouteWithChildren =
+  PosMenuRoute._addFileChildren(PosMenuRouteChildren)
+
+interface PosOrdersRouteChildren {
+  PosOrdersAllRoute: typeof PosOrdersAllRoute
+  PosOrdersOnlineRoute: typeof PosOrdersOnlineRoute
+}
+
+const PosOrdersRouteChildren: PosOrdersRouteChildren = {
+  PosOrdersAllRoute: PosOrdersAllRoute,
+  PosOrdersOnlineRoute: PosOrdersOnlineRoute,
+}
+
+const PosOrdersRouteWithChildren = PosOrdersRoute._addFileChildren(
+  PosOrdersRouteChildren,
 )
 
-interface RevenueRouteChildren {
-  RevenueAiDashboardRoute: typeof RevenueAiDashboardRoute
+interface PosReportsRouteChildren {
+  PosReportsDayEndRoute: typeof PosReportsDayEndRoute
+  PosReportsDeliveryRoute: typeof PosReportsDeliveryRoute
+  PosReportsNotificationsRoute: typeof PosReportsNotificationsRoute
+  PosReportsOtherRoute: typeof PosReportsOtherRoute
 }
 
-const RevenueRouteChildren: RevenueRouteChildren = {
-  RevenueAiDashboardRoute: RevenueAiDashboardRoute,
+const PosReportsRouteChildren: PosReportsRouteChildren = {
+  PosReportsDayEndRoute: PosReportsDayEndRoute,
+  PosReportsDeliveryRoute: PosReportsDeliveryRoute,
+  PosReportsNotificationsRoute: PosReportsNotificationsRoute,
+  PosReportsOtherRoute: PosReportsOtherRoute,
 }
 
-const RevenueRouteWithChildren =
-  RevenueRoute._addFileChildren(RevenueRouteChildren)
+const PosReportsRouteWithChildren = PosReportsRoute._addFileChildren(
+  PosReportsRouteChildren,
+)
+
+interface PosRouteChildren {
+  PosAggregatorsRoute: typeof PosAggregatorsRoute
+  PosBillingRoute: typeof PosBillingRoute
+  PosCrmRoute: typeof PosCrmRoute
+  PosHelpRoute: typeof PosHelpRoute
+  PosInventoryRoute: typeof PosInventoryRouteWithChildren
+  PosKotRoute: typeof PosKotRoute
+  PosManagementRoute: typeof PosManagementRouteWithChildren
+  PosMarketingRoute: typeof PosMarketingRoute
+  PosMenuRoute: typeof PosMenuRouteWithChildren
+  PosOrdersRoute: typeof PosOrdersRouteWithChildren
+  PosReportsRoute: typeof PosReportsRouteWithChildren
+  PosRoomServiceRoute: typeof PosRoomServiceRoute
+  PosSettingsRoute: typeof PosSettingsRoute
+  PosSettlementRoute: typeof PosSettlementRoute
+  PosTablesRoute: typeof PosTablesRoute
+}
+
+const PosRouteChildren: PosRouteChildren = {
+  PosAggregatorsRoute: PosAggregatorsRoute,
+  PosBillingRoute: PosBillingRoute,
+  PosCrmRoute: PosCrmRoute,
+  PosHelpRoute: PosHelpRoute,
+  PosInventoryRoute: PosInventoryRouteWithChildren,
+  PosKotRoute: PosKotRoute,
+  PosManagementRoute: PosManagementRouteWithChildren,
+  PosMarketingRoute: PosMarketingRoute,
+  PosMenuRoute: PosMenuRouteWithChildren,
+  PosOrdersRoute: PosOrdersRouteWithChildren,
+  PosReportsRoute: PosReportsRouteWithChildren,
+  PosRoomServiceRoute: PosRoomServiceRoute,
+  PosSettingsRoute: PosSettingsRoute,
+  PosSettlementRoute: PosSettlementRoute,
+  PosTablesRoute: PosTablesRoute,
+}
+
+const PosRouteWithChildren = PosRoute._addFileChildren(PosRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  ActivitiesRoute: ActivitiesRoute,
-  ActivityTimelineRoute: ActivityTimelineRoute,
-  AddOnsRoute: AddOnsRoute,
-  AiInsightsRoute: AiInsightsRoute,
-  AnomalyMonitorRoute: AnomalyMonitorRoute,
-  AuditRoute: AuditRoute,
-  BillingRoute: BillingRoute,
-  BookingEngineRoute: BookingEngineRoute,
-  BookingReadinessRoute: BookingReadinessRoute,
-  ChannelManagerRoute: ChannelManagerRouteWithChildren,
-  CheckInRoute: CheckInRoute,
-  CommunicationsRoute: CommunicationsRoute,
-  ConciergeRoute: ConciergeRoute,
-  CorporateRoute: CorporateRoute,
-  FeedbackRoute: FeedbackRoute,
-  FrontDeskRoute: FrontDeskRoute,
-  GroupsRoute: GroupsRoute,
-  GuestRequestsRoute: GuestRequestsRoute,
-  GuestsRoute: GuestsRoute,
-  HotelsRoute: HotelsRoute,
-  HousekeepingRoute: HousekeepingRouteWithChildren,
-  LeadsRoute: LeadsRoute,
   LoginRoute: LoginRoute,
-  LostFoundRoute: LostFoundRoute,
-  LoyaltyRoute: LoyaltyRoute,
-  MaintenanceRoute: MaintenanceRoute,
-  MastersRoute: MastersRoute,
-  NotificationsRoute: NotificationsRoute,
-  OnboardingRoute: OnboardingRoute,
-  OtaRoute: OtaRoute,
-  PackagesRoute: PackagesRoute,
-  PaymentsRoute: PaymentsRoute,
-  PmsIntegrationsRoute: PmsIntegrationsRoute,
-  PricingRoute: PricingRoute,
-  PropertyRoute: PropertyRoute,
-  RegistrationCardsRoute: RegistrationCardsRoute,
-  ReportsRoute: ReportsRoute,
-  ReservationsRoute: ReservationsRouteWithChildren,
-  RevenueRoute: RevenueRouteWithChildren,
-  RevenueDrilldownRoute: RevenueDrilldownRoute,
-  RolesRoute: RolesRoute,
-  RoomsRoute: RoomsRoute,
-  SearchRoute: SearchRoute,
-  ServicesRoute: ServicesRoute,
-  SettingsRoute: SettingsRoute,
-  StaffRoute: StaffRoute,
-  StyleguideRoute: StyleguideRoute,
-  TasksRoute: TasksRoute,
-  TransportRoute: TransportRoute,
-  UsersRoute: UsersRoute,
-  WebsiteBuilderRoute: WebsiteBuilderRoute,
-  AnalyticsExecutiveRoute: AnalyticsExecutiveRoute,
-  DashboardMultiPropertyRoute: DashboardMultiPropertyRoute,
+  PosRoute: PosRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

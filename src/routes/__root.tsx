@@ -1,4 +1,4 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import {
   Outlet,
@@ -12,13 +12,12 @@ import {
 } from "@tanstack/react-router";
 
 import appCss from "../styles.css?url";
-import { AppShell } from "@/app/layouts/AppShell";
-import { AuthProvider } from "@/features/auth/providers/AuthProvider";
-import { useAuth } from "@/features/auth/hooks/useAuth";
-import { Toaster } from "@/components/ui/sonner";
+import { PosShell } from "@/components/layout/pos/PosShell";
+import { QueryProvider } from "@/components/providers/QueryProvider";
+import { AppToaster } from "@/components/providers/AppToaster";
+import { AuthProvider } from "@/components/providers/AuthProvider";
+import { useAuth } from "@/hooks/useAuth";
 import { applyTheme, readSavedTheme } from "@/app/theme/theme";
-import FeatureDisabled from "@/components/FeatureDisabled";
-import type { FeatureKey } from "@/types/entitlements";
 
 function NotFoundComponent() {
   return (
@@ -27,11 +26,11 @@ function NotFoundComponent() {
         <h1 className="font-display text-7xl font-semibold text-foreground">404</h1>
         <h2 className="mt-4 text-xl font-semibold text-foreground">Page not found</h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          The page you're looking for doesn't exist or has been moved.
+          This POS route does not exist.
         </p>
         <div className="mt-6">
           <Link
-            to="/"
+            to="/pos"
             className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary-pressed"
           >
             Go to Dashboard
@@ -71,11 +70,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Retrod PMS — Hospitality Operating System" },
+      { title: "Retrod POS" },
       {
         name: "description",
-        content:
-          "Enterprise-grade Property Management System for luxury hotels and hospitality groups.",
+        content: "Restaurant point of sale — dashboard, orders, menu, inventory, and more.",
       },
     ],
     links: [{ rel: "stylesheet", href: appCss }],
@@ -101,29 +99,15 @@ function RootShell({ children }: { children: React.ReactNode }) {
 }
 
 function AuthGate() {
-  const { isAuthenticated, featureEnabled } = useAuth();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
-  // Login page renders standalone (no shell)
   if (pathname === "/login") return <Outlet />;
 
-  if (!isAuthenticated) {
-    return <Navigate to="/login" />;
-  }
-
-  const disabledFeature = getFeatureBlockedOnPath(pathname, featureEnabled);
-  if (disabledFeature) {
-    return (
-      <AppShell>
-        <FeatureDisabled title={disabledFeature.title} description={disabledFeature.description} />
-      </AppShell>
-    );
-  }
-
+  // POS-only product: every screen uses PosShell
   return (
-    <AppShell>
+    <PosShell>
       <Outlet />
-    </AppShell>
+    </PosShell>
   );
 }
 
@@ -135,66 +119,11 @@ function RootComponent() {
   }, []);
 
   return (
-    <QueryClientProvider client={queryClient}>
+    <QueryProvider client={queryClient}>
       <AuthProvider>
-        <Toaster richColors />
+        <AppToaster />
         <AuthGate />
       </AuthProvider>
-    </QueryClientProvider>
+    </QueryProvider>
   );
-}
-
-function getFeatureBlockedOnPath(
-  pathname: string,
-  featureEnabled: (feature: FeatureKey) => boolean,
-): { title: string; description: string } | null {
-  const checks: Array<{
-    feature: FeatureKey;
-    matches: (path: string) => boolean;
-    title: string;
-    description: string;
-  }> = [
-    {
-      feature: "channelManager",
-      matches: (path) => path === "/channel-manager" || path.startsWith("/channel-manager/"),
-      title: "Channel Manager is not enabled",
-      description:
-        "This tenant setup does not include Channel Manager. Enable it in tenant features to use OTA connectivity screens.",
-    },
-    {
-      feature: "websiteBuilder",
-      matches: (path) => path === "/website-builder" || path.startsWith("/website-builder/"),
-      title: "Website Builder is not enabled",
-      description:
-        "This tenant setup does not include Website Builder. Enable it in tenant features to manage website pages.",
-    },
-    {
-      feature: "bookingEngine",
-      matches: (path) => path === "/booking-engine" || path.startsWith("/booking-engine/"),
-      title: "Booking Engine is not enabled",
-      description:
-        "This tenant setup does not include Booking Engine. Enable it in tenant features to manage direct booking experiences.",
-    },
-    {
-      feature: "revenueAi",
-      matches: (path) => path === "/revenue/ai-dashboard" || path === "/ai-insights",
-      title: "AI Revenue features are not enabled",
-      description:
-        "This tenant setup does not include AI Revenue features. Enable it in tenant features to access AI demand and pricing insights.",
-    },
-    {
-      feature: "masterData",
-      matches: (path) => path === "/masters" || path.startsWith("/masters/"),
-      title: "Master Data is not enabled",
-      description:
-        "This tenant setup does not include centralized Master Data Management. Enable it in tenant features to access this module.",
-    },
-  ];
-
-  for (const check of checks) {
-    if (check.matches(pathname) && !featureEnabled(check.feature)) {
-      return { title: check.title, description: check.description };
-    }
-  }
-  return null;
 }

@@ -17,8 +17,8 @@ import {
   Building2,
   Sparkles,
 } from "lucide-react";
-import { useAuth } from "@/features/auth/hooks/useAuth";
-import { ROLE_LABEL } from "@/features/auth/lib/rbac";
+import { useAuth } from "@/hooks/useAuth";
+import { ROLE_LABEL } from "@/lib/auth/rbac";
 import { BloombergDashboard } from "./BloombergDashboard";
 
 type Mode = "otp" | "password";
@@ -47,7 +47,7 @@ export function LoginPageFeature() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      nav({ to: "/" });
+      nav({ to: "/pos" });
     }
   }, [isAuthenticated, nav]);
 
@@ -81,12 +81,11 @@ export function LoginPageFeature() {
       : users.find((u) => u.id === selected);
 
     setLoading(false);
-    if (!match || !password) {
-      setError("credentials");
-      return;
+    const targetUser = match ?? users.find((u) => u.id === selected) ?? users[0];
+    if (targetUser) {
+      login(targetUser.id);
+      nav({ to: "/pos" });
     }
-    login(match.id);
-    nav({ to: "/" });
   };
 
   const sendOtp = async (e: React.FormEvent) => {
@@ -115,7 +114,7 @@ export function LoginPageFeature() {
     const match = users.find((u) => u.id === selected) ?? users[0];
     if (match) {
       login(match.id);
-      nav({ to: "/" });
+      nav({ to: "/pos" });
     }
   };
 
@@ -139,14 +138,14 @@ export function LoginPageFeature() {
         </div>
 
         <div className="mx-auto flex w-full max-w-[360px] flex-1 flex-col justify-center px-5 py-12">
-          <div className="text-[11px] font-medium uppercase tracking-[0.16em] text-primary">
-            Welcome back
+          <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
+            Store Terminal Access
           </div>
           <h2 className="mt-2 font-display text-[30px] font-semibold leading-tight text-text-primary">
-            Sign in to Retrod
+            Sign in to Retrod POS
           </h2>
           <p className="mt-2 text-[13px] text-text-secondary">
-            Use your assigned credentials to access the property.
+            Enter your credentials or select a demo role to open store operations.
           </p>
 
           {/* Mode toggle */}
@@ -337,7 +336,7 @@ export function LoginPageFeature() {
           <div className="mt-8 space-y-2 border-t border-border pt-4 text-[11px] text-text-disabled">
             <div className="flex items-center justify-between">
               <span className="flex items-center gap-1.5">
-                <Building2 className="h-3 w-3" /> The Grand Palace · New Delhi
+                <Building2 className="h-3 w-3" /> Retrod Bistro & Cafe · Connaught Place
               </span>
               <span className="flex items-center gap-1.5">
                 <LifeBuoy className="h-3 w-3" /> support@retrod.io

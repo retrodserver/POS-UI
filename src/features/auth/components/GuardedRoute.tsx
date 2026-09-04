@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import AccessDenied from "@/components/AccessDenied";
-import { useAuth } from "@/features/auth/hooks/useAuth";
+import { useAuth } from "@/hooks/useAuth";
 import type { Permission } from "@/types/rbac";
 
 interface GuardedRouteProps {
