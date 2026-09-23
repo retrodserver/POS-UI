@@ -20,11 +20,11 @@ UI reuse: `components/ui` + `Primitives` → `form` → `forms` → `shared/pos`
 
 App-wide auth lives at src level (not under a feature domain):
 
-| Piece | Location |
-|---|---|
-| Provider | `src/components/providers/AuthProvider.tsx` |
-| Hook | `src/hooks/useAuth.ts` |
-| RBAC helpers | `src/lib/auth/` |
-| Login UI | `src/features/auth/components/` (screen only) |
+| Piece        | Location                                      |
+| ------------ | --------------------------------------------- |
+| Provider     | `src/components/providers/AuthProvider.tsx`   |
+| Hook         | `src/hooks/useAuth.ts`                        |
+| RBAC helpers | `src/lib/auth/`                               |
+| Login UI     | `src/features/auth/components/` (screen only) |
 
 Do not put auth into `ui/` or per-service Axios. Thin re-exports under `features/auth/{hooks,providers,lib}` remain for compatibility.

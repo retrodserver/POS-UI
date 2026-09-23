@@ -1,14 +1,5 @@
 import React from "react";
-import {
-  BedDouble,
-  User,
-  Crown,
-  Utensils,
-  Plus,
-  BellRing,
-  Clock,
-  Sparkles,
-} from "lucide-react";
+import { BedDouble, User, Crown, Utensils, Plus, BellRing, Clock, Sparkles } from "lucide-react";
 import type { HotelRoom, RoomServiceOrder, RoomFloor } from "@/types/posRoomService";
 
 interface RoomGridFloorViewProps {
@@ -77,13 +68,16 @@ export function RoomGridFloorView({
       {/* Room Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {rooms.map((room) => {
-          const { roomNumber, roomType, isOccupied, guest, activeOrder, trayClearancePending } = room;
+          const { roomNumber, roomType, isOccupied, guest, activeOrder, trayClearancePending } =
+            room;
 
           let cardBorder = "border-slate-200 bg-white hover:border-slate-300";
           if (trayClearancePending) {
-            cardBorder = "border-rose-300 bg-rose-50/40 hover:border-rose-400 ring-1 ring-rose-300/40";
+            cardBorder =
+              "border-rose-300 bg-rose-50/40 hover:border-rose-400 ring-1 ring-rose-300/40";
           } else if (activeOrder) {
-            cardBorder = "border-teal-300 bg-[#f4faf8] hover:border-teal-400 ring-1 ring-teal-400/20";
+            cardBorder =
+              "border-teal-300 bg-[#f4faf8] hover:border-teal-400 ring-1 ring-teal-400/20";
           }
 
           return (

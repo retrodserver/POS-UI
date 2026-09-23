@@ -4,16 +4,64 @@ import { toast } from "sonner";
 
 export function UnitsMasterView() {
   const [units, setUnits] = useState([
-    { id: "U-1", name: "Kilogram", symbol: "kg", baseUnit: "Gram (g)", ratio: "1 kg = 1000 g", type: "Weight" },
-    { id: "U-2", name: "Gram", symbol: "g", baseUnit: "Gram (g)", ratio: "1 g = 1 g", type: "Weight" },
-    { id: "U-3", name: "Liter", symbol: "L", baseUnit: "Milliliter (ml)", ratio: "1 L = 1000 ml", type: "Volume" },
-    { id: "U-4", name: "Milliliter", symbol: "ml", baseUnit: "Milliliter (ml)", ratio: "1 ml = 1 ml", type: "Volume" },
-    { id: "U-5", name: "Pieces", symbol: "pcs", baseUnit: "Pieces (pcs)", ratio: "1 pcs = 1 pcs", type: "Quantity" },
-    { id: "U-6", name: "Portion", symbol: "portion", baseUnit: "Portion", ratio: "1 portion = 1 portion", type: "Serving" },
+    {
+      id: "U-1",
+      name: "Kilogram",
+      symbol: "kg",
+      baseUnit: "Gram (g)",
+      ratio: "1 kg = 1000 g",
+      type: "Weight",
+    },
+    {
+      id: "U-2",
+      name: "Gram",
+      symbol: "g",
+      baseUnit: "Gram (g)",
+      ratio: "1 g = 1 g",
+      type: "Weight",
+    },
+    {
+      id: "U-3",
+      name: "Liter",
+      symbol: "L",
+      baseUnit: "Milliliter (ml)",
+      ratio: "1 L = 1000 ml",
+      type: "Volume",
+    },
+    {
+      id: "U-4",
+      name: "Milliliter",
+      symbol: "ml",
+      baseUnit: "Milliliter (ml)",
+      ratio: "1 ml = 1 ml",
+      type: "Volume",
+    },
+    {
+      id: "U-5",
+      name: "Pieces",
+      symbol: "pcs",
+      baseUnit: "Pieces (pcs)",
+      ratio: "1 pcs = 1 pcs",
+      type: "Quantity",
+    },
+    {
+      id: "U-6",
+      name: "Portion",
+      symbol: "portion",
+      baseUnit: "Portion",
+      ratio: "1 portion = 1 portion",
+      type: "Serving",
+    },
   ]);
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [newUnit, setNewUnit] = useState({ name: "", symbol: "", baseUnit: "", ratio: "", type: "Weight" });
+  const [newUnit, setNewUnit] = useState({
+    name: "",
+    symbol: "",
+    baseUnit: "",
+    ratio: "",
+    type: "Weight",
+  });
 
   const handleCreate = (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,7 +84,9 @@ export function UnitsMasterView() {
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-[18px] font-bold text-slate-900 tracking-tight">Units of Measurement</h2>
+          <h2 className="text-[18px] font-bold text-slate-900 tracking-tight">
+            Units of Measurement
+          </h2>
           <p className="text-[12.5px] text-slate-500 mt-0.5">
             Standardize inventory purchase and consumption conversion ratios across raw materials.
           </p>

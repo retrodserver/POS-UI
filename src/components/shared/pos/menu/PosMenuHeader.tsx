@@ -10,13 +10,12 @@ export function PosMenuHeader() {
   const syncMutation = useSyncPos();
 
   const getTitle = () => {
-    if (pathname.includes("/images")) return "Upload Item Images";
-    if (pathname.includes("/on-off")) return "Menu on/off";
-    if (pathname.includes("/special-notes")) return "Special Note";
-    if (pathname.includes("/commission")) return "Set Menu Commission";
-    if (pathname.includes("/schedule")) return "Menu Scheduling";
-    if (pathname.includes("/physical")) return "Physical Menu";
-    return "Menu Management";
+    if (pathname.includes("/on-off")) return "Menu Availability";
+    if (pathname.includes("/special-notes")) return "Special Notes";
+    if (pathname.includes("/commission")) return "Set Item Commission";
+    if (pathname.includes("/schedule")) return "Menu Schedule";
+    if (pathname.includes("/physical")) return "Printed Menu";
+    return "Menu List";
   };
 
   const handleSyncPos = () => {
@@ -34,16 +33,18 @@ export function PosMenuHeader() {
   return (
     <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 pb-4 mb-5">
       <div>
-        <h1 className="text-[20px] font-bold text-slate-900 tracking-tight">
-          {getTitle()}
-        </h1>
+        <h1 className="text-[20px] font-bold text-slate-900 tracking-tight">{getTitle()}</h1>
       </div>
 
       <div className="flex items-center gap-2.5">
         {/* Last Menu Sync indicator */}
         <div className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50/80 px-3 py-1.5 text-[12px] text-amber-800 shadow-2xs">
-          <RefreshCw className={`h-3.5 w-3.5 text-amber-600 ${syncMutation.isPending ? "animate-spin" : ""}`} />
-          <span>Last Menu Sync <strong className="font-semibold">{lastSyncText}</strong></span>
+          <RefreshCw
+            className={`h-3.5 w-3.5 text-amber-600 ${syncMutation.isPending ? "animate-spin" : ""}`}
+          />
+          <span>
+            Last Menu Sync <strong className="font-semibold">{lastSyncText}</strong>
+          </span>
         </div>
 
         {/* Sync POS Action Button */}

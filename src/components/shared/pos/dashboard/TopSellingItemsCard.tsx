@@ -26,11 +26,7 @@ export function TopSellingItemsCard({ items }: TopSellingItemsCardProps) {
               {/* Dish Icon / Thumbnail */}
               <div
                 className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-white font-bold text-[12px] shadow-2xs ${
-                  idx === 0
-                    ? "bg-teal-700"
-                    : idx === 1
-                    ? "bg-teal-600"
-                    : "bg-slate-700"
+                  idx === 0 ? "bg-teal-700" : idx === 1 ? "bg-teal-600" : "bg-slate-700"
                 }`}
               >
                 <Utensils className="h-4 w-4" />
@@ -41,9 +37,7 @@ export function TopSellingItemsCard({ items }: TopSellingItemsCardProps) {
               </div>
             </div>
 
-            <div className="text-[14px] font-bold text-slate-900">
-              {item.revenueFormatted}
-            </div>
+            <div className="text-[14px] font-bold text-slate-900">{item.revenueFormatted}</div>
           </div>
         ))}
       </div>

@@ -19,7 +19,8 @@ export function ReportNotificationView() {
             Report Notification
           </h2>
           <p className="text-[12.5px] text-slate-500 mt-0.5">
-            Configure automated daily sales & closing summaries sent directly via Email and WhatsApp.
+            Configure automated daily sales & closing summaries sent directly via Email and
+            WhatsApp.
           </p>
         </div>
 
@@ -44,7 +45,8 @@ export function ReportNotificationView() {
                   Automated Daily Day-End Email Summary
                 </div>
                 <div className="text-[12px] text-slate-500">
-                  Send high-level sales revenue, payment modes, and expense breakdown to store owners at day close.
+                  Send high-level sales revenue, payment modes, and expense breakdown to store
+                  owners at day close.
                 </div>
               </div>
             </div>
@@ -66,7 +68,8 @@ export function ReportNotificationView() {
                   WhatsApp Business Summary Broadcast
                 </div>
                 <div className="text-[12px] text-slate-500">
-                  Instant message notification sent to registered management numbers after cashier settlement.
+                  Instant message notification sent to registered management numbers after cashier
+                  settlement.
                 </div>
               </div>
             </div>

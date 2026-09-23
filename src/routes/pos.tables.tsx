@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { PosTableManager } from "@/components/shared/pos/PosTableManager";
+import { PosTakeOrderManager } from "@/components/shared/pos/PosTakeOrderManager";
 
 export const Route = createFileRoute("/pos/tables")({
-  head: () => ({ meta: [{ title: "Table Management — Retrod POS" }] }),
-  component: PosTableManager,
+  head: () => ({ meta: [{ title: "Take Order — Tables — Retrod POS" }] }),
+  component: PosTakeOrderManager,
 });

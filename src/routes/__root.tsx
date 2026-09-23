@@ -16,6 +16,7 @@ import { PosShell } from "@/components/layout/pos/PosShell";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { AppToaster } from "@/components/providers/AppToaster";
 import { AuthProvider } from "@/components/providers/AuthProvider";
+import { PosOutletProvider } from "@/context/PosOutletContext";
 import { useAuth } from "@/hooks/useAuth";
 import { applyTheme, readSavedTheme } from "@/app/theme/theme";
 
@@ -25,9 +26,7 @@ function NotFoundComponent() {
       <div className="max-w-md text-center">
         <h1 className="font-display text-7xl font-semibold text-foreground">404</h1>
         <h2 className="mt-4 text-xl font-semibold text-foreground">Page not found</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          This POS route does not exist.
-        </p>
+        <p className="mt-2 text-sm text-muted-foreground">This POS route does not exist.</p>
         <div className="mt-6">
           <Link
             to="/pos"
@@ -121,8 +120,10 @@ function RootComponent() {
   return (
     <QueryProvider client={queryClient}>
       <AuthProvider>
-        <AppToaster />
-        <AuthGate />
+        <PosOutletProvider>
+          <AppToaster />
+          <AuthGate />
+        </PosOutletProvider>
       </AuthProvider>
     </QueryProvider>
   );

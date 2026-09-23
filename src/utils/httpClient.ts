@@ -23,10 +23,7 @@ httpClient.interceptors.response.use(
   (response) => response,
   (error) => {
     const normalized = {
-      message:
-        error?.response?.data?.message ??
-        error?.message ??
-        "Request failed",
+      message: error?.response?.data?.message ?? error?.message ?? "Request failed",
       status: error?.response?.status as number | undefined,
       data: error?.response?.data as unknown,
       raw: error,

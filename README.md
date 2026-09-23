@@ -6,13 +6,13 @@ Restaurant point-of-sale SPA (Vite · React 19 · TypeScript · TanStack Router/
 
 ## Scripts
 
-| Command | Description |
-|---|---|
-| `npm install` | Install dependencies |
-| `npm run dev` | Dev server |
-| `npm run build` | Production build |
-| `npm run lint` | ESLint |
-| `npm test` | Vitest |
+| Command         | Description          |
+| --------------- | -------------------- |
+| `npm install`   | Install dependencies |
+| `npm run dev`   | Dev server           |
+| `npm run build` | Production build     |
+| `npm run lint`  | ESLint               |
+| `npm test`      | Vitest               |
 
 ## Environment
 

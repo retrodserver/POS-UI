@@ -51,11 +51,7 @@ export function PosInventorySidebar({
     <aside className="flex h-full w-[240px] flex-col border-r border-slate-200 bg-white text-slate-800 shadow-sm transition-all duration-200">
       {/* Brand Header */}
       <div className="flex h-16 shrink-0 items-center justify-between border-b border-slate-100 px-4">
-        <Link
-          to="/pos/inventory"
-          onClick={onNavigate}
-          className="flex items-center gap-2.5"
-        >
+        <Link to="/pos/inventory" onClick={onNavigate} className="flex items-center gap-2.5">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-600 font-bold text-white text-[13px] shadow-sm">
             P
           </div>
@@ -93,10 +89,12 @@ export function PosInventorySidebar({
               "flex items-center gap-2.5 rounded-lg px-3 py-2 font-bold transition",
               isDashboardActive
                 ? "bg-teal-50 text-teal-600"
-                : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"
+                : "text-slate-700 hover:bg-slate-50 hover:text-slate-900",
             )}
           >
-            <LayoutDashboard className={cn("h-4 w-4", isDashboardActive ? "text-teal-600" : "text-slate-500")} />
+            <LayoutDashboard
+              className={cn("h-4 w-4", isDashboardActive ? "text-teal-600" : "text-slate-500")}
+            />
             <span>Dashboard</span>
           </Link>
         </div>
@@ -128,7 +126,7 @@ export function PosInventorySidebar({
                   "block rounded-md px-2.5 py-1.5 text-[12px] font-medium transition",
                   isExact("/pos/inventory/purchase")
                     ? "text-teal-600 font-bold bg-teal-50/70"
-                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-50",
                 )}
               >
                 Stock Purchase
@@ -140,7 +138,7 @@ export function PosInventorySidebar({
                   "block rounded-md px-2.5 py-1.5 text-[12px] font-medium transition",
                   isExact("/pos/inventory/order")
                     ? "text-teal-600 font-bold bg-teal-50/70"
-                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-50",
                 )}
               >
                 Purchase Order
@@ -152,7 +150,7 @@ export function PosInventorySidebar({
                   "block rounded-md px-2.5 py-1.5 text-[12px] font-medium transition",
                   isExact("/pos/inventory/return")
                     ? "text-teal-600 font-bold bg-teal-50/70"
-                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-50",
                 )}
               >
                 Purchase Return
@@ -188,7 +186,7 @@ export function PosInventorySidebar({
                   "block rounded-md px-2.5 py-1.5 text-[12px] font-medium transition",
                   isExact("/pos/inventory/available-stock")
                     ? "text-teal-600 font-bold bg-teal-50/70"
-                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-50",
                 )}
               >
                 Available Stock
@@ -200,7 +198,7 @@ export function PosInventorySidebar({
                   "block rounded-md px-2.5 py-1.5 text-[12px] font-medium transition",
                   isExact("/pos/inventory/closing-stock")
                     ? "text-teal-600 font-bold bg-teal-50/70"
-                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-50",
                 )}
               >
                 Closing Stock
@@ -222,7 +220,7 @@ export function PosInventorySidebar({
                 "flex items-center gap-2.5 rounded-lg px-3 py-2 font-medium transition",
                 isExact("/pos/inventory/sales")
                   ? "text-teal-600 font-bold bg-teal-50"
-                  : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"
+                  : "text-slate-700 hover:bg-slate-50 hover:text-slate-900",
               )}
             >
               <Utensils className="h-4 w-4 text-slate-500" />
@@ -236,7 +234,7 @@ export function PosInventorySidebar({
                 "flex items-center gap-2.5 rounded-lg px-3 py-2 font-medium transition",
                 isExact("/pos/inventory/transfer")
                   ? "text-teal-600 font-bold bg-teal-50"
-                  : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"
+                  : "text-slate-700 hover:bg-slate-50 hover:text-slate-900",
               )}
             >
               <ArrowLeftRight className="h-4 w-4 text-slate-500" />
@@ -250,7 +248,7 @@ export function PosInventorySidebar({
                 "flex items-center gap-2.5 rounded-lg px-3 py-2 font-medium transition",
                 isExact("/pos/inventory/wastage")
                   ? "text-teal-600 font-bold bg-teal-50"
-                  : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"
+                  : "text-slate-700 hover:bg-slate-50 hover:text-slate-900",
               )}
             >
               <Trash2 className="h-4 w-4 text-slate-500" />
@@ -264,7 +262,7 @@ export function PosInventorySidebar({
                 "flex items-center gap-2.5 rounded-lg px-3 py-2 font-medium transition",
                 isExact("/pos/inventory/sales-return")
                   ? "text-teal-600 font-bold bg-teal-50"
-                  : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"
+                  : "text-slate-700 hover:bg-slate-50 hover:text-slate-900",
               )}
             >
               <ArrowLeftRight className="h-4 w-4 text-slate-500" />
@@ -290,7 +288,7 @@ export function PosInventorySidebar({
               "flex items-center justify-between rounded-lg px-3 py-2 font-medium transition",
               isExact("/pos/inventory/production")
                 ? "text-teal-600 font-bold bg-teal-50"
-                : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"
+                : "text-slate-700 hover:bg-slate-50 hover:text-slate-900",
             )}
           >
             <div className="flex items-center gap-2.5">
@@ -307,7 +305,7 @@ export function PosInventorySidebar({
               "flex items-center justify-between rounded-lg px-3 py-2 font-medium transition",
               isExact("/pos/inventory/reports")
                 ? "text-teal-600 font-bold bg-teal-50"
-                : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"
+                : "text-slate-700 hover:bg-slate-50 hover:text-slate-900",
             )}
           >
             <div className="flex items-center gap-2.5">
@@ -324,7 +322,7 @@ export function PosInventorySidebar({
               "flex items-center justify-between rounded-lg px-3 py-2 font-medium transition",
               isExact("/pos/inventory/masters")
                 ? "text-teal-600 font-bold bg-teal-50"
-                : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"
+                : "text-slate-700 hover:bg-slate-50 hover:text-slate-900",
             )}
           >
             <div className="flex items-center gap-2.5">
@@ -341,7 +339,7 @@ export function PosInventorySidebar({
               "flex items-center gap-2.5 rounded-lg px-3 py-2 font-medium transition",
               isExact("/pos/inventory/settings")
                 ? "text-teal-600 font-bold bg-teal-50"
-                : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"
+                : "text-slate-700 hover:bg-slate-50 hover:text-slate-900",
             )}
           >
             <Settings className="h-4 w-4 text-slate-500" />
@@ -355,7 +353,9 @@ export function PosInventorySidebar({
         <button
           type="button"
           onClick={() =>
-            toast.success("Callback requested! Our inventory support team will call you within 15 minutes.")
+            toast.success(
+              "Callback requested! Our inventory support team will call you within 15 minutes.",
+            )
           }
           className="flex w-full items-center gap-2.5 rounded-xl border border-slate-200 bg-white p-2.5 text-left text-slate-700 shadow-2xs hover:bg-slate-50 transition cursor-pointer"
         >

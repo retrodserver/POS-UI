@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   Search,
   ChevronDown,
@@ -16,9 +16,19 @@ import {
   ArrowRight,
   Filter,
   Check,
+  Sparkles,
+  XCircle,
+  BellRing,
+  FileText,
 } from "lucide-react";
-import { useOnlineOrders } from "@/hooks/queries/usePosOrders";
+import {
+  useOnlineOrders,
+  useAcceptOnlineOrderMutation,
+  useCancelOnlineOrderMutation,
+} from "@/hooks/queries/usePosOrders";
+import { dispatchNewOnlineOrder } from "@/services/posOrdersService";
 import type { OnlineOrderItem } from "@/types/posOrders";
+import { PosDataGrid } from "@/components/ui/data-grid";
 
 export function PosOnlineOrdersManager() {
   const [platformTab, setPlatformTab] = useState<"all" | "zomato" | "swiggy" | "direct_web">("all");
@@ -28,6 +38,7 @@ export function PosOnlineOrdersManager() {
   const [selectedRange, setSelectedRange] = useState("Last 5 Days Orders");
   const [showRangeDropdown, setShowRangeDropdown] = useState(false);
   const [showHelpCenter, setShowHelpCenter] = useState(false);
+  const [showSymbolGuide, setShowSymbolGuide] = useState(false);
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -37,16 +48,42 @@ export function PosOnlineOrdersManager() {
   const [orders, setOrders] = useState<OnlineOrderItem[]>(() => data?.records ?? []);
   const [viewingOrder, setViewingOrder] = useState<OnlineOrderItem | null>(null);
 
+  const acceptMutation = useAcceptOnlineOrderMutation();
+  const cancelMutation = useCancelOnlineOrderMutation();
+
+  // Sync data whenever query updates
+  useEffect(() => {
+    if (data?.records) {
+      setOrders(data.records);
+    }
+  }, [data?.records]);
+
+  // Handle URL param `viewOrderId` to automatically open the target order
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const targetId = params.get("viewOrderId");
+      if (targetId && orders.length > 0) {
+        const found = orders.find((o) => o.id === targetId);
+        if (found) {
+          setViewingOrder(found);
+        }
+      }
+    }
+  }, [orders]);
+
   // Filter logic
   const filteredRecords = useMemo(() => {
     return orders.filter((r) => {
       if (platformTab !== "all" && r.platform !== platformTab) return false;
 
       if (statusFilter !== "All Status") {
+        if (statusFilter === "New (Placed)" && r.status !== "placed") return false;
         if (statusFilter === "In Kitchen" && r.status !== "in_kitchen") return false;
         if (statusFilter === "Food Ready" && r.status !== "food_ready") return false;
         if (statusFilter === "Out For Delivery" && r.status !== "out_for_delivery") return false;
         if (statusFilter === "Delivered" && r.status !== "delivered") return false;
+        if (statusFilter === "Cancelled" && r.status !== "cancelled") return false;
       }
 
       if (searchOrderNo.trim()) {
@@ -68,34 +105,110 @@ export function PosOnlineOrdersManager() {
   const startIndex = (validPage - 1) * pageSize;
   const paginatedRecords = filteredRecords.slice(startIndex, startIndex + pageSize);
 
-  const handleUpdateStatus = (id: string, newStatus: OnlineOrderItem["status"], display: string) => {
+  const handleAcceptToKitchen = (id: string) => {
+    acceptMutation.mutate(id, {
+      onSuccess: () => {
+        setOrders((prev) =>
+          prev.map((ord) =>
+            ord.id === id
+              ? { ...ord, status: "in_kitchen", statusDisplay: "In Kitchen (Prep)" }
+              : ord,
+          ),
+        );
+        if (viewingOrder && viewingOrder.id === id) {
+          setViewingOrder((prev) =>
+            prev
+              ? { ...prev, status: "in_kitchen", statusDisplay: "In Kitchen (Prep)" }
+              : null,
+          );
+        }
+      },
+    });
+  };
+
+  const handleCancelOrder = (id: string) => {
+    cancelMutation.mutate(id, {
+      onSuccess: () => {
+        setOrders((prev) =>
+          prev.map((ord) =>
+            ord.id === id
+              ? { ...ord, status: "cancelled", statusDisplay: "Cancelled / Rejected" }
+              : ord,
+          ),
+        );
+        if (viewingOrder && viewingOrder.id === id) {
+          setViewingOrder((prev) =>
+            prev
+              ? { ...prev, status: "cancelled", statusDisplay: "Cancelled / Rejected" }
+              : null,
+          );
+        }
+      },
+    });
+  };
+
+  const handleUpdateStatus = (
+    id: string,
+    newStatus: OnlineOrderItem["status"],
+    display: string,
+  ) => {
     setOrders((prev) =>
       prev.map((ord) =>
-        ord.id === id ? { ...ord, status: newStatus, statusDisplay: display } : ord
-      )
+        ord.id === id ? { ...ord, status: newStatus, statusDisplay: display } : ord,
+      ),
     );
     if (viewingOrder && viewingOrder.id === id) {
       setViewingOrder((prev) =>
-        prev ? { ...prev, status: newStatus, statusDisplay: display } : null
+        prev ? { ...prev, status: newStatus, statusDisplay: display } : null,
       );
     }
   };
 
   const getNextStage = (status: OnlineOrderItem["status"]) => {
     switch (status) {
+      case "placed":
+        return {
+          nextStatus: "in_kitchen" as const,
+          nextLabel: "In Kitchen (Prep)",
+          buttonText: "Pass to KOT",
+        };
       case "in_kitchen":
-        return { nextStatus: "food_ready" as const, nextLabel: "Food Ready", buttonText: "Mark Ready" };
+        return {
+          nextStatus: "food_ready" as const,
+          nextLabel: "Ready for Delivery Partner",
+          buttonText: "Ready to Deliver",
+        };
       case "food_ready":
-        return { nextStatus: "out_for_delivery" as const, nextLabel: "Out For Delivery", buttonText: "Dispatch" };
+        return {
+          nextStatus: "out_for_delivery" as const,
+          nextLabel: "With Delivery Partner",
+          buttonText: "Handover to Rider",
+        };
       case "out_for_delivery":
-        return { nextStatus: "delivered" as const, nextLabel: "Delivered", buttonText: "Mark Delivered" };
+        return {
+          nextStatus: "delivered" as const,
+          nextLabel: "Delivered by Partner",
+          buttonText: "Partner Delivered",
+        };
       default:
         return null;
     }
   };
 
   const handleExportCSV = () => {
-    const headers = ["Order No", "Platform", "Outlet", "Order Type", "Rider Details", "Customer", "Phone", "OTP", "Date Time", "Total", "Status"];
+    const headers = [
+      "Order No",
+      "Platform",
+      "Outlet",
+      "Order Type",
+      "Rider Details",
+      "Customer",
+      "Phone",
+      "OTP",
+      "Date Time",
+      "Total",
+      "Status",
+    ];
     const rows = filteredRecords.map((r) => [
       r.orderNo,
       r.platform,
@@ -109,11 +222,16 @@ export function PosOnlineOrdersManager() {
       `"${r.totalAmountFormatted}"`,
       `"${r.statusDisplay}"`,
     ]);
-    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map((e) => e.join(","))].join("\n");
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
+      [headers.join(","), ...rows.map((e) => e.join(","))].join("\n");
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `Online_Orders_Export_${new Date().toISOString().slice(0, 10)}.csv`);
+    link.setAttribute(
+      "download",
+      `Online_Orders_Export_${new Date().toISOString().slice(0, 10)}.csv`,
+    );
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -138,7 +256,9 @@ export function PosOnlineOrdersManager() {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-[16px] font-bold text-slate-900 leading-tight">Online Aggregator Hub</h1>
+              <h1 className="text-[16px] font-bold text-slate-900 leading-tight">
+                Online Aggregator Hub
+              </h1>
               <span className="inline-flex items-center gap-1 rounded-full bg-teal-50 px-2 py-0.2 text-[10.5px] font-bold text-teal-800 border border-teal-300">
                 <span className="h-1.5 w-1.5 rounded-full bg-teal-600 animate-pulse" />
                 Live Sync
@@ -172,7 +292,9 @@ export function PosOnlineOrdersManager() {
                       setShowRangeDropdown(false);
                     }}
                     className={`flex w-full items-center rounded-md px-3 py-1.5 text-left text-[12px] transition cursor-pointer ${
-                      selectedRange === r ? "bg-teal-50 text-teal-800 font-bold" : "text-slate-600 hover:bg-slate-50"
+                      selectedRange === r
+                        ? "bg-teal-50 text-teal-800 font-bold"
+                        : "text-slate-600 hover:bg-slate-50"
                     }`}
                   >
                     {r}
@@ -181,6 +303,18 @@ export function PosOnlineOrdersManager() {
               </div>
             )}
           </div>
+
+          <button
+            type="button"
+            onClick={() => {
+              dispatchNewOnlineOrder();
+            }}
+            className="flex h-8 items-center gap-1.5 rounded-lg border border-amber-400 bg-amber-50 px-3 text-[11.5px] font-bold text-amber-900 hover:bg-amber-100 shadow-2xs transition cursor-pointer"
+            title="Simulate incoming online order from Zomato/Swiggy"
+          >
+            <BellRing className="h-3.5 w-3.5 text-amber-700 animate-bounce" />
+            <span>Simulate Incoming Order</span>
+          </button>
 
           <button
             type="button"
@@ -309,187 +443,301 @@ export function PosOnlineOrdersManager() {
         </div>
       </div>
 
-      {/* 3. STRUCTURED TABLE FORM VIEW */}
-      <div className="overflow-hidden rounded-xl border border-slate-300 bg-white shadow-2xs">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-[12px] border-collapse">
-            <thead>
-              <tr className="border-b border-slate-300 bg-slate-100/90 text-[11px] font-bold uppercase tracking-wider text-slate-700">
-                <th className="py-2.5 px-3">Order & Platform</th>
-                <th className="py-2.5 px-3">Customer & Rider</th>
-                <th className="py-2.5 px-3">Items Summary</th>
-                <th className="py-2.5 px-3 text-right">Amount</th>
-                <th className="py-2.5 px-3 text-center">Lifecycle Status</th>
-                <th className="py-2.5 px-3 text-right">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-200">
-              {paginatedRecords.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="py-10 text-center text-slate-500">
-                    No online orders found matching current filters.
-                  </td>
-                </tr>
-              ) : (
-                paginatedRecords.map((ord) => {
-                  const next = getNextStage(ord.status);
+      {/* 3. STRUCTURED TABLE FORM VIEW WITH POSDATAGRID */}
+      <PosDataGrid<OnlineOrderItem>
+        data={filteredRecords}
+        enableSelection={true}
+        enablePagination={true}
+        pageSize={10}
+        pageSizeOptions={[10, 25, 50, 100]}
+        emptyMessage="No online orders found matching current filters."
+        columns={[
+          {
+            id: "orderNo",
+            header: "Order & Platform",
+            accessorKey: "orderNo",
+            enableSorting: true,
+            enableFiltering: true,
+            filterValueAccessor: (row) => `${row.orderNo} ${row.platform} ${row.outletName}`,
+            minWidth: 160,
+            cell: ({ row }) => (
+              <div className="py-1">
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-[13px] font-extrabold text-slate-900">
+                    #{row.orderNo}
+                  </span>
+                  <span className="rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider border border-slate-300 bg-slate-100 text-slate-800">
+                    {row.platform === "direct_web" ? "Direct Web" : row.platform}
+                  </span>
+                </div>
+                <div className="mt-0.5 text-[11px] text-slate-500 font-medium">
+                  {row.outletName}
+                </div>
+                <div className="text-[10.5px] text-slate-400">{row.dateTime}</div>
+              </div>
+            ),
+          },
+          {
+            id: "customerName",
+            header: "Customer & Rider",
+            accessorKey: "customerName",
+            enableSorting: true,
+            enableFiltering: true,
+            filterValueAccessor: (row) => `${row.customerName} ${row.customerPhone} ${row.riderDetails}`,
+            minWidth: 180,
+            cell: ({ row }) => (
+              <div className="py-1">
+                <div className="font-bold text-slate-900 text-[12.5px]">{row.customerName}</div>
+                <div className="text-[11px] text-slate-600 font-mono">Ph: {row.customerPhone}</div>
+                <div className="mt-1 flex items-center gap-2 text-[10.5px] text-slate-500">
+                  <span className="rounded bg-slate-100 px-1.5 py-0.2 font-mono font-bold text-slate-700 border border-slate-300">
+                    OTP: {row.otp}
+                  </span>
+                  <span>·</span>
+                  <span className="truncate max-w-[130px] text-slate-600 font-medium">
+                    {row.riderDetails}
+                  </span>
+                </div>
+              </div>
+            ),
+          },
+          {
+            id: "itemsText",
+            header: "Items Summary",
+            accessorKey: "itemsText",
+            minWidth: 200,
+            cell: ({ row }) => (
+              <div className="py-1">
+                <div className="font-semibold text-slate-800 max-w-xs text-[11.5px] leading-relaxed">
+                  {row.itemsText}
+                </div>
+                <div className="mt-0.5 text-[10.5px] text-slate-500 font-medium">
+                  {row.itemCount} items
+                </div>
+              </div>
+            ),
+          },
+          {
+            id: "totalAmountFormatted",
+            header: "Amount",
+            align: "right",
+            enableSorting: true,
+            accessorKey: "totalAmountFormatted",
+            cell: ({ row }) => (
+              <div className="py-1 text-right">
+                <div className="font-black text-[13.5px] text-slate-900">
+                  {row.totalAmountFormatted}
+                </div>
+                <div className="text-[10.5px] text-teal-700 font-semibold">Prepaid Online</div>
+              </div>
+            ),
+          },
+          {
+            id: "statusDisplay",
+            header: "Lifecycle Status",
+            align: "center",
+            enableSorting: true,
+            enableFiltering: true,
+            filterValueAccessor: (row) => row.statusDisplay,
+            cell: ({ row }) => (
+              <span
+                className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-bold border ${
+                  row.status === "delivered"
+                    ? "bg-slate-100 text-slate-700 border-slate-300"
+                    : "bg-teal-50 text-teal-800 border-teal-300"
+                }`}
+              >
+                <span
+                  className={`h-1.5 w-1.5 rounded-full ${
+                    row.status === "delivered" ? "bg-slate-500" : "bg-teal-600 animate-pulse"
+                  }`}
+                />
+                {row.statusDisplay}
+              </span>
+            ),
+          },
+          {
+            id: "actions",
+            header: "Actions",
+            align: "right",
+            sortable: false,
+            filterable: false,
+            headerRender: () => (
+              <div className="flex items-center justify-end gap-1.5 w-full">
+                <span>Actions</span>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowSymbolGuide(true);
+                  }}
+                  className="flex h-5.5 w-5.5 items-center justify-center rounded-md border border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100 shadow-2xs transition cursor-pointer"
+                  title="Online Order Symbols Guide (Notepad)"
+                >
+                  <FileText className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            ),
+            cell: ({ row: ord }) => (
+              <div className="flex items-center justify-end gap-1.5 py-1">
+                {ord.status === "placed" ? (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => handleAcceptToKitchen(ord.id)}
+                      className="flex h-7 w-7 items-center justify-center rounded-lg bg-teal-700 hover:bg-teal-800 text-white shadow-2xs transition cursor-pointer active:scale-95"
+                      title="Pass to Kitchen KOT"
+                    >
+                      <Check className="h-3.5 w-3.5 stroke-[2.5]" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleCancelOrder(ord.id)}
+                      className="flex h-7 w-7 items-center justify-center rounded-lg border border-rose-300 bg-rose-50 text-rose-700 hover:bg-rose-100 shadow-2xs transition cursor-pointer active:scale-95"
+                      title="Cancel & Reject Order"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </>
+                ) : ord.status === "in_kitchen" ? (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      handleUpdateStatus(
+                        ord.id,
+                        "food_ready",
+                        "Ready for Delivery Partner",
+                      )
+                    }
+                    className="flex h-7 w-7 items-center justify-center rounded-lg bg-teal-700 hover:bg-teal-800 text-white shadow-2xs transition cursor-pointer active:scale-95"
+                    title="Ready for Delivery Partner"
+                  >
+                    <ChefHat className="h-3.5 w-3.5" />
+                  </button>
+                ) : (
+                  <div
+                    title="Partner Managed (In Transit)"
+                    className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 border border-slate-200 text-slate-600 shadow-2xs"
+                  >
+                    <Bike className="h-3.5 w-3.5" />
+                  </div>
+                )}
 
-                  return (
-                    <tr key={ord.id} className="hover:bg-slate-50/70 transition">
-                      {/* Order & Platform */}
-                      <td className="py-3 px-3 align-top">
-                        <div className="flex items-center gap-2">
-                          <span className="font-mono text-[13px] font-extrabold text-slate-900">
-                            #{ord.orderNo}
-                          </span>
-                          <span className="rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider border border-slate-300 bg-slate-100 text-slate-800">
-                            {ord.platform === "direct_web" ? "Direct Web" : ord.platform}
-                          </span>
-                        </div>
-                        <div className="mt-0.5 text-[11px] text-slate-500 font-medium">
-                          {ord.outletName}
-                        </div>
-                        <div className="text-[10.5px] text-slate-400">
-                          {ord.dateTime}
-                        </div>
-                      </td>
+                <button
+                  type="button"
+                  onClick={() => setViewingOrder(ord)}
+                  title="View Full Order Details"
+                  className="flex h-7 w-7 items-center justify-center rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 shadow-2xs transition cursor-pointer"
+                >
+                  <Eye className="h-3.5 w-3.5 text-slate-500" />
+                </button>
+              </div>
+            ),
+          },
+        ]}
+      />
 
-                      {/* Customer & Rider */}
-                      <td className="py-3 px-3 align-top">
-                        <div className="font-bold text-slate-900 text-[12.5px]">
-                          {ord.customerName}
-                        </div>
-                        <div className="text-[11px] text-slate-600 font-mono">
-                          Ph: {ord.customerPhone}
-                        </div>
-                        <div className="mt-1 flex items-center gap-2 text-[10.5px] text-slate-500">
-                          <span className="rounded bg-slate-100 px-1.5 py-0.2 font-mono font-bold text-slate-700 border border-slate-300">
-                            OTP: {ord.otp}
-                          </span>
-                          <span>·</span>
-                          <span className="truncate max-w-[140px] text-slate-600 font-medium">
-                            {ord.riderDetails}
-                          </span>
-                        </div>
-                      </td>
+      {/* ONLINE ORDERS SYMBOLS NOTEPAD MODAL */}
+      {showSymbolGuide && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 backdrop-blur-2xs p-4 animate-in fade-in">
+          <div className="w-full max-w-md rounded-2xl bg-[#fffdfa] p-5 shadow-2xl border border-amber-300/80 space-y-3.5 relative overflow-hidden ring-1 ring-amber-400/20">
+            {/* Top Strip */}
+            <div className="flex items-center justify-between border-b border-amber-200/80 pb-2.5">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-amber-100 text-amber-900 border border-amber-300 shadow-2xs">
+                  <FileText className="h-4.5 w-4.5 text-amber-800" />
+                </div>
+                <div>
+                  <h3 className="text-[14.5px] font-black text-amber-950">
+                    Online Order Symbols · Notepad
+                  </h3>
+                  <p className="text-[11px] text-amber-800/80">
+                    Symbol meaning & quick actions reference
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowSymbolGuide(false)}
+                className="rounded-lg p-1 text-slate-400 hover:bg-amber-100/80 hover:text-slate-700 cursor-pointer transition"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
 
-                      {/* Items */}
-                      <td className="py-3 px-3 align-top">
-                        <div className="font-semibold text-slate-800 max-w-xs text-[11.5px] leading-relaxed">
-                          {ord.itemsText}
-                        </div>
-                        <div className="mt-0.5 text-[10.5px] text-slate-500 font-medium">
-                          {ord.itemCount} items
-                        </div>
-                      </td>
+            {/* Ruled List */}
+            <div className="space-y-2.5 text-[12px] bg-white rounded-xl p-3.5 border border-amber-200/60 shadow-2xs divide-y divide-amber-100/60">
+              <div className="flex items-start gap-3 py-1.5 first:pt-0">
+                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-teal-700 text-white shadow-2xs">
+                  <Check className="h-4 w-4 stroke-[3]" />
+                </div>
+                <div>
+                  <span className="font-extrabold text-slate-900">✓ Tick Button (Pass to KOT):</span>
+                  <p className="text-[11px] text-slate-600 leading-snug mt-0.5">
+                    Accepts incoming online order and routes ticket directly to the kitchen KOT queue.
+                  </p>
+                </div>
+              </div>
 
-                      {/* Amount */}
-                      <td className="py-3 px-3 align-top text-right">
-                        <div className="font-black text-[13.5px] text-slate-900">
-                          {ord.totalAmountFormatted}
-                        </div>
-                        <div className="text-[10.5px] text-teal-700 font-semibold">
-                          Prepaid Online
-                        </div>
-                      </td>
+              <div className="flex items-start gap-3 py-1.5">
+                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-rose-300 bg-rose-50 text-rose-700 shadow-2xs">
+                  <X className="h-3.5 w-3.5" />
+                </div>
+                <div>
+                  <span className="font-extrabold text-slate-900">✕ Cross Button (Cancel):</span>
+                  <p className="text-[11px] text-slate-600 leading-snug mt-0.5">
+                    Rejects and cancels the order with Zomato/Swiggy aggregator.
+                  </p>
+                </div>
+              </div>
 
-                      {/* Status Badge */}
-                      <td className="py-3 px-3 align-top text-center">
-                        <span
-                          className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-bold border ${
-                            ord.status === "delivered"
-                              ? "bg-slate-100 text-slate-700 border-slate-300"
-                              : "bg-teal-50 text-teal-800 border-teal-300"
-                          }`}
-                        >
-                          <span
-                            className={`h-1.5 w-1.5 rounded-full ${
-                              ord.status === "delivered" ? "bg-slate-500" : "bg-teal-600 animate-pulse"
-                            }`}
-                          />
-                          {ord.statusDisplay}
-                        </span>
-                      </td>
+              <div className="flex items-start gap-3 py-1.5">
+                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-teal-700 text-white shadow-2xs">
+                  <ChefHat className="h-4 w-4" />
+                </div>
+                <div>
+                  <span className="font-extrabold text-slate-900">👨‍🍳 Chef Hat (Ready to Deliver):</span>
+                  <p className="text-[11px] text-slate-600 leading-snug mt-0.5">
+                    Marks food cooking complete and signals delivery partner rider that items are packed.
+                  </p>
+                </div>
+              </div>
 
-                      {/* Actions */}
-                      <td className="py-3 px-3 align-top text-right">
-                        <div className="flex items-center justify-end gap-1.5">
-                          {next && (
-                            <button
-                              type="button"
-                              onClick={() => handleUpdateStatus(ord.id, next.nextStatus, next.nextLabel)}
-                              className="flex h-7.5 items-center gap-1 rounded-lg bg-teal-700 px-2.5 text-[11px] font-bold text-white hover:bg-teal-800 active:scale-98 transition cursor-pointer shadow-2xs"
-                            >
-                              <span>{next.buttonText}</span>
-                              <ArrowRight className="h-3 w-3" />
-                            </button>
-                          )}
+              <div className="flex items-start gap-3 py-1.5">
+                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-slate-100 border border-slate-200 text-slate-600">
+                  <Bike className="h-3.5 w-3.5" />
+                </div>
+                <div>
+                  <span className="font-extrabold text-slate-900">🏍️ Bike Symbol (Partner Managed):</span>
+                  <p className="text-[11px] text-slate-600 leading-snug mt-0.5">
+                    Order has been handed to delivery partner (Zomato/Swiggy) and is out for delivery.
+                  </p>
+                </div>
+              </div>
 
-                          <button
-                            type="button"
-                            onClick={() => setViewingOrder(ord)}
-                            className="flex h-7.5 items-center gap-1 rounded-lg border border-slate-300 bg-white px-2 text-[11px] font-semibold text-slate-700 hover:bg-slate-50 transition cursor-pointer shadow-2xs"
-                          >
-                            <Eye className="h-3 w-3 text-slate-500" />
-                            <span>Details</span>
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
-        </div>
+              <div className="flex items-start gap-3 py-1.5 last:pb-0">
+                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-slate-300 bg-white text-slate-700 shadow-2xs">
+                  <Eye className="h-4 w-4 text-slate-600" />
+                </div>
+                <div>
+                  <span className="font-extrabold text-slate-900">👁️ Eye Icon (Details):</span>
+                  <p className="text-[11px] text-slate-600 leading-snug mt-0.5">
+                    Opens complete customer info, rider phone, OTP verification, and item breakdown.
+                  </p>
+                </div>
+              </div>
+            </div>
 
-        {/* Snug Pagination Bar */}
-        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-slate-200 bg-slate-50 px-3 py-2 text-[11.5px] text-slate-600">
-          <div>
-            Showing <strong className="text-slate-800">{totalRecords > 0 ? startIndex + 1 : 0}</strong> to{" "}
-            <strong className="text-slate-800">{Math.min(startIndex + pageSize, totalRecords)}</strong> of{" "}
-            <strong className="text-slate-800">{totalRecords}</strong> entries
+            <button
+              type="button"
+              onClick={() => setShowSymbolGuide(false)}
+              className="w-full rounded-xl bg-amber-900 hover:bg-amber-950 py-2 text-[12.5px] font-bold text-amber-50 transition cursor-pointer shadow-2xs"
+            >
+              Close Notepad
+            </button>
           </div>
-
-          <div className="flex items-center gap-1">
-            <button
-              type="button"
-              disabled={validPage <= 1}
-              onClick={() => setCurrentPage(1)}
-              className="rounded-md border border-slate-300 bg-white px-2 py-1 font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40 cursor-pointer shadow-2xs"
-            >
-              First
-            </button>
-            <button
-              type="button"
-              disabled={validPage <= 1}
-              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-              className="rounded-md border border-slate-300 bg-white px-2 py-1 font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40 cursor-pointer shadow-2xs"
-            >
-              Prev
-            </button>
-            <span className="px-2 font-bold text-teal-800">
-              Page {validPage} of {totalPages}
-            </span>
-            <button
-              type="button"
-              disabled={validPage >= totalPages}
-              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-              className="rounded-md border border-slate-300 bg-white px-2 py-1 font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40 cursor-pointer shadow-2xs"
-            >
-              Next
-            </button>
-            <button
-              type="button"
-              disabled={validPage >= totalPages}
-              onClick={() => setCurrentPage(totalPages)}
-              className="rounded-md border border-slate-300 bg-white px-2 py-1 font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40 cursor-pointer shadow-2xs"
-            >
-              Last
-            </button>
-          </div>
         </div>
-      </div>
+      )}
 
       {/* VIEW ORDER DETAIL MODAL */}
       {viewingOrder && (
@@ -498,12 +746,16 @@ export function PosOnlineOrdersManager() {
             <div className="flex items-center justify-between border-b border-slate-200 pb-2">
               <div>
                 <div className="flex items-center gap-2">
-                  <h3 className="text-[15px] font-extrabold text-slate-900">Order #{viewingOrder.orderNo}</h3>
+                  <h3 className="text-[15px] font-extrabold text-slate-900">
+                    Order #{viewingOrder.orderNo}
+                  </h3>
                   <span className="rounded px-1.5 py-0.2 text-[10px] font-bold border border-slate-300 bg-slate-100 text-slate-800 uppercase">
                     {viewingOrder.platform}
                   </span>
                 </div>
-                <p className="text-[11px] text-slate-500">{viewingOrder.outletName} · {viewingOrder.dateTime}</p>
+                <p className="text-[11px] text-slate-500">
+                  {viewingOrder.outletName} · {viewingOrder.dateTime}
+                </p>
               </div>
               <button
                 type="button"
@@ -517,38 +769,121 @@ export function PosOnlineOrdersManager() {
             <div className="space-y-2 text-[12px]">
               <div className="flex justify-between py-0.5 border-b border-slate-100">
                 <span className="text-slate-500">Customer:</span>
-                <span className="font-bold text-slate-900">{viewingOrder.customerName} ({viewingOrder.customerPhone})</span>
+                <span className="font-bold text-slate-900">
+                  {viewingOrder.customerName} ({viewingOrder.customerPhone})
+                </span>
               </div>
               <div className="flex justify-between py-0.5 border-b border-slate-100">
                 <span className="text-slate-500">Rider & OTP:</span>
-                <span className="font-bold text-slate-900">{viewingOrder.riderDetails} (OTP: {viewingOrder.otp})</span>
+                <span className="font-bold text-slate-900">
+                  {viewingOrder.riderDetails} (OTP: {viewingOrder.otp})
+                </span>
               </div>
               <div className="flex justify-between py-0.5 border-b border-slate-100">
                 <span className="text-slate-500">Status:</span>
                 <span className="font-bold text-teal-800">{viewingOrder.statusDisplay}</span>
               </div>
 
+              {/* Delivery partner info box when ready or in transit */}
+              {viewingOrder.status !== "placed" && viewingOrder.status !== "cancelled" && (
+                <div className="rounded-lg border border-amber-200 bg-amber-50/70 p-2.5 text-[11.5px] space-y-1 text-amber-950">
+                  <div className="flex items-center justify-between font-bold">
+                    <span className="flex items-center gap-1.5 text-amber-900">
+                      <Bike className="h-3.5 w-3.5 text-amber-700" />
+                      <span>Delivery Partner: {viewingOrder.platform.toUpperCase()}</span>
+                    </span>
+                    <span className="rounded bg-amber-200/80 px-1.5 py-0.2 text-[10.5px] font-black text-amber-900 border border-amber-300">
+                      OTP: {viewingOrder.otp}
+                    </span>
+                  </div>
+                  <div className="text-[11px] text-amber-800">
+                    {viewingOrder.status === "in_kitchen"
+                      ? "Cooking in kitchen. Click 'Ready to Deliver' once packed."
+                      : viewingOrder.status === "food_ready"
+                      ? "Food is ready & packed. Waiting for delivery partner rider pickup."
+                      : "Handed over to delivery partner rider for delivery."}
+                  </div>
+                </div>
+              )}
+
               <div className="py-0.5">
                 <span className="text-slate-500 block mb-1 font-semibold">Items Ordered:</span>
-                <div className="rounded-lg bg-slate-50 p-2 text-slate-800 font-medium text-[11.5px] border border-slate-200 leading-relaxed">
-                  {viewingOrder.itemsText}
+                <div className="rounded-lg bg-slate-50 p-2 text-slate-800 font-medium text-[11.5px] border border-slate-200 leading-relaxed max-h-36 overflow-y-auto space-y-1">
+                  {viewingOrder.items && viewingOrder.items.length > 0 ? (
+                    viewingOrder.items.map((it, idx) => (
+                      <div key={idx} className="flex justify-between items-center py-0.5 border-b border-slate-100 last:border-0">
+                        <span>{it.name} <strong className="text-teal-800 font-bold">× {it.quantity}</strong></span>
+                        <span className="font-semibold text-slate-600">{it.priceFormatted}</span>
+                      </div>
+                    ))
+                  ) : (
+                    <div>{viewingOrder.itemsText || "Dishes"}</div>
+                  )}
                 </div>
               </div>
 
               <div className="flex justify-between items-center pt-1 border-t border-slate-200">
                 <span className="text-slate-600 font-bold">Total Bill:</span>
-                <span className="font-black text-[15px] text-slate-900">{viewingOrder.totalAmountFormatted}</span>
+                <span className="font-black text-[15px] text-slate-900">
+                  {viewingOrder.totalAmountFormatted}
+                </span>
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-200">
-              <button
-                type="button"
-                onClick={() => setViewingOrder(null)}
-                className="rounded-lg border border-slate-300 bg-white px-3.5 py-1.5 text-[11.5px] font-bold text-slate-700 hover:bg-slate-50 cursor-pointer shadow-2xs"
-              >
-                Close
-              </button>
+            {/* 2 Restaurant Actions: Action 1 = Pass to KOT | Action 2 = Ready to Deliver | Next is Delivery Partner */}
+            <div className="flex flex-wrap items-center justify-end gap-2 pt-2.5 border-t border-slate-200">
+              {viewingOrder.status === "placed" ? (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => handleCancelOrder(viewingOrder.id)}
+                    className="flex items-center gap-1 rounded-lg border border-rose-300 bg-rose-50 px-3 py-1.5 text-[11.5px] font-bold text-rose-700 hover:bg-rose-100 cursor-pointer shadow-2xs"
+                  >
+                    <XCircle className="h-3.5 w-3.5" />
+                    <span>Cancel / Reject</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleAcceptToKitchen(viewingOrder.id)}
+                    className="flex items-center gap-1.5 rounded-lg bg-teal-700 px-4 py-1.5 text-[12px] font-black text-white hover:bg-teal-800 active:scale-98 transition cursor-pointer shadow-2xs"
+                  >
+                    <CheckCircle2 className="h-3.5 w-3.5 text-amber-300" />
+                    <span>Pass to KOT</span>
+                  </button>
+                </>
+              ) : viewingOrder.status === "in_kitchen" ? (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => setViewingOrder(null)}
+                    className="rounded-lg border border-slate-300 bg-white px-3.5 py-1.5 text-[11.5px] font-bold text-slate-700 hover:bg-slate-50 cursor-pointer shadow-2xs"
+                  >
+                    Close
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      handleUpdateStatus(
+                        viewingOrder.id,
+                        "food_ready",
+                        "Ready for Delivery Partner",
+                      )
+                    }
+                    className="flex items-center gap-1.5 rounded-lg bg-teal-700 px-4 py-1.5 text-[12px] font-black text-white hover:bg-teal-800 active:scale-98 transition cursor-pointer shadow-2xs"
+                  >
+                    <ChefHat className="h-3.5 w-3.5 text-amber-300" />
+                    <span>Ready to Deliver</span>
+                  </button>
+                </>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setViewingOrder(null)}
+                  className="rounded-lg border border-slate-300 bg-white px-3.5 py-1.5 text-[11.5px] font-bold text-slate-700 hover:bg-slate-50 cursor-pointer shadow-2xs"
+                >
+                  Close
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -561,7 +896,9 @@ export function PosOnlineOrdersManager() {
             <div className="flex items-center justify-between border-b border-slate-200 pb-2">
               <div className="flex items-center gap-2">
                 <Headphones className="h-4 w-4 text-teal-700" />
-                <h3 className="text-[14px] font-bold text-slate-900">Aggregator Integration Support</h3>
+                <h3 className="text-[14px] font-bold text-slate-900">
+                  Aggregator Integration Support
+                </h3>
               </div>
               <button
                 type="button"
@@ -573,12 +910,19 @@ export function PosOnlineOrdersManager() {
             </div>
 
             <p className="text-[12px] text-slate-600 leading-relaxed">
-              Real-time webhook sync is active for <strong>Zomato Partner API</strong>, <strong>Swiggy UrbanPiper</strong>, and <strong>Direct Online Store</strong>. Orders automatically populate the kitchen queue upon placement.
+              Real-time webhook sync is active for <strong>Zomato Partner API</strong>,{" "}
+              <strong>Swiggy UrbanPiper</strong>, and <strong>Direct Online Store</strong>. Orders
+              automatically populate the kitchen queue upon placement.
             </p>
 
             <div className="rounded-lg bg-slate-50 p-2.5 border border-slate-200 text-[11.5px] space-y-1 text-slate-700">
-              <div><strong>Webhook Health:</strong> <span className="text-teal-700 font-bold">● Connected (99.98% uptime)</span></div>
-              <div><strong>Avg Acceptance SLA:</strong> 42 seconds</div>
+              <div>
+                <strong>Webhook Health:</strong>{" "}
+                <span className="text-teal-700 font-bold">● Connected (99.98% uptime)</span>
+              </div>
+              <div>
+                <strong>Avg Acceptance SLA:</strong> 42 seconds
+              </div>
             </div>
 
             <div className="flex justify-end pt-1">

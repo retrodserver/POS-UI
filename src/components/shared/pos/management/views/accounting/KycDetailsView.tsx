@@ -19,7 +19,9 @@ export function KycDetailsView() {
           </div>
           <div>
             <div className="text-[14px] font-bold text-slate-900">KYC Verified</div>
-            <div className="text-[12px] text-slate-500">Business PAN and FSSAI License #12023999000142 verified.</div>
+            <div className="text-[12px] text-slate-500">
+              Business PAN and FSSAI License #12023999000142 verified.
+            </div>
           </div>
         </div>
       </div>

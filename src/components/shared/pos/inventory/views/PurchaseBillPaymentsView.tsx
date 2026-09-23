@@ -8,8 +8,26 @@ export function PurchaseBillPaymentsView() {
   const [endDate, setEndDate] = useState("2026-09-02");
 
   const [invoices, setInvoices] = useState([
-    { id: "INV-PO-901", vendor: "Metro Fresh Farm Supplies", billDate: "28 Aug 2026", dueDate: "05 Sep 2026", total: 12400, paid: 5000, balance: 7400, status: "Partially Paid" },
-    { id: "INV-PO-902", vendor: "Apex Beverage Distributors", billDate: "30 Aug 2026", dueDate: "07 Sep 2026", total: 5850, paid: 0, balance: 5850, status: "Unpaid" },
+    {
+      id: "INV-PO-901",
+      vendor: "Metro Fresh Farm Supplies",
+      billDate: "28 Aug 2026",
+      dueDate: "05 Sep 2026",
+      total: 12400,
+      paid: 5000,
+      balance: 7400,
+      status: "Partially Paid",
+    },
+    {
+      id: "INV-PO-902",
+      vendor: "Apex Beverage Distributors",
+      billDate: "30 Aug 2026",
+      dueDate: "07 Sep 2026",
+      total: 5850,
+      paid: 0,
+      balance: 5850,
+      status: "Unpaid",
+    },
   ]);
 
   const filtered = invoices.filter((inv) => {
@@ -20,16 +38,16 @@ export function PurchaseBillPaymentsView() {
   const handlePay = (id: string, amount: number) => {
     toast.success(`Recording payment of ₹ ${amount} for ${id}...`);
     setInvoices((prev) =>
-      prev.map((i) => (i.id === id ? { ...i, paid: i.total, balance: 0, status: "Paid" } : i))
+      prev.map((i) => (i.id === id ? { ...i, paid: i.total, balance: 0, status: "Paid" } : i)),
     );
   };
 
   return (
     <div className="space-y-4">
-      {/* 1. Header Bar matching Screenshot 4 */}
+      {/* 1. Header Bar */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-[18px] font-bold text-slate-900 tracking-tight">
-          Bulk Purchase Bill Payments
+          Purchase Bill Payments
         </h2>
       </div>
 
@@ -142,8 +160,8 @@ export function PurchaseBillPaymentsView() {
                           inv.status === "Paid"
                             ? "bg-emerald-50 text-emerald-700"
                             : inv.status === "Partially Paid"
-                            ? "bg-amber-50 text-amber-700"
-                            : "bg-rose-50 text-rose-700"
+                              ? "bg-amber-50 text-amber-700"
+                              : "bg-rose-50 text-rose-700"
                         }`}
                       >
                         {inv.status}

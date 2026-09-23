@@ -4,9 +4,24 @@ import { toast } from "sonner";
 
 export function BillerGroupManagementView() {
   const [groups, setGroups] = useState([
-    { id: "bg-1", name: "Main Counter Cashiers", count: 2, permissions: "Billing, KOT, Settlement, Due Collection" },
-    { id: "bg-2", name: "Floor Captains", count: 8, permissions: "Table Transfer, KOT Punch, Discount Request" },
-    { id: "bg-3", name: "Order Acceptance Dispatchers", count: 1, permissions: "Aggregator Food Delivery Accept/Reject" },
+    {
+      id: "bg-1",
+      name: "Main Counter Cashiers",
+      count: 2,
+      permissions: "Billing, KOT, Settlement, Due Collection",
+    },
+    {
+      id: "bg-2",
+      name: "Floor Captains",
+      count: 8,
+      permissions: "Table Transfer, KOT Punch, Discount Request",
+    },
+    {
+      id: "bg-3",
+      name: "Order Acceptance Dispatchers",
+      count: 1,
+      permissions: "Aggregator Food Delivery Accept/Reject",
+    },
   ]);
 
   return (
@@ -17,7 +32,8 @@ export function BillerGroupManagementView() {
             Biller Group Management
           </h2>
           <p className="text-[12.5px] text-slate-500 mt-0.5">
-            Define role groups and granular permission templates for counter staff and service stewards.
+            Define role groups and granular permission templates for counter staff and service
+            stewards.
           </p>
         </div>
 
@@ -32,7 +48,10 @@ export function BillerGroupManagementView() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {groups.map((g) => (
-          <div key={g.id} className="rounded-2xl border border-slate-300 bg-white p-5 shadow-xs space-y-3">
+          <div
+            key={g.id}
+            className="rounded-2xl border border-slate-300 bg-white p-5 shadow-xs space-y-3"
+          >
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-50 text-teal-700 border border-teal-200">

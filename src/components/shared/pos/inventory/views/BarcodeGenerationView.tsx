@@ -9,20 +9,28 @@ export function BarcodeGenerationView() {
   const items = [
     { id: "PRD-REC-01", name: "Makhani Gravy Base (1L Pack)", barcode: "890123450012", expDays: 3 },
     { id: "PRD-REC-02", name: "Pizza Dough Balls (250g)", barcode: "890123450029", expDays: 2 },
-    { id: "PRD-REC-03", name: "Tandoori Chicken Marination (1kg)", barcode: "890123450036", expDays: 4 },
+    {
+      id: "PRD-REC-03",
+      name: "Tandoori Chicken Marination (1kg)",
+      barcode: "890123450036",
+      expDays: 4,
+    },
   ];
 
   const handlePrint = () => {
-    toast.success(`Printing ${labelCount} barcode labels for ${items.find(i => i.id === selectedBatch)?.name}...`);
+    toast.success(
+      `Printing ${labelCount} barcode labels for ${items.find((i) => i.id === selectedBatch)?.name}...`,
+    );
   };
 
   return (
     <div className="space-y-4 max-w-4xl">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-[18px] font-bold text-slate-900 tracking-tight">Barcode Generation</h2>
+          <h2 className="text-[18px] font-bold text-slate-900 tracking-tight">Create Barcodes</h2>
           <p className="text-[12.5px] text-slate-500 mt-0.5">
-            Generate and print batch barcode labels with production date and expiry timestamps for thermal printers.
+            Generate and print batch barcode labels with preparation date and expiry timestamps for
+            thermal printers.
           </p>
         </div>
 
@@ -39,7 +47,9 @@ export function BarcodeGenerationView() {
       <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1">
-            <label className="text-[12px] font-semibold text-slate-700">Select Production Item</label>
+            <label className="text-[12px] font-semibold text-slate-700">
+              Select Production Item
+            </label>
             <select
               value={selectedBatch}
               onChange={(e) => setSelectedBatch(e.target.value)}
@@ -54,7 +64,9 @@ export function BarcodeGenerationView() {
           </div>
 
           <div className="space-y-1">
-            <label className="text-[12px] font-semibold text-slate-700">Number of Label Stickers</label>
+            <label className="text-[12px] font-semibold text-slate-700">
+              Number of Label Stickers
+            </label>
             <input
               type="number"
               min="1"

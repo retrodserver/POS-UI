@@ -20,7 +20,9 @@ export function DataManagementView() {
             </div>
             <div>
               <div className="text-[14px] font-bold text-slate-900">Cloud Sync & Local Cache</div>
-              <div className="text-[12px] text-slate-500">Database Size: 24.8 MB • Last Synced: 2 mins ago</div>
+              <div className="text-[12px] text-slate-500">
+                Database Size: 24.8 MB • Last Synced: 2 mins ago
+              </div>
             </div>
           </div>
           <button

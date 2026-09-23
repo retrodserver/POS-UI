@@ -29,9 +29,13 @@ export function InventorySettingsView() {
 
   // 1. Consumption and production
   const [notifyKitchenBelowPar, setNotifyKitchenBelowPar] = useState<"Yes" | "No">("No");
-  const [reverseConsumptionCancelled, setReverseConsumptionCancelled] = useState<"Yes" | "No">("Yes");
+  const [reverseConsumptionCancelled, setReverseConsumptionCancelled] = useState<"Yes" | "No">(
+    "Yes",
+  );
   const [captureAvgPriceConverted, setCaptureAvgPriceConverted] = useState<"Yes" | "No">("Yes");
-  const [restrictNegativeStockProduction, setRestrictNegativeStockProduction] = useState<"Yes" | "No">("No");
+  const [restrictNegativeStockProduction, setRestrictNegativeStockProduction] = useState<
+    "Yes" | "No"
+  >("No");
   const [addRmGroupsMultipleRecipes, setAddRmGroupsMultipleRecipes] = useState<"Yes" | "No">("No");
   const [enableMultipleConversionRm, setEnableMultipleConversionRm] = useState<"Yes" | "No">("No");
 
@@ -41,27 +45,43 @@ export function InventorySettingsView() {
   const [configureShipToBill, setConfigureShipToBill] = useState<"Yes" | "No">("No");
   const [allowPOWhenStockNegative, setAllowPOWhenStockNegative] = useState<"Yes" | "No">("Yes");
   const [enableIncompleteRejectPO, setEnableIncompleteRejectPO] = useState<"Yes" | "No">("No");
-  const [addPurchaseWithoutTransferApproval, setAddPurchaseWithoutTransferApproval] = useState<"Yes" | "No">("No");
+  const [addPurchaseWithoutTransferApproval, setAddPurchaseWithoutTransferApproval] = useState<
+    "Yes" | "No"
+  >("No");
 
   // 3. Stock Purchase
   const [purchaseInvoiceLabel, setPurchaseInvoiceLabel] = useState("Invoice");
-  const [avgPurchasePriceDays, setAvgPurchasePriceDays] = useState<"15" | "30" | "45" | "60" | "75" | "90" | "Till Now">("90");
+  const [avgPurchasePriceDays, setAvgPurchasePriceDays] = useState<
+    "15" | "30" | "45" | "60" | "75" | "90" | "Till Now"
+  >("90");
   const [allowEditDeletePurchase, setAllowEditDeletePurchase] = useState<"Yes" | "No">("Yes");
   const [allowBackdatedPurchases, setAllowBackdatedPurchases] = useState<"Yes" | "No">("Yes");
   const [allowedDaysBackdatedPurchase, setAllowedDaysBackdatedPurchase] = useState("60");
-  const [allowRateCardsPurchaseReturn, setAllowRateCardsPurchaseReturn] = useState<"Yes" | "No">("No");
+  const [allowRateCardsPurchaseReturn, setAllowRateCardsPurchaseReturn] = useState<"Yes" | "No">(
+    "No",
+  );
 
   // 4. Sales and Transfer
   const [salesInvoiceLabel, setSalesInvoiceLabel] = useState("TAX INVOICE");
-  const [allowBackdatedSalesTransfer, setAllowBackdatedSalesTransfer] = useState<"Yes" | "No">("Yes");
+  const [allowBackdatedSalesTransfer, setAllowBackdatedSalesTransfer] = useState<"Yes" | "No">(
+    "Yes",
+  );
   const [allowedDaysBackdatedSales, setAllowedDaysBackdatedSales] = useState("60");
-  const [displayAvgPriceInternalTransfer, setDisplayAvgPriceInternalTransfer] = useState<"Yes" | "No">("No");
+  const [displayAvgPriceInternalTransfer, setDisplayAvgPriceInternalTransfer] = useState<
+    "Yes" | "No"
+  >("No");
   const [useProformaInvoiceOption, setUseProformaInvoiceOption] = useState<"Yes" | "No">("No");
 
   // 5. Settings applying to both sales and purchases
-  const [useBarcodeInSalesTransferPurchase, setUseBarcodeInSalesTransferPurchase] = useState<"Yes" | "No">("No");
-  const [invoiceRoundOffType, setInvoiceRoundOffType] = useState<"Normal" | "None" | "Round off up" | "Round off down">("None");
-  const [displayCurrentStockInModules, setDisplayCurrentStockInModules] = useState<"Yes" | "No">("Yes");
+  const [useBarcodeInSalesTransferPurchase, setUseBarcodeInSalesTransferPurchase] = useState<
+    "Yes" | "No"
+  >("No");
+  const [invoiceRoundOffType, setInvoiceRoundOffType] = useState<
+    "Normal" | "None" | "Round off up" | "Round off down"
+  >("None");
+  const [displayCurrentStockInModules, setDisplayCurrentStockInModules] = useState<"Yes" | "No">(
+    "Yes",
+  );
   const [lockPricesInModules, setLockPricesInModules] = useState<"Yes" | "No">("No");
   const [activateCessTax, setActivateCessTax] = useState<"Yes" | "No">("No");
 
@@ -72,14 +92,24 @@ export function InventorySettingsView() {
 
   // 7. Other Settings (Screenshot 2)
   const [restaurantMapping, setRestaurantMapping] = useState("");
-  const [outletOwnershipType, setOutletOwnershipType] = useState("COFO - Company Owned Franchisee Operated");
-  const [preferCompleteSalesWastageNegative, setPreferCompleteSalesWastageNegative] = useState<"Yes" | "No">("Yes");
+  const [outletOwnershipType, setOutletOwnershipType] = useState(
+    "COFO - Company Owned Franchisee Operated",
+  );
+  const [preferCompleteSalesWastageNegative, setPreferCompleteSalesWastageNegative] = useState<
+    "Yes" | "No"
+  >("Yes");
   const [allowRateCardsOther, setAllowRateCardsOther] = useState<"Yes" | "No">("No");
-  const [allowAddWastageFromPreviousDates, setAllowAddWastageFromPreviousDates] = useState<"Yes" | "No">("Yes");
+  const [allowAddWastageFromPreviousDates, setAllowAddWastageFromPreviousDates] = useState<
+    "Yes" | "No"
+  >("Yes");
 
   // 8. Ledger Settings (Screenshot 3)
-  const [invoiceNumMandatorySalesReturn, setInvoiceNumMandatorySalesReturn] = useState<"Yes" | "No">("No");
-  const [enableAutoPurchaseReturnEntry, setEnableAutoPurchaseReturnEntry] = useState<"Yes" | "No">("No");
+  const [invoiceNumMandatorySalesReturn, setInvoiceNumMandatorySalesReturn] = useState<
+    "Yes" | "No"
+  >("No");
+  const [enableAutoPurchaseReturnEntry, setEnableAutoPurchaseReturnEntry] = useState<"Yes" | "No">(
+    "No",
+  );
 
   // 9. Batchwise Settings (Screenshot 4)
   const [useFifoLifoMethod, setUseFifoLifoMethod] = useState<"Yes" | "No">("No");
@@ -120,7 +150,7 @@ export function InventorySettingsView() {
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-slate-700">
             <Sliders className="h-4 w-4" />
           </div>
-          <span className="text-[14px] font-bold text-slate-900">Inventory Settings</span>
+          <span className="text-[14px] font-bold text-slate-900">Stock Settings</span>
         </div>
 
         <div className="divide-y divide-slate-100 text-[13px]">
@@ -178,8 +208,12 @@ export function InventorySettingsView() {
             <div className="space-y-6">
               <div className="space-y-2">
                 <div className="flex items-center gap-1.5 text-[13px] font-semibold text-slate-900">
-                  <span>Send Notification to kitchen when raw material reaches below at par stock level?</span>
-                  <span className="text-slate-400 cursor-help" title="Kitchen par notification">ⓘ</span>
+                  <span>
+                    Send Notification to kitchen when raw material reaches below at par stock level?
+                  </span>
+                  <span className="text-slate-400 cursor-help" title="Kitchen par notification">
+                    ⓘ
+                  </span>
                 </div>
                 <div className="flex items-center gap-4">
                   <label className="flex items-center gap-2 text-[13px] text-slate-700 cursor-pointer">
@@ -240,8 +274,16 @@ export function InventorySettingsView() {
 
               <div className="space-y-2">
                 <div className="flex items-center gap-1.5 text-[13px] font-semibold text-slate-900">
-                  <span>Want to capture average purchase price for converted products based on raw materials used in production?</span>
-                  <span className="text-slate-400 cursor-help" title="Average purchase price capture">ⓘ</span>
+                  <span>
+                    Want to capture average purchase price for converted products based on raw
+                    materials used in production?
+                  </span>
+                  <span
+                    className="text-slate-400 cursor-help"
+                    title="Average purchase price capture"
+                  >
+                    ⓘ
+                  </span>
                 </div>
                 <div className="flex items-center gap-4">
                   <label className="flex items-center gap-2 text-[13px] text-slate-700 cursor-pointer">
@@ -269,7 +311,8 @@ export function InventorySettingsView() {
 
               <div className="space-y-2">
                 <div className="text-[13px] font-semibold text-slate-900">
-                  If the stock of utilised raw materials is negative at the time of production, should it be restricted?
+                  If the stock of utilised raw materials is negative at the time of production,
+                  should it be restricted?
                 </div>
                 <div className="flex items-center gap-4">
                   <label className="flex items-center gap-2 text-[13px] text-slate-700 cursor-pointer">
@@ -359,7 +402,9 @@ export function InventorySettingsView() {
               <div className="space-y-2">
                 <div className="flex items-center gap-1.5 text-[13px] font-semibold text-slate-900">
                   <span>Want to display Tax in Purchase Order?</span>
-                  <span className="text-slate-400 cursor-help" title="Display tax">ⓘ</span>
+                  <span className="text-slate-400 cursor-help" title="Display tax">
+                    ⓘ
+                  </span>
                 </div>
                 <div className="flex items-center gap-4">
                   <label className="flex items-center gap-2 text-[13px] text-slate-700 cursor-pointer">
@@ -388,7 +433,9 @@ export function InventorySettingsView() {
               <div className="space-y-1.5 max-w-md">
                 <div className="flex items-center gap-1.5 text-[13px] font-semibold text-slate-900">
                   <span>In add Purchase Order "Deliver To"</span>
-                  <span className="text-slate-400 cursor-help" title="Deliver to options">ⓘ</span>
+                  <span className="text-slate-400 cursor-help" title="Deliver to options">
+                    ⓘ
+                  </span>
                 </div>
                 <div className="relative">
                   <select
@@ -435,7 +482,8 @@ export function InventorySettingsView() {
 
               <div className="space-y-2">
                 <div className="text-[13px] font-semibold text-slate-900">
-                  Allow the user to raise a Purchase Order when the stock at the kitchen/restaurant level is negative?
+                  Allow the user to raise a Purchase Order when the stock at the kitchen/restaurant
+                  level is negative?
                 </div>
                 <div className="flex items-center gap-4">
                   <label className="flex items-center gap-2 text-[13px] text-slate-700 cursor-pointer">
@@ -462,7 +510,9 @@ export function InventorySettingsView() {
 
                 <div className="flex items-start gap-2.5 rounded-xl border border-amber-200 bg-amber-50/80 p-3 text-[12px] text-amber-900 mt-2">
                   <Lightbulb className="h-4 w-4 shrink-0 text-amber-600 mt-0.5" />
-                  <span>Before issuing a PO, ensure that the kitchen and restaurant have adequate stock.</span>
+                  <span>
+                    Before issuing a PO, ensure that the kitchen and restaurant have adequate stock.
+                  </span>
                 </div>
               </div>
 
@@ -496,7 +546,8 @@ export function InventorySettingsView() {
 
               <div className="space-y-2">
                 <div className="text-[13px] font-semibold text-slate-900">
-                  Do you want to add a purchase from a PO without it being approved by the restaurant or kitchen in their internal transfer module?
+                  Do you want to add a purchase from a PO without it being approved by the
+                  restaurant or kitchen in their internal transfer module?
                 </div>
                 <div className="flex items-center gap-4">
                   <label className="flex items-center gap-2 text-[13px] text-slate-700 cursor-pointer">
@@ -545,7 +596,10 @@ export function InventorySettingsView() {
                 </div>
                 <div className="flex flex-wrap items-center gap-5">
                   {(["15", "30", "45", "60", "75", "90", "Till Now"] as const).map((days) => (
-                    <label key={days} className="flex items-center gap-2 text-[13px] text-slate-700 cursor-pointer">
+                    <label
+                      key={days}
+                      className="flex items-center gap-2 text-[13px] text-slate-700 cursor-pointer"
+                    >
                       <input
                         type="radio"
                         name="avgDays"
@@ -590,7 +644,9 @@ export function InventorySettingsView() {
               <div className="space-y-2">
                 <div className="flex items-center gap-1.5 text-[13px] font-semibold text-slate-900">
                   <span>Would you like to allow user to add purchase from previous dates?</span>
-                  <span className="text-slate-400 cursor-help" title="Backdated purchases">ⓘ</span>
+                  <span className="text-slate-400 cursor-help" title="Backdated purchases">
+                    ⓘ
+                  </span>
                 </div>
                 <div className="flex items-center gap-4">
                   <label className="flex items-center gap-2 text-[13px] text-slate-700 cursor-pointer">
@@ -677,8 +733,12 @@ export function InventorySettingsView() {
 
               <div className="space-y-2">
                 <div className="flex items-center gap-1.5 text-[13px] font-semibold text-slate-900">
-                  <span>Would you like to allow user to add sales or transfer from previous dates?</span>
-                  <span className="text-slate-400 cursor-help" title="Backdated sales">ⓘ</span>
+                  <span>
+                    Would you like to allow user to add sales or transfer from previous dates?
+                  </span>
+                  <span className="text-slate-400 cursor-help" title="Backdated sales">
+                    ⓘ
+                  </span>
                 </div>
                 <div className="flex items-center gap-4">
                   <label className="flex items-center gap-2 text-[13px] text-slate-700 cursor-pointer">
@@ -720,7 +780,8 @@ export function InventorySettingsView() {
 
               <div className="space-y-2">
                 <div className="text-[13px] font-semibold text-slate-900">
-                  Want to display average purchase(without tax) price as internal transfer/sale/sale return price?
+                  Want to display average purchase(without tax) price as internal transfer/sale/sale
+                  return price?
                 </div>
                 <div className="flex items-center gap-4">
                   <label className="flex items-center gap-2 text-[13px] text-slate-700 cursor-pointer">
@@ -747,7 +808,10 @@ export function InventorySettingsView() {
 
                 <div className="flex items-start gap-2.5 rounded-xl border border-amber-200 bg-amber-50/80 p-3 text-[12px] text-amber-900 mt-2">
                   <Lightbulb className="h-4 w-4 shrink-0 text-amber-600 mt-0.5" />
-                  <span>To maintain the average purchase price, include the correct raw material purchase price when adding the purchases.</span>
+                  <span>
+                    To maintain the average purchase price, include the correct raw material
+                    purchase price when adding the purchases.
+                  </span>
                 </div>
               </div>
 
@@ -832,7 +896,10 @@ export function InventorySettingsView() {
                 </div>
                 <div className="flex flex-wrap items-center gap-5">
                   {(["Normal", "None", "Round off up", "Round off down"] as const).map((rType) => (
-                    <label key={rType} className="flex items-center gap-2 text-[13px] text-slate-700 cursor-pointer">
+                    <label
+                      key={rType}
+                      className="flex items-center gap-2 text-[13px] text-slate-700 cursor-pointer"
+                    >
                       <input
                         type="radio"
                         name="roundOff"
@@ -848,7 +915,8 @@ export function InventorySettingsView() {
 
               <div className="space-y-2">
                 <div className="text-[13px] font-semibold text-slate-900">
-                  Do you want the current stock of sellers and restaurants to be displayed in the Purchase and Consumption modules?
+                  Do you want the current stock of sellers and restaurants to be displayed in the
+                  Purchase and Consumption modules?
                 </div>
                 <div className="flex items-center gap-4">
                   <label className="flex items-center gap-2 text-[13px] text-slate-700 cursor-pointer">
@@ -938,7 +1006,8 @@ export function InventorySettingsView() {
               {/* Question 1: Daily closing time */}
               <div className="space-y-1.5 max-w-md">
                 <div className="text-[13px] font-semibold text-slate-900">
-                  For inventory, Please provide your daily outlet closing time.[Time zone = Asia/Calcutta]
+                  For inventory, Please provide your daily outlet closing time.[Time zone =
+                  Asia/Calcutta]
                 </div>
                 <div className="relative">
                   <select
@@ -963,13 +1032,15 @@ export function InventorySettingsView() {
                 <div className="flex items-start gap-2.5 rounded-xl border border-amber-200 bg-amber-50/80 p-3 text-[12px] text-amber-900 mt-2">
                   <Lightbulb className="h-4 w-4 shrink-0 text-amber-600 mt-0.5" />
                   <span>
-                    If the drop-down is disabled, it indicates that you have already changed the closing time; please try to change it after 10:00 am.
+                    If the drop-down is disabled, it indicates that you have already changed the
+                    closing time; please try to change it after 10:00 am.
                   </span>
                 </div>
 
                 {/* Blue Note matching Screenshot 1 */}
                 <div className="text-[12px] text-teal-600 pt-1">
-                  Note: If the timing in the above configuration is blank then your restaurant closes at 00:00 a.m. and your timezone is Asia/Calcutta.
+                  Note: If the timing in the above configuration is blank then your restaurant
+                  closes at 00:00 a.m. and your timezone is Asia/Calcutta.
                 </div>
               </div>
 
@@ -989,7 +1060,8 @@ export function InventorySettingsView() {
               {/* Question 3: Freeze closing stock */}
               <div className="space-y-2">
                 <div className="text-[13px] font-semibold text-slate-900">
-                  Do you want to freeze the closing stock? Once the closing stock is frozen, it remains unchanged.
+                  Do you want to freeze the closing stock? Once the closing stock is frozen, it
+                  remains unchanged.
                 </div>
                 <div className="flex items-center gap-4">
                   <label className="flex items-center gap-2 text-[13px] text-slate-700 cursor-pointer">
@@ -1074,7 +1146,8 @@ export function InventorySettingsView() {
               {/* Question 3: Complete sales, wastage or transfer on negative stock */}
               <div className="space-y-2">
                 <div className="text-[13px] font-semibold text-slate-900">
-                  If raw material stock is negative, would you prefer that a user complete sales,wastage or a transfer?
+                  If raw material stock is negative, would you prefer that a user complete
+                  sales,wastage or a transfer?
                 </div>
                 <div className="flex items-center gap-4">
                   <label className="flex items-center gap-2 text-[13px] text-slate-700 cursor-pointer">
@@ -1229,7 +1302,8 @@ export function InventorySettingsView() {
                 <div className="flex items-start gap-2.5 rounded-xl border border-amber-200 bg-amber-50/80 p-3 text-[12px] text-amber-900 mt-2">
                   <Lightbulb className="h-4 w-4 shrink-0 text-amber-600 mt-0.5" />
                   <span>
-                    If this setting is enabled, it is required to enter the invoice number in the purchase to ensure consistency in the purchase return.
+                    If this setting is enabled, it is required to enter the invoice number in the
+                    purchase to ensure consistency in the purchase return.
                   </span>
                 </div>
               </div>
@@ -1366,9 +1440,7 @@ export function InventorySettingsView() {
                         <th className="px-4 py-2.5">Changed By</th>
                       </tr>
                     </thead>
-                    <tbody>
-                      {/* Logs rows */}
-                    </tbody>
+                    <tbody>{/* Logs rows */}</tbody>
                   </table>
                 </div>
               )}

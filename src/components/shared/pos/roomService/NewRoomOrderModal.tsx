@@ -18,11 +18,7 @@ import {
   Clock,
   Sparkles,
 } from "lucide-react";
-import type {
-  HotelRoom,
-  RoomServiceOrder,
-  RoomOrderItem,
-} from "@/types/posRoomService";
+import type { HotelRoom, RoomServiceOrder, RoomOrderItem } from "@/types/posRoomService";
 
 interface NewRoomOrderModalProps {
   isOpen: boolean;
@@ -30,7 +26,7 @@ interface NewRoomOrderModalProps {
   rooms: HotelRoom[];
   preselectedRoomNumber?: string;
   onCreateOrder: (
-    newOrderData: Omit<RoomServiceOrder, "id" | "createdAt" | "elapsedMinutes">
+    newOrderData: Omit<RoomServiceOrder, "id" | "createdAt" | "elapsedMinutes">,
   ) => void;
 }
 
@@ -171,8 +167,8 @@ export function NewRoomOrderModal({
                 className="w-full py-2 px-3 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
               >
                 {rooms.map((r) => (
-                  <option key={r.id} value={r.roomNumber}>
-                    Room {r.roomNumber} ({r.roomType}) - {r.guest?.name || "Vacant"}
+                  <option key={r.id} value={r.roomNumber} disabled={!r.isOccupied}>
+                    Room {r.roomNumber} ({r.roomType}) — {r.guest?.name ? `Guest: ${r.guest.name}` : "⛔ Vacant (Disabled)"}
                   </option>
                 ))}
               </select>
@@ -213,7 +209,9 @@ export function NewRoomOrderModal({
                   >
                     <div className="min-w-0 flex-1 mr-2">
                       <div className="font-semibold truncate">{item.name}</div>
-                      <div className="text-[11px] text-slate-500 font-mono">${item.price.toFixed(2)}</div>
+                      <div className="text-[11px] text-slate-500 font-mono">
+                        ${item.price.toFixed(2)}
+                      </div>
                     </div>
 
                     <div className="flex items-center gap-1 shrink-0">
@@ -282,7 +280,10 @@ export function NewRoomOrderModal({
               onChange={(e) => setIsUrgent(e.target.checked)}
               className="rounded text-teal-600 focus:ring-teal-500"
             />
-            <label htmlFor="urgentOrderCheck" className="text-xs text-slate-700 font-semibold cursor-pointer">
+            <label
+              htmlFor="urgentOrderCheck"
+              className="text-xs text-slate-700 font-semibold cursor-pointer"
+            >
               Mark as Express Priority Order
             </label>
           </div>
@@ -296,7 +297,9 @@ export function NewRoomOrderModal({
             </div>
             <div className="text-right">
               <span className="text-xs text-slate-500 block">Total Folio Charge:</span>
-              <span className="text-base font-bold text-teal-800 font-mono">${totalAmount.toFixed(2)}</span>
+              <span className="text-base font-bold text-teal-800 font-mono">
+                ${totalAmount.toFixed(2)}
+              </span>
             </div>
           </div>
 

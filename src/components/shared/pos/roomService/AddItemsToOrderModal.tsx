@@ -30,13 +30,23 @@ interface AddItemsToOrderModalProps {
 
 const AVAILABLE_SUPPLEMENTARY_ITEMS = [
   { id: "sup-1", name: "Warm Chocolate Lava Cake", price: 12.0, category: "Dessert" },
-  { id: "sup-2", name: "Artisan Gelato Trio (Pistachio, Vanilla, Berry)", price: 9.5, category: "Dessert" },
+  {
+    id: "sup-2",
+    name: "Artisan Gelato Trio (Pistachio, Vanilla, Berry)",
+    price: 9.5,
+    category: "Dessert",
+  },
   { id: "sup-3", name: "Double Espresso", price: 5.5, category: "Beverage" },
   { id: "sup-4", name: "Fresh Mint & Chamomile Tea Pot", price: 6.0, category: "Beverage" },
   { id: "sup-5", name: "Cold Pressed Orange Juice", price: 7.5, category: "Beverage" },
   { id: "sup-6", name: "San Pellegrino Sparkling Water (750ml)", price: 9.0, category: "Beverage" },
   { id: "sup-7", name: "Château Margaux Red Wine (Glass)", price: 24.0, category: "Wine & Bar" },
-  { id: "sup-8", name: "Moët & Chandon Champagne (Half Bottle)", price: 65.0, category: "Wine & Bar" },
+  {
+    id: "sup-8",
+    name: "Moët & Chandon Champagne (Half Bottle)",
+    price: 65.0,
+    category: "Wine & Bar",
+  },
   { id: "sup-9", name: "Truffle Parmesan French Fries", price: 11.0, category: "Late Night" },
   { id: "sup-10", name: "Artisan Cheese & Cracker Board", price: 19.0, category: "Late Night" },
   { id: "sup-11", name: "Club Sandwich with Sweet Potato Fries", price: 19.5, category: "Mains" },
@@ -179,9 +189,7 @@ export function AddItemsToOrderModal({
                         <Minus className="w-3 h-3 text-slate-600" />
                       </button>
                     )}
-                    {qty > 0 && (
-                      <span className="w-4 text-center font-bold text-xs">{qty}</span>
-                    )}
+                    {qty > 0 && <span className="w-4 text-center font-bold text-xs">{qty}</span>}
                     <button
                       type="button"
                       onClick={() => handleAddItem(item.id)}

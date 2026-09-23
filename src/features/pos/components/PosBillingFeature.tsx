@@ -1,7 +1,13 @@
 import { PageHeader, Card, CardHeader, KpiCard, StatusBadge } from "@/components/ui/Primitives";
 
 const bills = [
-  { id: "POS-INV-2201", table: "T-12", amount: 4860, method: "Room charge · 312", status: "Settled" },
+  {
+    id: "POS-INV-2201",
+    table: "T-12",
+    amount: 4860,
+    method: "Room charge · 312",
+    status: "Settled",
+  },
   { id: "POS-INV-2200", table: "T-08", amount: 1640, method: "UPI", status: "Pending" },
   { id: "POS-INV-2199", table: "Walk-in", amount: 2200, method: "Cash", status: "Settled" },
 ];
@@ -26,7 +32,10 @@ export function PosBillingFeature() {
             <thead>
               <tr className="border-b border-border bg-surface-2/40 text-left">
                 {["Bill", "Table", "Amount", "Tender", "Status"].map((h) => (
-                  <th key={h} className="px-4 py-2.5 text-[10px] font-medium uppercase tracking-wider text-text-secondary">
+                  <th
+                    key={h}
+                    className="px-4 py-2.5 text-[10px] font-medium uppercase tracking-wider text-text-secondary"
+                  >
                     {h}
                   </th>
                 ))}
@@ -40,7 +49,9 @@ export function PosBillingFeature() {
                   <td className="px-4 py-3 font-mono">₹{b.amount.toLocaleString()}</td>
                   <td className="px-4 py-3 text-text-secondary">{b.method}</td>
                   <td className="px-4 py-3">
-                    <StatusBadge tone={b.status === "Settled" ? "success" : "warning"}>{b.status}</StatusBadge>
+                    <StatusBadge tone={b.status === "Settled" ? "success" : "warning"}>
+                      {b.status}
+                    </StatusBadge>
                   </td>
                 </tr>
               ))}

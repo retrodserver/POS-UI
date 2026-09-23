@@ -18,12 +18,12 @@ function Chair({
   orientation: "top" | "bottom" | "left" | "right";
   status: RestaurantTable["status"];
 }) {
-  // Color palette for chairs matching table status
-  let chairBg = "bg-slate-300 border-slate-400/80";
+  // Color palette for chairs matching table status with high contrast
+  let chairBg = "bg-slate-400 border-slate-500 shadow-2xs";
   if (status === "reserved") {
-    chairBg = "bg-teal-700 border-teal-800 shadow-xs";
+    chairBg = "bg-teal-600 border-teal-700 shadow-xs";
   } else if (status === "occupied") {
-    chairBg = "bg-orange-600 border-orange-700 shadow-xs";
+    chairBg = "bg-orange-500 border-orange-600 shadow-xs";
   }
 
   const isHorizontal = orientation === "top" || orientation === "bottom";
@@ -31,68 +31,57 @@ function Chair({
   return (
     <div
       className={`relative rounded-xs border transition-all duration-200 ${chairBg} ${
-        isHorizontal
-          ? "h-2 w-3.5 sm:h-2.5 sm:w-4"
-          : "h-3.5 w-2 sm:h-4 sm:w-2.5"
+        isHorizontal ? "h-2 w-3.5 sm:h-2 sm:w-4" : "h-3.5 w-2 sm:h-4 sm:w-2"
       }`}
     >
-      {/* Inner backrest cushion curve */}
-      <div
-        className={`absolute inset-0.5 rounded-[1px] bg-white/25`}
-      />
+      {/* Inner backrest cushion curve for realistic depth */}
+      <div className="absolute inset-0.5 rounded-[1px] bg-white/30" />
     </div>
   );
 }
 
-export function TableCardItem({
-  table,
-  onSelectReserved,
-  onSelectTable,
-}: TableCardItemProps) {
+export function TableCardItem({ table, onSelectReserved, onSelectTable }: TableCardItemProps) {
   const { status, capacity, tableNumber, activeReservation, activeOrder } = table;
 
-  // Determine chair layout count based on capacity
-  let topChairs = 1;
-  let bottomChairs = 1;
-  let leftChairs = 0;
-  let rightChairs = 0;
+  // Determine chair layout count strictly matching capacity
+  const getChairDistribution = (cap: number) => {
+    if (cap <= 1) return { top: 1, bottom: 0, left: 0, right: 0 };
+    if (cap === 2) return { top: 1, bottom: 1, left: 0, right: 0 };
+    if (cap === 3) return { top: 1, bottom: 1, left: 1, right: 0 };
+    if (cap === 4) return { top: 1, bottom: 1, left: 1, right: 1 };
+    if (cap === 5) return { top: 2, bottom: 2, left: 1, right: 0 };
+    if (cap === 6) return { top: 3, bottom: 3, left: 0, right: 0 };
+    if (cap === 7) return { top: 3, bottom: 3, left: 1, right: 0 };
+    if (cap === 8) return { top: 3, bottom: 3, left: 1, right: 1 };
+    if (cap === 9) return { top: 4, bottom: 4, left: 1, right: 0 };
+    if (cap === 10) return { top: 4, bottom: 4, left: 1, right: 1 };
 
-  if (capacity === 2) {
-    // 2 seats: either 1 left & 1 right, or 1 top & 1 bottom
-    topChairs = 1;
-    bottomChairs = 1;
-  } else if (capacity === 4) {
-    topChairs = 1;
-    bottomChairs = 1;
-    leftChairs = 1;
-    rightChairs = 1;
-  } else if (capacity === 6) {
-    topChairs = 3;
-    bottomChairs = 3;
-    leftChairs = 0;
-    rightChairs = 0;
-  } else if (capacity === 7 || capacity === 8) {
-    topChairs = 3;
-    bottomChairs = 3;
-    leftChairs = 1;
-    rightChairs = capacity === 8 ? 1 : 0;
-  } else if (capacity >= 10) {
-    topChairs = 4;
-    bottomChairs = 4;
-    leftChairs = 1;
-    rightChairs = 1;
-  }
+    // For capacity >= 11 (e.g. 11, 12, 14, 16, 20...)
+    const sidesCount = cap >= 16 ? 4 : 2;
+    const left = Math.ceil(sidesCount / 2);
+    const right = Math.floor(sidesCount / 2);
+    const remaining = cap - (left + right);
+    const top = Math.ceil(remaining / 2);
+    const bottom = Math.floor(remaining / 2);
 
-  // Visual styling of the table surface based on status
-  // Reserved: soft mint/teal
-  // Occupied: soft peach/coral
-  // Vacant: clean neutral with subtle slate/sky border - NO TAG!
-  let tableStyle = "bg-slate-50/90 text-slate-700 border-slate-200/90 hover:border-slate-400 hover:bg-slate-100/80 shadow-xs";
+    return { top, bottom, left, right };
+  };
+
+  const {
+    top: topChairs,
+    bottom: bottomChairs,
+    left: leftChairs,
+    right: rightChairs,
+  } = getChairDistribution(capacity);
+
+  // High-contrast, vibrant visual styling of the table surface based on status
+  let tableStyle =
+    "bg-white text-slate-800 border-slate-300 hover:border-slate-500 hover:bg-slate-50 shadow-xs ring-1 ring-slate-200/80";
   let statusBadge = null;
 
   if (status === "reserved") {
     tableStyle =
-      "bg-[#ddf2ed] text-[#0d695b] border-[#9fdad0] hover:bg-[#d0ece5] shadow-sm ring-1 ring-teal-500/20";
+      "bg-[#ecfdf5] text-teal-950 border-teal-400 hover:bg-[#d1fae5] shadow-xs ring-1 ring-teal-500/40";
     statusBadge = (
       <button
         type="button"
@@ -100,7 +89,7 @@ export function TableCardItem({
           e.stopPropagation();
           onSelectReserved(table, activeReservation);
         }}
-        className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-teal-600 text-white shadow-xs hover:bg-teal-700 transition-colors cursor-pointer"
+        className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-bold bg-teal-700 text-white shadow-xs hover:bg-teal-800 transition-colors cursor-pointer"
         title="Click to view reservation details"
       >
         <CalendarCheck className="w-3 h-3" />
@@ -109,19 +98,25 @@ export function TableCardItem({
     );
   } else if (status === "occupied") {
     tableStyle =
-      "bg-[#fdebe7] text-[#b83823] border-[#f6c3b9] hover:bg-[#fadfd9] shadow-sm ring-1 ring-orange-500/20";
+      "bg-[#fff7ed] text-orange-950 border-orange-400 hover:bg-[#ffedd5] shadow-xs ring-1 ring-orange-500/40";
     statusBadge = (
-      <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-orange-600 text-white shadow-xs">
+      <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-bold bg-orange-600 text-white shadow-xs">
         <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
         On Dine
       </div>
     );
   } else {
-    // Vacant -> AS DIRECTED BY USER: "in vacant show no tag"
-    statusBadge = null;
+    // Vacant
+    statusBadge = (
+      <span className="inline-flex items-center px-2 py-0.2 rounded-full text-[9.5px] font-semibold text-slate-400 bg-slate-100">
+        Available
+      </span>
+    );
   }
 
-  const isWide = capacity >= 6;
+  const maxTopBottom = Math.max(topChairs, bottomChairs);
+  const isExtraWide = maxTopBottom >= 5;
+  const isWide = maxTopBottom >= 3;
 
   const handleClick = () => {
     if (status === "reserved") {
@@ -134,11 +129,11 @@ export function TableCardItem({
   return (
     <div
       onClick={handleClick}
-      className="group relative flex flex-col items-center justify-center p-3 select-none cursor-pointer transition-all duration-200 hover:scale-[1.02]"
+      className="group relative flex flex-col items-center justify-center p-1 sm:p-1.5 select-none cursor-pointer transition-all duration-200 hover:scale-[1.03]"
     >
       {/* Top Chairs Row */}
       {topChairs > 0 && (
-        <div className="flex items-center justify-center gap-2 sm:gap-3 mb-1">
+        <div className="flex items-center justify-center gap-1.5 sm:gap-2 mb-0.5">
           {Array.from({ length: topChairs }).map((_, i) => (
             <Chair key={`top-${i}`} orientation="top" status={status} />
           ))}
@@ -146,10 +141,10 @@ export function TableCardItem({
       )}
 
       {/* Middle Row: Left Chairs + Table Surface + Right Chairs */}
-      <div className="flex items-center justify-center gap-1">
+      <div className="flex items-center justify-center gap-0.5">
         {/* Left Chairs */}
         {leftChairs > 0 && (
-          <div className="flex flex-col items-center justify-center gap-2 mr-0.5">
+          <div className="flex flex-col items-center justify-center gap-1.5 mr-0.5">
             {Array.from({ length: leftChairs }).map((_, i) => (
               <Chair key={`left-${i}`} orientation="left" status={status} />
             ))}
@@ -158,41 +153,41 @@ export function TableCardItem({
 
         {/* The Physical Table Surface */}
         <div
-          className={`relative flex flex-col items-center justify-center rounded-2xl border transition-all duration-200 ${tableStyle} ${
-            isWide
-              ? "w-44 sm:w-52 h-24 sm:h-28 px-3"
-              : "w-28 sm:w-32 h-24 sm:h-28 px-2"
+          className={`relative flex flex-col items-center justify-center rounded-xl border transition-all duration-200 ${tableStyle} ${
+            isExtraWide
+              ? "w-48 sm:w-56 h-20 sm:h-22 px-3"
+              : isWide
+                ? "w-36 sm:w-42 h-20 sm:h-22 px-2.5"
+                : "w-26 sm:w-30 h-20 sm:h-22 px-2"
           }`}
         >
           {/* Table Header / Number */}
-          <span className="text-[13.5px] sm:text-[14.5px] font-bold tracking-tight">
+          <span className="text-xs sm:text-[13.5px] font-extrabold tracking-tight">
             {tableNumber}
           </span>
 
           {/* Capacity Indicator */}
-          <div className="flex items-center gap-1 text-[11px] sm:text-[12px] opacity-80 mt-0.5 font-medium">
-            <Users className="w-3 h-3" />
+          <div className="flex items-center gap-1 text-[10.5px] sm:text-[11px] opacity-85 mt-0.5 font-semibold">
+            <Users className="w-2.5 h-2.5 opacity-80" />
             <span>{capacity} Seats</span>
           </div>
 
           {/* Reservation / On-Dine Tag */}
-          <div className="mt-1.5 min-h-[22px] flex items-center justify-center">
-            {statusBadge}
-          </div>
+          <div className="mt-1 min-h-[18px] flex items-center justify-center">{statusBadge}</div>
 
           {/* Active order info / reservation summary mini ticker */}
           {status === "occupied" && activeOrder && (
-            <div className="mt-0.5 flex items-center gap-1 text-[10px] font-semibold opacity-75">
-              <Clock className="w-2.5 h-2.5" />
+            <div className="mt-0.5 flex items-center gap-1 text-[9.5px] font-bold text-orange-950 bg-orange-100/90 px-1.5 py-0.2 rounded border border-orange-200/80">
+              <Clock className="w-2 h-2 text-orange-700" />
               <span>{activeOrder.elapsedMinutes}m</span>
               <span>•</span>
-              <Receipt className="w-2.5 h-2.5" />
+              <Receipt className="w-2 h-2 text-orange-700" />
               <span>${activeOrder.totalAmount.toFixed(2)}</span>
             </div>
           )}
 
           {status === "reserved" && activeReservation && (
-            <div className="mt-0.5 text-[10px] font-medium opacity-85 truncate max-w-[120px]">
+            <div className="mt-0.5 text-[9.5px] font-bold text-teal-950 bg-teal-100/90 px-1.5 py-0.2 rounded border border-teal-200/80 truncate max-w-[110px]">
               {activeReservation.customerName.split(" ")[0]} ({activeReservation.reservationTime})
             </div>
           )}
@@ -200,7 +195,7 @@ export function TableCardItem({
 
         {/* Right Chairs */}
         {rightChairs > 0 && (
-          <div className="flex flex-col items-center justify-center gap-2 ml-0.5">
+          <div className="flex flex-col items-center justify-center gap-1.5 ml-0.5">
             {Array.from({ length: rightChairs }).map((_, i) => (
               <Chair key={`right-${i}`} orientation="right" status={status} />
             ))}
@@ -210,7 +205,7 @@ export function TableCardItem({
 
       {/* Bottom Chairs Row */}
       {bottomChairs > 0 && (
-        <div className="flex items-center justify-center gap-2 sm:gap-3 mt-1">
+        <div className="flex items-center justify-center gap-1.5 sm:gap-2 mt-0.5">
           {Array.from({ length: bottomChairs }).map((_, i) => (
             <Chair key={`bottom-${i}`} orientation="bottom" status={status} />
           ))}

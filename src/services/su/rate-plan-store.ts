@@ -33,9 +33,11 @@ export function getSuRatePlanDefinition(code: string): SuRatePlanDefinition | un
 export function upsertSuRatePlanDefinition(definition: SuRatePlanDefinition): SuRatePlanDefinition {
   const list = listSuRatePlanDefinitions();
   const idx = list.findIndex(
-    (item) => item.externalRatePlanCode.toUpperCase() === definition.externalRatePlanCode.toUpperCase(),
+    (item) =>
+      item.externalRatePlanCode.toUpperCase() === definition.externalRatePlanCode.toUpperCase(),
   );
-  const next = idx >= 0 ? list.map((item, i) => (i === idx ? definition : item)) : [...list, definition];
+  const next =
+    idx >= 0 ? list.map((item, i) => (i === idx ? definition : item)) : [...list, definition];
   writeJson(LS_SU_RATE_PLANS, next);
   return definition;
 }

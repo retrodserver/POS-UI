@@ -4,8 +4,18 @@ import { toast } from "sonner";
 
 export function AdminGroupManagementView() {
   const [groups, setGroups] = useState([
-    { id: "ag-1", name: "Restaurant Owners / Partners", count: 2, permissions: "Full POS, Management, Audits, Financial Reports, Settings" },
-    { id: "ag-2", name: "General Store Managers", count: 1, permissions: "Inventory, Cash Desk Closing, Recipe Modification, Staff Rosters" },
+    {
+      id: "ag-1",
+      name: "Restaurant Owners / Partners",
+      count: 2,
+      permissions: "Full POS, Management, Audits, Financial Reports, Settings",
+    },
+    {
+      id: "ag-2",
+      name: "General Store Managers",
+      count: 1,
+      permissions: "Inventory, Cash Desk Closing, Recipe Modification, Staff Rosters",
+    },
   ]);
 
   return (
@@ -31,7 +41,10 @@ export function AdminGroupManagementView() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {groups.map((g) => (
-          <div key={g.id} className="rounded-2xl border border-slate-300 bg-white p-5 shadow-xs space-y-3">
+          <div
+            key={g.id}
+            className="rounded-2xl border border-slate-300 bg-white p-5 shadow-xs space-y-3"
+          >
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-50 text-teal-700 border border-teal-200">

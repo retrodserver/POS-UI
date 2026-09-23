@@ -3,13 +3,7 @@ import { X, Search, Filter, Plus, Edit2, CheckCircle2 } from "lucide-react";
 import { useMenuStockItems } from "@/hooks/queries/usePosMenu";
 import { toast } from "sonner";
 
-export function ManageMenuModal({
-  isOpen,
-  onClose,
-}: {
-  isOpen: boolean;
-  onClose: () => void;
-}) {
+export function ManageMenuModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const { data: items } = useMenuStockItems();
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -20,7 +14,8 @@ export function ManageMenuModal({
 
   const filtered = (items ?? []).filter((item) => {
     const matchCat = selectedCategory === "All" || item.category === selectedCategory;
-    const matchSearch = item.name.toLowerCase().includes(search.toLowerCase()) ||
+    const matchSearch =
+      item.name.toLowerCase().includes(search.toLowerCase()) ||
       item.code.toLowerCase().includes(search.toLowerCase());
     return matchCat && matchSearch;
   });
@@ -32,7 +27,9 @@ export function ManageMenuModal({
         <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4 bg-slate-50">
           <div>
             <h2 className="text-[17px] font-bold text-slate-900">All In One Menu Management</h2>
-            <p className="text-[12px] text-slate-500">Configure base items, categories, pricing, and variants</p>
+            <p className="text-[12px] text-slate-500">
+              Configure base items, categories, pricing, and variants
+            </p>
           </div>
           <button
             type="button"
@@ -62,7 +59,9 @@ export function ManageMenuModal({
               className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-[13px] text-slate-700 focus:border-teal-500 focus:outline-none cursor-pointer"
             >
               {categories.map((c) => (
-                <option key={c} value={c}>{c}</option>
+                <option key={c} value={c}>
+                  {c}
+                </option>
               ))}
             </select>
           </div>
@@ -97,10 +96,16 @@ export function ManageMenuModal({
                   <td className="px-4 py-3 text-slate-600">{item.category}</td>
                   <td className="px-4 py-3 font-semibold text-slate-800">₹{item.price}</td>
                   <td className="px-4 py-3">
-                    <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11.5px] font-medium ${
-                      item.status === "In Stock" ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"
-                    }`}>
-                      <span className={`h-1.5 w-1.5 rounded-full ${item.status === "In Stock" ? "bg-emerald-500" : "bg-red-500"}`} />
+                    <span
+                      className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11.5px] font-medium ${
+                        item.status === "In Stock"
+                          ? "bg-emerald-50 text-emerald-700"
+                          : "bg-red-50 text-red-700"
+                      }`}
+                    >
+                      <span
+                        className={`h-1.5 w-1.5 rounded-full ${item.status === "In Stock" ? "bg-emerald-500" : "bg-red-500"}`}
+                      />
                       {item.status}
                     </span>
                   </td>

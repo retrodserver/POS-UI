@@ -57,7 +57,8 @@ export function InventoryDashboardView() {
               Daily Stock Closing Tracker
             </h2>
             <p className="mt-1 text-[13px] text-slate-500 max-w-2xl leading-relaxed">
-              Track timely stock closing and monitor manual adjustments to ensure accurate inventory and avoid mismatches through regular updates.
+              Track timely stock closing and monitor manual adjustments to ensure accurate inventory
+              and avoid mismatches through regular updates.
             </p>
           </div>
 
@@ -88,7 +89,8 @@ export function InventoryDashboardView() {
 
             <div className="space-y-2 pt-2">
               <div className="text-[13px] text-slate-600">
-                Closing stock has been updated on <span className="font-bold text-slate-800">0 days</span> this month.
+                Closing stock has been updated on{" "}
+                <span className="font-bold text-slate-800">0 days</span> this month.
               </div>
 
               {/* Progress bar */}
@@ -106,9 +108,7 @@ export function InventoryDashboardView() {
           {/* Right Column: Calendar Days Tracker */}
           <div className="lg:col-span-7 space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-[13.5px] font-bold text-slate-800">
-                September's 2026 Progress.
-              </h3>
+              <h3 className="text-[13.5px] font-bold text-slate-800">September's 2026 Progress.</h3>
 
               <div className="relative">
                 <select
@@ -134,7 +134,8 @@ export function InventoryDashboardView() {
                 if (isMissed) {
                   chipStyles = "border border-red-400 bg-red-50/50 text-red-600 font-bold";
                 } else if (isToday) {
-                  chipStyles = "border-2 border-dashed border-slate-400 bg-white text-slate-800 font-bold shadow-2xs";
+                  chipStyles =
+                    "border-2 border-dashed border-slate-400 bg-white text-slate-800 font-bold shadow-2xs";
                 }
 
                 return (
@@ -144,8 +145,8 @@ export function InventoryDashboardView() {
                       isMissed
                         ? `Day ${day}: Missed stock closing`
                         : isToday
-                        ? `Day ${day}: Today's stock closing pending`
-                        : `Day ${day}`
+                          ? `Day ${day}: Today's stock closing pending`
+                          : `Day ${day}`
                     }
                     className={`flex h-8 w-8 items-center justify-center rounded-lg text-[11.5px] font-medium transition select-none ${chipStyles}`}
                   >
@@ -203,9 +204,7 @@ export function InventoryDashboardView() {
           >
             <div className="flex items-start justify-between">
               <div>
-                <div className="text-[26px] font-extrabold text-red-500 tracking-tight">
-                  40%
-                </div>
+                <div className="text-[26px] font-extrabold text-red-500 tracking-tight">40%</div>
                 <div className="mt-1 text-[13px] font-medium text-slate-500">
                   Stock is getting wasted if not used
                 </div>
@@ -238,7 +237,9 @@ export function InventoryDashboardView() {
                 <div key={item.name} className="space-y-1">
                   <div className="flex items-center justify-between text-[12.5px]">
                     <span className="font-semibold text-slate-700">{item.name}</span>
-                    <span className="text-[11.5px] font-medium text-slate-500">{item.daysRemaining} Days</span>
+                    <span className="text-[11.5px] font-medium text-slate-500">
+                      {item.daysRemaining} Days
+                    </span>
                   </div>
                   <div className="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
                     <div
@@ -338,7 +339,9 @@ export function InventoryDashboardView() {
                   />
                 </svg>
                 <div className="absolute flex flex-col items-center justify-center text-center">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total</span>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                    Total
+                  </span>
                   <span className="text-[13px] font-black text-slate-800">100%</span>
                 </div>
               </div>
@@ -348,10 +351,7 @@ export function InventoryDashboardView() {
             <div className="flex flex-wrap items-center justify-center gap-2 text-[11px] text-slate-600">
               {categoryBreakdown.map((item) => (
                 <div key={item.label} className="flex items-center gap-1">
-                  <span
-                    className="h-2 w-2 rounded-full"
-                    style={{ backgroundColor: item.color }}
-                  />
+                  <span className="h-2 w-2 rounded-full" style={{ backgroundColor: item.color }} />
                   <span>{item.label}</span>
                 </div>
               ))}

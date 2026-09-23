@@ -1,5 +1,13 @@
 import { useState } from "react";
-import { BookOpen, Store, Plus, ArrowUpRight, CheckCircle2, ChevronRight, Layers } from "lucide-react";
+import {
+  BookOpen,
+  Store,
+  Plus,
+  ArrowUpRight,
+  CheckCircle2,
+  ChevronRight,
+  Layers,
+} from "lucide-react";
 import { ManageMenuModal } from "../modals/ManageMenuModal";
 import { AddVirtualOutletModal } from "../modals/AddVirtualOutletModal";
 import { useVirtualOutlets } from "@/hooks/queries/usePosMenu";
@@ -75,7 +83,9 @@ export function MenuDiscountsView() {
         <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
           <div>
             <h4 className="text-[14px] font-bold text-slate-900">Active Outlets & Menu Control</h4>
-            <p className="text-[12px] text-slate-500">Live outlets linked to this POS billing counter</p>
+            <p className="text-[12px] text-slate-500">
+              Live outlets linked to this POS billing counter
+            </p>
           </div>
           <button
             type="button"
@@ -96,7 +106,9 @@ export function MenuDiscountsView() {
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="text-[13.5px] font-bold text-slate-900">HIGHWAY INN BAR & RESTAURANT</span>
+                  <span className="text-[13.5px] font-bold text-slate-900">
+                    HIGHWAY INN BAR & RESTAURANT
+                  </span>
                   <span className="rounded-full bg-teal-50 px-2 py-0.5 text-[10.5px] font-semibold text-teal-800 border border-teal-200">
                     Primary Outlet
                   </span>
@@ -150,14 +162,8 @@ export function MenuDiscountsView() {
       </div>
 
       {/* Modals */}
-      <ManageMenuModal
-        isOpen={isManageMenuOpen}
-        onClose={() => setIsManageMenuOpen(false)}
-      />
-      <AddVirtualOutletModal
-        isOpen={isAddOutletOpen}
-        onClose={() => setIsAddOutletOpen(false)}
-      />
+      <ManageMenuModal isOpen={isManageMenuOpen} onClose={() => setIsManageMenuOpen(false)} />
+      <AddVirtualOutletModal isOpen={isAddOutletOpen} onClose={() => setIsAddOutletOpen(false)} />
     </div>
   );
 }

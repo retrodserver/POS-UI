@@ -65,9 +65,7 @@ export function ScheduleItemsTab() {
   };
 
   const toggleSelectOne = (id: string) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
-    );
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
   };
 
   const handleDuplicate = (name: string, price: number, isVeg: boolean) => {
@@ -86,7 +84,7 @@ export function ScheduleItemsTab() {
         onSuccess: () => {
           toast.success(`Duplicated "${name}"`);
         },
-      }
+      },
     );
   };
 
@@ -102,7 +100,9 @@ export function ScheduleItemsTab() {
         name: newItemName.trim(),
         category: selectedCategory,
         shortCode: Math.floor(100 + Math.random() * 900),
-        indicators: selectedCategory.toLowerCase().includes("non-veg") ? "nv | O | D" : "v+ | O | D",
+        indicators: selectedCategory.toLowerCase().includes("non-veg")
+          ? "nv | O | D"
+          : "v+ | O | D",
         onlineDisplayName: newItemName.trim(),
         price: parseFloat(newItemPrice) || 140,
         isVeg: !selectedCategory.toLowerCase().includes("non-veg"),
@@ -114,7 +114,7 @@ export function ScheduleItemsTab() {
           setNewItemName("");
           setIsAddingItem(false);
         },
-      }
+      },
     );
   };
 
@@ -122,7 +122,10 @@ export function ScheduleItemsTab() {
     <div className="space-y-4">
       {/* 1. Yellow Guidance Banner from Screenshot 1 */}
       <div className="rounded-xl border border-amber-200 bg-amber-50/90 px-4 py-2.5 text-[13px] text-amber-900 shadow-2xs flex items-center justify-between">
-        <span>You can make updates to your restaurant's menu anytime and have them go live on the exact date and time you desire. ⓘ</span>
+        <span>
+          You can make updates to your restaurant's menu anytime and have them go live on the exact
+          date and time you desire. ⓘ
+        </span>
       </div>
 
       {/* 2. Main Two-Column Layout (Left Category Rail + Right Items Table) from Screenshot 1 */}
@@ -155,7 +158,9 @@ export function ScheduleItemsTab() {
             className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-[12.5px] text-slate-800 focus:border-teal-500 focus:outline-none cursor-pointer"
           >
             {categoryNames.map((cat) => (
-              <option key={cat} value={cat}>{cat}</option>
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
             ))}
           </select>
 
@@ -276,7 +281,9 @@ export function ScheduleItemsTab() {
                   type="button"
                   onClick={() => {
                     setIsAvailableGlobal(!isAvailableGlobal);
-                    toast.info(`Set all items available status to ${!isAvailableGlobal ? "Active" : "Paused"}`);
+                    toast.info(
+                      `Set all items available status to ${!isAvailableGlobal ? "Active" : "Paused"}`,
+                    );
                   }}
                   className={`relative inline-flex h-5 w-9 items-center rounded-full transition ${
                     isAvailableGlobal ? "bg-emerald-500" : "bg-slate-300"
@@ -294,9 +301,14 @@ export function ScheduleItemsTab() {
 
           {/* Quick Add Form Drawer if triggered */}
           {isAddingItem && (
-            <form onSubmit={handleAddItemSubmit} className="rounded-xl border border-teal-200 bg-teal-50/40 p-4 space-y-3">
+            <form
+              onSubmit={handleAddItemSubmit}
+              className="rounded-xl border border-teal-200 bg-teal-50/40 p-4 space-y-3"
+            >
               <div className="flex items-center justify-between">
-                <span className="text-[13px] font-bold text-blue-900">Add Item to {selectedCategory}</span>
+                <span className="text-[13px] font-bold text-blue-900">
+                  Add Item to {selectedCategory}
+                </span>
                 <button
                   type="button"
                   onClick={() => setIsAddingItem(false)}
@@ -453,9 +465,13 @@ export function ScheduleItemsTab() {
 
             {/* Record count footer */}
             <div className="border-t border-slate-200 px-4 py-2.5 bg-slate-50 flex items-center justify-between text-[12px] text-slate-500">
-              <span>Showing {filteredItems.length} items in {selectedCategory}</span>
+              <span>
+                Showing {filteredItems.length} items in {selectedCategory}
+              </span>
               {selectedIds.length > 0 && (
-                <span className="text-teal-600 font-medium">{selectedIds.length} items selected</span>
+                <span className="text-teal-600 font-medium">
+                  {selectedIds.length} items selected
+                </span>
               )}
             </div>
           </div>

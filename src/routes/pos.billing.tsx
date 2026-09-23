@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { PosBillingFeature } from "@/features/pos/components/PosBillingFeature";
+import { PosBillingManager } from "@/components/shared/pos/billing/PosBillingManager";
 
 export const Route = createFileRoute("/pos/billing")({
-  head: () => ({ meta: [{ title: "Billing — Retrod POS" }] }),
-  component: PosBillingFeature,
+  head: () => ({ meta: [{ title: "Fast Touch Billing — Retrod POS" }] }),
+  component: PosBillingManager,
 });

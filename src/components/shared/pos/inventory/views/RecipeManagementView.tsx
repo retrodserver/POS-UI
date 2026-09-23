@@ -11,6 +11,7 @@ import {
   ChevronRight,
   Search,
 } from "lucide-react";
+import { DataTableFooter } from "@/components/common";
 import { toast } from "sonner";
 
 interface RecipeRow {
@@ -25,6 +26,8 @@ export function RecipeManagementView() {
   const [selectedItem, setSelectedItem] = useState("Select Item");
   const [selectedCategory, setSelectedCategory] = useState("Select Category");
   const [recipeStatus, setRecipeStatus] = useState("Created Recipes");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   const [recipes, setRecipes] = useState<RecipeRow[]>([
     { id: "RCP-1", name: "Veg Manchuria Dry", category: "Veg Starters" },
@@ -55,7 +58,8 @@ export function RecipeManagementView() {
               Get AI-Powered Recipe Suggestions!
             </h4>
             <p className="text-[12px] text-teal-700/90">
-              Based On The Items You've Added To Your Menu, We'll Create Personalized Recipes Just For You.
+              Based On The Items You've Added To Your Menu, We'll Create Personalized Recipes Just
+              For You.
             </p>
           </div>
         </div>
@@ -71,9 +75,7 @@ export function RecipeManagementView() {
 
       {/* 2. Header Bar matching Screenshot 2 */}
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-[18px] font-bold text-slate-900 tracking-tight">
-          Recipe Management
-        </h2>
+        <h2 className="text-[18px] font-bold text-slate-900 tracking-tight">Recipe Management</h2>
 
         <div className="flex flex-wrap items-center gap-3">
           <button
@@ -111,7 +113,7 @@ export function RecipeManagementView() {
                 toast.success(
                   !autoConsumption
                     ? "Auto consumption enabled (raw materials will deduct on KOT billing)"
-                    : "Auto consumption disabled"
+                    : "Auto consumption disabled",
                 );
               }}
               className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
@@ -286,10 +288,15 @@ export function RecipeManagementView() {
           </table>
         </div>
 
-        {/* Footer pagination info matching Screenshot 2 */}
-        <div className="border-t border-slate-100 px-4 py-3 bg-slate-50/50 text-[12px] text-slate-500">
-          Showing 1 to {filtered.length} of {filtered.length} records
-        </div>
+        {/* Unified DataTableFooter */}
+        <DataTableFooter
+          currentPage={currentPage}
+          totalCount={filtered.length}
+          pageSize={pageSize}
+          onPageSizeChange={setPageSize}
+          onPageChange={setCurrentPage}
+          itemName="recipes"
+        />
       </div>
     </div>
   );

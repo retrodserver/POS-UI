@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as PosRouteImport } from './routes/pos'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PosTakeOrderRouteImport } from './routes/pos.take-order'
 import { Route as PosTablesRouteImport } from './routes/pos.tables'
 import { Route as PosSettlementRouteImport } from './routes/pos.settlement'
 import { Route as PosSettingsRouteImport } from './routes/pos.settings'
@@ -49,6 +50,7 @@ import { Route as PosInventorySalesReturnRouteImport } from './routes/pos.invent
 import { Route as PosInventorySalesRouteImport } from './routes/pos.inventory.sales'
 import { Route as PosInventoryReturnRouteImport } from './routes/pos.inventory.return'
 import { Route as PosInventoryReportsRouteImport } from './routes/pos.inventory.reports'
+import { Route as PosInventoryPurchasePaymentsRouteImport } from './routes/pos.inventory.purchase-payments'
 import { Route as PosInventoryPurchaseRouteImport } from './routes/pos.inventory.purchase'
 import { Route as PosInventoryProductionRouteImport } from './routes/pos.inventory.production'
 import { Route as PosInventoryOrderRouteImport } from './routes/pos.inventory.order'
@@ -108,6 +110,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const PosTakeOrderRoute = PosTakeOrderRouteImport.update({
+  id: '/take-order',
+  path: '/take-order',
+  getParentRoute: () => PosRoute,
 } as any)
 const PosTablesRoute = PosTablesRouteImport.update({
   id: '/tables',
@@ -296,6 +303,12 @@ const PosInventoryReportsRoute = PosInventoryReportsRouteImport.update({
   path: '/reports',
   getParentRoute: () => PosInventoryRoute,
 } as any)
+const PosInventoryPurchasePaymentsRoute =
+  PosInventoryPurchasePaymentsRouteImport.update({
+    id: '/purchase-payments',
+    path: '/purchase-payments',
+    getParentRoute: () => PosInventoryRoute,
+  } as any)
 const PosInventoryPurchaseRoute = PosInventoryPurchaseRouteImport.update({
   id: '/purchase',
   path: '/purchase',
@@ -575,12 +588,14 @@ export interface FileRoutesByFullPath {
   '/pos/settings': typeof PosSettingsRoute
   '/pos/settlement': typeof PosSettlementRoute
   '/pos/tables': typeof PosTablesRoute
+  '/pos/take-order': typeof PosTakeOrderRoute
   '/pos/inventory/available-stock': typeof PosInventoryAvailableStockRoute
   '/pos/inventory/closing-stock': typeof PosInventoryClosingStockRoute
   '/pos/inventory/masters': typeof PosInventoryMastersRouteWithChildren
   '/pos/inventory/order': typeof PosInventoryOrderRoute
   '/pos/inventory/production': typeof PosInventoryProductionRouteWithChildren
   '/pos/inventory/purchase': typeof PosInventoryPurchaseRoute
+  '/pos/inventory/purchase-payments': typeof PosInventoryPurchasePaymentsRoute
   '/pos/inventory/reports': typeof PosInventoryReportsRouteWithChildren
   '/pos/inventory/return': typeof PosInventoryReturnRoute
   '/pos/inventory/sales': typeof PosInventorySalesRoute
@@ -661,12 +676,14 @@ export interface FileRoutesByTo {
   '/pos/settings': typeof PosSettingsRoute
   '/pos/settlement': typeof PosSettlementRoute
   '/pos/tables': typeof PosTablesRoute
+  '/pos/take-order': typeof PosTakeOrderRoute
   '/pos/inventory/available-stock': typeof PosInventoryAvailableStockRoute
   '/pos/inventory/closing-stock': typeof PosInventoryClosingStockRoute
   '/pos/inventory/masters': typeof PosInventoryMastersRouteWithChildren
   '/pos/inventory/order': typeof PosInventoryOrderRoute
   '/pos/inventory/production': typeof PosInventoryProductionRouteWithChildren
   '/pos/inventory/purchase': typeof PosInventoryPurchaseRoute
+  '/pos/inventory/purchase-payments': typeof PosInventoryPurchasePaymentsRoute
   '/pos/inventory/reports': typeof PosInventoryReportsRouteWithChildren
   '/pos/inventory/return': typeof PosInventoryReturnRoute
   '/pos/inventory/sales': typeof PosInventorySalesRoute
@@ -748,12 +765,14 @@ export interface FileRoutesById {
   '/pos/settings': typeof PosSettingsRoute
   '/pos/settlement': typeof PosSettlementRoute
   '/pos/tables': typeof PosTablesRoute
+  '/pos/take-order': typeof PosTakeOrderRoute
   '/pos/inventory/available-stock': typeof PosInventoryAvailableStockRoute
   '/pos/inventory/closing-stock': typeof PosInventoryClosingStockRoute
   '/pos/inventory/masters': typeof PosInventoryMastersRouteWithChildren
   '/pos/inventory/order': typeof PosInventoryOrderRoute
   '/pos/inventory/production': typeof PosInventoryProductionRouteWithChildren
   '/pos/inventory/purchase': typeof PosInventoryPurchaseRoute
+  '/pos/inventory/purchase-payments': typeof PosInventoryPurchasePaymentsRoute
   '/pos/inventory/reports': typeof PosInventoryReportsRouteWithChildren
   '/pos/inventory/return': typeof PosInventoryReturnRoute
   '/pos/inventory/sales': typeof PosInventorySalesRoute
@@ -836,12 +855,14 @@ export interface FileRouteTypes {
     | '/pos/settings'
     | '/pos/settlement'
     | '/pos/tables'
+    | '/pos/take-order'
     | '/pos/inventory/available-stock'
     | '/pos/inventory/closing-stock'
     | '/pos/inventory/masters'
     | '/pos/inventory/order'
     | '/pos/inventory/production'
     | '/pos/inventory/purchase'
+    | '/pos/inventory/purchase-payments'
     | '/pos/inventory/reports'
     | '/pos/inventory/return'
     | '/pos/inventory/sales'
@@ -922,12 +943,14 @@ export interface FileRouteTypes {
     | '/pos/settings'
     | '/pos/settlement'
     | '/pos/tables'
+    | '/pos/take-order'
     | '/pos/inventory/available-stock'
     | '/pos/inventory/closing-stock'
     | '/pos/inventory/masters'
     | '/pos/inventory/order'
     | '/pos/inventory/production'
     | '/pos/inventory/purchase'
+    | '/pos/inventory/purchase-payments'
     | '/pos/inventory/reports'
     | '/pos/inventory/return'
     | '/pos/inventory/sales'
@@ -1008,12 +1031,14 @@ export interface FileRouteTypes {
     | '/pos/settings'
     | '/pos/settlement'
     | '/pos/tables'
+    | '/pos/take-order'
     | '/pos/inventory/available-stock'
     | '/pos/inventory/closing-stock'
     | '/pos/inventory/masters'
     | '/pos/inventory/order'
     | '/pos/inventory/production'
     | '/pos/inventory/purchase'
+    | '/pos/inventory/purchase-payments'
     | '/pos/inventory/reports'
     | '/pos/inventory/return'
     | '/pos/inventory/sales'
@@ -1104,6 +1129,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/pos/take-order': {
+      id: '/pos/take-order'
+      path: '/take-order'
+      fullPath: '/pos/take-order'
+      preLoaderRoute: typeof PosTakeOrderRouteImport
+      parentRoute: typeof PosRoute
     }
     '/pos/tables': {
       id: '/pos/tables'
@@ -1362,6 +1394,13 @@ declare module '@tanstack/react-router' {
       path: '/reports'
       fullPath: '/pos/inventory/reports'
       preLoaderRoute: typeof PosInventoryReportsRouteImport
+      parentRoute: typeof PosInventoryRoute
+    }
+    '/pos/inventory/purchase-payments': {
+      id: '/pos/inventory/purchase-payments'
+      path: '/purchase-payments'
+      fullPath: '/pos/inventory/purchase-payments'
+      preLoaderRoute: typeof PosInventoryPurchasePaymentsRouteImport
       parentRoute: typeof PosInventoryRoute
     }
     '/pos/inventory/purchase': {
@@ -1737,6 +1776,7 @@ interface PosInventoryRouteChildren {
   PosInventoryOrderRoute: typeof PosInventoryOrderRoute
   PosInventoryProductionRoute: typeof PosInventoryProductionRouteWithChildren
   PosInventoryPurchaseRoute: typeof PosInventoryPurchaseRoute
+  PosInventoryPurchasePaymentsRoute: typeof PosInventoryPurchasePaymentsRoute
   PosInventoryReportsRoute: typeof PosInventoryReportsRouteWithChildren
   PosInventoryReturnRoute: typeof PosInventoryReturnRoute
   PosInventorySalesRoute: typeof PosInventorySalesRoute
@@ -1753,6 +1793,7 @@ const PosInventoryRouteChildren: PosInventoryRouteChildren = {
   PosInventoryOrderRoute: PosInventoryOrderRoute,
   PosInventoryProductionRoute: PosInventoryProductionRouteWithChildren,
   PosInventoryPurchaseRoute: PosInventoryPurchaseRoute,
+  PosInventoryPurchasePaymentsRoute: PosInventoryPurchasePaymentsRoute,
   PosInventoryReportsRoute: PosInventoryReportsRouteWithChildren,
   PosInventoryReturnRoute: PosInventoryReturnRoute,
   PosInventorySalesRoute: PosInventorySalesRoute,
@@ -1918,6 +1959,7 @@ interface PosRouteChildren {
   PosSettingsRoute: typeof PosSettingsRoute
   PosSettlementRoute: typeof PosSettlementRoute
   PosTablesRoute: typeof PosTablesRoute
+  PosTakeOrderRoute: typeof PosTakeOrderRoute
 }
 
 const PosRouteChildren: PosRouteChildren = {
@@ -1936,6 +1978,7 @@ const PosRouteChildren: PosRouteChildren = {
   PosSettingsRoute: PosSettingsRoute,
   PosSettlementRoute: PosSettlementRoute,
   PosTablesRoute: PosTablesRoute,
+  PosTakeOrderRoute: PosTakeOrderRoute,
 }
 
 const PosRouteWithChildren = PosRoute._addFileChildren(PosRouteChildren)

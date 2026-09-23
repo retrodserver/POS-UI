@@ -38,7 +38,11 @@ export function ScheduleDiscountsTab() {
       value: parseFloat(discountValue) || 10,
       minBillAmount: parseFloat(minBill) || 0,
       status: "Active",
-      createdAt: new Date().toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }),
+      createdAt: new Date().toLocaleDateString("en-GB", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      }),
     };
 
     setDiscounts([newDisc, ...discounts]);
@@ -50,8 +54,8 @@ export function ScheduleDiscountsTab() {
   const handleToggleStatus = (id: string, current: string) => {
     setDiscounts(
       discounts.map((d) =>
-        d.id === id ? { ...d, status: d.status === "Active" ? "Inactive" : "Active" } : d
-      )
+        d.id === id ? { ...d, status: d.status === "Active" ? "Inactive" : "Active" } : d,
+      ),
     );
     toast.info(`Toggled status to ${current === "Active" ? "Inactive" : "Active"}`);
   };

@@ -7,6 +7,7 @@ import {
   useAddSpecialNote,
 } from "@/hooks/queries/usePosMenu";
 import { AddSpecialNoteModal } from "../modals/AddSpecialNoteModal";
+import { DataTableFooter } from "@/components/common";
 import { toast } from "sonner";
 
 export function SpecialNoteView({ onBack }: { onBack?: () => void }) {
@@ -18,10 +19,12 @@ export function SpecialNoteView({ onBack }: { onBack?: () => void }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   // Filter
   const filteredNotes = (specialNotes ?? []).filter((note) =>
-    note.name.toLowerCase().includes(searchQuery.toLowerCase())
+    note.name.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   const toggleSelectAll = () => {
@@ -33,9 +36,7 @@ export function SpecialNoteView({ onBack }: { onBack?: () => void }) {
   };
 
   const toggleSelectOne = (id: string) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
-    );
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
   };
 
   const handleDuplicate = (noteName: string) => {
@@ -45,7 +46,7 @@ export function SpecialNoteView({ onBack }: { onBack?: () => void }) {
         onSuccess: () => {
           toast.success(`Duplicated "${noteName}"`);
         },
-      }
+      },
     );
   };
 
@@ -230,24 +231,21 @@ export function SpecialNoteView({ onBack }: { onBack?: () => void }) {
           </table>
         </div>
 
-        {/* 4. Pagination / Record count footer from Screenshot 4 */}
-        <div className="border-t border-slate-200 px-6 py-3 bg-slate-50 flex items-center justify-between text-[12.5px] text-slate-500">
-          <span>
-            Showing 1 to {filteredNotes.length} of {filteredNotes.length} records
-          </span>
-          {selectedIds.length > 0 && (
-            <span className="text-teal-700 font-medium">
-              {selectedIds.length} notes selected
-            </span>
-          )}
-        </div>
+        {/* 4. Unified DataTableFooter */}
+        <DataTableFooter
+          currentPage={currentPage}
+          totalCount={filteredNotes.length}
+          pageSize={pageSize}
+          onPageSizeChange={setPageSize}
+          onPageChange={setCurrentPage}
+          selectedCount={selectedIds.length}
+          onClearSelection={() => setSelectedIds([])}
+          itemName="special notes"
+        />
       </div>
 
       {/* Add Special Note Modal */}
-      <AddSpecialNoteModal
-        isOpen={isAddModalOpen}
-        onClose={() => setIsAddModalOpen(false)}
-      />
+      <AddSpecialNoteModal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} />
     </div>
   );
 }

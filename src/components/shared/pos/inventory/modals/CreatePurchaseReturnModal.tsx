@@ -35,7 +35,11 @@ export function CreatePurchaseReturnModal({
       {
         debitNoteNo: debitNoteNo.trim(),
         vendorName,
-        returnDate: new Date().toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }),
+        returnDate: new Date().toLocaleDateString("en-GB", {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+        }),
         reason,
         itemCount: parseInt(itemCount) || 1,
         returnAmount: parseFloat(returnAmount) || 0,
@@ -47,7 +51,7 @@ export function CreatePurchaseReturnModal({
           toast.success(`Purchase Return Debit Note ${debitNoteNo} issued`);
           onClose();
         },
-      }
+      },
     );
   };
 
@@ -57,7 +61,9 @@ export function CreatePurchaseReturnModal({
         <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4 bg-slate-50">
           <div className="flex items-center gap-2">
             <RotateCcw className="h-5 w-5 text-teal-600" />
-            <h3 className="text-[16px] font-bold text-slate-900">Create Purchase Return (Debit Note)</h3>
+            <h3 className="text-[16px] font-bold text-slate-900">
+              Create Purchase Return (Debit Note)
+            </h3>
           </div>
           <button
             type="button"
@@ -80,7 +86,9 @@ export function CreatePurchaseReturnModal({
                 className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-[13px] focus:outline-none focus:border-teal-500 cursor-pointer"
               >
                 {vendors?.map((v) => (
-                  <option key={v.id} value={v.name}>{v.name}</option>
+                  <option key={v.id} value={v.name}>
+                    {v.name}
+                  </option>
                 ))}
               </select>
             </div>
@@ -143,9 +151,7 @@ export function CreatePurchaseReturnModal({
           </div>
 
           <div>
-            <label className="block text-[12.5px] font-medium text-slate-700 mb-1">
-              Remarks
-            </label>
+            <label className="block text-[12.5px] font-medium text-slate-700 mb-1">Remarks</label>
             <input
               type="text"
               placeholder="e.g. Package seal broken upon delivery"

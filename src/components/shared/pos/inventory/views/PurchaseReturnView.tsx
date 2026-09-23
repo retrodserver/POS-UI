@@ -1,13 +1,5 @@
 import { useState } from "react";
-import {
-  Plus,
-  Download,
-  Search,
-  Trash2,
-  Eye,
-  SlidersHorizontal,
-  ChevronDown,
-} from "lucide-react";
+import { Plus, Download, Search, Trash2, Eye, SlidersHorizontal, ChevronDown } from "lucide-react";
 import {
   usePurchaseReturns,
   useInventoryVendors,
@@ -45,7 +37,9 @@ export function PurchaseReturnView() {
     <div className="space-y-4">
       {/* 1. Header & Actions matching Screenshot 3 */}
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-[18px] font-bold text-slate-900 tracking-tight">Purchase Return List</h2>
+        <h2 className="text-[18px] font-bold text-slate-900 tracking-tight">
+          Purchase Return List
+        </h2>
 
         <div className="flex flex-wrap items-center gap-2">
           <button
@@ -93,9 +87,7 @@ export function PurchaseReturnView() {
           </div>
 
           <div className="w-36">
-            <label className="block text-[11.5px] font-medium text-slate-600 mb-1">
-              End Date
-            </label>
+            <label className="block text-[11.5px] font-medium text-slate-600 mb-1">End Date</label>
             <input
               type="date"
               value={endDate}
@@ -105,9 +97,7 @@ export function PurchaseReturnView() {
           </div>
 
           <div className="min-w-[160px]">
-            <label className="block text-[11.5px] font-medium text-slate-600 mb-1">
-              To
-            </label>
+            <label className="block text-[11.5px] font-medium text-slate-600 mb-1">To</label>
             <select
               value={vendorFilter}
               onChange={(e) => setVendorFilter(e.target.value)}
@@ -115,7 +105,9 @@ export function PurchaseReturnView() {
             >
               <option value="All">All</option>
               {vendors?.map((v) => (
-                <option key={v.id} value={v.name}>{v.name}</option>
+                <option key={v.id} value={v.name}>
+                  {v.name}
+                </option>
               ))}
             </select>
           </div>
@@ -206,7 +198,9 @@ export function PurchaseReturnView() {
               <tbody className="divide-y divide-slate-100">
                 {filteredReturns.map((pr) => (
                   <tr key={pr.id} className="hover:bg-slate-50/80 transition">
-                    <td className="px-4 py-3 font-bold text-slate-900 font-mono">{pr.debitNoteNo}</td>
+                    <td className="px-4 py-3 font-bold text-slate-900 font-mono">
+                      {pr.debitNoteNo}
+                    </td>
                     <td className="px-4 py-3 font-medium text-slate-800">{pr.vendorName}</td>
                     <td className="px-4 py-3 text-slate-600">{pr.returnDate}</td>
                     <td className="px-4 py-3 text-slate-600">{pr.reason}</td>

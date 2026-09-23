@@ -35,6 +35,7 @@ interface ReservationDetailSlideProps {
   onCancelReservation: (reservationId: string) => void;
   onVacateTable: (tableId: string) => void;
   onOpenNewBooking: (tableId?: string) => void;
+  onOpenEditOrder?: (table: RestaurantTable) => void;
 }
 
 export function ReservationDetailSlide({
@@ -46,6 +47,7 @@ export function ReservationDetailSlide({
   onCancelReservation,
   onVacateTable,
   onOpenNewBooking,
+  onOpenEditOrder,
 }: ReservationDetailSlideProps) {
   if (!selectedTable && !selectedReservation) return null;
 
@@ -137,9 +139,7 @@ export function ReservationDetailSlide({
                       </div>
                       <div className="flex items-center gap-1.5 text-xs text-slate-500 mt-1">
                         <Users className="w-3.5 h-3.5 text-teal-600" />
-                        <span className="font-semibold text-slate-700">
-                          {res.guests} Guests
-                        </span>
+                        <span className="font-semibold text-slate-700">{res.guests} Guests</span>
                         <span>allocated to</span>
                         <span className="font-semibold text-teal-700">{res.tableNumber}</span>
                       </div>
@@ -222,7 +222,7 @@ export function ReservationDetailSlide({
                     <span>Special Notes & Requests</span>
                   </div>
                   <p className="text-xs text-slate-700 leading-relaxed bg-amber-50/50 p-3 rounded-xl border border-amber-200/60 font-medium">
-                    "{res.notes}"
+                    &quot;{res.notes}&quot;
                   </p>
                 </div>
               )}
@@ -239,12 +239,12 @@ export function ReservationDetailSlide({
                         {res.paymentStatus === "paid"
                           ? "Booking Deposit Paid"
                           : res.paymentStatus === "deposit_paid"
-                          ? "Partial Deposit Paid"
-                          : "No Deposit Required"}
+                            ? "Partial Deposit Paid"
+                            : "No Deposit Required"}
                       </div>
                       <div className="text-[11px] text-slate-500">
                         {res.depositAmount
-                          ? `$${res.depositAmount.toFixed(2)} received via Card/Online`
+                          ? `₹${res.depositAmount.toFixed(2)} received via Card/Online`
                           : "Pay on arrival at POS"}
                       </div>
                     </div>
@@ -270,7 +270,7 @@ export function ReservationDetailSlide({
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-orange-800">
                     <Receipt className="w-4 h-4 text-orange-600" />
-                    <span>Active Dining Order: {selectedTable.activeOrder.orderNumber}</span>
+                    <span>Active Order: {selectedTable.activeOrder.orderNumber}</span>
                   </div>
                   <span className="px-2 py-0.5 rounded-md text-[11px] font-bold bg-orange-200 text-orange-800">
                     {selectedTable.activeOrder.status.toUpperCase()}
@@ -292,15 +292,60 @@ export function ReservationDetailSlide({
                   </div>
                 </div>
 
+                {/* Guest & Waiter info */}
+                <div className="bg-white p-2.5 rounded-xl border border-orange-100 text-xs mb-3 space-y-1">
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Guest Name:</span>
+                    <span className="font-bold text-slate-800">
+                      {selectedTable.activeOrder.guestName || "Walk-in Guest"}
+                    </span>
+                  </div>
+                  {selectedTable.activeOrder.guestPhone && (
+                    <div className="flex justify-between">
+                      <span className="text-slate-500">Contact:</span>
+                      <span className="font-semibold text-slate-700 font-mono">
+                        {selectedTable.activeOrder.guestPhone}
+                      </span>
+                    </div>
+                  )}
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Captain / Server:</span>
+                    <span className="font-bold text-teal-800">
+                      {selectedTable.activeOrder.serverName}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Ordered Dishes List */}
+                {selectedTable.activeOrder.items && selectedTable.activeOrder.items.length > 0 && (
+                  <div className="bg-white p-3 rounded-xl border border-orange-100 space-y-2 mb-3">
+                    <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                      Ordered Dishes:
+                    </div>
+                    <div className="divide-y divide-slate-100 text-xs">
+                      {selectedTable.activeOrder.items.map((it, idx) => (
+                        <div key={idx} className="py-1.5 flex justify-between items-center">
+                          <span className="font-medium text-slate-800">
+                            {it.name} <strong className="text-teal-700">× {it.quantity}</strong>
+                          </span>
+                          <span className="font-bold text-slate-900">
+                            ₹{it.price * it.quantity}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 <div className="bg-white p-3 rounded-xl border border-orange-100 flex items-center justify-between">
                   <div>
                     <span className="text-xs text-slate-500">Current Total:</span>
                     <div className="text-lg font-bold text-slate-900">
-                      ${selectedTable.activeOrder.totalAmount.toFixed(2)}
+                      ₹{selectedTable.activeOrder.totalAmount.toLocaleString()}
                     </div>
                   </div>
-                  <span className="text-xs font-medium text-slate-500">
-                    Server: {selectedTable.activeOrder.serverName}
+                  <span className="text-xs font-semibold text-teal-700">
+                    {selectedTable.activeOrder.itemsCount} Dishes Billed
                   </span>
                 </div>
               </div>
@@ -367,24 +412,37 @@ export function ReservationDetailSlide({
             </div>
           )}
 
-          {/* When Table is Occupied: Option to Vacate / Clear */}
+          {/* When Table is Occupied: Option to Edit Order or Vacate */}
           {isOccupied && selectedTable && (
             <div className="space-y-2">
+              {onOpenEditOrder && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    onOpenEditOrder(selectedTable);
+                    onClose();
+                  }}
+                  className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-teal-700 text-white font-bold text-sm shadow-sm hover:bg-teal-800 active:scale-[0.99] transition-all cursor-pointer"
+                >
+                  <Utensils className="w-4 h-4" />
+                  Edit Order / Add Dishes
+                </button>
+              )}
+
               <button
                 type="button"
                 onClick={() => {
                   onVacateTable(selectedTable.id);
                   onClose();
                 }}
-                className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-orange-600 text-white font-bold text-sm shadow-sm hover:bg-orange-700 transition-colors cursor-pointer"
+                className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl border border-orange-300 text-orange-800 bg-orange-50 font-bold text-xs hover:bg-orange-100 transition-colors cursor-pointer"
               >
-                <Utensils className="w-4 h-4" />
                 Clear & Vacate Table
               </button>
               <button
                 type="button"
                 onClick={onClose}
-                className="w-full py-2.5 rounded-xl border border-slate-200 text-slate-700 font-semibold text-xs hover:bg-slate-50 transition-colors cursor-pointer"
+                className="w-full py-2 rounded-xl border border-slate-200 text-slate-700 font-semibold text-xs hover:bg-slate-50 transition-colors cursor-pointer"
               >
                 Done
               </button>
@@ -422,3 +480,4 @@ export function ReservationDetailSlide({
     </Sheet>
   );
 }
+

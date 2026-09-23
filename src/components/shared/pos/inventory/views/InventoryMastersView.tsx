@@ -4,7 +4,9 @@ import { toast } from "sonner";
 import { useInventoryVendors, useStockItems } from "@/hooks/queries/usePosInventory";
 
 export function InventoryMastersView() {
-  const [activeTab, setActiveTab] = useState<"raw_materials" | "vendors" | "units">("raw_materials");
+  const [activeTab, setActiveTab] = useState<"raw_materials" | "vendors" | "units">(
+    "raw_materials",
+  );
   const { data: stockItems } = useStockItems();
   const { data: vendors } = useInventoryVendors();
 
@@ -12,7 +14,7 @@ export function InventoryMastersView() {
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-[18px] font-bold text-slate-900 tracking-tight">Inventory Masters</h2>
+          <h2 className="text-[18px] font-bold text-slate-900 tracking-tight">Stock Setup</h2>
           <p className="text-[12.5px] text-slate-500 mt-0.5">
             Configure raw ingredients, suppliers, units of measurement, and recipe linkages.
           </p>

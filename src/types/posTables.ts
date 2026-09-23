@@ -2,7 +2,14 @@ export type TableStatus = "vacant" | "reserved" | "occupied" | "blocked";
 
 export type TableShape = "rectangle" | "square" | "circle";
 
-export type DiningArea = "Main Dining" | "Terrace" | "Outdoor" | "VIP Lounge";
+export type DiningArea = string;
+
+export interface AddTableInput {
+  tableNumber: string;
+  capacity: number;
+  area: string;
+  shape?: TableShape;
+}
 
 export interface ReservationItem {
   id: string;
@@ -33,6 +40,16 @@ export interface ActiveOrderSummary {
   subtotal: number;
   totalAmount: number;
   status: "in_prep" | "served" | "billing";
+  guestName?: string;
+  guestPhone?: string;
+  items?: Array<{
+    id: string;
+    name: string;
+    quantity: number;
+    price: number;
+    selectedVariantName?: string;
+    notes?: string;
+  }>;
 }
 
 export interface RestaurantTable {

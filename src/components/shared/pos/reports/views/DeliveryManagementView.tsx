@@ -9,23 +9,13 @@ export function DeliveryManagementView() {
 
   const [orders, setOrders] = useState<any[]>([]);
 
-  const days = [
-    "27th Aug",
-    "28th Aug",
-    "29th Aug",
-    "30th Aug",
-    "31st Aug",
-    "1st Sep",
-    "2nd Sep",
-  ];
+  const days = ["27th Aug", "28th Aug", "29th Aug", "30th Aug", "31st Aug", "1st Sep", "2nd Sep"];
 
   return (
     <div className="space-y-4">
       {/* 1. Top Header Bar matching Screenshot 4 */}
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-[18px] font-bold text-slate-900 tracking-tight">
-          Delivery Management
-        </h2>
+        <h2 className="text-[18px] font-bold text-slate-900 tracking-tight">Delivery Management</h2>
 
         <div className="flex flex-wrap items-center gap-2.5">
           <div className="rounded-full bg-slate-100 px-3 py-1 text-[12px] font-semibold text-slate-700 border border-slate-200">
@@ -33,7 +23,8 @@ export function DeliveryManagementView() {
           </div>
 
           <div className="rounded-full bg-slate-100 px-3 py-1 text-[12px] font-semibold text-slate-700 border border-slate-200">
-            • Credit Purchase Till Now: <span className="font-mono font-bold text-slate-900">₹ 0</span>
+            • Credit Purchase Till Now:{" "}
+            <span className="font-mono font-bold text-slate-900">₹ 0</span>
           </div>
 
           <button

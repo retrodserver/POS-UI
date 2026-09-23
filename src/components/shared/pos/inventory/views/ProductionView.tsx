@@ -1,28 +1,63 @@
 import { useState } from "react";
 import { Plus, Search, Factory, CheckCircle2, Clock } from "lucide-react";
+import { DataTableFooter } from "@/components/common";
 import { toast } from "sonner";
 
 export function ProductionView() {
   const [search, setSearch] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   const batches = [
-    { id: "PRD-501", date: "02 Sep 2026", product: "Makhani Gravy Base", yieldQty: "25.0 L", status: "Ready", ingredients: "Butter, Cream, Tomatoes, Spices", chef: "Chef Vikram" },
-    { id: "PRD-502", date: "02 Sep 2026", product: "Pizza Dough Balls (250g)", yieldQty: "40 pcs", status: "Fermenting", ingredients: "Flour, Yeast, Olive Oil", chef: "Sunita M." },
-    { id: "PRD-503", date: "01 Sep 2026", product: "Tandoori Chicken Marination", yieldQty: "15.0 kg", status: "Ready", ingredients: "Chicken Breast, Yogurt, Mustard Oil", chef: "Chef Vikram" },
-    { id: "PRD-504", date: "01 Sep 2026", product: "Brown Onion Gravy Base", yieldQty: "20.0 L", status: "Ready", ingredients: "Onions, Cashew, Garam Masala", chef: "Karan D." },
+    {
+      id: "PRD-501",
+      date: "02 Sep 2026",
+      product: "Makhani Gravy Base",
+      yieldQty: "25.0 L",
+      status: "Ready",
+      ingredients: "Butter, Cream, Tomatoes, Spices",
+      chef: "Chef Vikram",
+    },
+    {
+      id: "PRD-502",
+      date: "02 Sep 2026",
+      product: "Pizza Dough Balls (250g)",
+      yieldQty: "40 pcs",
+      status: "Fermenting",
+      ingredients: "Flour, Yeast, Olive Oil",
+      chef: "Sunita M.",
+    },
+    {
+      id: "PRD-503",
+      date: "01 Sep 2026",
+      product: "Tandoori Chicken Marination",
+      yieldQty: "15.0 kg",
+      status: "Ready",
+      ingredients: "Chicken Breast, Yogurt, Mustard Oil",
+      chef: "Chef Vikram",
+    },
+    {
+      id: "PRD-504",
+      date: "01 Sep 2026",
+      product: "Brown Onion Gravy Base",
+      yieldQty: "20.0 L",
+      status: "Ready",
+      ingredients: "Onions, Cashew, Garam Masala",
+      chef: "Karan D.",
+    },
   ];
 
   const filtered = batches.filter(
     (b) =>
       b.product.toLowerCase().includes(search.toLowerCase()) ||
-      b.ingredients.toLowerCase().includes(search.toLowerCase())
+      b.ingredients.toLowerCase().includes(search.toLowerCase()),
   );
 
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-[18px] font-bold text-slate-900 tracking-tight">Production & Kitchen Prep</h2>
+          <h2 className="text-[18px] font-bold text-slate-900 tracking-tight">Food Preparation</h2>
           <p className="text-[12.5px] text-slate-500 mt-0.5">
             Convert bulk raw ingredients into semi-finished recipes, gravies, and base preparations.
           </p>
@@ -69,11 +104,15 @@ export function ProductionView() {
             <tbody className="divide-y divide-slate-100">
               {filtered.map((b) => (
                 <tr key={b.id} className="hover:bg-slate-50/60 transition">
-                  <td className="px-4 py-3 font-mono font-bold text-teal-600 text-[12px]">{b.id}</td>
+                  <td className="px-4 py-3 font-mono font-bold text-teal-600 text-[12px]">
+                    {b.id}
+                  </td>
                   <td className="px-4 py-3 text-slate-600 text-[12.5px]">{b.date}</td>
                   <td className="px-4 py-3 font-bold text-slate-800">{b.product}</td>
                   <td className="px-4 py-3 font-mono font-semibold text-slate-900">{b.yieldQty}</td>
-                  <td className="px-4 py-3 text-slate-600 text-[12px] max-w-xs truncate">{b.ingredients}</td>
+                  <td className="px-4 py-3 text-slate-600 text-[12px] max-w-xs truncate">
+                    {b.ingredients}
+                  </td>
                   <td className="px-4 py-3 text-slate-500 text-[12px]">{b.chef}</td>
                   <td className="px-4 py-3">
                     <span
@@ -83,7 +122,11 @@ export function ProductionView() {
                           : "bg-amber-50 text-amber-700"
                       }`}
                     >
-                      {b.status === "Ready" ? <CheckCircle2 className="h-3 w-3" /> : <Clock className="h-3 w-3" />}
+                      {b.status === "Ready" ? (
+                        <CheckCircle2 className="h-3 w-3" />
+                      ) : (
+                        <Clock className="h-3 w-3" />
+                      )}
                       {b.status}
                     </span>
                   </td>
@@ -92,6 +135,16 @@ export function ProductionView() {
             </tbody>
           </table>
         </div>
+
+        {/* Unified DataTableFooter */}
+        <DataTableFooter
+          currentPage={currentPage}
+          totalCount={filtered.length}
+          pageSize={pageSize}
+          onPageSizeChange={setPageSize}
+          onPageChange={setCurrentPage}
+          itemName="batches"
+        />
       </div>
     </div>
   );

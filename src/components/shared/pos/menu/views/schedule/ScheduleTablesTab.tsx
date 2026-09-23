@@ -15,6 +15,7 @@ import {
   useToggleScheduleTable,
   useAddScheduleTable,
 } from "@/hooks/queries/usePosMenu";
+import { DataTableFooter } from "@/components/common";
 import { toast } from "sonner";
 
 export function ScheduleTablesTab() {
@@ -27,6 +28,7 @@ export function ScheduleTablesTab() {
   const [selectedArea, setSelectedArea] = useState("All");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   // New Table Modal
   const [isAddTableOpen, setIsAddTableOpen] = useState(false);
@@ -55,9 +57,7 @@ export function ScheduleTablesTab() {
   };
 
   const toggleSelectOne = (id: string) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
-    );
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
   };
 
   const handleToggle = (id: string, tableNo: string, current: boolean) => {
@@ -87,7 +87,7 @@ export function ScheduleTablesTab() {
           setNewTableNo("");
           setIsAddTableOpen(false);
         },
-      }
+      },
     );
   };
 
@@ -155,9 +155,7 @@ export function ScheduleTablesTab() {
       <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs">
         <div className="flex flex-wrap items-end gap-3">
           <div className="flex-1 min-w-[200px] max-w-xs">
-            <label className="block text-[11.5px] font-medium text-slate-600 mb-1">
-              Table No
-            </label>
+            <label className="block text-[11.5px] font-medium text-slate-600 mb-1">Table No</label>
             <input
               type="text"
               placeholder="Search table number..."
@@ -177,7 +175,9 @@ export function ScheduleTablesTab() {
               className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-[12.5px] text-slate-800 focus:border-teal-500 focus:outline-none cursor-pointer"
             >
               {areas.map((a) => (
-                <option key={a} value={a}>{a}</option>
+                <option key={a} value={a}>
+                  {a}
+                </option>
               ))}
             </select>
           </div>
@@ -318,52 +318,17 @@ export function ScheduleTablesTab() {
           </table>
         </div>
 
-        {/* 5. Pagination Bar matching Petpooja Screenshot 5 */}
-        <div className="border-t border-slate-200 px-6 py-3 bg-slate-50 flex flex-wrap items-center justify-between gap-3 text-[12.5px] text-slate-500">
-          <div>
-            Showing 1 to {Math.min(15, filteredTables.length)} of 47 records
-          </div>
-
-          <div className="flex items-center gap-1">
-            {[1, 2, 3, 4].map((page) => (
-              <button
-                key={page}
-                type="button"
-                onClick={() => {
-                  setCurrentPage(page);
-                  toast.info(`Page ${page}`);
-                }}
-                className={`h-7 w-7 rounded-md text-[12px] font-medium transition cursor-pointer ${
-                  currentPage === page
-                    ? "bg-teal-600 text-white font-bold"
-                    : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-100"
-                }`}
-              >
-                {page}
-              </button>
-            ))}
-            <button
-              type="button"
-              onClick={() => {
-                setCurrentPage((p) => Math.min(4, p + 1));
-                toast.info("Next page");
-              }}
-              className="rounded-md border border-slate-200 bg-white px-2.5 py-1 text-[12px] font-medium text-slate-700 hover:bg-slate-100 cursor-pointer"
-            >
-              Next
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setCurrentPage(4);
-                toast.info("Last page");
-              }}
-              className="rounded-md border border-slate-200 bg-white px-2.5 py-1 text-[12px] font-medium text-slate-700 hover:bg-slate-100 cursor-pointer"
-            >
-              Last
-            </button>
-          </div>
-        </div>
+        {/* 5. Unified DataTableFooter */}
+        <DataTableFooter
+          currentPage={currentPage}
+          totalCount={filteredTables.length}
+          pageSize={pageSize}
+          onPageSizeChange={setPageSize}
+          onPageChange={setCurrentPage}
+          selectedCount={selectedIds.length}
+          onClearSelection={() => setSelectedIds([])}
+          itemName="tables"
+        />
       </div>
 
       {/* Add Table Modal */}

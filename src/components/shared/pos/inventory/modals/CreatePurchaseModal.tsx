@@ -3,13 +3,7 @@ import { X, Plus, Trash2, Calendar, FileText } from "lucide-react";
 import { useCreatePurchase, useInventoryVendors } from "@/hooks/queries/usePosInventory";
 import { toast } from "sonner";
 
-export function CreatePurchaseModal({
-  isOpen,
-  onClose,
-}: {
-  isOpen: boolean;
-  onClose: () => void;
-}) {
+export function CreatePurchaseModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const { data: vendors } = useInventoryVendors();
   const createMutation = useCreatePurchase();
 
@@ -35,7 +29,11 @@ export function CreatePurchaseModal({
       {
         invoiceNo: invoiceNo.trim(),
         vendorName,
-        purchaseDate: new Date().toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }),
+        purchaseDate: new Date().toLocaleDateString("en-GB", {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+        }),
         invoiceDate,
         totalAmount: parseFloat(totalAmount) || 0,
         taxAmount: parseFloat(taxAmount) || 0,
@@ -49,7 +47,7 @@ export function CreatePurchaseModal({
           toast.success(`Purchase ${invoiceNo} recorded successfully`);
           onClose();
         },
-      }
+      },
     );
   };
 
@@ -82,7 +80,9 @@ export function CreatePurchaseModal({
                 className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-[13px] focus:outline-none focus:border-teal-500 cursor-pointer"
               >
                 {vendors?.map((v) => (
-                  <option key={v.id} value={v.name}>{v.name}</option>
+                  <option key={v.id} value={v.name}>
+                    {v.name}
+                  </option>
                 ))}
               </select>
             </div>
@@ -144,9 +144,7 @@ export function CreatePurchaseModal({
             </div>
 
             <div>
-              <label className="block text-[12.5px] font-medium text-slate-700 mb-1">
-                Tax (₹)
-              </label>
+              <label className="block text-[12.5px] font-medium text-slate-700 mb-1">Tax (₹)</label>
               <input
                 type="number"
                 step="any"

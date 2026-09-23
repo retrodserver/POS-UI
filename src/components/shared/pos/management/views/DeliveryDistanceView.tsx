@@ -13,11 +13,10 @@ export function DeliveryDistanceView() {
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-[18px] font-bold text-slate-900 tracking-tight">
-            Delivery Distance
-          </h2>
+          <h2 className="text-[18px] font-bold text-slate-900 tracking-tight">Delivery Distance</h2>
           <p className="text-[12.5px] text-slate-500 mt-0.5">
-            Configure delivery radius tiers and progressive delivery fee calculations based on store GPS coordinates.
+            Configure delivery radius tiers and progressive delivery fee calculations based on store
+            GPS coordinates.
           </p>
         </div>
 
@@ -47,12 +46,8 @@ export function DeliveryDistanceView() {
                 <td className="px-4 py-3 font-medium text-slate-800">
                   {tier.fromKm} km - {tier.toKm} km
                 </td>
-                <td className="px-4 py-3 font-mono font-bold text-slate-900">
-                  ₹{tier.charge}
-                </td>
-                <td className="px-4 py-3 font-mono text-slate-600">
-                  ₹{tier.minOrder}
-                </td>
+                <td className="px-4 py-3 font-mono font-bold text-slate-900">₹{tier.charge}</td>
+                <td className="px-4 py-3 font-mono text-slate-600">₹{tier.minOrder}</td>
                 <td className="px-4 py-3">
                   <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-200">
                     Active

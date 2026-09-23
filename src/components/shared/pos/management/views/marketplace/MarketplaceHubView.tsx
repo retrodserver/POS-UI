@@ -19,7 +19,9 @@ import { toast } from "sonner";
 
 export function MarketplaceHubView() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<"services" | "integration" | "subscription">("services");
+  const [activeTab, setActiveTab] = useState<"services" | "integration" | "subscription">(
+    "services",
+  );
   const [activeServicePill, setActiveServicePill] = useState("POS Plans");
   const [activeIntegrationPill, setActiveIntegrationPill] = useState("Online Orders");
   const [carouselIndex, setCarouselIndex] = useState(0);
@@ -56,7 +58,12 @@ export function MarketplaceHubView() {
     { id: "o-3", name: "uEngage", color: "bg-lime-600 text-white", label: "uEngage" },
     { id: "o-4", name: "DotPe", color: "bg-black text-white", label: "DotPe" },
     { id: "o-5", name: "Airmenus", color: "bg-slate-900 text-white", label: "Airmenus" },
-    { id: "o-6", name: "Petpooja Aggregation - ONDC", color: "bg-slate-700 text-white", label: "ONDC" },
+    {
+      id: "o-6",
+      name: "Petpooja Aggregation - ONDC",
+      color: "bg-slate-700 text-white",
+      label: "ONDC",
+    },
   ];
 
   return (
@@ -101,7 +108,8 @@ export function MarketplaceHubView() {
               </h1>
               <div className="inline-block rounded-md bg-slate-950 px-3 py-1.5 text-[11.5px] font-medium text-white shadow-sm">
                 Explore <span className="font-bold text-amber-300">23+ services</span> &{" "}
-                <span className="font-bold text-amber-300">40+ integrations</span> to make your restaurant operations & lives easier
+                <span className="font-bold text-amber-300">40+ integrations</span> to make your
+                restaurant operations & lives easier
               </div>
             </>
           ) : (
@@ -223,7 +231,8 @@ export function MarketplaceHubView() {
           <div>
             <h3 className="text-[17px] font-bold text-slate-900">{activeServicePill}</h3>
             <p className="text-[12.5px] text-slate-500">
-              Don&apos;t miss out on all the benefits & features of your subscription. Renew your plan today!
+              Don&apos;t miss out on all the benefits & features of your subscription. Renew your
+              plan today!
             </p>
           </div>
 
@@ -316,7 +325,8 @@ export function MarketplaceHubView() {
             <div className="space-y-1">
               <h3 className="text-[16px] font-bold text-slate-900">POS Subscription</h3>
               <p className="text-[12.5px] font-semibold text-slate-500">
-                Expiring on : <span className="font-mono text-slate-700">03 Jun 2027 (274 Days Left)</span>
+                Expiring on :{" "}
+                <span className="font-mono text-slate-700">03 Jun 2027 (274 Days Left)</span>
               </p>
             </div>
 

@@ -9,7 +9,8 @@ export function AuditTrailView() {
         <div>
           <h2 className="text-[18px] font-bold text-slate-900 tracking-tight">Audit Trail</h2>
           <p className="text-[12.5px] text-slate-500 mt-0.5">
-            Immutable tracking of order voids, bill discounts, cash drawer operations, and configuration updates.
+            Immutable tracking of order voids, bill discounts, cash drawer operations, and
+            configuration updates.
           </p>
         </div>
 
@@ -29,7 +30,8 @@ export function AuditTrailView() {
         </div>
         <div className="text-[14.5px] font-bold text-slate-700">Audit Trail Active</div>
         <p className="text-[12px] text-slate-400 max-w-md mx-auto">
-          All high-privilege cashier and manager operations are cryptographically verified and recorded.
+          All high-privilege cashier and manager operations are cryptographically verified and
+          recorded.
         </p>
       </div>
     </div>

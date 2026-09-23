@@ -5,7 +5,10 @@ export function formatDate(
   if (!value) return "—";
   const date = typeof value === "string" ? new Date(value) : value;
   if (Number.isNaN(date.getTime())) return "—";
-  return date.toLocaleDateString(undefined, options ?? { year: "numeric", month: "short", day: "2-digit" });
+  return date.toLocaleDateString(
+    undefined,
+    options ?? { year: "numeric", month: "short", day: "2-digit" },
+  );
 }
 
 export function formatNumber(

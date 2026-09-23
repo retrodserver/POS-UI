@@ -106,7 +106,9 @@ export function AvailableStockView() {
             <div className="flex items-center gap-3">
               <span
                 className={`flex h-7 w-7 items-center justify-center rounded-full text-[12px] font-bold ${
-                  step >= 2 ? "bg-teal-600 text-white" : "bg-slate-100 text-slate-500 border border-slate-300"
+                  step >= 2
+                    ? "bg-teal-600 text-white"
+                    : "bg-slate-100 text-slate-500 border border-slate-300"
                 }`}
               >
                 2
@@ -125,7 +127,9 @@ export function AvailableStockView() {
             <div className="flex items-center gap-3">
               <span
                 className={`flex h-7 w-7 items-center justify-center rounded-full text-[12px] font-bold ${
-                  step >= 3 ? "bg-teal-600 text-white" : "bg-slate-100 text-slate-500 border border-slate-300"
+                  step >= 3
+                    ? "bg-teal-600 text-white"
+                    : "bg-slate-100 text-slate-500 border border-slate-300"
                 }`}
               >
                 3
@@ -144,7 +148,8 @@ export function AvailableStockView() {
             <div>
               <h3 className="text-[15px] font-bold text-slate-900">Upload Your Stock Excel</h3>
               <p className="text-[12.5px] text-slate-500 mt-0.5">
-                Download the sample template, fill in your stock details, and upload the completed file to import your inventory.
+                Download the sample template, fill in your stock details, and upload the completed
+                file to import your inventory.
               </p>
             </div>
 
@@ -223,8 +228,12 @@ export function AvailableStockView() {
         /* Manual Available Stock Table */
         <div className="rounded-2xl border border-slate-200 bg-white shadow-xs overflow-hidden">
           <div className="p-4 border-b border-slate-200 flex items-center justify-between">
-            <h3 className="text-[14.5px] font-bold text-slate-900">Current On-Hand Available Stock</h3>
-            <span className="text-[12px] text-slate-500">{stockItems?.length} raw materials tracked</span>
+            <h3 className="text-[14.5px] font-bold text-slate-900">
+              Current On-Hand Available Stock
+            </h3>
+            <span className="text-[12px] text-slate-500">
+              {stockItems?.length} raw materials tracked
+            </span>
           </div>
 
           <div className="overflow-x-auto">

@@ -13,13 +13,17 @@ export function SetCommissionModal({
   onClose: () => void;
   item: MenuItemCommission | null;
 }) {
-  const [commissionType, setCommissionType] = useState<"Not Configured" | "Percentage" | "Fixed Amount">("Percentage");
+  const [commissionType, setCommissionType] = useState<
+    "Not Configured" | "Percentage" | "Fixed Amount"
+  >("Percentage");
   const [value, setValue] = useState<string>("5");
   const updateMutation = useUpdateItemCommission();
 
   useEffect(() => {
     if (item) {
-      setCommissionType(item.commissionType === "Not Configured" ? "Percentage" : item.commissionType);
+      setCommissionType(
+        item.commissionType === "Not Configured" ? "Percentage" : item.commissionType,
+      );
       setValue(item.commissionValue != null ? String(item.commissionValue) : "5");
     }
   }, [item]);
@@ -44,7 +48,7 @@ export function SetCommissionModal({
         onError: () => {
           toast.error("Failed to update commission");
         },
-      }
+      },
     );
   };
 
@@ -93,7 +97,11 @@ export function SetCommissionModal({
                       : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
                   }`}
                 >
-                  {type === "Not Configured" ? "None" : type === "Percentage" ? "% Percent" : "₹ Fixed"}
+                  {type === "Not Configured"
+                    ? "None"
+                    : type === "Percentage"
+                      ? "% Percent"
+                      : "₹ Fixed"}
                 </button>
               ))}
             </div>

@@ -6,17 +6,53 @@ export function StockWastageView() {
   const [search, setSearch] = useState("");
 
   const wastageEntries = [
-    { id: "WST-044", date: "02 Sep 2026", item: "Tomatoes (Local)", category: "Vegetables", quantity: "4.2 kg", cost: "₹ 168", reason: "Spoiled / Overripe", approvedBy: "Chef Vikram" },
-    { id: "WST-043", date: "01 Sep 2026", item: "Milk (Full Cream)", category: "Dairy", quantity: "3.0 L", cost: "₹ 195", reason: "Curdled during power outage", approvedBy: "Store Mgr" },
-    { id: "WST-042", date: "01 Sep 2026", item: "Chicken Curry (Prepared)", category: "Prepared Food", quantity: "2 portions", cost: "₹ 340", reason: "Customer order cancellation", approvedBy: "Supervisor Rohit" },
-    { id: "WST-041", date: "31 Aug 2026", item: "Burger Buns", category: "Bakery", quantity: "8 pcs", cost: "₹ 96", reason: "Expired shelf life", approvedBy: "Chef Vikram" },
+    {
+      id: "WST-044",
+      date: "02 Sep 2026",
+      item: "Tomatoes (Local)",
+      category: "Vegetables",
+      quantity: "4.2 kg",
+      cost: "₹ 168",
+      reason: "Spoiled / Overripe",
+      approvedBy: "Chef Vikram",
+    },
+    {
+      id: "WST-043",
+      date: "01 Sep 2026",
+      item: "Milk (Full Cream)",
+      category: "Dairy",
+      quantity: "3.0 L",
+      cost: "₹ 195",
+      reason: "Curdled during power outage",
+      approvedBy: "Store Mgr",
+    },
+    {
+      id: "WST-042",
+      date: "01 Sep 2026",
+      item: "Chicken Curry (Prepared)",
+      category: "Prepared Food",
+      quantity: "2 portions",
+      cost: "₹ 340",
+      reason: "Customer order cancellation",
+      approvedBy: "Supervisor Rohit",
+    },
+    {
+      id: "WST-041",
+      date: "31 Aug 2026",
+      item: "Burger Buns",
+      category: "Bakery",
+      quantity: "8 pcs",
+      cost: "₹ 96",
+      reason: "Expired shelf life",
+      approvedBy: "Chef Vikram",
+    },
   ];
 
   const filtered = wastageEntries.filter(
     (w) =>
       w.item.toLowerCase().includes(search.toLowerCase()) ||
       w.category.toLowerCase().includes(search.toLowerCase()) ||
-      w.reason.toLowerCase().includes(search.toLowerCase())
+      w.reason.toLowerCase().includes(search.toLowerCase()),
   );
 
   return (
@@ -24,9 +60,12 @@ export function StockWastageView() {
       {/* Top Header Bar */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-[18px] font-bold text-slate-900 tracking-tight">Stock Wastage & Leakage</h2>
+          <h2 className="text-[18px] font-bold text-slate-900 tracking-tight">
+            Stock Wastage & Leakage
+          </h2>
           <p className="text-[12.5px] text-slate-500 mt-0.5">
-            Record, monitor, and investigate damaged goods, kitchen prep shrinkage, and expired items.
+            Record, monitor, and investigate damaged goods, kitchen prep shrinkage, and expired
+            items.
           </p>
         </div>
 
@@ -56,7 +95,9 @@ export function StockWastageView() {
         <div className="rounded-xl border border-red-200 bg-red-50/40 p-4 shadow-2xs">
           <div className="text-[12px] font-semibold text-red-700">Month-To-Date Wastage Cost</div>
           <div className="text-[22px] font-extrabold text-red-600 mt-1">₹ 2,840</div>
-          <div className="text-[11px] text-slate-600 mt-0.5">1.8% of gross ingredient purchases</div>
+          <div className="text-[11px] text-slate-600 mt-0.5">
+            1.8% of gross ingredient purchases
+          </div>
         </div>
         <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-2xs">
           <div className="text-[12px] font-medium text-slate-500">Highest Wastage Category</div>
@@ -66,7 +107,9 @@ export function StockWastageView() {
         <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-2xs">
           <div className="text-[12px] font-medium text-slate-500">Incidents Logged</div>
           <div className="text-[22px] font-extrabold text-slate-800 mt-1">12 recorded</div>
-          <div className="text-[11px] text-emerald-600 font-semibold mt-0.5">All 12 authorized by Head Chef</div>
+          <div className="text-[11px] text-emerald-600 font-semibold mt-0.5">
+            All 12 authorized by Head Chef
+          </div>
         </div>
       </div>
 

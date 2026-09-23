@@ -4,6 +4,7 @@ import type {
   RoomServiceKpis,
   RoomFloor,
   RoomServiceOrderStatus,
+  RoomOrderItem,
 } from "@/types/posRoomService";
 
 // Initial mock orders representing various active states
@@ -225,150 +226,80 @@ const INITIAL_ORDERS: RoomServiceOrder[] = [
   },
 ];
 
-// Mock rooms across all hotel floors
+// Mock rooms across all hotel categories matching the visual room grid from reference image
 const INITIAL_ROOMS: HotelRoom[] = [
-  // Floor 1
+  // 1. Standard Rooms
+  { id: "rm-101", roomNumber: "101", floor: "Floor 1", roomType: "Standard Rooms", isOccupied: false },
   {
-    id: "rm-101",
-    roomNumber: "101",
+    id: "rm-102",
+    roomNumber: "102",
     floor: "Floor 1",
-    roomType: "Standard Deluxe",
+    roomType: "Standard Rooms",
     isOccupied: true,
-    guest: {
-      name: "Michael Chang",
-      checkInDate: "10 Jan",
-      checkOutDate: "13 Jan",
-      phoneExtension: "101",
-    },
+    guest: { name: "Arthur Pendelton", vipTier: "Silver", checkInDate: "11 Jan", checkOutDate: "14 Jan", phoneExtension: "102" },
+    activeOrder: INITIAL_ORDERS[1],
   },
+  { id: "rm-103", roomNumber: "103", floor: "Floor 1", roomType: "Standard Rooms", isOccupied: false },
   {
-    id: "rm-105",
-    roomNumber: "105",
+    id: "rm-104",
+    roomNumber: "104",
     floor: "Floor 1",
-    roomType: "Standard Deluxe",
-    isOccupied: false,
-  },
-  {
-    id: "rm-110",
-    roomNumber: "110",
-    floor: "Floor 1",
-    roomType: "Standard Deluxe",
+    roomType: "Standard Rooms",
     isOccupied: true,
-    guest: {
-      name: "Elena Rostova",
-      vipTier: "Silver",
-      checkInDate: "11 Jan",
-      checkOutDate: "14 Jan",
-      phoneExtension: "110",
-    },
+    guest: { name: "Sofia Ramirez", vipTier: "Gold", checkInDate: "10 Jan", checkOutDate: "13 Jan", phoneExtension: "104" },
+    activeOrder: INITIAL_ORDERS[3],
   },
-  {
-    id: "rm-114",
-    roomNumber: "114",
-    floor: "Floor 1",
-    roomType: "Standard Deluxe",
-    isOccupied: true,
-    guest: INITIAL_ORDERS.find((o) => o.roomNumber === "114")!.guest,
-    activeOrder: INITIAL_ORDERS.find((o) => o.roomNumber === "114"),
-  },
+  { id: "rm-105", roomNumber: "105", floor: "Floor 1", roomType: "Standard Rooms", isOccupied: false },
+  { id: "rm-106", roomNumber: "106", floor: "Floor 1", roomType: "Standard Rooms", isOccupied: false },
 
-  // Floor 2
+  // 2. Deluxe Rooms
+  { id: "rm-201", roomNumber: "201", floor: "Floor 2", roomType: "Deluxe Rooms", isOccupied: false },
   {
-    id: "rm-201",
-    roomNumber: "201",
+    id: "rm-202",
+    roomNumber: "202",
     floor: "Floor 2",
-    roomType: "Standard Deluxe",
+    roomType: "Deluxe Rooms",
     isOccupied: true,
-    guest: {
-      name: "Carlos Mendez",
-      checkInDate: "09 Jan",
-      checkOutDate: "12 Jan",
-      phoneExtension: "201",
-    },
+    guest: { name: "Elena Rostova", vipTier: "Platinum", checkInDate: "09 Jan", checkOutDate: "15 Jan", phoneExtension: "202" },
   },
   {
-    id: "rm-208",
-    roomNumber: "208",
+    id: "rm-203",
+    roomNumber: "203",
     floor: "Floor 2",
-    roomType: "Standard Deluxe",
+    roomType: "Deluxe Rooms",
     isOccupied: true,
-    guest: INITIAL_ORDERS.find((o) => o.roomNumber === "208")!.guest,
-    activeOrder: INITIAL_ORDERS.find((o) => o.roomNumber === "208"),
+    guest: { name: "Carlos Mendez", vipTier: "Silver", checkInDate: "10 Jan", checkOutDate: "16 Jan", phoneExtension: "203" },
+    activeOrder: INITIAL_ORDERS[0],
   },
-  {
-    id: "rm-212",
-    roomNumber: "212",
-    floor: "Floor 2",
-    roomType: "Standard Deluxe",
-    isOccupied: false,
-  },
+  { id: "rm-204", roomNumber: "204", floor: "Floor 2", roomType: "Deluxe Rooms", isOccupied: false },
+  { id: "rm-205", roomNumber: "205", floor: "Floor 2", roomType: "Deluxe Rooms", isOccupied: false },
 
-  // Floor 3 (Executive)
-  {
-    id: "rm-301",
-    roomNumber: "301",
-    floor: "Floor 3 (Executive)",
-    roomType: "Executive Club",
-    isOccupied: true,
-    guest: {
-      name: "Lord Hastings",
-      vipTier: "Gold",
-      checkInDate: "08 Jan",
-      checkOutDate: "16 Jan",
-      phoneExtension: "301",
-    },
-  },
+  // 3. Superior Rooms
+  { id: "rm-301", roomNumber: "301", floor: "Floor 3", roomType: "Superior Rooms", isOccupied: false },
+  { id: "rm-302", roomNumber: "302", floor: "Floor 3", roomType: "Superior Rooms", isOccupied: false },
+  { id: "rm-303", roomNumber: "303", floor: "Floor 3", roomType: "Superior Rooms", isOccupied: false },
   {
     id: "rm-304",
     roomNumber: "304",
-    floor: "Floor 3 (Executive)",
-    roomType: "Executive Club",
+    floor: "Floor 3",
+    roomType: "Superior Rooms",
     isOccupied: true,
-    guest: INITIAL_ORDERS.find((o) => o.roomNumber === "304")!.guest,
-    activeOrder: INITIAL_ORDERS.find((o) => o.roomNumber === "304"),
-  },
-  {
-    id: "rm-308",
-    roomNumber: "308",
-    floor: "Floor 3 (Executive)",
-    roomType: "Executive Club",
-    isOccupied: true,
-    guest: INITIAL_ORDERS.find((o) => o.roomNumber === "308")!.guest,
-    activeOrder: INITIAL_ORDERS.find((o) => o.roomNumber === "308"),
-    trayClearancePending: true,
+    guest: { name: "Lady Evelyn Vance", vipTier: "Platinum", checkInDate: "08 Jan", checkOutDate: "15 Jan", phoneExtension: "304" },
+    activeOrder: INITIAL_ORDERS[4],
   },
 
-  // Floor 4 (Suites)
-  {
-    id: "rm-401",
-    roomNumber: "401",
-    floor: "Floor 4 (Suites)",
-    roomType: "Presidential Suite",
-    isOccupied: false,
-  },
+  // 4. Suite Rooms
+  { id: "rm-401", roomNumber: "401", floor: "Floor 4", roomType: "Suite Rooms", isOccupied: false },
   {
     id: "rm-402",
     roomNumber: "402",
-    floor: "Floor 4 (Suites)",
-    roomType: "Presidential Suite",
+    floor: "Floor 4",
+    roomType: "Suite Rooms",
     isOccupied: true,
-    guest: INITIAL_ORDERS.find((o) => o.roomNumber === "402")!.guest,
-    activeOrder: INITIAL_ORDERS.find((o) => o.roomNumber === "402"),
+    guest: { name: "Dr. Alexander Wright", vipTier: "Platinum", checkInDate: "09 Jan", checkOutDate: "18 Jan", phoneExtension: "402" },
+    activeOrder: INITIAL_ORDERS[2],
   },
-  {
-    id: "rm-405",
-    roomNumber: "405",
-    floor: "Floor 4 (Suites)",
-    roomType: "Penthouse",
-    isOccupied: true,
-    guest: {
-      name: "Ambassador K. Al-Sabah",
-      vipTier: "Platinum",
-      checkInDate: "05 Jan",
-      checkOutDate: "20 Jan",
-      phoneExtension: "405",
-    },
-  },
+  { id: "rm-403", roomNumber: "403", floor: "Floor 4", roomType: "Suite Rooms", isOccupied: false },
 ];
 
 let ordersStore: RoomServiceOrder[] = [...INITIAL_ORDERS];
@@ -386,7 +317,7 @@ export const posRoomService = {
     // Re-link active orders to rooms
     const updated = roomsStore.map((r) => {
       const active = ordersStore.find(
-        (o) => o.roomNumber === r.roomNumber && o.status !== "settled"
+        (o) => o.roomNumber === r.roomNumber && o.status !== "settled",
       );
       return {
         ...r,
@@ -407,7 +338,7 @@ export const posRoomService = {
     const kitchenQueueCount = ordersStore.filter((o) => o.status === "kitchen_prep").length;
     const dispatchedCount = ordersStore.filter((o) => o.status === "dispatched").length;
     const pendingClearancesCount = ordersStore.filter(
-      (o) => o.status === "clearance_needed"
+      (o) => o.status === "clearance_needed",
     ).length;
 
     return {
@@ -422,7 +353,7 @@ export const posRoomService = {
 
   updateOrderStatus: async (
     orderId: string,
-    status: RoomServiceOrderStatus
+    status: RoomServiceOrderStatus,
   ): Promise<RoomServiceOrder> => {
     let targetOrder!: RoomServiceOrder;
     ordersStore = ordersStore.map((o) => {
@@ -449,7 +380,9 @@ export const posRoomService = {
     return targetOrder;
   },
 
-  addOrder: async (newOrderData: Omit<RoomServiceOrder, "id" | "createdAt" | "elapsedMinutes">): Promise<RoomServiceOrder> => {
+  addOrder: async (
+    newOrderData: Omit<RoomServiceOrder, "id" | "createdAt" | "elapsedMinutes">,
+  ): Promise<RoomServiceOrder> => {
     const newOrder: RoomServiceOrder = {
       ...newOrderData,
       id: `ord-rs-${Date.now()}`,
@@ -470,12 +403,18 @@ export const posRoomService = {
     });
   },
 
-  addItemsToOrder: async (orderId: string, newItems: RoomOrderItem[]): Promise<RoomServiceOrder> => {
+  addItemsToOrder: async (
+    orderId: string,
+    newItems: RoomOrderItem[],
+  ): Promise<RoomServiceOrder> => {
     let targetOrder!: RoomServiceOrder;
     ordersStore = ordersStore.map((o) => {
       if (o.id === orderId) {
         const mergedItems = [...o.items, ...newItems];
-        const newSubtotal = mergedItems.reduce((acc, item) => acc + item.unitPrice * item.quantity, 0);
+        const newSubtotal = mergedItems.reduce(
+          (acc, item) => acc + item.unitPrice * item.quantity,
+          0,
+        );
         const newServiceCharge = +(newSubtotal * 0.15).toFixed(2);
         const newTax = +(newSubtotal * 0.08).toFixed(2);
         const newTotal = +(newSubtotal + newServiceCharge + newTax).toFixed(2);
@@ -487,7 +426,8 @@ export const posRoomService = {
           serviceCharge: newServiceCharge,
           tax: newTax,
           totalAmount: newTotal,
-          status: o.status === "clearance_needed" || o.status === "delivered" ? "kitchen_prep" : o.status,
+          status:
+            o.status === "clearance_needed" || o.status === "delivered" ? "kitchen_prep" : o.status,
         };
         return targetOrder;
       }

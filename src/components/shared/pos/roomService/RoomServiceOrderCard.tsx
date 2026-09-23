@@ -60,7 +60,7 @@ export function RoomServiceOrderCard({
     statusBadge = (
       <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-teal-50 text-indigo-800 border border-indigo-200">
         <Truck className="w-3 h-3" />
-        En Route
+        On the way
       </span>
     );
     nextActionLabel = "Confirm Delivery";
@@ -103,7 +103,9 @@ export function RoomServiceOrderCard({
                   </span>
                 )}
               </div>
-              <span className="text-[11px] text-slate-400 block">{floor} • {roomType}</span>
+              <span className="text-[11px] text-slate-400 block">
+                {floor} • {roomType}
+              </span>
             </div>
           </div>
 
@@ -135,8 +137,7 @@ export function RoomServiceOrderCard({
           {items.slice(0, 3).map((item) => (
             <div key={item.id} className="flex items-center justify-between gap-2">
               <span className="text-slate-800 font-medium truncate">
-                <strong className="text-teal-700 font-bold">{item.quantity}x</strong>{" "}
-                {item.name}
+                <strong className="text-teal-700 font-bold">{item.quantity}x</strong> {item.name}
               </span>
               <span className="text-slate-500 text-[11px] font-mono shrink-0">
                 ${(item.unitPrice * item.quantity).toFixed(2)}

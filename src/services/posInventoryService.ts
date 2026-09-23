@@ -7,23 +7,106 @@ import type {
 } from "@/types/posInventory";
 
 const initialVendors: InventoryVendor[] = [
-  { id: "v-1", name: "Metro Cash & Carry", phone: "+91 98200 12345", category: "Groceries & Dry Goods" },
+  {
+    id: "v-1",
+    name: "Metro Cash & Carry",
+    phone: "+91 98200 12345",
+    category: "Groceries & Dry Goods",
+  },
   { id: "v-2", name: "Royal Dairy Suppliers", phone: "+91 98200 54321", category: "Dairy & Milk" },
-  { id: "v-3", name: "Fresh Farm Greens & Veggies", phone: "+91 98300 11223", category: "Fresh Produce" },
-  { id: "v-4", name: "Classic Spirits & Beverages", phone: "+91 98400 99887", category: "Beverages & Liquor" },
-  { id: "v-5", name: "Supreme Poultry & Meat", phone: "+91 98500 44556", category: "Meat & Poultry" },
+  {
+    id: "v-3",
+    name: "Fresh Farm Greens & Veggies",
+    phone: "+91 98300 11223",
+    category: "Fresh Produce",
+  },
+  {
+    id: "v-4",
+    name: "Classic Spirits & Beverages",
+    phone: "+91 98400 99887",
+    category: "Beverages & Liquor",
+  },
+  {
+    id: "v-5",
+    name: "Supreme Poultry & Meat",
+    phone: "+91 98500 44556",
+    category: "Meat & Poultry",
+  },
 ];
 
 const initialStock: StockItem[] = [
-  { id: "st-1", rawMaterial: "Garlic Chann Dry", category: "Appetizers", unit: "Dish", availableStock: 0, closingStock: 0 },
-  { id: "st-2", rawMaterial: "Veg Manchuria Dry", category: "Appetizers", unit: "Dish", availableStock: 0, closingStock: 0 },
-  { id: "st-3", rawMaterial: "Veg Manchuria Gravy", category: "Appetizers", unit: "Dish", availableStock: 0, closingStock: 0 },
-  { id: "st-4", rawMaterial: "Paneer Chilli Dry", category: "Appetizers", unit: "Dish", availableStock: 0, closingStock: 0 },
-  { id: "st-5", rawMaterial: "Chicken Crispy", category: "Non-Veg Appetizers", unit: "Dish", availableStock: 0, closingStock: 0 },
-  { id: "st-6", rawMaterial: "Chicken 65", category: "Non-Veg Appetizers", unit: "Dish", availableStock: 0, closingStock: 0 },
-  { id: "st-7", rawMaterial: "Basmati Biryani Rice", category: "Groceries", unit: "Kg", availableStock: 12, closingStock: 12 },
-  { id: "st-8", rawMaterial: "Amul Butter Salted", category: "Dairy", unit: "Packets", availableStock: 8, closingStock: 8 },
-  { id: "st-9", rawMaterial: "Cooking Oil Sunflower", category: "Groceries", unit: "Litres", availableStock: 15, closingStock: 15 },
+  {
+    id: "st-1",
+    rawMaterial: "Garlic Chann Dry",
+    category: "Appetizers",
+    unit: "Dish",
+    availableStock: 0,
+    closingStock: 0,
+  },
+  {
+    id: "st-2",
+    rawMaterial: "Veg Manchuria Dry",
+    category: "Appetizers",
+    unit: "Dish",
+    availableStock: 0,
+    closingStock: 0,
+  },
+  {
+    id: "st-3",
+    rawMaterial: "Veg Manchuria Gravy",
+    category: "Appetizers",
+    unit: "Dish",
+    availableStock: 0,
+    closingStock: 0,
+  },
+  {
+    id: "st-4",
+    rawMaterial: "Paneer Chilli Dry",
+    category: "Appetizers",
+    unit: "Dish",
+    availableStock: 0,
+    closingStock: 0,
+  },
+  {
+    id: "st-5",
+    rawMaterial: "Chicken Crispy",
+    category: "Non-Veg Appetizers",
+    unit: "Dish",
+    availableStock: 0,
+    closingStock: 0,
+  },
+  {
+    id: "st-6",
+    rawMaterial: "Chicken 65",
+    category: "Non-Veg Appetizers",
+    unit: "Dish",
+    availableStock: 0,
+    closingStock: 0,
+  },
+  {
+    id: "st-7",
+    rawMaterial: "Basmati Biryani Rice",
+    category: "Groceries",
+    unit: "Kg",
+    availableStock: 12,
+    closingStock: 12,
+  },
+  {
+    id: "st-8",
+    rawMaterial: "Amul Butter Salted",
+    category: "Dairy",
+    unit: "Packets",
+    availableStock: 8,
+    closingStock: 8,
+  },
+  {
+    id: "st-9",
+    rawMaterial: "Cooking Oil Sunflower",
+    category: "Groceries",
+    unit: "Litres",
+    availableStock: 15,
+    closingStock: 15,
+  },
 ];
 
 let purchasesStore: StockPurchaseRecord[] = [];
@@ -32,16 +115,13 @@ let purchaseReturnsStore: PurchaseReturnRecord[] = [];
 let vendorsStore: InventoryVendor[] = [...initialVendors];
 let stockStore: StockItem[] = [...initialStock];
 
-
 export const posInventoryService = {
   // Vendors
   getVendors: async (): Promise<InventoryVendor[]> => [...vendorsStore],
 
   // Stock Purchase
   getPurchases: async (): Promise<StockPurchaseRecord[]> => [...purchasesStore],
-  createPurchase: async (
-    data: Omit<StockPurchaseRecord, "id">
-  ): Promise<StockPurchaseRecord> => {
+  createPurchase: async (data: Omit<StockPurchaseRecord, "id">): Promise<StockPurchaseRecord> => {
     const newPurchase: StockPurchaseRecord = {
       ...data,
       id: `pur-${Date.now()}`,
@@ -57,7 +137,7 @@ export const posInventoryService = {
   // Purchase Order
   getPurchaseOrders: async (): Promise<PurchaseOrderRecord[]> => [...purchaseOrdersStore],
   createPurchaseOrder: async (
-    data: Omit<PurchaseOrderRecord, "id">
+    data: Omit<PurchaseOrderRecord, "id">,
   ): Promise<PurchaseOrderRecord> => {
     const newPO: PurchaseOrderRecord = {
       ...data,
@@ -74,7 +154,7 @@ export const posInventoryService = {
   // Purchase Return
   getPurchaseReturns: async (): Promise<PurchaseReturnRecord[]> => [...purchaseReturnsStore],
   createPurchaseReturn: async (
-    data: Omit<PurchaseReturnRecord, "id">
+    data: Omit<PurchaseReturnRecord, "id">,
   ): Promise<PurchaseReturnRecord> => {
     const newReturn: PurchaseReturnRecord = {
       ...data,
@@ -90,7 +170,11 @@ export const posInventoryService = {
 
   // Stock Management (Available & Closing Stock)
   getStockItems: async (): Promise<StockItem[]> => [...stockStore],
-  updateStockItem: async (id: string, newStock: number, notes?: string): Promise<StockItem | undefined> => {
+  updateStockItem: async (
+    id: string,
+    newStock: number,
+    notes?: string,
+  ): Promise<StockItem | undefined> => {
     stockStore = stockStore.map((item) => {
       if (item.id === id) {
         return {
@@ -104,7 +188,9 @@ export const posInventoryService = {
     });
     return stockStore.find((i) => i.id === id);
   },
-  saveClosingStock: async (entries: { id: string; newStock: number; notes?: string }[]): Promise<boolean> => {
+  saveClosingStock: async (
+    entries: { id: string; newStock: number; notes?: string }[],
+  ): Promise<boolean> => {
     entries.forEach((e) => {
       stockStore = stockStore.map((item) => {
         if (item.id === e.id) {
@@ -123,4 +209,3 @@ export const posInventoryService = {
     return true;
   },
 };
-

@@ -257,11 +257,11 @@ export class SuChannelManagerClient {
     }
   }
 
-  async getRatePlanDefinition(
-    code: string,
-  ): Promise<SuApiResponse<SuRatePlanDefinition | null>> {
+  async getRatePlanDefinition(code: string): Promise<SuApiResponse<SuRatePlanDefinition | null>> {
     try {
-      return await this.request<SuRatePlanDefinition | null>(`/v1/rate-plans/${encodeURIComponent(code)}`);
+      return await this.request<SuRatePlanDefinition | null>(
+        `/v1/rate-plans/${encodeURIComponent(code)}`,
+      );
     } catch {
       return wrap(getSuRatePlanDefinition(code) ?? null);
     }
@@ -286,10 +286,13 @@ export class SuChannelManagerClient {
     body: SuRatePlanDefinition,
   ): Promise<SuApiResponse<SuRatePlanDefinition>> {
     try {
-      return await this.request<SuRatePlanDefinition>(`/v1/rate-plans/${encodeURIComponent(code)}`, {
-        method: "PATCH",
-        body: JSON.stringify(body),
-      });
+      return await this.request<SuRatePlanDefinition>(
+        `/v1/rate-plans/${encodeURIComponent(code)}`,
+        {
+          method: "PATCH",
+          body: JSON.stringify(body),
+        },
+      );
     } catch {
       await delay(80);
       return wrap(upsertSuRatePlanDefinition(body));
@@ -362,13 +365,17 @@ export class SuChannelManagerClient {
 
   async getAvailabilitySyncJobs(): Promise<SuApiResponse<SuAvailabilitySyncJob[]>> {
     try {
-      return await this.request<SuAvailabilitySyncJob[]>("/v1/channel-manager/availability/sync/jobs");
+      return await this.request<SuAvailabilitySyncJob[]>(
+        "/v1/channel-manager/availability/sync/jobs",
+      );
     } catch {
       return wrap(listSuAvailabilitySyncJobs());
     }
   }
 
-  async getAvailabilitySyncJob(jobId: string): Promise<SuApiResponse<SuAvailabilitySyncJob | null>> {
+  async getAvailabilitySyncJob(
+    jobId: string,
+  ): Promise<SuApiResponse<SuAvailabilitySyncJob | null>> {
     try {
       return await this.request<SuAvailabilitySyncJob | null>(
         `/v1/channel-manager/availability/sync/jobs/${encodeURIComponent(jobId)}`,

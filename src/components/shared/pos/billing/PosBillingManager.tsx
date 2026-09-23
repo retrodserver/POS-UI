@@ -1,0 +1,479 @@
+import { useState, useEffect, useCallback } from "react";
+import { toast } from "sonner";
+import type {
+  BillingMenuItem,
+  BillingCartItem,
+  BillingOrderType,
+  BillingItemVariant,
+  BillingSelectedModifier,
+  BillingPaymentMethod,
+  CustomerProfile,
+  HeldBill,
+  BillSettlementRecord,
+} from "@/types/posBilling";
+import { MOCK_MENU_ITEMS, MOCK_HELD_BILLS, MOCK_CUSTOMERS } from "./mockBillingData";
+import { BillingHeader } from "./BillingHeader";
+import { BillingMenuCatalog } from "./BillingMenuCatalog";
+import { BillingCartRegister } from "./BillingCartRegister";
+import { BillingModifierModal } from "./BillingModifierModal";
+import { BillingReceiptModal } from "./BillingReceiptModal";
+import { BillingSplitModal } from "./BillingSplitModal";
+import { BillingHeldDrawer } from "./BillingHeldDrawer";
+import { BillingTableModal } from "./BillingTableModal";
+
+export function PosBillingManager() {
+  // 1. Order & Header State
+  const [orderType, setOrderType] = useState<BillingOrderType>("dine_in");
+  const [activeTable, setActiveTable] = useState("T-12");
+  const [roomNumber, setRoomNumber] = useState("Room 312");
+  const [guestCount, setGuestCount] = useState(4);
+  const [billNumber, setBillNumber] = useState("RET-2026-9024");
+  const [captainName] = useState("Rahul V.");
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // 2. Cart Items State (Initial preloaded sample check)
+  const [cartItems, setCartItems] = useState<BillingCartItem[]>([
+    {
+      cartId: "c-1",
+      item: MOCK_MENU_ITEMS[0], // Paneer Tikka Angara
+      quantity: 1,
+      selectedVariant: MOCK_MENU_ITEMS[0].variants?.[1], // Full
+      selectedModifiers: [
+        {
+          groupId: "mg-spice",
+          groupName: "Spice Level",
+          optionId: "sp-extra",
+          optionName: "Extra Angara Spicy",
+          price: 0,
+        },
+      ],
+      specialInstructions: "Serve with onion salad",
+      addedAt: "12:10 PM",
+    },
+    {
+      cartId: "c-2",
+      item: MOCK_MENU_ITEMS[4], // Butter Chicken
+      quantity: 1,
+      selectedVariant: MOCK_MENU_ITEMS[4].variants?.[0], // Boneless
+      selectedModifiers: [],
+      addedAt: "12:12 PM",
+    },
+    {
+      cartId: "c-3",
+      item: MOCK_MENU_ITEMS[8], // Garlic Butter Naan
+      quantity: 3,
+      selectedModifiers: [],
+      addedAt: "12:14 PM",
+    },
+    {
+      cartId: "c-4",
+      item: MOCK_MENU_ITEMS[17], // Signature Berry Mojito
+      quantity: 2,
+      selectedModifiers: [],
+      addedAt: "12:15 PM",
+    },
+  ]);
+
+  // 3. Customer Loyalty State
+  const [selectedCustomer, setSelectedCustomer] = useState<CustomerProfile | null>(
+    MOCK_CUSTOMERS[0],
+  );
+
+  // 4. Parked/Held Bills State
+  const [heldBills, setHeldBills] = useState<HeldBill[]>(MOCK_HELD_BILLS);
+  const [isHeldDrawerOpen, setIsHeldDrawerOpen] = useState(false);
+
+  // 5. Modals State
+  const [modifierItem, setModifierItem] = useState<BillingMenuItem | null>(null);
+  const [isModifierModalOpen, setIsModifierModalOpen] = useState(false);
+  const [isTableModalOpen, setIsTableModalOpen] = useState(false);
+  const [isSplitModalOpen, setIsSplitModalOpen] = useState(false);
+  const [isReceiptModalOpen, setIsReceiptModalOpen] = useState(false);
+  const [settlementRecord, setSettlementRecord] = useState<BillSettlementRecord | null>(null);
+
+  // --- Handlers ---
+
+  // Add plain item or open modifier
+  const handleAddItem = (item: BillingMenuItem) => {
+    if (
+      (item.variants && item.variants.length > 0) ||
+      (item.modifierGroups && item.modifierGroups.length > 0)
+    ) {
+      setModifierItem(item);
+      setIsModifierModalOpen(true);
+      return;
+    }
+
+    // Direct add for items without variants
+    setCartItems((prev) => {
+      const existingIndex = prev.findIndex(
+        (ci) =>
+          ci.item.id === item.id &&
+          !ci.selectedVariant &&
+          ci.selectedModifiers.length === 0 &&
+          !ci.specialInstructions,
+      );
+
+      if (existingIndex > -1) {
+        const updated = [...prev];
+        updated[existingIndex].quantity += 1;
+        return updated;
+      }
+
+      return [
+        ...prev,
+        {
+          cartId: `c-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+          item,
+          quantity: 1,
+          selectedModifiers: [],
+          addedAt: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        },
+      ];
+    });
+
+    toast.success(`Added ${item.name} to bill`, { duration: 1500 });
+  };
+
+  // Confirm custom item add
+  const handleConfirmCustomAdd = (
+    item: BillingMenuItem,
+    variant: BillingItemVariant | undefined,
+    modifiers: BillingSelectedModifier[],
+    instructions: string,
+    quantity: number,
+  ) => {
+    setCartItems((prev) => [
+      ...prev,
+      {
+        cartId: `c-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+        item,
+        quantity,
+        selectedVariant: variant,
+        selectedModifiers: modifiers,
+        specialInstructions: instructions || undefined,
+        addedAt: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      },
+    ]);
+    toast.success(`Added ${quantity}× ${item.name} (${variant?.name || "Standard"})`, {
+      duration: 2000,
+    });
+  };
+
+  // Update Cart Quantity
+  const handleUpdateCartQty = (cartId: string, newQty: number) => {
+    if (newQty <= 0) {
+      handleRemoveCartItem(cartId);
+      return;
+    }
+    setCartItems((prev) =>
+      prev.map((ci) => (ci.cartId === cartId ? { ...ci, quantity: newQty } : ci)),
+    );
+  };
+
+  // Remove Cart Item
+  const handleRemoveCartItem = (cartId: string) => {
+    setCartItems((prev) => prev.filter((ci) => ci.cartId !== cartId));
+  };
+
+  // Toggle Complimentary
+  const handleToggleComplimentary = (cartId: string) => {
+    setCartItems((prev) =>
+      prev.map((ci) =>
+        ci.cartId === cartId ? { ...ci, isComplimentary: !ci.isComplimentary } : ci,
+      ),
+    );
+  };
+
+  // Clear Cart
+  const handleClearCart = () => {
+    setCartItems([]);
+    toast.info("Cleared order cart");
+  };
+
+  // New Bill
+  const handleNewBill = useCallback(() => {
+    const nextNum = `RET-2026-${Math.floor(1000 + Math.random() * 9000)}`;
+    setBillNumber(nextNum);
+    setCartItems([]);
+    setSelectedCustomer(null);
+    toast.success(`New check ${nextNum} started`);
+  }, []);
+
+  // Hold Check
+  const handleHoldBill = useCallback(() => {
+    if (cartItems.length === 0) return;
+
+    const subtotal = cartItems.reduce((sum, ci) => {
+      const bp = ci.selectedVariant ? ci.selectedVariant.price : ci.item.price;
+      const mp = ci.selectedModifiers.reduce((s, m) => s + m.price, 0);
+      return sum + (bp + mp) * ci.quantity;
+    }, 0);
+
+    const tax = Math.round(subtotal * 0.05);
+
+    const newHeld: HeldBill = {
+      id: `held-${Date.now()}`,
+      billNumber,
+      orderType,
+      tableNumber: orderType === "dine_in" ? activeTable : undefined,
+      roomNumber: orderType === "room_service" ? roomNumber : undefined,
+      guestCount,
+      items: [...cartItems],
+      heldAt: "Just now",
+      subtotal,
+      tax,
+      grandTotal: subtotal + tax,
+      captainName,
+      customerName: selectedCustomer?.name,
+      customerPhone: selectedCustomer?.phone,
+    };
+
+    setHeldBills((prev) => [newHeld, ...prev]);
+    toast.warning(`Order for ${activeTable || "Walk-in"} placed on Hold`);
+    handleNewBill();
+  }, [
+    cartItems,
+    billNumber,
+    orderType,
+    activeTable,
+    roomNumber,
+    guestCount,
+    captainName,
+    selectedCustomer,
+    handleNewBill,
+  ]);
+
+  // Resume Held Check
+  const handleResumeHeldBill = (held: HeldBill) => {
+    setBillNumber(held.billNumber);
+    setOrderType(held.orderType);
+    if (held.tableNumber) setActiveTable(held.tableNumber);
+    if (held.roomNumber) setRoomNumber(held.roomNumber);
+    setGuestCount(held.guestCount);
+    setCartItems(held.items);
+
+    if (held.customerName) {
+      const match = MOCK_CUSTOMERS.find((c) => c.phone === held.customerPhone);
+      setSelectedCustomer(
+        match || {
+          id: "temp",
+          name: held.customerName,
+          phone: held.customerPhone || "",
+          tier: "Silver",
+          loyaltyPoints: 0,
+          visitCount: 1,
+          lastVisit: "Today",
+        },
+      );
+    }
+
+    setHeldBills((prev) => prev.filter((h) => h.id !== held.id));
+    toast.success(`Resumed check ${held.billNumber} for ${held.tableNumber || "Takeaway"}`);
+  };
+
+  // Discard Held Check
+  const handleDeleteHeldBill = (id: string) => {
+    setHeldBills((prev) => prev.filter((h) => h.id !== id));
+    toast.error("Discarded held check");
+  };
+
+  // Print KOT
+  const handlePrintKot = useCallback(() => {
+    if (cartItems.length === 0) return;
+    toast.info(`Kitchen Ticket (KOT) sent to Chef Printer for ${activeTable || "Takeaway"}`);
+  }, [cartItems.length, activeTable]);
+
+  // Settle Bill
+  const handleSettleBill = (paymentMethod: BillingPaymentMethod, tenderedAmount: number) => {
+    if (cartItems.length === 0) return;
+
+    const subtotal = cartItems.reduce((sum, item) => {
+      if (item.isComplimentary) return sum;
+      const bp = item.selectedVariant ? item.selectedVariant.price : item.item.price;
+      const mp = item.selectedModifiers.reduce((mSum, m) => mSum + m.price, 0);
+      return sum + (bp + mp) * item.quantity;
+    }, 0);
+
+    const discountAmount = 0;
+    const taxableAmount = subtotal - discountAmount;
+    const cgst = Math.round(taxableAmount * 0.025);
+    const sgst = Math.round(taxableAmount * 0.025);
+    const serviceCharge = Math.round(taxableAmount * 0.05);
+    const rawTotal = taxableAmount + cgst + sgst + serviceCharge;
+    const grandTotal = Math.round(rawTotal);
+    const roundOff = Number((grandTotal - rawTotal).toFixed(2));
+    const effectiveTender = tenderedAmount || grandTotal;
+    const changeDue = Math.max(0, effectiveTender - grandTotal);
+
+    const now = new Date();
+    const dateStr = now.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+    const timeStr = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+
+    const record: BillSettlementRecord = {
+      billNumber,
+      orderType,
+      tableNumber: orderType === "dine_in" ? activeTable : undefined,
+      roomNumber: orderType === "room_service" ? roomNumber : undefined,
+      customerName: selectedCustomer?.name,
+      customerPhone: selectedCustomer?.phone,
+      guestCount,
+      captainName,
+      terminal: "Counter POS 01",
+      shift: "Shift 01",
+      items: [...cartItems],
+      subtotal,
+      discountAmount,
+      cgst,
+      sgst,
+      serviceCharge,
+      roundOff,
+      grandTotal,
+      paymentMethod,
+      tenderedAmount: effectiveTender,
+      changeDue,
+      settledAt: `${dateStr} ${timeStr}`,
+    };
+
+    setSettlementRecord(record);
+    setIsReceiptModalOpen(true);
+  };
+
+  // Keyboard Shortcuts (F2, F4, F8, F10)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "F2") {
+        e.preventDefault();
+        handleNewBill();
+      } else if (e.key === "F4") {
+        e.preventDefault();
+        handleHoldBill();
+      } else if (e.key === "F8") {
+        e.preventDefault();
+        handlePrintKot();
+      } else if (e.key === "F10") {
+        e.preventDefault();
+        if (cartItems.length > 0) {
+          handleSettleBill("cash", 0);
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleNewBill, handleHoldBill, handlePrintKot, cartItems.length]);
+
+  return (
+    <div className="flex flex-col gap-3 min-h-[calc(100vh-5.5rem)]">
+      {/* 1. Top Order Mode & Action Header */}
+      <BillingHeader
+        orderType={orderType}
+        setOrderType={setOrderType}
+        activeTable={activeTable}
+        onOpenTableSelector={() => setIsTableModalOpen(true)}
+        guestCount={guestCount}
+        setGuestCount={setGuestCount}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        heldCount={heldBills.length}
+        onOpenHeldDrawer={() => setIsHeldDrawerOpen(true)}
+        onNewBill={handleNewBill}
+        billNumber={billNumber}
+        captainName={captainName}
+        roomNumber={roomNumber}
+      />
+
+      {/* 2. Main Workspace: Menu Catalog (Left/Center) + Cart Register (Right) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 flex-1 items-start">
+        {/* Left / Center Catalog (7 cols on desktop, 8 on 2xl) */}
+        <div className="lg:col-span-7 xl:col-span-7 2xl:col-span-8 flex flex-col min-h-[520px]">
+          <BillingMenuCatalog
+            items={MOCK_MENU_ITEMS}
+            cartItems={cartItems}
+            onAddItem={handleAddItem}
+            onOpenModifierModal={(item) => {
+              setModifierItem(item);
+              setIsModifierModalOpen(true);
+            }}
+            onUpdateCartQty={handleUpdateCartQty}
+            searchQuery={searchQuery}
+          />
+        </div>
+
+        {/* Right Billing Cart Register & Settlement (5 cols on desktop, 4 on 2xl) */}
+        <div className="lg:col-span-5 xl:col-span-5 2xl:col-span-4 flex flex-col sticky top-1">
+          <BillingCartRegister
+            cartItems={cartItems}
+            orderType={orderType}
+            tableNumber={activeTable}
+            roomNumber={roomNumber}
+            guestCount={guestCount}
+            billNumber={billNumber}
+            captainName={captainName}
+            onUpdateCartQty={handleUpdateCartQty}
+            onRemoveCartItem={handleRemoveCartItem}
+            onToggleComplimentary={handleToggleComplimentary}
+            onClearCart={handleClearCart}
+            onHoldBill={handleHoldBill}
+            onPrintKot={handlePrintKot}
+            onOpenSplitModal={() => setIsSplitModalOpen(true)}
+            onSettleBill={handleSettleBill}
+            selectedCustomer={selectedCustomer}
+            onSelectCustomer={setSelectedCustomer}
+          />
+        </div>
+      </div>
+
+      {/* 3. Integrated Modals & Slide Drawers */}
+      <BillingModifierModal
+        isOpen={isModifierModalOpen}
+        onClose={() => setIsModifierModalOpen(false)}
+        item={modifierItem}
+        onConfirmAddToCart={handleConfirmCustomAdd}
+      />
+
+      <BillingTableModal
+        isOpen={isTableModalOpen}
+        onClose={() => setIsTableModalOpen(false)}
+        selectedTable={activeTable}
+        onSelectTable={setActiveTable}
+      />
+
+      <BillingHeldDrawer
+        isOpen={isHeldDrawerOpen}
+        onClose={() => setIsHeldDrawerOpen(false)}
+        heldBills={heldBills}
+        onResumeHeldBill={handleResumeHeldBill}
+        onDeleteHeldBill={handleDeleteHeldBill}
+      />
+
+      <BillingSplitModal
+        isOpen={isSplitModalOpen}
+        onClose={() => setIsSplitModalOpen(false)}
+        grandTotal={
+          settlementRecord
+            ? settlementRecord.grandTotal
+            : cartItems.reduce((s, i) => s + i.item.price * i.quantity, 0)
+        }
+        guestCount={guestCount}
+        cartItems={cartItems}
+        onConfirmSplitPayment={(count, perPerson) => {
+          toast.success(`Split into ${count} bills of ₹${perPerson.toLocaleString()} each`);
+          handleSettleBill("split", 0);
+        }}
+      />
+
+      <BillingReceiptModal
+        isOpen={isReceiptModalOpen}
+        onClose={() => setIsReceiptModalOpen(false)}
+        record={settlementRecord}
+        onPrint={() => toast.success("Sent receipt to USB thermal receipt printer")}
+        onNewBill={handleNewBill}
+      />
+    </div>
+  );
+}

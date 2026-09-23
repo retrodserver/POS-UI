@@ -79,9 +79,11 @@ export interface OnlineOrderItem {
   otp: string;
   dateTime: string;
   totalAmountFormatted: string;
-  status: "accepted" | "in_kitchen" | "food_ready" | "out_for_delivery" | "delivered" | "cancelled";
+  status: "placed" | "accepted" | "in_kitchen" | "food_ready" | "out_for_delivery" | "delivered" | "cancelled";
   statusDisplay: string;
   items: Array<{ name: string; quantity: number; priceFormatted: string }>;
+  itemsText?: string;
+  itemCount?: number;
 }
 
 export interface OnlineOrdersData {

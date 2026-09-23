@@ -12,15 +12,10 @@ import {
   Calendar,
   X,
 } from "lucide-react";
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
+import { AreaChart, Area, XAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { useAllOrders } from "@/hooks/queries/usePosOrders";
 import type { AllOrderItem } from "@/types/posOrders";
+import { PosDataGrid } from "@/components/ui/data-grid";
 
 const EXTENDED_MOCK_RECORDS: (AllOrderItem & { tableNo?: string; customerPhone?: string })[] = [
   {
@@ -233,7 +228,7 @@ export function PosAllOrdersManager() {
   const pageSize = 5;
 
   // Selection & Modal states
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [viewingOrder, setViewingOrder] = useState<AllOrderItem | null>(null);
   const [printingOrder, setPrintingOrder] = useState<AllOrderItem | null>(null);
 
@@ -290,9 +285,12 @@ export function PosAllOrdersManager() {
 
       // Order Type
       if (appliedFilters.orderType !== "All Order Type") {
-        if (appliedFilters.orderType === "Dine In" && !r.orderTypeDisplay.includes("Dine In")) return false;
-        if (appliedFilters.orderType === "Takeaway" && !r.orderTypeDisplay.includes("Takeaway")) return false;
-        if (appliedFilters.orderType === "Room Service" && !r.orderTypeDisplay.includes("Room")) return false;
+        if (appliedFilters.orderType === "Dine In" && !r.orderTypeDisplay.includes("Dine In"))
+          return false;
+        if (appliedFilters.orderType === "Takeaway" && !r.orderTypeDisplay.includes("Takeaway"))
+          return false;
+        if (appliedFilters.orderType === "Room Service" && !r.orderTypeDisplay.includes("Room"))
+          return false;
         if (
           appliedFilters.orderType === "Online Aggregator" &&
           !r.isOnlineOrder &&
@@ -303,22 +301,34 @@ export function PosAllOrdersManager() {
       }
 
       // Order ID
-      if (appliedFilters.orderId && !r.orderNo.toLowerCase().includes(appliedFilters.orderId.toLowerCase())) {
+      if (
+        appliedFilters.orderId &&
+        !r.orderNo.toLowerCase().includes(appliedFilters.orderId.toLowerCase())
+      ) {
         return false;
       }
 
       // Customer Name
-      if (appliedFilters.customerName && !r.customerName.toLowerCase().includes(appliedFilters.customerName.toLowerCase())) {
+      if (
+        appliedFilters.customerName &&
+        !r.customerName.toLowerCase().includes(appliedFilters.customerName.toLowerCase())
+      ) {
         return false;
       }
 
       // Customer Phone
-      if (appliedFilters.customerPhone && !r.customerPhone?.includes(appliedFilters.customerPhone)) {
+      if (
+        appliedFilters.customerPhone &&
+        !r.customerPhone?.includes(appliedFilters.customerPhone)
+      ) {
         return false;
       }
 
       // Table No
-      if (appliedFilters.tableNo && !r.tableNo?.toLowerCase().includes(appliedFilters.tableNo.toLowerCase())) {
+      if (
+        appliedFilters.tableNo &&
+        !r.tableNo?.toLowerCase().includes(appliedFilters.tableNo.toLowerCase())
+      ) {
         return false;
       }
 
@@ -340,20 +350,30 @@ export function PosAllOrdersManager() {
 
   // Checkboxes
   const handleSelectAll = (checked: boolean) => {
-    if (checked) setSelectedIds(new Set(paginatedRecords.map((r) => r.id)));
-    else setSelectedIds(new Set());
+    if (checked) setSelectedIds(paginatedRecords.map((r) => r.id));
+    else setSelectedIds([]);
   };
 
   const handleSelectOne = (id: string, checked: boolean) => {
-    const next = new Set(selectedIds);
-    if (checked) next.add(id);
-    else next.delete(id);
-    setSelectedIds(next);
+    if (checked) setSelectedIds((prev) => (prev.includes(id) ? prev : [...prev, id]));
+    else setSelectedIds((prev) => prev.filter((i) => i !== id));
   };
 
   // CSV Export
   const handleExportCSV = () => {
-    const headers = ["Order No", "Order Type", "Customer Name", "Assign To", "Items", "Amount", "Tax", "Grand Total", "Payment", "Status", "Created At"];
+    const headers = [
+      "Order No",
+      "Order Type",
+      "Customer Name",
+      "Assign To",
+      "Items",
+      "Amount",
+      "Tax",
+      "Grand Total",
+      "Payment",
+      "Status",
+      "Created At",
+    ];
     const rows = filteredRecords.map((r) => [
       r.orderNo,
       `"${r.orderTypeDisplay}"`,
@@ -367,7 +387,9 @@ export function PosAllOrdersManager() {
       r.status,
       `"${r.createdAt}"`,
     ]);
-    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map((e) => e.join(","))].join("\n");
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
+      [headers.join(","), ...rows.map((e) => e.join(","))].join("\n");
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
@@ -377,7 +399,13 @@ export function PosAllOrdersManager() {
     document.body.removeChild(link);
   };
 
-  const dateRanges = ["Today", "Yesterday", "Last 7 Days Orders", "Last 15 Days Orders", "This Month"];
+  const dateRanges = [
+    "Today",
+    "Yesterday",
+    "Last 7 Days Orders",
+    "Last 15 Days Orders",
+    "This Month",
+  ];
 
   return (
     <div className="space-y-2.5 pb-8">
@@ -385,7 +413,7 @@ export function PosAllOrdersManager() {
       <div className="flex flex-wrap items-center justify-between gap-2.5 rounded-xl border border-slate-300 bg-white p-3 shadow-2xs">
         {/* Left: Title & Segmented Tabs */}
         <div className="flex items-center gap-3">
-          <h1 className="text-[16px] font-bold text-slate-900 leading-tight">All Orders</h1>
+          <h1 className="text-[16px] font-bold text-slate-900 leading-tight">Order History</h1>
           <div className="flex items-center rounded-lg border border-slate-300 bg-slate-100 p-0.5 shadow-2xs">
             <button
               type="button"
@@ -421,7 +449,8 @@ export function PosAllOrdersManager() {
         {/* Right: Grand Total & Action Buttons */}
         <div className="flex flex-wrap items-center gap-2">
           <div className="text-[13px] font-bold text-slate-900 pr-1">
-            Grand Total : <span className="text-teal-700">{data?.grandTotalFormatted ?? "₹ 643,388.00"}</span>
+            Grand Total :{" "}
+            <span className="text-teal-700">{data?.grandTotalFormatted ?? "₹ 643,388.00"}</span>
           </div>
 
           {/* Date Filter Dropdown */}
@@ -447,7 +476,9 @@ export function PosAllOrdersManager() {
                       setShowRangeDropdown(false);
                     }}
                     className={`flex w-full items-center rounded-md px-3 py-2 text-left text-[12.5px] transition cursor-pointer ${
-                      selectedRange === r ? "bg-sky-50 text-sky-700 font-bold" : "text-slate-600 hover:bg-slate-50"
+                      selectedRange === r
+                        ? "bg-sky-50 text-sky-700 font-bold"
+                        : "text-slate-600 hover:bg-slate-50"
                     }`}
                   >
                     {r}
@@ -486,7 +517,7 @@ export function PosAllOrdersManager() {
                   type="button"
                   onClick={() => {
                     setShowActionDropdown(false);
-                    alert(`Selected ${selectedIds.size} orders.`);
+                    alert(`Selected ${selectedIds.length} orders.`);
                   }}
                   className="flex w-full items-center rounded-md px-3 py-2 text-left text-[12px] text-slate-700 hover:bg-slate-50 cursor-pointer"
                 >
@@ -794,201 +825,190 @@ export function PosAllOrdersManager() {
         )}
       </div>
 
-      {/* 4. Main Data Table */}
-      <div className="rounded-xl border border-slate-300 bg-white shadow-xs overflow-hidden">
-        <div className="overflow-x-auto max-h-[calc(100vh-320px)] overflow-y-auto">
-          <table className="w-full text-left text-[12.5px]">
-            <thead className="border-b border-slate-200 bg-slate-50/90 text-[11.5px] font-bold text-slate-700 sticky top-0 z-10 shadow-2xs">
-              <tr>
-                <th className="p-3.5 w-8 bg-slate-50">
-                  <input
-                    type="checkbox"
-                    checked={paginatedRecords.length > 0 && paginatedRecords.every((r) => selectedIds.has(r.id))}
-                    onChange={(e) => handleSelectAll(e.target.checked)}
-                    className="rounded border-slate-300 accent-sky-600 cursor-pointer"
-                  />
-                </th>
-                <th className="p-3.5 bg-slate-50">Order No.</th>
-                <th className="p-3.5 bg-slate-50">Order Type</th>
-                <th className="p-3.5 bg-slate-50">Customer Name</th>
-                <th className="p-3.5 bg-slate-50">Assign To</th>
-                <th className="p-3.5 bg-slate-50 min-w-[220px]">Items</th>
-                <th className="p-3.5 bg-slate-50 text-right">My Amount (₹)</th>
-                <th className="p-3.5 bg-slate-50 text-right">Tax (₹)</th>
-                <th className="p-3.5 bg-slate-50 text-right">Discount (₹)</th>
-                <th className="p-3.5 bg-slate-50 text-right font-extrabold">Grand Total [Round Off] (₹)</th>
-                <th className="p-3.5 bg-slate-50">Payment</th>
-                <th className="p-3.5 bg-slate-50">Status</th>
-                <th className="p-3.5 bg-slate-50">Created ↓</th>
-                <th className="p-3.5 bg-slate-50 text-center">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 text-slate-800">
-              {paginatedRecords.length > 0 ? (
-                paginatedRecords.map((r) => (
-                  <tr key={r.id} className="hover:bg-slate-50/70 transition">
-                    <td className="p-3.5">
-                      <input
-                        type="checkbox"
-                        checked={selectedIds.has(r.id)}
-                        onChange={(e) => handleSelectOne(r.id, e.target.checked)}
-                        className="rounded border-slate-300 accent-sky-600 cursor-pointer"
-                      />
-                    </td>
-                    <td className="p-3.5 font-bold text-slate-900">{r.orderNo}</td>
-                    <td className="p-3.5 font-semibold text-slate-800">{r.orderTypeDisplay}</td>
-                    <td className="p-3.5">{r.customerName}</td>
-                    <td className="p-3.5 text-slate-600">{r.assignTo}</td>
-                    <td className="p-3.5 text-slate-600 font-normal leading-relaxed">{r.itemsSummary}</td>
-                    <td className="p-3.5 text-right font-medium">{r.myAmountFormatted}</td>
-                    <td className="p-3.5 text-right text-slate-500">{r.taxAmountFormatted}</td>
-                    <td className="p-3.5 text-right text-slate-500">{r.discountAmountFormatted}</td>
-                    <td className="p-3.5 text-right font-bold text-slate-900">{r.grandTotalFormatted}</td>
-                    <td className="p-3.5 font-medium">{r.paymentMode}</td>
-                    <td className="p-3.5">
-                      <span
-                        className={`inline-flex rounded-md border px-2 py-0.5 text-[11px] font-semibold ${
-                          r.status === "Printed"
-                            ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                            : r.status === "Settled"
-                            ? "bg-teal-50 text-teal-700 border-teal-200"
-                            : "bg-slate-100 text-slate-700 border-slate-200"
-                        }`}
-                      >
-                        {r.status}
-                      </span>
-                    </td>
-                    <td className="p-3.5 text-slate-500 text-[11.5px] whitespace-nowrap">{r.createdAt}</td>
-                    <td className="p-3.5">
-                      <div className="flex items-center justify-center gap-1.5 text-slate-500">
-                        <button
-                          type="button"
-                          onClick={() => setViewingOrder(r)}
-                          title="View Details"
-                          className="rounded-lg border border-slate-200 bg-white p-1 hover:text-sky-600 hover:border-sky-300 transition cursor-pointer shadow-2xs"
-                        >
-                          <Eye className="h-3.5 w-3.5" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setPrintingOrder(r)}
-                          title="Print Invoice"
-                          className="rounded-lg border border-slate-200 bg-white p-1 hover:text-emerald-600 hover:border-emerald-300 transition cursor-pointer shadow-2xs"
-                        >
-                          <Printer className="h-3.5 w-3.5" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => alert(`Edit Order #${r.orderNo}`)}
-                          title="Edit Order"
-                          className="rounded-lg border border-slate-200 bg-white p-1 hover:text-amber-600 hover:border-amber-300 transition cursor-pointer shadow-2xs"
-                        >
-                          <Edit className="h-3.5 w-3.5" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => alert(`Reorder items from #${r.orderNo}`)}
-                          title="Reorder"
-                          className="rounded-lg border border-slate-200 bg-white p-1 hover:text-purple-600 hover:border-purple-300 transition cursor-pointer shadow-2xs"
-                        >
-                          <RotateCcw className="h-3.5 w-3.5" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={14} className="p-12 text-center text-slate-400">
-                    No matching orders found. Try adjusting your search or filters.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* 5. PERMANENT STICKY SCREEN BOTTOM PAGINATION BAR */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-300 shadow-[0_-4px_16px_rgba(0,0,0,0.08)] px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4 text-[12.5px] text-slate-600">
-        <div className="font-semibold text-slate-700">
-          Showing {totalRecords > 0 ? startIndex + 1 : 0} to{" "}
-          {Math.min(startIndex + pageSize, totalRecords)} of {totalRecords} records
-        </div>
-
-        {/* Sticky Functional Pagination */}
-        <div className="flex items-center gap-1.5">
-          <button
-            type="button"
-            disabled={validPage === 1}
-            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-            className={`h-8 px-3 rounded-md border text-[12px] font-semibold transition ${
-              validPage === 1
-                ? "border-slate-200 bg-slate-100 text-slate-400 cursor-not-allowed"
-                : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50 cursor-pointer shadow-2xs"
-            }`}
-          >
-            Prev
-          </button>
-
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
-            <button
-              key={pageNum}
-              type="button"
-              onClick={() => setCurrentPage(pageNum)}
-              className={`h-8 w-8 rounded-md font-bold text-[12px] transition cursor-pointer ${
-                validPage === pageNum
-                  ? "bg-sky-600 text-white shadow-xs"
-                  : "border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 shadow-2xs"
-              }`}
-            >
-              {pageNum}
-            </button>
-          ))}
-
-          <button
-            type="button"
-            disabled={validPage === totalPages}
-            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-            className={`h-8 px-3 rounded-md border text-[12px] font-semibold transition ${
-              validPage === totalPages
-                ? "border-slate-200 bg-slate-100 text-slate-400 cursor-not-allowed"
-                : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50 cursor-pointer shadow-2xs"
-            }`}
-          >
-            Next
-          </button>
-
-          <button
-            type="button"
-            disabled={validPage === totalPages}
-            onClick={() => setCurrentPage(totalPages)}
-            className={`h-8 px-3 rounded-md border text-[12px] font-semibold transition ${
-              validPage === totalPages
-                ? "border-slate-200 bg-slate-100 text-slate-400 cursor-not-allowed"
-                : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50 cursor-pointer shadow-2xs"
-            }`}
-          >
-            Last
-          </button>
-        </div>
-
-        {/* Legend Badges */}
-        <div className="flex flex-wrap items-center gap-3 text-[11px] text-slate-500">
-          <span className="flex items-center gap-1">
-            <span className="h-2 w-2 rounded-full bg-slate-400" /> Settlement Amount
-          </span>
-          <span className="flex items-center gap-1">
-            <span className="h-2 w-2 rounded-full bg-emerald-500" /> Online Order
-          </span>
-          <span className="flex items-center gap-1">
-            <span className="h-2 w-2 rounded-full bg-amber-500" /> Advance Order
-          </span>
-          <span className="flex items-center gap-1">
-            <Split className="h-3 w-3 text-purple-500" /> Split Bill
-          </span>
-        </div>
-      </div>
+      {/* 4. Main Data Table with PosDataGrid */}
+      <PosDataGrid<AllOrderItem & { tableNo?: string; customerPhone?: string }>
+        data={filteredRecords}
+        selectedRowIds={selectedIds}
+        onSelectionChange={setSelectedIds}
+        enableSelection={true}
+        enablePagination={true}
+        pageSize={10}
+        pageSizeOptions={[10, 25, 50, 100]}
+        emptyMessage="No matching orders found. Try adjusting your search or filters."
+        columns={[
+          {
+            id: "orderNo",
+            header: "Order No.",
+            accessorKey: "orderNo",
+            enableSorting: true,
+            enableFiltering: true,
+            minWidth: 100,
+            cell: ({ row }) => (
+              <span className="font-bold text-slate-900">{row.orderNo}</span>
+            ),
+          },
+          {
+            id: "orderTypeDisplay",
+            header: "Order Type",
+            accessorKey: "orderTypeDisplay",
+            enableSorting: true,
+            enableFiltering: true,
+            minWidth: 150,
+            cell: ({ row }) => (
+              <span className="font-semibold text-slate-800">{row.orderTypeDisplay}</span>
+            ),
+          },
+          {
+            id: "customerName",
+            header: "Customer Name",
+            accessorKey: "customerName",
+            enableSorting: true,
+            enableFiltering: true,
+            minWidth: 140,
+            cell: ({ row }) => <span>{row.customerName}</span>,
+          },
+          {
+            id: "assignTo",
+            header: "Assign To",
+            accessorKey: "assignTo",
+            enableSorting: true,
+            enableFiltering: true,
+            minWidth: 120,
+            cell: ({ row }) => <span className="text-slate-600">{row.assignTo}</span>,
+          },
+          {
+            id: "itemsSummary",
+            header: "Items",
+            accessorKey: "itemsSummary",
+            minWidth: 200,
+            cell: ({ row }) => (
+              <span className="text-slate-600 font-normal leading-relaxed text-[12px]">
+                {row.itemsSummary}
+              </span>
+            ),
+          },
+          {
+            id: "myAmountFormatted",
+            header: "My Amount (₹)",
+            accessorKey: "myAmountFormatted",
+            align: "right",
+            enableSorting: true,
+            cell: ({ row }) => (
+              <span className="font-medium">{row.myAmountFormatted}</span>
+            ),
+          },
+          {
+            id: "taxAmountFormatted",
+            header: "Tax (₹)",
+            accessorKey: "taxAmountFormatted",
+            align: "right",
+            enableSorting: true,
+            cell: ({ row }) => (
+              <span className="text-slate-500">{row.taxAmountFormatted}</span>
+            ),
+          },
+          {
+            id: "discountAmountFormatted",
+            header: "Discount (₹)",
+            accessorKey: "discountAmountFormatted",
+            align: "right",
+            enableSorting: true,
+            cell: ({ row }) => (
+              <span className="text-slate-500">{row.discountAmountFormatted}</span>
+            ),
+          },
+          {
+            id: "grandTotalFormatted",
+            header: "Grand Total (₹)",
+            accessorKey: "grandTotalFormatted",
+            align: "right",
+            enableSorting: true,
+            cell: ({ row }) => (
+              <span className="font-bold text-slate-900">{row.grandTotalFormatted}</span>
+            ),
+          },
+          {
+            id: "paymentMode",
+            header: "Payment",
+            accessorKey: "paymentMode",
+            enableSorting: true,
+            enableFiltering: true,
+            cell: ({ row }) => <span className="font-medium">{row.paymentMode}</span>,
+          },
+          {
+            id: "status",
+            header: "Status",
+            accessorKey: "status",
+            enableSorting: true,
+            enableFiltering: true,
+            cell: ({ row }) => (
+              <span
+                className={`inline-flex rounded-md border px-2 py-0.5 text-[11px] font-semibold ${
+                  row.status === "Printed"
+                    ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                    : row.status === "Settled"
+                      ? "bg-teal-50 text-teal-700 border-teal-200"
+                      : "bg-slate-100 text-slate-700 border-slate-200"
+                }`}
+              >
+                {row.status}
+              </span>
+            ),
+          },
+          {
+            id: "createdAt",
+            header: "Created",
+            accessorKey: "createdAt",
+            enableSorting: true,
+            cell: ({ row }) => (
+              <span className="text-slate-500 text-[11.5px] whitespace-nowrap">
+                {row.createdAt}
+              </span>
+            ),
+          },
+          {
+            id: "actions",
+            header: "Actions",
+            align: "center",
+            cell: ({ row: r }) => (
+              <div className="flex items-center justify-center gap-1.5 text-slate-500 py-1">
+                <button
+                  type="button"
+                  onClick={() => setViewingOrder(r)}
+                  title="View Details"
+                  className="rounded-lg border border-slate-200 bg-white p-1 hover:text-sky-600 hover:border-sky-300 transition cursor-pointer shadow-2xs"
+                >
+                  <Eye className="h-3.5 w-3.5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPrintingOrder(r)}
+                  title="Print Invoice"
+                  className="rounded-lg border border-slate-200 bg-white p-1 hover:text-emerald-600 hover:border-emerald-300 transition cursor-pointer shadow-2xs"
+                >
+                  <Printer className="h-3.5 w-3.5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => alert(`Edit Order #${r.orderNo}`)}
+                  title="Edit Order"
+                  className="rounded-lg border border-slate-200 bg-white p-1 hover:text-amber-600 hover:border-amber-300 transition cursor-pointer shadow-2xs"
+                >
+                  <Edit className="h-3.5 w-3.5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => alert(`Reorder items from #${r.orderNo}`)}
+                  title="Reorder"
+                  className="rounded-lg border border-slate-200 bg-white p-1 hover:text-purple-600 hover:border-purple-300 transition cursor-pointer shadow-2xs"
+                >
+                  <RotateCcw className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            ),
+          },
+        ]}
+      />
 
       {/* VIEW ORDER DETAILS MODAL */}
       {viewingOrder && (

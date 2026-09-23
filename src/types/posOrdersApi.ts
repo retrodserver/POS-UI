@@ -43,7 +43,7 @@ export interface AllOrderRecordApiDto {
   taxAmount: number;
   discountAmount: number;
   grandTotal: number;
-  paymentMode: "Cash" | "Card" | "UPI" | "Due" | "Split";
+  paymentMode: "Cash" | "Card" | "UPI" | "Due" | "Split" | "Room Charge";
   status: "Printed" | "Completed" | "Settled" | "Cancelled" | "Running";
   createdAt: string; // e.g. "31 Aug 2026 22:16:49"
   isOnlineOrder?: boolean;
@@ -79,7 +79,7 @@ export interface OnlineOrderRecordApiDto {
   otp: string;
   dateTime: string;
   totalAmount: number;
-  status: "accepted" | "in_kitchen" | "food_ready" | "out_for_delivery" | "delivered" | "cancelled";
+  status: "placed" | "accepted" | "in_kitchen" | "food_ready" | "out_for_delivery" | "delivered" | "cancelled";
   statusDisplay: string;
   placedMinutesAgo: number;
   items: Array<{ name: string; quantity: number; price: number }>;

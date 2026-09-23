@@ -36,7 +36,7 @@ export function AddSpecialNoteModal({
         onError: () => {
           toast.error("Failed to create special note");
         },
-      }
+      },
     );
   };
 
@@ -72,7 +72,9 @@ export function AddSpecialNoteModal({
           <div className="flex items-center justify-between py-2 border-t border-slate-100">
             <div>
               <div className="text-[13px] font-medium text-slate-700">Available Status</div>
-              <div className="text-[11.5px] text-slate-500">Enable this note for billing and KOT customization</div>
+              <div className="text-[11.5px] text-slate-500">
+                Enable this note for billing and KOT customization
+              </div>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
               <input

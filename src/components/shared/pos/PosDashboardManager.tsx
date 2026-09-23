@@ -43,10 +43,7 @@ export function PosDashboardManager() {
       {/* 3. Row 2 (3 Columns): Live Orders, Order Types Donut, Table Status */}
       <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2 lg:grid-cols-3">
         <LiveOrdersWidget orders={data.liveOrders} />
-        <OrderTypesDonutChart
-          orderTypes={data.orderTypes}
-          totalCount={data.totalOrderTypesCount}
-        />
+        <OrderTypesDonutChart orderTypes={data.orderTypes} totalCount={data.totalOrderTypesCount} />
         <TableStatusCard tables={data.tables} />
       </div>
 

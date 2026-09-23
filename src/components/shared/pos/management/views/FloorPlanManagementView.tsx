@@ -32,7 +32,8 @@ export function FloorPlanManagementView() {
           </div>
           <div className="text-[15px] font-bold text-slate-800">No Floor Plan Available</div>
           <p className="text-[12.5px] text-slate-400 max-w-sm mx-auto">
-            Design dynamic dining sections, arrange tables, and customize seating capacities visually.
+            Design dynamic dining sections, arrange tables, and customize seating capacities
+            visually.
           </p>
         </div>
       ) : (

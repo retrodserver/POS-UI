@@ -67,15 +67,12 @@ export function PosRoomServiceManager() {
         onSuccess: (updatedOrder) => {
           setSelectedOrder(updatedOrder);
         },
-      }
+      },
     );
   };
 
   // Handlers
-  const handleAdvanceStatus = (
-    orderId: string,
-    currentStatus: RoomServiceOrderStatus
-  ) => {
+  const handleAdvanceStatus = (orderId: string, currentStatus: RoomServiceOrderStatus) => {
     let nextStatus: RoomServiceOrderStatus = "tray_ready";
     if (currentStatus === "kitchen_prep") nextStatus = "tray_ready";
     else if (currentStatus === "tray_ready") nextStatus = "dispatched";
@@ -124,7 +121,7 @@ export function PosRoomServiceManager() {
               </span>
               <div>
                 <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight leading-none">
-                  Room Service & In-Room Dining
+                  Room Orders
                 </h1>
                 <p className="text-xs text-slate-500 mt-0.5">
                   Guest room orders, butler dispatch queue, and PMS folio billing.

@@ -1,19 +1,12 @@
 import { useState } from "react";
-import {
-  Plus,
-  Download,
-  Search,
-  Trash2,
-  Eye,
-  SlidersHorizontal,
-  ChevronDown,
-} from "lucide-react";
+import { Plus, Download, Search, Trash2, Eye, SlidersHorizontal, ChevronDown } from "lucide-react";
 import {
   usePurchaseOrders,
   useInventoryVendors,
   useDeletePurchaseOrder,
 } from "@/hooks/queries/usePosInventory";
 import { CreatePurchaseOrderModal } from "../modals/CreatePurchaseOrderModal";
+import { DataTableFooter } from "@/components/common";
 import { toast } from "sonner";
 
 export function PurchaseOrderView() {
@@ -26,6 +19,8 @@ export function PurchaseOrderView() {
   const [endDate, setEndDate] = useState("2026-09-02");
   const [vendorFilter, setVendorFilter] = useState("All");
   const [poFilter, setPoFilter] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   const filteredOrders = (purchaseOrders ?? []).filter((po) => {
     if (vendorFilter !== "All" && po.vendorName !== vendorFilter) return false;
@@ -93,9 +88,7 @@ export function PurchaseOrderView() {
           </div>
 
           <div className="w-36">
-            <label className="block text-[11.5px] font-medium text-slate-600 mb-1">
-              End Date
-            </label>
+            <label className="block text-[11.5px] font-medium text-slate-600 mb-1">End Date</label>
             <input
               type="date"
               value={endDate}
@@ -105,9 +98,7 @@ export function PurchaseOrderView() {
           </div>
 
           <div className="min-w-[160px]">
-            <label className="block text-[11.5px] font-medium text-slate-600 mb-1">
-              To
-            </label>
+            <label className="block text-[11.5px] font-medium text-slate-600 mb-1">To</label>
             <select
               value={vendorFilter}
               onChange={(e) => setVendorFilter(e.target.value)}
@@ -115,15 +106,15 @@ export function PurchaseOrderView() {
             >
               <option value="All">All</option>
               {vendors?.map((v) => (
-                <option key={v.id} value={v.name}>{v.name}</option>
+                <option key={v.id} value={v.name}>
+                  {v.name}
+                </option>
               ))}
             </select>
           </div>
 
           <div className="min-w-[150px]">
-            <label className="block text-[11.5px] font-medium text-slate-600 mb-1">
-              PO Number
-            </label>
+            <label className="block text-[11.5px] font-medium text-slate-600 mb-1">PO Number</label>
             <input
               type="text"
               placeholder="Search PO number..."
@@ -246,6 +237,16 @@ export function PurchaseOrderView() {
                 ))}
               </tbody>
             </table>
+
+            {/* Unified DataTableFooter */}
+            <DataTableFooter
+              currentPage={currentPage}
+              totalCount={filteredOrders.length}
+              pageSize={pageSize}
+              onPageSizeChange={setPageSize}
+              onPageChange={setCurrentPage}
+              itemName="orders"
+            />
           </div>
         )}
       </div>

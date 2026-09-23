@@ -1,4 +1,5 @@
 export type MenuTabKey =
+  | "menu_list"
   | "menu_management"
   | "upload_item_images"
   | "item_on_off"
@@ -6,6 +7,40 @@ export type MenuTabKey =
   | "menucommission_list"
   | "menu_scheduling"
   | "physical_menu";
+
+export type MenuItemImage = {
+  id: string;
+  url: string;
+  name: string;
+  isPrimary: boolean;
+  size?: string;
+  type?: string;
+  uploadedAt?: string;
+};
+
+export type MenuItemType = "Veg" | "Non-Veg" | "Egg";
+
+export type MenuItem = {
+  id: string;
+  outletId: string;
+  code: string;
+  name: string;
+  onlineDisplayName: string;
+  category: string;
+  itemType: MenuItemType;
+  price: number;
+  taxRate: number; // in percentage e.g. 5, 12, 18
+  status: "Active" | "Inactive";
+  description?: string;
+  images: MenuItemImage[];
+  // Channel availability
+  baseMenu: boolean;
+  zomato: boolean;
+  swiggy: boolean;
+  direct: boolean;
+  nextAvailableTime?: string;
+  updatedAt: string;
+};
 
 export type SpecialNote = {
   id: string;
@@ -24,19 +59,7 @@ export type MenuItemCommission = {
   addonCount?: number;
 };
 
-export type MenuItemStock = {
-  id: string;
-  code: string;
-  name: string;
-  onlineDisplayName: string;
-  category: string;
-  price: number;
-  channel: "Online" | "Offline" | "DineIn QR";
-  platform: "All" | "Zomato" | "Swiggy" | "Direct";
-  status: "In Stock" | "Out of Stock";
-  nextAvailableTime?: string;
-  updatedAt: string;
-};
+export type MenuItemStock = MenuItem;
 
 export type PhysicalMenuRecord = {
   id: string;
@@ -56,14 +79,21 @@ export type MenuScheduleItem = {
   status: "Active" | "Scheduled" | "Paused";
 };
 
-export type VirtualOutlet = {
+export type PosOutlet = {
   id: string;
   name: string;
   code: string;
+  type: "Primary Outlet" | "Virtual Outlet";
   cuisine: string;
-  status: "Active" | "Draft";
+  description: string;
+  address: string;
+  contact: string;
+  orderTypes: string[];
+  status: "Active" | "Inactive";
   menuCount: number;
 };
+
+export type VirtualOutlet = PosOutlet;
 
 export type ScheduleMenuItem = {
   id: string;
@@ -130,5 +160,3 @@ export type ScheduleDiscountItem = {
   status: "Active" | "Inactive";
   createdAt: string;
 };
-
-

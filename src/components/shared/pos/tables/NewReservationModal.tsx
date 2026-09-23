@@ -15,9 +15,7 @@ interface NewReservationModalProps {
   onClose: () => void;
   tables: RestaurantTable[];
   preselectedTableId?: string;
-  onSaveReservation: (
-    data: Omit<ReservationItem, "id" | "createdAt" | "status">
-  ) => void;
+  onSaveReservation: (data: Omit<ReservationItem, "id" | "createdAt" | "status">) => void;
 }
 
 export function NewReservationModal({
@@ -208,7 +206,10 @@ export function NewReservationModal({
               onChange={(e) => setIsVip(e.target.checked)}
               className="rounded text-teal-600 focus:ring-teal-500"
             />
-            <label htmlFor="vipGuestCheck" className="text-xs text-slate-700 font-medium cursor-pointer">
+            <label
+              htmlFor="vipGuestCheck"
+              className="text-xs text-slate-700 font-medium cursor-pointer"
+            >
               Mark as VIP Guest
             </label>
           </div>

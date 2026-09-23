@@ -9,7 +9,7 @@ interface OutletFormProps {
 export function OutletFormView({ type }: OutletFormProps) {
   // Outlet Information
   const [outletName, setOutletName] = useState(
-    type === "HO" ? "HIGHWAY INN HEAD OFFICE" : "HIGHWAY INN CENTRAL KITCHEN"
+    type === "HO" ? "HIGHWAY INN HEAD OFFICE" : "HIGHWAY INN CENTRAL KITCHEN",
   );
   const [outletAlias, setOutletAlias] = useState(type === "HO" ? "HQ-01" : "CK-01");
   const [email, setEmail] = useState("admin@highwayinn.com");
@@ -23,9 +23,7 @@ export function OutletFormView({ type }: OutletFormProps) {
   const [state, setState] = useState("Odisha");
   const [city, setCity] = useState("Angul");
   const [timezone, setTimezone] = useState("Asia/Calcutta");
-  const [address, setAddress] = useState(
-    "Plot No 1977 Khata No 304/102, Karadagadia, Angul"
-  );
+  const [address, setAddress] = useState("Plot No 1977 Khata No 304/102, Karadagadia, Angul");
   const [area, setArea] = useState("Karadagadia");
   const [latitude, setLatitude] = useState("20.8444");
   const [longitude, setLongitude] = useState("85.1511");
@@ -49,7 +47,7 @@ export function OutletFormView({ type }: OutletFormProps) {
 
   const handleSave = () => {
     toast.success(
-      `${type === "HO" ? "Head Office" : "Central Kitchen"} details updated successfully!`
+      `${type === "HO" ? "Head Office" : "Central Kitchen"} details updated successfully!`,
     );
   };
 
@@ -57,7 +55,8 @@ export function OutletFormView({ type }: OutletFormProps) {
     <div className="space-y-4 max-w-5xl">
       {/* 1. Header Instruction Bar */}
       <div className="rounded-xl border border-slate-200 bg-white px-5 py-3 text-[13px] text-slate-700 font-medium shadow-2xs">
-        Below are the configuration to manage your outlet information. Click on the Save button once you change the information.
+        Below are the configuration to manage your outlet information. Click on the Save button once
+        you change the information.
       </div>
 
       <div className="rounded-2xl border border-slate-200 bg-white p-6 md:p-8 shadow-xs space-y-8">
@@ -115,7 +114,8 @@ export function OutletFormView({ type }: OutletFormProps) {
           <div className="border-b border-slate-100 pb-2">
             <h3 className="text-[16px] font-bold text-slate-900">Address Information</h3>
             <p className="text-[12px] text-slate-500 mt-0.5">
-              Enter physical location of your outlet. Provide your ZipCode and State accurately for GST calculation whenever applicable.
+              Enter physical location of your outlet. Provide your ZipCode and State accurately for
+              GST calculation whenever applicable.
             </p>
           </div>
 
@@ -397,7 +397,9 @@ export function OutletFormView({ type }: OutletFormProps) {
                 </label>
               </div>
               <p className="text-[11.5px] text-slate-500">
-                Note: In case if &quot;Both&quot; option is selected, then in an invoice if both (goods and services ) type of items are available then the master tax of items tagged as service would be calculated.
+                Note: In case if &quot;Both&quot; option is selected, then in an invoice if both
+                (goods and services ) type of items are available then the master tax of items
+                tagged as service would be calculated.
               </p>
             </div>
 
@@ -426,7 +428,9 @@ export function OutletFormView({ type }: OutletFormProps) {
             </h3>
 
             <div className="space-y-1.5">
-              <label className="text-[12.5px] font-semibold text-slate-800">Additional Info :</label>
+              <label className="text-[12.5px] font-semibold text-slate-800">
+                Additional Info :
+              </label>
               <textarea
                 rows={3}
                 value={additionalInfo}
@@ -456,7 +460,9 @@ export function OutletFormView({ type }: OutletFormProps) {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[12.5px] font-semibold text-slate-800">Seating Capacity :</label>
+                <label className="text-[12.5px] font-semibold text-slate-800">
+                  Seating Capacity :
+                </label>
                 <div className="relative">
                   <select
                     value={seatingCapacity}
@@ -484,9 +490,7 @@ export function OutletFormView({ type }: OutletFormProps) {
                   className="text-[12.5px] text-slate-600 file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[12px] file:font-semibold file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200 cursor-pointer"
                 />
               </div>
-              <p className="text-[11.5px] text-slate-500">
-                Upload only png, jpeg or jpg file
-              </p>
+              <p className="text-[11.5px] text-slate-500">Upload only png, jpeg or jpg file</p>
             </div>
 
             {/* Images Upload */}
@@ -526,7 +530,11 @@ export function OutletFormView({ type }: OutletFormProps) {
                 className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-[13px] text-slate-800 focus:border-teal-500 focus:outline-none"
               />
               <p className="text-[11.5px] text-slate-500">
-                <span className="text-rose-600 font-medium">Note: You can add more than one with , separated.</span> Provide contact details of Manager who manages the outlet. ( comma separated if multiple )
+                <span className="text-rose-600 font-medium">
+                  Note: You can add more than one with , separated.
+                </span>{" "}
+                Provide contact details of Manager who manages the outlet. ( comma separated if
+                multiple )
               </p>
             </div>
           )}
@@ -544,7 +552,10 @@ export function OutletFormView({ type }: OutletFormProps) {
               className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-[13px] text-slate-800 focus:border-teal-500 focus:outline-none"
             />
             <p className="text-[11.5px] text-slate-500">
-              <span className="text-rose-600 font-medium">Note: You can add more than one with , separated.</span> Provide contact details ( comma separated if multiple ) to reach.
+              <span className="text-rose-600 font-medium">
+                Note: You can add more than one with , separated.
+              </span>{" "}
+              Provide contact details ( comma separated if multiple ) to reach.
             </p>
           </div>
 
@@ -561,7 +572,11 @@ export function OutletFormView({ type }: OutletFormProps) {
               className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-[13px] text-slate-800 focus:border-teal-500 focus:outline-none"
             />
             <p className="text-[11.5px] text-slate-500">
-              <span className="text-rose-600 font-medium">Note: You can add more than one with , separated.</span> Provide a direct mobile number for Petpooja support to reach in case of any Point of Sale related support. ( Comma separated if multiple )
+              <span className="text-rose-600 font-medium">
+                Note: You can add more than one with , separated.
+              </span>{" "}
+              Provide a direct mobile number for Petpooja support to reach in case of any Point of
+              Sale related support. ( Comma separated if multiple )
             </p>
           </div>
 

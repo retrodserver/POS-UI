@@ -16,7 +16,7 @@ export function CreatePurchaseOrderModal({
   const [vendorName, setVendorName] = useState("Metro Cash & Carry");
   const [poNumber, setPoNumber] = useState(`PO-${Math.floor(1000 + Math.random() * 9000)}`);
   const [deliveryDate, setDeliveryDate] = useState(
-    new Date(Date.now() + 86400000 * 3).toISOString().split("T")[0]
+    new Date(Date.now() + 86400000 * 3).toISOString().split("T")[0],
   );
   const [itemCount, setItemCount] = useState("8");
   const [estimatedAmount, setEstimatedAmount] = useState("7200");
@@ -35,7 +35,11 @@ export function CreatePurchaseOrderModal({
       {
         poNumber: poNumber.trim(),
         vendorName,
-        orderDate: new Date().toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }),
+        orderDate: new Date().toLocaleDateString("en-GB", {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+        }),
         expectedDeliveryDate: deliveryDate,
         itemCount: parseInt(itemCount) || 1,
         estimatedAmount: parseFloat(estimatedAmount) || 0,
@@ -47,7 +51,7 @@ export function CreatePurchaseOrderModal({
           toast.success(`Purchase Order ${poNumber} issued successfully`);
           onClose();
         },
-      }
+      },
     );
   };
 
@@ -80,7 +84,9 @@ export function CreatePurchaseOrderModal({
                 className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-[13px] focus:outline-none focus:border-teal-500 cursor-pointer"
               >
                 {vendors?.map((v) => (
-                  <option key={v.id} value={v.name}>{v.name}</option>
+                  <option key={v.id} value={v.name}>
+                    {v.name}
+                  </option>
                 ))}
               </select>
             </div>

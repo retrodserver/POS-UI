@@ -8,7 +8,14 @@ export function ScheduleAddonsTab() {
   const [deptSelect, setDeptSelect] = useState("All");
 
   const [addonGroups, setAddonGroups] = useState<
-    Array<{ id: string; name: string; dept: string; minSelect: number; maxSelect: number; itemsCount: number }>
+    Array<{
+      id: string;
+      name: string;
+      dept: string;
+      minSelect: number;
+      maxSelect: number;
+      itemsCount: number;
+    }>
   >([]);
 
   const [isAddingGroup, setIsAddingGroup] = useState(false);
@@ -171,7 +178,8 @@ export function ScheduleAddonsTab() {
             </div>
             <h4 className="text-[15px] font-semibold text-slate-800">No Record Found</h4>
             <p className="text-[12.5px] text-slate-400 mt-1 max-w-sm mx-auto">
-              We could not find what you searched for. Try searching again or create a new addon group.
+              We could not find what you searched for. Try searching again or create a new addon
+              group.
             </p>
             <button
               type="button"

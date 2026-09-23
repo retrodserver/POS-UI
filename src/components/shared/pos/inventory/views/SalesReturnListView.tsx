@@ -72,7 +72,8 @@ export function SalesReturnListView() {
 
   const filteredReturns = returns.filter((r) => {
     if (orderSource !== "All" && r.orderType !== orderSource) return false;
-    if (invoiceQuery && !r.invoiceNo.toLowerCase().includes(invoiceQuery.toLowerCase())) return false;
+    if (invoiceQuery && !r.invoiceNo.toLowerCase().includes(invoiceQuery.toLowerCase()))
+      return false;
     return true;
   });
 
@@ -93,7 +94,11 @@ export function SalesReturnListView() {
 
     const created: SalesReturnRecord = {
       id: `SR-2026-00${returns.length + 5}`,
-      date: new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }),
+      date: new Date().toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      }),
       invoiceNo: newReturn.invoiceNo,
       orderType: newReturn.orderType,
       items: newReturn.items,
@@ -215,7 +220,9 @@ export function SalesReturnListView() {
 
             <button
               type="button"
-              onClick={() => toast.info(`Found ${filteredReturns.length} matching sales return records`)}
+              onClick={() =>
+                toast.info(`Found ${filteredReturns.length} matching sales return records`)
+              }
               className="rounded-lg border border-teal-500 bg-white px-4 py-1.5 text-[12.5px] font-semibold text-teal-600 shadow-2xs hover:bg-teal-50 transition cursor-pointer"
             >
               Search
@@ -280,7 +287,9 @@ export function SalesReturnListView() {
                   <tr key={r.id} className="hover:bg-slate-50/60 transition">
                     <td className="px-4 py-3 font-mono font-bold text-teal-600">{r.id}</td>
                     <td className="px-4 py-3 text-slate-600 text-[12.5px]">{r.date}</td>
-                    <td className="px-4 py-3 font-mono font-semibold text-slate-800">{r.invoiceNo}</td>
+                    <td className="px-4 py-3 font-mono font-semibold text-slate-800">
+                      {r.invoiceNo}
+                    </td>
                     <td className="px-4 py-3 text-slate-600">{r.orderType}</td>
                     <td className="px-4 py-3 text-slate-700 font-medium max-w-xs">{r.items}</td>
                     <td className="px-4 py-3 font-mono font-bold text-slate-900">₹ {r.amount}</td>
@@ -355,7 +364,9 @@ export function SalesReturnListView() {
               </div>
 
               <div className="space-y-1">
-                <label className="text-[12px] font-semibold text-slate-700">Returned Items & Qty *</label>
+                <label className="text-[12px] font-semibold text-slate-700">
+                  Returned Items & Qty *
+                </label>
                 <input
                   type="text"
                   required
@@ -368,7 +379,9 @@ export function SalesReturnListView() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="text-[12px] font-semibold text-slate-700">Refund Amount (₹) *</label>
+                  <label className="text-[12px] font-semibold text-slate-700">
+                    Refund Amount (₹) *
+                  </label>
                   <input
                     type="number"
                     required
@@ -382,13 +395,17 @@ export function SalesReturnListView() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-[12px] font-semibold text-slate-700">Inventory Action</label>
+                  <label className="text-[12px] font-semibold text-slate-700">
+                    Inventory Action
+                  </label>
                   <select
                     value={newReturn.restockAction}
                     onChange={(e) =>
                       setNewReturn({
                         ...newReturn,
-                        restockAction: e.target.value as "Restocked to Inventory" | "Discarded as Wastage",
+                        restockAction: e.target.value as
+                          | "Restocked to Inventory"
+                          | "Discarded as Wastage",
                       })
                     }
                     className="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-[12.5px] focus:outline-none focus:border-teal-500"
@@ -400,7 +417,9 @@ export function SalesReturnListView() {
               </div>
 
               <div className="space-y-1">
-                <label className="text-[12px] font-semibold text-slate-700">Reason for Return</label>
+                <label className="text-[12px] font-semibold text-slate-700">
+                  Reason for Return
+                </label>
                 <input
                   type="text"
                   placeholder="e.g. Customer changed mind / wrong order"

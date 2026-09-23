@@ -72,7 +72,13 @@ export function ProductionMasterView() {
     standardCost: "",
   });
 
-  const categories = ["All", "Gravies & Sauces", "Bakery & Dough", "Meat Marinations", "Dessert Bases"];
+  const categories = [
+    "All",
+    "Gravies & Sauces",
+    "Bakery & Dough",
+    "Meat Marinations",
+    "Dessert Bases",
+  ];
 
   const filteredRecords = records.filter((r) => {
     if (selectedCategory !== "All" && r.category !== selectedCategory) return false;
@@ -115,7 +121,7 @@ export function ProductionMasterView() {
     <div className="space-y-4">
       {/* 1. Header Bar matching Screenshot 1 */}
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-[18px] font-bold text-slate-900 tracking-tight">Production List</h2>
+        <h2 className="text-[18px] font-bold text-slate-900 tracking-tight">Preparation Setup</h2>
 
         <div className="flex items-center gap-2">
           <button
@@ -163,7 +169,9 @@ export function ProductionMasterView() {
           <div className="space-y-1 min-w-[150px]">
             <div className="flex items-center gap-1 text-[11.5px] font-semibold text-slate-600">
               <span>Category</span>
-              <span className="text-slate-400 cursor-help" title="Filter by production category">ⓘ</span>
+              <span className="text-slate-400 cursor-help" title="Filter by production category">
+                ⓘ
+              </span>
             </div>
             <div className="relative">
               <select
@@ -184,7 +192,9 @@ export function ProductionMasterView() {
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={() => toast.info(`Filtered: ${filteredRecords.length} production recipes found`)}
+              onClick={() =>
+                toast.info(`Filtered: ${filteredRecords.length} production recipes found`)
+              }
               className="rounded-lg border border-teal-500 bg-white px-5 py-1.5 text-[12.5px] font-semibold text-teal-600 shadow-2xs hover:bg-teal-50 transition cursor-pointer"
             >
               Search
@@ -215,7 +225,8 @@ export function ProductionMasterView() {
             Convert Raw Material Management Record Not Found
           </div>
           <p className="text-[12.5px] text-slate-400 max-w-sm mx-auto">
-            No conversion recipes match your search criteria. You can create a new conversion recipe.
+            No conversion recipes match your search criteria. You can create a new conversion
+            recipe.
           </p>
           <button
             type="button"
@@ -229,7 +240,9 @@ export function ProductionMasterView() {
       ) : (
         <div className="rounded-2xl border border-slate-200 bg-white shadow-xs overflow-hidden">
           <div className="p-4 border-b border-slate-100 flex items-center justify-between">
-            <h3 className="text-[14px] font-bold text-slate-800">Raw Material Conversion Recipes</h3>
+            <h3 className="text-[14px] font-bold text-slate-800">
+              Raw Material Conversion Recipes
+            </h3>
             <span className="text-[12px] text-slate-500">{filteredRecords.length} recipes</span>
           </div>
 
@@ -295,7 +308,9 @@ export function ProductionMasterView() {
 
             <form onSubmit={handleCreateSubmit} className="space-y-3.5">
               <div className="space-y-1">
-                <label className="text-[12px] font-semibold text-slate-700">Produced Item Name *</label>
+                <label className="text-[12px] font-semibold text-slate-700">
+                  Produced Item Name *
+                </label>
                 <input
                   type="text"
                   required
@@ -338,7 +353,9 @@ export function ProductionMasterView() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="text-[12px] font-semibold text-slate-700">Expected Yield *</label>
+                  <label className="text-[12px] font-semibold text-slate-700">
+                    Expected Yield *
+                  </label>
                   <input
                     type="number"
                     step="any"
@@ -351,7 +368,9 @@ export function ProductionMasterView() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-[12px] font-semibold text-slate-700">Standard Cost (₹)</label>
+                  <label className="text-[12px] font-semibold text-slate-700">
+                    Standard Cost (₹)
+                  </label>
                   <input
                     type="number"
                     step="any"
@@ -364,7 +383,9 @@ export function ProductionMasterView() {
               </div>
 
               <div className="space-y-1">
-                <label className="text-[12px] font-semibold text-slate-700">Raw Materials Required</label>
+                <label className="text-[12px] font-semibold text-slate-700">
+                  Raw Materials Required
+                </label>
                 <textarea
                   rows={2}
                   placeholder="e.g. Tomatoes (15kg), Butter (3kg), Spices (500g)"

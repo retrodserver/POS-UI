@@ -26,7 +26,10 @@ export function PosInventoryFeature() {
             <thead>
               <tr className="border-b border-border bg-surface-2/40 text-left">
                 {["SKU", "Item", "On hand", "Par", "Status"].map((h) => (
-                  <th key={h} className="px-4 py-2.5 text-[10px] font-medium uppercase tracking-wider text-text-secondary">
+                  <th
+                    key={h}
+                    className="px-4 py-2.5 text-[10px] font-medium uppercase tracking-wider text-text-secondary"
+                  >
                     {h}
                   </th>
                 ))}
@@ -40,7 +43,11 @@ export function PosInventoryFeature() {
                   <td className="px-4 py-3 font-mono">{s.onHand}</td>
                   <td className="px-4 py-3 font-mono text-text-secondary">{s.par}</td>
                   <td className="px-4 py-3">
-                    <StatusBadge tone={s.status === "OK" ? "success" : s.status === "Low" ? "warning" : "error"}>
+                    <StatusBadge
+                      tone={
+                        s.status === "OK" ? "success" : s.status === "Low" ? "warning" : "error"
+                      }
+                    >
                       {s.status}
                     </StatusBadge>
                   </td>

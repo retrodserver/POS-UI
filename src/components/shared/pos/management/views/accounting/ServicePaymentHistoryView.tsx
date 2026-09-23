@@ -7,7 +7,9 @@ export function ServicePaymentHistoryView() {
     <div className="space-y-4 max-w-4xl">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-[18px] font-bold text-slate-900 tracking-tight">Service Payment History</h2>
+          <h2 className="text-[18px] font-bold text-slate-900 tracking-tight">
+            Service Payment History
+          </h2>
           <p className="text-[12.5px] text-slate-500 mt-0.5">
             Software subscription, SMS packs, and add-on module invoices.
           </p>

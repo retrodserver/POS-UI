@@ -13,7 +13,7 @@ export function LiveOrdersWidget({ orders }: LiveOrdersWidgetProps) {
       <div className="flex items-center justify-between border-b border-slate-200 pb-2">
         <div className="flex items-center gap-2">
           <span className="h-2 w-2 rounded-full bg-teal-600 animate-pulse" />
-          <h2 className="text-[13.5px] font-bold text-slate-900">Live Orders</h2>
+          <h2 className="text-[13.5px] font-bold text-slate-900">Current Orders</h2>
           <span className="rounded-full bg-teal-50 px-2 py-0.2 text-[10.5px] font-bold text-teal-700 border border-teal-300">
             {orders.length} Active
           </span>
@@ -35,7 +35,9 @@ export function LiveOrdersWidget({ orders }: LiveOrdersWidgetProps) {
           >
             <div className="flex items-center gap-2 min-w-0">
               <div className="flex h-6.5 w-6.5 shrink-0 items-center justify-center rounded-md bg-white border border-slate-300 text-[10px] font-extrabold text-slate-800 shadow-2xs">
-                {ord.title.replace(/[^0-9]/g, "") ? `#${ord.title.replace(/[^0-9]/g, "")}` : ord.title.slice(0, 3)}
+                {ord.title.replace(/[^0-9]/g, "")
+                  ? `#${ord.title.replace(/[^0-9]/g, "")}`
+                  : ord.title.slice(0, 3)}
               </div>
               <div className="min-w-0">
                 <div className="flex items-center gap-1.5">
@@ -67,7 +69,7 @@ export function LiveOrdersWidget({ orders }: LiveOrdersWidgetProps) {
           to="/pos/orders"
           className="inline-flex items-center gap-1.5 text-[11.5px] font-bold text-teal-700 hover:text-teal-800 hover:underline"
         >
-          <span>Open Live Orders Command Center</span>
+          <span>Open Current Orders Command Center</span>
           <ArrowRight className="h-3.5 w-3.5" />
         </Link>
       </div>

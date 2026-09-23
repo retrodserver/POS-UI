@@ -4,17 +4,37 @@ import { toast } from "sonner";
 
 export function InventoryReportsView() {
   const reports = [
-    { title: "Daily Stock Summary Report", desc: "Opening, purchases, sales consumption, and closing stock valuation by day.", type: "PDF / Excel", icon: BarChart2 },
-    { title: "Variance & Leakage Analysis", desc: "Detailed breakdown of discrepancies between ideal theoretical consumption and physical count.", type: "Excel", icon: TrendingUp },
-    { title: "Vendor Purchase & Price Variance", desc: "Total spends per supplier, item rate history fluctuations, and pending payments.", type: "PDF / Excel", icon: FileText },
-    { title: "Raw Material Consumption by Recipe", desc: "Menu item level ingredient usage and dish food cost percentage.", type: "Excel", icon: BarChart2 },
+    {
+      title: "Daily Stock Summary Report",
+      desc: "Opening, purchases, sales consumption, and closing stock valuation by day.",
+      type: "PDF / Excel",
+      icon: BarChart2,
+    },
+    {
+      title: "Variance & Leakage Analysis",
+      desc: "Detailed breakdown of discrepancies between ideal theoretical consumption and physical count.",
+      type: "Excel",
+      icon: TrendingUp,
+    },
+    {
+      title: "Vendor Purchase & Price Variance",
+      desc: "Total spends per supplier, item rate history fluctuations, and pending payments.",
+      type: "PDF / Excel",
+      icon: FileText,
+    },
+    {
+      title: "Raw Material Consumption by Recipe",
+      desc: "Menu item level ingredient usage and dish food cost percentage.",
+      type: "Excel",
+      icon: BarChart2,
+    },
   ];
 
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-[18px] font-bold text-slate-900 tracking-tight">Inventory Reports</h2>
+          <h2 className="text-[18px] font-bold text-slate-900 tracking-tight">Reports</h2>
           <p className="text-[12.5px] text-slate-500 mt-0.5">
             Audit logs, valuation ledgers, consumption trends, and variance analytics.
           </p>
@@ -25,7 +45,10 @@ export function InventoryReportsView() {
         {reports.map((r) => {
           const Icon = r.icon;
           return (
-            <div key={r.title} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs flex flex-col justify-between space-y-4">
+            <div
+              key={r.title}
+              className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs flex flex-col justify-between space-y-4"
+            >
               <div className="flex items-start gap-3.5">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-teal-50 text-teal-600">
                   <Icon className="h-5 w-5" />

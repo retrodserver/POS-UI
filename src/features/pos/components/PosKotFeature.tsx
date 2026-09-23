@@ -1,9 +1,21 @@
 import { PageHeader, Card, KpiCard, StatusBadge } from "@/components/ui/Primitives";
 
 const tickets = [
-  { id: "KOT-881", station: "Tandoor", items: "Butter Chicken ×2", elapsed: "4 min", status: "Preparing" },
+  {
+    id: "KOT-881",
+    station: "Tandoor",
+    items: "Butter Chicken ×2",
+    elapsed: "4 min",
+    status: "Preparing",
+  },
   { id: "KOT-880", station: "Cold", items: "Caesar Salad ×1", elapsed: "1 min", status: "Queued" },
-  { id: "KOT-879", station: "Pastry", items: "Chocolate mousse ×2", elapsed: "8 min", status: "Ready" },
+  {
+    id: "KOT-879",
+    station: "Pastry",
+    items: "Chocolate mousse ×2",
+    elapsed: "8 min",
+    status: "Ready",
+  },
 ];
 
 export function PosKotFeature() {
@@ -29,7 +41,11 @@ export function PosKotFeature() {
                   <h3 className="mt-1 text-[15px] font-semibold text-text-primary">{t.station}</h3>
                   <p className="text-[11px] text-text-secondary">{t.elapsed} elapsed</p>
                 </div>
-                <StatusBadge tone={t.status === "Ready" ? "success" : t.status === "Preparing" ? "info" : "warning"}>
+                <StatusBadge
+                  tone={
+                    t.status === "Ready" ? "success" : t.status === "Preparing" ? "info" : "warning"
+                  }
+                >
                   {t.status}
                 </StatusBadge>
               </div>

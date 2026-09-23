@@ -10,11 +10,31 @@ export function OnlineOrderReconciliationView() {
   const [dateRange, setDateRange] = useState("27th Aug to 1st Sep");
 
   const tabs = [
-    { id: "missing", label: "Missing Orders", desc: "Orders in aggregator payout but not found on POS" },
-    { id: "status_mismatch", label: "Status Mismatch Orders", desc: "Discrepancy in delivered vs cancelled order status" },
-    { id: "variance", label: "Variance Orders", desc: "Settlement amount difference between aggregator and POS total" },
-    { id: "rejected", label: "Rejected/Cancelled Orders", desc: "Commission & penalty charges on disputed cancellations" },
-    { id: "final", label: "Final Reconciliation", desc: "Consolidated net payout summary vs settled bank transfers" },
+    {
+      id: "missing",
+      label: "Missing Orders",
+      desc: "Orders in aggregator payout but not found on POS",
+    },
+    {
+      id: "status_mismatch",
+      label: "Status Mismatch Orders",
+      desc: "Discrepancy in delivered vs cancelled order status",
+    },
+    {
+      id: "variance",
+      label: "Variance Orders",
+      desc: "Settlement amount difference between aggregator and POS total",
+    },
+    {
+      id: "rejected",
+      label: "Rejected/Cancelled Orders",
+      desc: "Commission & penalty charges on disputed cancellations",
+    },
+    {
+      id: "final",
+      label: "Final Reconciliation",
+      desc: "Consolidated net payout summary vs settled bank transfers",
+    },
   ] as const;
 
   return (
@@ -56,7 +76,9 @@ export function OnlineOrderReconciliationView() {
           </div>
 
           <div className="space-y-1">
-            <label className="text-[11.5px] font-semibold text-slate-600">Please upload a file</label>
+            <label className="text-[11.5px] font-semibold text-slate-600">
+              Please upload a file
+            </label>
             <div>
               <button
                 type="button"
@@ -107,7 +129,8 @@ export function OnlineOrderReconciliationView() {
           </div>
           <div className="text-[15px] font-bold text-slate-700">Records Not Found.</div>
           <p className="text-[12px] text-slate-400 max-w-sm mx-auto">
-            Upload aggregator payout reports to automatically detect missing orders, discount variances, and commissions.
+            Upload aggregator payout reports to automatically detect missing orders, discount
+            variances, and commissions.
           </p>
         </div>
       </div>

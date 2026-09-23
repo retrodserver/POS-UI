@@ -64,9 +64,7 @@ export function ScheduleTaxesTab() {
   };
 
   const toggleSelectOne = (id: string) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
-    );
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
   };
 
   const handleAddTaxSubmit = (e: React.FormEvent) => {
@@ -84,7 +82,11 @@ export function ScheduleTaxesTab() {
       type: newRateType,
       amount: parseFloat(newAmount) || 5,
       status: "Active",
-      createdAt: new Date().toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }),
+      createdAt: new Date().toLocaleDateString("en-GB", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      }),
     };
 
     setTaxes([...taxes, newTax]);

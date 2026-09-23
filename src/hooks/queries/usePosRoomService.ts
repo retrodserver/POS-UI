@@ -1,6 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { posRoomService } from "@/services/posRoomService";
-import type { RoomFloor, RoomServiceOrderStatus, RoomServiceOrder, RoomOrderItem } from "@/types/posRoomService";
+import type {
+  RoomFloor,
+  RoomServiceOrderStatus,
+  RoomServiceOrder,
+  RoomOrderItem,
+} from "@/types/posRoomService";
 
 export const POS_ROOM_SERVICE_ORDERS_KEY = ["pos", "room-service", "orders"];
 export const POS_ROOM_SERVICE_ROOMS_KEY = ["pos", "room-service", "rooms"];
@@ -33,13 +38,8 @@ export function useRoomServiceKpis() {
 export function useUpdateRoomOrderStatusMutation() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({
-      orderId,
-      status,
-    }: {
-      orderId: string;
-      status: RoomServiceOrderStatus;
-    }) => posRoomService.updateOrderStatus(orderId, status),
+    mutationFn: ({ orderId, status }: { orderId: string; status: RoomServiceOrderStatus }) =>
+      posRoomService.updateOrderStatus(orderId, status),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: POS_ROOM_SERVICE_ORDERS_KEY });
       queryClient.invalidateQueries({ queryKey: POS_ROOM_SERVICE_ROOMS_KEY });
@@ -51,13 +51,8 @@ export function useUpdateRoomOrderStatusMutation() {
 export function useAssignRunnerMutation() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({
-      orderId,
-      runnerName,
-    }: {
-      orderId: string;
-      runnerName: string;
-    }) => posRoomService.assignRunner(orderId, runnerName),
+    mutationFn: ({ orderId, runnerName }: { orderId: string; runnerName: string }) =>
+      posRoomService.assignRunner(orderId, runnerName),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: POS_ROOM_SERVICE_ORDERS_KEY });
       queryClient.invalidateQueries({ queryKey: POS_ROOM_SERVICE_ROOMS_KEY });
@@ -81,9 +76,8 @@ export function useClearTrayMutation() {
 export function useCreateRoomOrderMutation() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (
-      newOrderData: Omit<RoomServiceOrder, "id" | "createdAt" | "elapsedMinutes">
-    ) => posRoomService.addOrder(newOrderData),
+    mutationFn: (newOrderData: Omit<RoomServiceOrder, "id" | "createdAt" | "elapsedMinutes">) =>
+      posRoomService.addOrder(newOrderData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: POS_ROOM_SERVICE_ORDERS_KEY });
       queryClient.invalidateQueries({ queryKey: POS_ROOM_SERVICE_ROOMS_KEY });
@@ -95,13 +89,8 @@ export function useCreateRoomOrderMutation() {
 export function useAddItemsToOrderMutation() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({
-      orderId,
-      newItems,
-    }: {
-      orderId: string;
-      newItems: RoomOrderItem[];
-    }) => posRoomService.addItemsToOrder(orderId, newItems),
+    mutationFn: ({ orderId, newItems }: { orderId: string; newItems: RoomOrderItem[] }) =>
+      posRoomService.addItemsToOrder(orderId, newItems),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: POS_ROOM_SERVICE_ORDERS_KEY });
       queryClient.invalidateQueries({ queryKey: POS_ROOM_SERVICE_ROOMS_KEY });

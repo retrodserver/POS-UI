@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   getLiveOrdersSummary,
   getInitialLiveOrdersData,
@@ -8,7 +8,15 @@ import {
   getInitialOnlineOrdersData,
   getKotOrders,
   getInitialKotData,
+  getDueBills,
+  markKotPrepared,
+  settleDueBill,
+  acceptOnlineOrderToKitchen,
+  cancelOnlineOrder,
+  dispatchNewOnlineOrder,
+  type DueBill,
 } from "@/services/posOrdersService";
+import { POS_TABLES_QUERY_KEY, POS_TABLE_STATS_QUERY_KEY } from "./usePosTables";
 
 export function useLiveOrders() {
   return useQuery({
@@ -44,7 +52,76 @@ export function useKotOrders(filters?: Record<string, any>) {
     queryKey: ["pos", "orders", "kot", filters],
     queryFn: () => getKotOrders(filters),
     initialData: () => getInitialKotData(),
-    staleTime: 1000 * 15,
-    refetchInterval: 1000 * 30,
+    staleTime: 1000 * 5,
+    refetchInterval: 1000 * 15,
   });
 }
+
+export function useDueBills() {
+  return useQuery({
+    queryKey: ["pos", "orders", "due-bills"],
+    queryFn: () => getDueBills(),
+    staleTime: 1000 * 5,
+    refetchInterval: 1000 * 15,
+  });
+}
+
+export function useMarkKotPreparedMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (kotId: number) => markKotPrepared(kotId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["pos", "orders", "kot"] });
+      queryClient.invalidateQueries({ queryKey: ["pos", "orders", "due-bills"] });
+      queryClient.invalidateQueries({ queryKey: ["pos", "orders", "live"] });
+      queryClient.invalidateQueries({ queryKey: ["pos", "orders", "all"] });
+      queryClient.invalidateQueries({ queryKey: POS_TABLES_QUERY_KEY });
+    },
+  });
+}
+
+export function useSettleDueBillMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      billId,
+      paymentMode,
+      paidAmount,
+    }: {
+      billId: string;
+      paymentMode: "Cash" | "Card" | "UPI" | "Room Charge" | "Split";
+      paidAmount?: number;
+    }) => settleDueBill(billId, paymentMode, paidAmount),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["pos", "orders", "due-bills"] });
+      queryClient.invalidateQueries({ queryKey: ["pos", "orders", "all"] });
+      queryClient.invalidateQueries({ queryKey: ["pos", "orders", "live"] });
+      queryClient.invalidateQueries({ queryKey: POS_TABLES_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: POS_TABLE_STATS_QUERY_KEY });
+    },
+  });
+}
+
+export function useAcceptOnlineOrderMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (orderId: string) => acceptOnlineOrderToKitchen(orderId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["pos", "orders", "online"] });
+      queryClient.invalidateQueries({ queryKey: ["pos", "orders", "kot"] });
+      queryClient.invalidateQueries({ queryKey: ["pos", "orders", "live"] });
+    },
+  });
+}
+
+export function useCancelOnlineOrderMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (orderId: string) => cancelOnlineOrder(orderId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["pos", "orders", "online"] });
+    },
+  });
+}
+
+

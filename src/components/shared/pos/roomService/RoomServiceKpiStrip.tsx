@@ -56,7 +56,7 @@ export function RoomServiceKpiStrip({ kpis }: RoomServiceKpiStripProps) {
         </div>
         <div className="min-w-0">
           <span className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
-            En Route
+            On the way
           </span>
           <span className="text-lg font-bold text-slate-900 leading-tight">
             {kpis.dispatchedCount}
@@ -89,7 +89,8 @@ export function RoomServiceKpiStrip({ kpis }: RoomServiceKpiStripProps) {
             Avg Speed
           </span>
           <span className="text-lg font-bold text-slate-900 leading-tight">
-            {kpis.avgDeliveryMinutes}m <span className="text-xs font-normal text-slate-400">(&lt;30m)</span>
+            {kpis.avgDeliveryMinutes}m{" "}
+            <span className="text-xs font-normal text-slate-400">(&lt;30m)</span>
           </span>
         </div>
       </div>

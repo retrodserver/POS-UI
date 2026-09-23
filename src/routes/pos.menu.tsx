@@ -1,9 +1,9 @@
 import { Outlet, createFileRoute, useRouterState } from "@tanstack/react-router";
 import { PosMenuHeader } from "@/components/shared/pos/menu/PosMenuHeader";
-import { MenuDiscountsView } from "@/components/shared/pos/menu/views/MenuDiscountsView";
+import { MenuListManagerView } from "@/components/shared/pos/menu/views/MenuListManagerView";
 
 export const Route = createFileRoute("/pos/menu")({
-  head: () => ({ meta: [{ title: "Menu & Discounts — Retrod POS" }] }),
+  head: () => ({ meta: [{ title: "Menu List — Retrod POS" }] }),
   component: MenuLayoutRoute,
 });
 
@@ -14,7 +14,7 @@ function MenuLayoutRoute() {
   return (
     <div className="space-y-4">
       <PosMenuHeader />
-      {isRootMenu ? <MenuDiscountsView /> : <Outlet />}
+      {isRootMenu ? <MenuListManagerView /> : <Outlet />}
     </div>
   );
 }

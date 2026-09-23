@@ -516,7 +516,12 @@ function readSubmittedReservation(): FrontDeskWorkflowReservation | null {
       balance: 0,
       reservationType: parsed.type,
       frontDeskStatus: "pre_arrival",
-      billingMode: parsed.type === "corporate" ? "direct_bill" : parsed.type === "group" ? "split" : "guest_pay",
+      billingMode:
+        parsed.type === "corporate"
+          ? "direct_bill"
+          : parsed.type === "group"
+            ? "split"
+            : "guest_pay",
       folioState: "open",
       checkinChecklist: [
         { key: "find_guest", label: "Find guest", done: true, required: true },

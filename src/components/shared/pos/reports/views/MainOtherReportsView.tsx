@@ -38,14 +38,54 @@ export function MainOtherReportsView() {
   const [searchQuery, setSearchQuery] = useState("");
 
   const categories = [
-    { id: "favourite", label: "Favourite", icon: Star, desc: "All reports which are marked as favorites to refer frequently" },
-    { id: "all_restaurant", label: "All Restaurant Report", icon: Utensils, desc: "Get insights to all your restaurant & sales related activities" },
-    { id: "order_related", label: "Order Related Reports", icon: Calendar, desc: "Detailed breakdown of orders, dining types, and time slots" },
-    { id: "item_related", label: "Item Related Reports", icon: Package, desc: "Menu item sales volume, popularity, and modifiers" },
-    { id: "category_related", label: "Category Related Reports", icon: Tags, desc: "Revenue generation by food and beverage categories" },
-    { id: "customer_related", label: "Customer Related Reports", icon: Users, desc: "Customer retention, average ticket spend, and visit frequencies" },
-    { id: "discount_related", label: "Discount Related Reports", icon: Percent, desc: "Manager comps, coupons, aggregator offers, and discount audits" },
-    { id: "others", label: "Others Reports", icon: FileText, desc: "Taxes, biller metrics, cancelled orders, and shift audit logs" },
+    {
+      id: "favourite",
+      label: "Favourite",
+      icon: Star,
+      desc: "All reports which are marked as favorites to refer frequently",
+    },
+    {
+      id: "all_restaurant",
+      label: "All Restaurant Report",
+      icon: Utensils,
+      desc: "Get insights to all your restaurant & sales related activities",
+    },
+    {
+      id: "order_related",
+      label: "Order Related Reports",
+      icon: Calendar,
+      desc: "Detailed breakdown of orders, dining types, and time slots",
+    },
+    {
+      id: "item_related",
+      label: "Item Related Reports",
+      icon: Package,
+      desc: "Menu item sales volume, popularity, and modifiers",
+    },
+    {
+      id: "category_related",
+      label: "Category Related Reports",
+      icon: Tags,
+      desc: "Revenue generation by food and beverage categories",
+    },
+    {
+      id: "customer_related",
+      label: "Customer Related Reports",
+      icon: Users,
+      desc: "Customer retention, average ticket spend, and visit frequencies",
+    },
+    {
+      id: "discount_related",
+      label: "Discount Related Reports",
+      icon: Percent,
+      desc: "Manager comps, coupons, aggregator offers, and discount audits",
+    },
+    {
+      id: "others",
+      label: "Others Reports",
+      icon: FileText,
+      desc: "Taxes, biller metrics, cancelled orders, and shift audit logs",
+    },
   ] as const;
 
   const [reports, setReports] = useState<ReportCard[]>([
@@ -115,9 +155,7 @@ export function MainOtherReportsView() {
   ]);
 
   const toggleFavorite = (id: string) => {
-    setReports((prev) =>
-      prev.map((r) => (r.id === id ? { ...r, isFavorite: !r.isFavorite } : r))
-    );
+    setReports((prev) => prev.map((r) => (r.id === id ? { ...r, isFavorite: !r.isFavorite } : r)));
     toast.success("Favorite preference updated");
   };
 

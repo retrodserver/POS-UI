@@ -80,7 +80,11 @@ export function RoomOrderDetailSlide({
     { key: "tray_ready", label: "Tray Packed", icon: <Sparkles className="w-3.5 h-3.5" /> },
     { key: "dispatched", label: "Dispatched", icon: <Truck className="w-3.5 h-3.5" /> },
     { key: "delivered", label: "In Room", icon: <CheckCircle2 className="w-3.5 h-3.5" /> },
-    { key: "clearance_needed", label: "Tray Clearance", icon: <BellRing className="w-3.5 h-3.5" /> },
+    {
+      key: "clearance_needed",
+      label: "Tray Clearance",
+      icon: <BellRing className="w-3.5 h-3.5" />,
+    },
   ];
 
   const statusOrder: RoomServiceOrderStatus[] = [
@@ -196,7 +200,8 @@ export function RoomOrderDetailSlide({
                     )}
                   </div>
                   <span className="text-xs text-slate-500 block mt-0.5">
-                    Phone Ext: <strong className="text-slate-700">{guest.phoneExtension}</strong> • Stay: {guest.checkInDate} - {guest.checkOutDate}
+                    Phone Ext: <strong className="text-slate-700">{guest.phoneExtension}</strong> •
+                    Stay: {guest.checkInDate} - {guest.checkOutDate}
                   </span>
                 </div>
               </div>
@@ -212,7 +217,10 @@ export function RoomOrderDetailSlide({
 
             <div className="space-y-2.5 divide-y divide-slate-100">
               {items.map((item) => (
-                <div key={item.id} className="pt-2 first:pt-0 flex items-start justify-between gap-3 text-xs">
+                <div
+                  key={item.id}
+                  className="pt-2 first:pt-0 flex items-start justify-between gap-3 text-xs"
+                >
                   <div className="flex-1">
                     <div className="flex items-center gap-1.5 font-bold text-slate-900">
                       <span className="text-teal-700">{item.quantity}x</span>
@@ -266,7 +274,9 @@ export function RoomOrderDetailSlide({
             </div>
 
             <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
-              <span className="text-[11px] text-slate-400 block font-semibold">Assigned Butler</span>
+              <span className="text-[11px] text-slate-400 block font-semibold">
+                Assigned Butler
+              </span>
               <span className="font-bold text-teal-800 text-sm mt-0.5 block truncate">
                 {assignedRunner || "Unassigned"}
               </span>
@@ -298,9 +308,7 @@ export function RoomOrderDetailSlide({
               <Building2 className="w-4 h-4 text-teal-700" />
               <span>
                 Billing Method:{" "}
-                <strong className="capitalize font-bold">
-                  {paymentMethod.replace("_", " ")}
-                </strong>
+                <strong className="capitalize font-bold">{paymentMethod.replace("_", " ")}</strong>
               </span>
             </div>
           </div>

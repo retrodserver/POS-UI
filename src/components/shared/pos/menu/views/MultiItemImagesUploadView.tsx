@@ -11,7 +11,7 @@ export function MultiItemImagesUploadView() {
 
   const togglePlatform = (p: string) => {
     setSelectedPlatforms((prev) =>
-      prev.includes(p) ? prev.filter((item) => item !== p) : [...prev, p]
+      prev.includes(p) ? prev.filter((item) => item !== p) : [...prev, p],
     );
   };
 
@@ -54,15 +54,24 @@ export function MultiItemImagesUploadView() {
           <ul className="space-y-2 text-[13px] text-slate-700">
             <li className="flex items-start gap-2">
               <span className="font-semibold text-teal-800 shrink-0">• Choose</span>
-              <span>- Rename your image files to match menu item names for bulk uploads. Then, select your platforms, choose the images from your computer, and submit them.</span>
+              <span>
+                - Rename your image files to match menu item names for bulk uploads. Then, select
+                your platforms, choose the images from your computer, and submit them.
+              </span>
             </li>
             <li className="flex items-start gap-2">
               <span className="font-semibold text-teal-800 shrink-0">• Process</span>
-              <span>- The system will automatically match images to items based on file names, streamlining the process.</span>
+              <span>
+                - The system will automatically match images to items based on file names,
+                streamlining the process.
+              </span>
             </li>
             <li className="flex items-start gap-2">
               <span className="font-semibold text-teal-800 shrink-0">• Review</span>
-              <span>- Review all matches to ensure accuracy. For any unmatched or similarly named items, just select and upload them manually.</span>
+              <span>
+                - Review all matches to ensure accuracy. For any unmatched or similarly named items,
+                just select and upload them manually.
+              </span>
             </li>
           </ul>
         </div>
@@ -129,7 +138,10 @@ export function MultiItemImagesUploadView() {
             <div className="flex flex-wrap items-center gap-6 border-b border-slate-100 pb-5">
               <span className="text-[13.5px] font-bold text-slate-800 min-w-[70px]">Module</span>
               {(["Item", "Category", "Addons"] as const).map((mod) => (
-                <label key={mod} className="flex items-center gap-2 cursor-pointer text-[13px] text-slate-700 font-medium">
+                <label
+                  key={mod}
+                  className="flex items-center gap-2 cursor-pointer text-[13px] text-slate-700 font-medium"
+                >
                   <input
                     type="radio"
                     name="module"
@@ -147,7 +159,10 @@ export function MultiItemImagesUploadView() {
             <div className="flex flex-wrap items-center gap-6 border-b border-slate-100 pb-5">
               <span className="text-[13.5px] font-bold text-slate-800 min-w-[70px]">Platforms</span>
               {["Zomato", "Swiggy", "POS Counter", "DineIn QR Menu"].map((plat) => (
-                <label key={plat} className="flex items-center gap-2 cursor-pointer text-[13px] text-slate-700 font-medium">
+                <label
+                  key={plat}
+                  className="flex items-center gap-2 cursor-pointer text-[13px] text-slate-700 font-medium"
+                >
                   <input
                     type="checkbox"
                     checked={selectedPlatforms.includes(plat)}
@@ -169,101 +184,110 @@ export function MultiItemImagesUploadView() {
                 accept="image/png,image/jpeg,image/webp"
                 className="hidden"
               />
-            <div
-              onClick={() => fileInputRef.current?.click()}
-              className="border-2 border-dashed border-slate-300 hover:border-teal-500 rounded-2xl p-10 text-center cursor-pointer transition bg-slate-50/50 hover:bg-teal-50/20"
-            >
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-teal-50 text-teal-600 mx-auto mb-3 border border-teal-200">
-                <Upload className="h-6 w-6" />
-              </div>
-              <h4 className="text-[14px] font-bold text-slate-800">
-                Click to select images or drag and drop files here
-              </h4>
-              <p className="text-[12px] text-slate-500 mt-1 max-w-md mx-auto">
-                Images will be matched automatically by filename to menu items (e.g. <span className="font-mono text-slate-700">butter_chicken.jpg</span> matches "Butter Chicken").
-              </p>
-              <span className="inline-block mt-3 rounded-full bg-slate-100 px-3 py-1 text-[11.5px] font-medium text-slate-600">
-                JPG, PNG, WEBP up to 5MB each
-              </span>
-            </div>
-          </div>
-
-          {/* File Preview list if any */}
-          {uploadedFiles.length > 0 && (
-            <div className="space-y-2">
-              <div className="text-[13px] font-semibold text-slate-800">
-                Selected Images ({uploadedFiles.length})
-              </div>
-              <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3">
-                {uploadedFiles.map((file, idx) => (
-                  <div key={idx} className="relative rounded-lg border border-slate-200 bg-slate-50 p-2 text-center">
-                    <ImageIcon className="h-8 w-8 text-teal-600 mx-auto mb-1" />
-                    <div className="truncate text-[11px] font-medium text-slate-800">{file.name}</div>
-                    <div className="text-[10px] text-slate-400">{(file.size / 1024).toFixed(0)} KB</div>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setUploadedFiles((f) => f.filter((_, i) => i !== idx));
-                      }}
-                      className="absolute -top-1.5 -right-1.5 h-5 w-5 rounded-full bg-red-500 text-white flex items-center justify-center text-[10px]"
-                    >
-                      ×
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </>
-      ) : (
-        /* Step 2: Review and Confirm */
-        <div className="space-y-4">
-          <div className="rounded-xl bg-teal-50 border border-teal-200 p-4 flex items-center gap-3">
-            <CheckCircle2 className="h-5 w-5 text-teal-600 shrink-0" />
-            <div>
-              <div className="text-[13px] font-bold text-teal-900">
-                {uploadedFiles.length} Images matched successfully
-              </div>
-              <div className="text-[12px] text-teal-700">
-                Ready to deploy to {selectedPlatforms.join(", ")}
-              </div>
-            </div>
-          </div>
-
-          <div className="divide-y divide-slate-100">
-            {uploadedFiles.map((file, i) => (
-              <div key={i} className="py-2.5 flex items-center justify-between text-[13px]">
-                <div className="flex items-center gap-2.5">
-                  <ImageIcon className="h-4 w-4 text-teal-600" />
-                  <span className="font-medium text-slate-800">{file.name}</span>
+              <div
+                onClick={() => fileInputRef.current?.click()}
+                className="border-2 border-dashed border-slate-300 hover:border-teal-500 rounded-2xl p-10 text-center cursor-pointer transition bg-slate-50/50 hover:bg-teal-50/20"
+              >
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-teal-50 text-teal-600 mx-auto mb-3 border border-teal-200">
+                  <Upload className="h-6 w-6" />
                 </div>
-                <span className="rounded-full bg-teal-50 px-2 py-0.5 text-[11px] font-semibold text-teal-800 border border-teal-200">
-                  Matched
+                <h4 className="text-[14px] font-bold text-slate-800">
+                  Click to select images or drag and drop files here
+                </h4>
+                <p className="text-[12px] text-slate-500 mt-1 max-w-md mx-auto">
+                  Images will be matched automatically by filename to menu items (e.g.{" "}
+                  <span className="font-mono text-slate-700">butter_chicken.jpg</span> matches
+                  "Butter Chicken").
+                </p>
+                <span className="inline-block mt-3 rounded-full bg-slate-100 px-3 py-1 text-[11.5px] font-medium text-slate-600">
+                  JPG, PNG, WEBP up to 5MB each
                 </span>
               </div>
-            ))}
-          </div>
-        </div>
-      )}
+            </div>
 
-      {/* Footer Actions: Reset & Submit from Petpooja Screenshot 2 */}
-      <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
-        <button
-          type="button"
-          onClick={handleReset}
-          className="rounded-lg border border-slate-300 bg-white px-5 py-2 text-[13px] font-medium text-slate-700 hover:bg-slate-50 transition cursor-pointer"
-        >
-          Reset
-        </button>
-        <button
-          type="button"
-          onClick={handleSubmit}
-          className="rounded-lg bg-teal-600 px-6 py-2 text-[13px] font-semibold text-white hover:bg-teal-700 transition cursor-pointer shadow-xs"
-        >
-          {activeStep === 1 ? "Submit" : "Confirm & Deploy Images"}
-        </button>
-      </div>
+            {/* File Preview list if any */}
+            {uploadedFiles.length > 0 && (
+              <div className="space-y-2">
+                <div className="text-[13px] font-semibold text-slate-800">
+                  Selected Images ({uploadedFiles.length})
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3">
+                  {uploadedFiles.map((file, idx) => (
+                    <div
+                      key={idx}
+                      className="relative rounded-lg border border-slate-200 bg-slate-50 p-2 text-center"
+                    >
+                      <ImageIcon className="h-8 w-8 text-teal-600 mx-auto mb-1" />
+                      <div className="truncate text-[11px] font-medium text-slate-800">
+                        {file.name}
+                      </div>
+                      <div className="text-[10px] text-slate-400">
+                        {(file.size / 1024).toFixed(0)} KB
+                      </div>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setUploadedFiles((f) => f.filter((_, i) => i !== idx));
+                        }}
+                        className="absolute -top-1.5 -right-1.5 h-5 w-5 rounded-full bg-red-500 text-white flex items-center justify-center text-[10px]"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
+        ) : (
+          /* Step 2: Review and Confirm */
+          <div className="space-y-4">
+            <div className="rounded-xl bg-teal-50 border border-teal-200 p-4 flex items-center gap-3">
+              <CheckCircle2 className="h-5 w-5 text-teal-600 shrink-0" />
+              <div>
+                <div className="text-[13px] font-bold text-teal-900">
+                  {uploadedFiles.length} Images matched successfully
+                </div>
+                <div className="text-[12px] text-teal-700">
+                  Ready to deploy to {selectedPlatforms.join(", ")}
+                </div>
+              </div>
+            </div>
+
+            <div className="divide-y divide-slate-100">
+              {uploadedFiles.map((file, i) => (
+                <div key={i} className="py-2.5 flex items-center justify-between text-[13px]">
+                  <div className="flex items-center gap-2.5">
+                    <ImageIcon className="h-4 w-4 text-teal-600" />
+                    <span className="font-medium text-slate-800">{file.name}</span>
+                  </div>
+                  <span className="rounded-full bg-teal-50 px-2 py-0.5 text-[11px] font-semibold text-teal-800 border border-teal-200">
+                    Matched
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Footer Actions: Reset & Submit from Petpooja Screenshot 2 */}
+        <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+          <button
+            type="button"
+            onClick={handleReset}
+            className="rounded-lg border border-slate-300 bg-white px-5 py-2 text-[13px] font-medium text-slate-700 hover:bg-slate-50 transition cursor-pointer"
+          >
+            Reset
+          </button>
+          <button
+            type="button"
+            onClick={handleSubmit}
+            className="rounded-lg bg-teal-600 px-6 py-2 text-[13px] font-semibold text-white hover:bg-teal-700 transition cursor-pointer shadow-xs"
+          >
+            {activeStep === 1 ? "Submit" : "Confirm & Deploy Images"}
+          </button>
+        </div>
       </div>
     </div>
   );

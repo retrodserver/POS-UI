@@ -35,7 +35,7 @@ export function AddVirtualOutletModal({
         onError: () => {
           toast.error("Failed to add virtual outlet");
         },
-      }
+      },
     );
   };
 
@@ -49,7 +49,9 @@ export function AddVirtualOutletModal({
             </div>
             <div>
               <h2 className="text-[16px] font-semibold text-slate-800">Add Virtual Outlet</h2>
-              <p className="text-[11.5px] text-slate-500">Create independent menu for cloud brand</p>
+              <p className="text-[11.5px] text-slate-500">
+                Create independent menu for cloud brand
+              </p>
             </div>
           </div>
           <button
@@ -90,7 +92,8 @@ export function AddVirtualOutletModal({
           </div>
 
           <div className="rounded-lg bg-teal-50 p-3 border border-blue-100 text-[12px] text-teal-800">
-            A virtual outlet allows you to run separate online brand menus, different prices, and packaging charges from the same kitchen.
+            A virtual outlet allows you to run separate online brand menus, different prices, and
+            packaging charges from the same kitchen.
           </div>
 
           <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-slate-200">

@@ -5,6 +5,8 @@ import type {
   AllOrdersApiResponse,
   OnlineOrdersApiResponse,
   KotApiResponse,
+  OnlineOrderRecordApiDto,
+  AllOrderRecordApiDto,
 } from "@/types/posOrdersApi";
 import type {
   LiveOrderSummaryData,
@@ -16,7 +18,7 @@ import type {
 // ==========================================
 // 1. LIVE ORDERS MOCK & SERVICE
 // ==========================================
-const MOCK_LIVE_ORDERS: LiveOrderSummaryApiDto = {
+let liveOrdersStore: LiveOrderSummaryApiDto = {
   runningOrders: {
     totalOrders: 2,
     totalAmount: 1760.0,
@@ -112,7 +114,7 @@ export function mapLiveOrdersDto(dto: LiveOrderSummaryApiDto): LiveOrderSummaryD
 }
 
 export function getInitialLiveOrdersData(): LiveOrderSummaryData {
-  return mapLiveOrdersDto(MOCK_LIVE_ORDERS);
+  return mapLiveOrdersDto(liveOrdersStore);
 }
 
 export async function getLiveOrdersSummary(): Promise<LiveOrderSummaryData> {
@@ -129,7 +131,7 @@ export async function getLiveOrdersSummary(): Promise<LiveOrderSummaryData> {
 // ==========================================
 // 2. ALL ORDERS MOCK & SERVICE
 // ==========================================
-const MOCK_ALL_ORDERS: AllOrdersApiResponse = {
+let allOrdersStore: AllOrdersApiResponse = {
   success: true,
   grandTotal: 643388.0,
   salesTrend: [
@@ -267,13 +269,15 @@ export function mapAllOrdersDto(dto: AllOrdersApiResponse): AllOrdersData {
 }
 
 export function getInitialAllOrdersData(): AllOrdersData {
-  return mapAllOrdersDto(MOCK_ALL_ORDERS);
+  return mapAllOrdersDto(allOrdersStore);
 }
 
 export async function getAllOrders(filters?: Record<string, any>): Promise<AllOrdersData> {
   if (typeof window === "undefined") return getInitialAllOrdersData();
   try {
-    const res = await httpClient.get<AllOrdersApiResponse>("/api/pos/orders/all", { params: filters });
+    const res = await httpClient.get<AllOrdersApiResponse>("/api/pos/orders/all", {
+      params: filters,
+    });
     if (res.data && res.data.success) return mapAllOrdersDto(res.data);
     return getInitialAllOrdersData();
   } catch {
@@ -284,10 +288,32 @@ export async function getAllOrders(filters?: Record<string, any>): Promise<AllOr
 // ==========================================
 // 3. ONLINE ORDERS MOCK & SERVICE
 // ==========================================
-const MOCK_ONLINE_ORDERS: OnlineOrdersApiResponse = {
+let onlineOrdersStore: OnlineOrdersApiResponse = {
   success: true,
-  totalCount: 4,
+  totalCount: 5,
   records: [
+    {
+      id: "on-new-1",
+      orderNo: "ZOM-77492",
+      platform: "zomato",
+      outletName: "Main Restaurant",
+      orderType: "Zomato Delivery",
+      riderName: "Vikas Yadav",
+      riderPhone: "+91 98119 22334",
+      customerName: "Sneha Kapur",
+      customerPhone: "+91 98711 55667",
+      otp: "7749",
+      dateTime: "Just now",
+      totalAmount: 645.0,
+      status: "placed",
+      statusDisplay: "New Order (Pending Accept)",
+      placedMinutesAgo: 1,
+      items: [
+        { name: "Kadhai Paneer", quantity: 1, price: 320 },
+        { name: "Butter Roti", quantity: 4, price: 160 },
+        { name: "Jeera Rice", quantity: 1, price: 165 },
+      ],
+    },
     {
       id: "on-1",
       orderNo: "ZOM-48291",
@@ -400,24 +426,160 @@ export function mapOnlineOrdersDto(dto: OnlineOrdersApiResponse): OnlineOrdersDa
 }
 
 export function getInitialOnlineOrdersData(): OnlineOrdersData {
-  return mapOnlineOrdersDto(MOCK_ONLINE_ORDERS);
+  return mapOnlineOrdersDto(onlineOrdersStore);
 }
 
 export async function getOnlineOrders(filters?: Record<string, any>): Promise<OnlineOrdersData> {
   if (typeof window === "undefined") return getInitialOnlineOrdersData();
   try {
-    const res = await httpClient.get<OnlineOrdersApiResponse>("/api/pos/orders/online", { params: filters });
+    const res = await httpClient.get<OnlineOrdersApiResponse>("/api/pos/orders/online", {
+      params: filters,
+    });
     if (res.data && res.data.success) return mapOnlineOrdersDto(res.data);
-    return getInitialOnlineOrdersData();
+    return mapOnlineOrdersDto(onlineOrdersStore);
   } catch {
-    return getInitialOnlineOrdersData();
+    return mapOnlineOrdersDto(onlineOrdersStore);
   }
+}
+
+/**
+ * Accept Online Order:
+ * Transitions status to "in_kitchen", pushes KOT to Kitchen queue, and tracks in live orders.
+ */
+export function acceptOnlineOrderToKitchen(orderId: string): { kotId: number; order: OnlineOrderRecordApiDto | null } {
+  let targetOrder: OnlineOrderRecordApiDto | null = null;
+  onlineOrdersStore = {
+    ...onlineOrdersStore,
+    records: onlineOrdersStore.records.map((ord) => {
+      if (ord.id === orderId) {
+        targetOrder = {
+          ...ord,
+          status: "in_kitchen" as const,
+          statusDisplay: "In Kitchen (Prep)",
+        };
+        return targetOrder;
+      }
+      return ord;
+    }),
+  };
+
+  if (!targetOrder) {
+    targetOrder = onlineOrdersStore.records.find((o) => o.id === orderId) || null;
+  }
+
+  const kotId = kotCounter++;
+  const now = new Date();
+  const dateStr = now.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+  const fullDateTime = `${dateStr} ${now.toLocaleTimeString()}`;
+
+  const totalItemsCount = targetOrder
+    ? (targetOrder as OnlineOrderRecordApiDto).items.reduce(
+        (acc: number, it: { quantity: number }) => acc + it.quantity,
+        0,
+      )
+    : 1;
+  const itemsText = targetOrder
+    ? (targetOrder as OnlineOrderRecordApiDto).items
+        .map((it: { name: string; quantity: number }) => `${it.name} × ${it.quantity}`)
+        .join(", ")
+    : "Dishes";
+
+  // Push new KOT ticket to kitchen
+  const newKotRecord = {
+    id: `kot-${kotId}`,
+    kotId,
+    orderType: targetOrder
+      ? `${targetOrder.orderType} [${targetOrder.platform.toUpperCase()} #${targetOrder.orderNo}]`
+      : `Online Delivery (KOT #${kotId})`,
+    customerName: targetOrder?.customerName || "Online Guest",
+    customerPhone: targetOrder?.customerPhone || "--",
+    itemCount: totalItemsCount,
+    itemsText,
+    status: "Not Prepared" as const,
+    billPrintDate: null,
+    completeDuration: null,
+    createdAt: fullDateTime,
+  };
+
+  kotOrdersStore = {
+    ...kotOrdersStore,
+    totalCount: kotOrdersStore.totalCount + 1,
+    records: [newKotRecord, ...kotOrdersStore.records],
+  };
+
+  return { kotId, order: targetOrder };
+}
+
+/**
+ * Cancel Online Order
+ */
+export function cancelOnlineOrder(orderId: string): { success: boolean; orderId: string } {
+  onlineOrdersStore = {
+    ...onlineOrdersStore,
+    records: onlineOrdersStore.records.map((ord) => {
+      if (ord.id === orderId) {
+        return {
+          ...ord,
+          status: "cancelled" as const,
+          statusDisplay: "Cancelled / Rejected",
+        };
+      }
+      return ord;
+    }),
+  };
+  return { success: true, orderId };
+}
+
+/**
+ * Dispatch a new simulated or incoming online order event
+ */
+export function dispatchNewOnlineOrder(customOrder?: Partial<OnlineOrderRecordApiDto>): OnlineOrderRecordApiDto {
+  const randNum = Math.floor(1000 + Math.random() * 9000);
+  const platforms: Array<"zomato" | "swiggy" | "direct_web"> = ["zomato", "swiggy", "direct_web"];
+  const platform = customOrder?.platform || platforms[Math.floor(Math.random() * platforms.length)];
+  const prefix = platform === "zomato" ? "ZOM" : platform === "swiggy" ? "SWIG" : "WEB";
+  const orderNo = customOrder?.orderNo || `${prefix}-${randNum}`;
+
+  const newOrder: OnlineOrderRecordApiDto = {
+    id: `on-${Date.now()}`,
+    orderNo,
+    platform,
+    outletName: "Main Restaurant",
+    orderType: platform === "zomato" ? "Zomato Delivery" : platform === "swiggy" ? "Swiggy Delivery" : "Direct Order",
+    riderName: platform !== "direct_web" ? "Delivery Partner Assigned" : undefined,
+    riderPhone: platform !== "direct_web" ? "+91 98000 11222" : undefined,
+    customerName: customOrder?.customerName || (platform === "zomato" ? "Aditi Roy" : "Vikram Singhania"),
+    customerPhone: customOrder?.customerPhone || "+91 98223 99881",
+    otp: `${Math.floor(1000 + Math.random() * 9000)}`,
+    dateTime: "Just now",
+    totalAmount: customOrder?.totalAmount || 840.0,
+    status: "placed",
+    statusDisplay: "New Order (Pending Accept)",
+    placedMinutesAgo: 0,
+    items: customOrder?.items || [
+      { name: "Butter Chicken", quantity: 1, price: 420 },
+      { name: "Garlic Naan", quantity: 3, price: 210 },
+      { name: "Gulab Jamun (2 pcs)", quantity: 2, price: 210 },
+    ],
+  };
+
+  onlineOrdersStore = {
+    ...onlineOrdersStore,
+    totalCount: onlineOrdersStore.totalCount + 1,
+    records: [newOrder, ...onlineOrdersStore.records],
+  };
+
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("retrod_pos_new_online_order", { detail: newOrder }));
+  }
+
+  return newOrder;
 }
 
 // ==========================================
 // 4. KOT (KITCHEN ORDER TICKETS) MOCK & SERVICE
 // ==========================================
-const MOCK_KOT_RECORDS: KotApiResponse = {
+let kotOrdersStore: KotApiResponse = {
   success: true,
   totalCount: 6,
   records: [
@@ -529,7 +691,7 @@ export function mapKotDto(dto: KotApiResponse): KotData {
 }
 
 export function getInitialKotData(): KotData {
-  return mapKotDto(MOCK_KOT_RECORDS);
+  return mapKotDto(kotOrdersStore);
 }
 
 export async function getKotOrders(filters?: Record<string, any>): Promise<KotData> {
@@ -542,3 +704,517 @@ export async function getKotOrders(filters?: Record<string, any>): Promise<KotDa
     return getInitialKotData();
   }
 }
+
+// ==========================================
+// 5. HELPER: CREATE DINE-IN ORDER & KOT (SYNC TO LIVE ORDERS & KOT)
+// ==========================================
+let kotCounter = 16;
+let orderCounter = 10526;
+
+export interface CreateDineInOrderInput {
+  tableId: string;
+  tableNumber: string;
+  section?: string;
+  waiterName?: string;
+  pax?: number;
+  guestName?: string;
+  guestPhone?: string;
+  items: Array<{
+    id: string;
+    name: string;
+    quantity: number;
+    price: number;
+    selectedVariantName?: string;
+    notes?: string;
+  }>;
+  subtotal: number;
+  grandTotal: number;
+}
+
+export function createDineInOrder(input: CreateDineInOrderInput): {
+  orderNumber: string;
+  kotId: number;
+} {
+  const orderNumber = `ORD-${orderCounter++}`;
+  const kotId = kotCounter++;
+  const now = new Date();
+  const dateStr = now.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+  const timeStr = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  const fullDateTime = `${dateStr} ${now.toLocaleTimeString()}`;
+
+  const itemsSummaryText = input.items
+    .map((i) => `${i.name}${i.selectedVariantName ? ` (${i.selectedVariantName})` : ""} × ${i.quantity}`)
+    .join(", ");
+  const totalItemCount = input.items.reduce((s, i) => s + i.quantity, 0);
+
+  // 1. Update Live Orders Store
+  liveOrdersStore = {
+    ...liveOrdersStore,
+    runningOrders: {
+      ...liveOrdersStore.runningOrders,
+      totalOrders: liveOrdersStore.runningOrders.totalOrders + 1,
+      totalAmount: liveOrdersStore.runningOrders.totalAmount + input.grandTotal,
+      dineIn: {
+        count: liveOrdersStore.runningOrders.dineIn.count + 1,
+        amount: liveOrdersStore.runningOrders.dineIn.amount + input.grandTotal,
+      },
+    },
+    pendingOrders: {
+      ...liveOrdersStore.pendingOrders,
+      totalOrders: liveOrdersStore.pendingOrders.totalOrders + 1,
+      totalAmount: liveOrdersStore.pendingOrders.totalAmount + input.grandTotal,
+      inPreparation: {
+        count: liveOrdersStore.pendingOrders.inPreparation.count + 1,
+        amount: liveOrdersStore.pendingOrders.inPreparation.amount + input.grandTotal,
+      },
+    },
+    runningTables: [
+      {
+        id: input.tableId,
+        tableNumber: input.tableNumber.replace("Table #", "").replace("Table ", ""),
+        section: input.section || "Main Dining",
+        capacity: input.pax || 4,
+        occupancy: input.pax || 2,
+        orderNumber,
+        amount: input.grandTotal,
+        elapsedMinutes: 1,
+        status: "running",
+      },
+      ...liveOrdersStore.runningTables,
+    ],
+  };
+
+  // 2. Add to KOT Store
+  const newKotRecord = {
+    id: `kot-${kotId}`,
+    kotId,
+    orderType: `Dine In (${input.tableNumber})`,
+    customerName: input.guestName || "--",
+    customerPhone: input.guestPhone || "--",
+    itemCount: totalItemCount,
+    itemsText: itemsSummaryText,
+    status: "Not Prepared" as const,
+    billPrintDate: null,
+    completeDuration: null,
+    createdAt: fullDateTime,
+    isModified: false,
+  };
+
+  kotOrdersStore = {
+    ...kotOrdersStore,
+    totalCount: kotOrdersStore.totalCount + 1,
+    records: [newKotRecord, ...kotOrdersStore.records],
+  };
+
+  // 3. Add to All Orders Store
+  const newAllOrderRecord = {
+    id: `ord-${orderNumber.toLowerCase()}`,
+    orderNo: orderNumber.replace("ORD-", ""),
+    orderType: "dine_in" as const,
+    orderTypeDisplay: `Dine In (${input.tableNumber}) (${input.section || "Main Dining"})`,
+    customerName: input.guestName || "Walk-in Guest",
+    customerPhone: input.guestPhone || "--",
+    assignTo: input.waiterName || "Captain",
+    itemsSummary: itemsSummaryText,
+    myAmount: input.subtotal,
+    taxAmount: Math.round(input.grandTotal - input.subtotal),
+    discountAmount: 0.0,
+    grandTotal: input.grandTotal,
+    paymentMode: "Due" as const,
+    status: "Printed" as const,
+    createdAt: fullDateTime,
+    isOnlineOrder: false,
+  };
+
+  allOrdersStore = {
+    ...allOrdersStore,
+    totalCount: allOrdersStore.totalCount + 1,
+    grandTotal: allOrdersStore.grandTotal + input.grandTotal,
+    records: [newAllOrderRecord, ...allOrdersStore.records],
+  };
+
+  return { orderNumber, kotId };
+}
+
+// ==========================================
+// 6. DUE SETTLEMENT BILLS MOCK & SERVICE
+// ==========================================
+export interface DueBill {
+  id: string;
+  billNo: string;
+  orderType: string;
+  tableOrRoom: string;
+  tableId?: string;
+  customerName: string;
+  customerPhone: string;
+  waiterName?: string;
+  itemsSummary?: string;
+  totalAmount: number;
+  paidAmount: number;
+  dueAmount: number;
+  dueDate: string;
+  daysOverdue: number;
+  status: "Pending" | "Partial" | "Settled";
+  settlementMode?: "Cash" | "Card" | "UPI" | "Room Charge" | "Split";
+  agingBucket: "0-15" | "16-30" | "30+";
+  createdAt?: string;
+}
+
+let dueBillsStore: DueBill[] = [
+  {
+    id: "due-1",
+    billNo: "BILL-8901",
+    orderType: "Room Service",
+    tableOrRoom: "Room 302",
+    customerName: "Siddharth Malhotra",
+    customerPhone: "9876543210",
+    waiterName: "Ramesh",
+    itemsSummary: "Club Sandwich, French Fries, Cold Coffee (2)",
+    totalAmount: 4850,
+    paidAmount: 2000,
+    dueAmount: 2850,
+    dueDate: "28 Aug 2026",
+    daysOverdue: 7,
+    status: "Partial",
+    agingBucket: "0-15",
+  },
+  {
+    id: "due-2",
+    billNo: "BILL-8904",
+    orderType: "Dine In (Corporate)",
+    tableOrRoom: "Table T-15",
+    customerName: "Deloitte India Pvt Ltd",
+    customerPhone: "9811223344",
+    waiterName: "Kunal S.",
+    itemsSummary: "Paneer Tikka, Butter Chicken (2), Dal Makhani (2), Butter Naan (10)",
+    totalAmount: 14200,
+    paidAmount: 0,
+    dueAmount: 14200,
+    dueDate: "15 Aug 2026",
+    daysOverdue: 20,
+    status: "Pending",
+    agingBucket: "16-30",
+  },
+  {
+    id: "due-3",
+    billNo: "BILL-8910",
+    orderType: "Takeaway Credit",
+    tableOrRoom: "VIP Counter",
+    customerName: "Vikram Singhania",
+    customerPhone: "9988776655",
+    waiterName: "Billing Desk",
+    itemsSummary: "Executive Lunch Combo (4)",
+    totalAmount: 3200,
+    paidAmount: 0,
+    dueAmount: 3200,
+    dueDate: "2 Aug 2026",
+    daysOverdue: 33,
+    status: "Pending",
+    agingBucket: "30+",
+  },
+  {
+    id: "due-4",
+    billNo: "BILL-8915",
+    orderType: "Room Service",
+    tableOrRoom: "Room 408",
+    customerName: "Meera Deshmukh",
+    customerPhone: "9712345678",
+    waiterName: "David M.",
+    itemsSummary: "Veg Biryani, Raita, Gulab Jamun",
+    totalAmount: 1950,
+    paidAmount: 1950,
+    dueAmount: 0,
+    dueDate: "1 Sep 2026",
+    daysOverdue: 0,
+    status: "Settled",
+    settlementMode: "UPI",
+    agingBucket: "0-15",
+  },
+];
+
+export async function getDueBills(): Promise<DueBill[]> {
+  return [...dueBillsStore];
+}
+
+/**
+ * Chef 1-click action: Marks KOT Prepared and generates/routes bill to Due Settlement
+ */
+export function markKotPrepared(kotId: number): { kot: any; bill: DueBill | null } {
+  let targetKot: any = null;
+
+  kotOrdersStore = {
+    ...kotOrdersStore,
+    records: kotOrdersStore.records.map((r) => {
+      if (r.kotId === kotId) {
+        targetKot = {
+          ...r,
+          status: "Prepared" as const,
+          completeDuration: "0 hr : 12 min",
+        };
+        return targetKot;
+      }
+      return r;
+    }),
+  };
+
+  if (!targetKot) {
+    return { kot: null, bill: null };
+  }
+
+  // Find corresponding active order in live orders or create bill
+  const rawTableStr = targetKot.orderType
+    .replace("Dine In (", "")
+    .replace("Dine In(", "")
+    .replace(")", "")
+    .replace("[UPDATED]", "")
+    .trim();
+  const runningTable = liveOrdersStore.runningTables.find(
+    (t) =>
+      t.tableNumber === rawTableStr ||
+      targetKot.orderType.includes(t.tableNumber) ||
+      (targetKot.tableNo && t.tableNumber === targetKot.tableNo)
+  );
+
+  const billNo = `BILL-${targetKot.kotId.toString().padStart(4, "0")}`;
+  const totalAmt = runningTable ? runningTable.amount : 750.0;
+  const now = new Date();
+  const dateStr = now.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+
+  const existingIndex = dueBillsStore.findIndex(
+    (b) =>
+      b.billNo === billNo ||
+      (b.tableOrRoom.toLowerCase().includes(rawTableStr.toLowerCase()) && b.status !== "Settled")
+  );
+
+  let newBill: DueBill;
+
+  if (existingIndex > -1) {
+    newBill = {
+      ...dueBillsStore[existingIndex],
+      status: "Pending",
+      itemsSummary: targetKot.itemsText || dueBillsStore[existingIndex].itemsSummary,
+      totalAmount: totalAmt || dueBillsStore[existingIndex].totalAmount,
+      dueAmount: totalAmt || dueBillsStore[existingIndex].dueAmount,
+    };
+    dueBillsStore[existingIndex] = newBill;
+  } else {
+    newBill = {
+      id: `due-${Date.now()}`,
+      billNo,
+      orderType: targetKot.orderType.includes("Room") ? "Room Service" : "Dine In",
+      tableOrRoom: rawTableStr.startsWith("Table") ? rawTableStr : `Table ${rawTableStr}`,
+      tableId: runningTable?.id,
+      customerName:
+        targetKot.customerName && targetKot.customerName !== "--"
+          ? targetKot.customerName
+          : "Walk-in Guest",
+      customerPhone:
+        targetKot.customerPhone && targetKot.customerPhone !== "--"
+          ? targetKot.customerPhone
+          : "--",
+      waiterName: "Captain",
+      itemsSummary: targetKot.itemsText,
+      totalAmount: totalAmt,
+      paidAmount: 0,
+      dueAmount: totalAmt,
+      dueDate: dateStr,
+      daysOverdue: 0,
+      status: "Pending",
+      agingBucket: "0-15",
+      createdAt: dateStr,
+    };
+    dueBillsStore = [newBill, ...dueBillsStore];
+  }
+
+  // Update running table status in live orders
+  if (runningTable) {
+    liveOrdersStore = {
+      ...liveOrdersStore,
+      runningTables: liveOrdersStore.runningTables.map((t) =>
+        t.id === runningTable.id ? { ...t, status: "billed" } : t
+      ),
+    };
+  }
+
+  return { kot: targetKot, bill: newBill };
+}
+
+/**
+ * Reception Settlement: Settles bill, archives in Order History, and marks table ready
+ */
+export function settleDueBill(
+  billId: string,
+  paymentMode: "Cash" | "Card" | "UPI" | "Room Charge" | "Split",
+  paidAmount?: number
+): { settledBill: DueBill; archivedOrder: any } {
+  let settledBill!: DueBill;
+
+  dueBillsStore = dueBillsStore.map((b) => {
+    if (b.id === billId || b.billNo === billId) {
+      const effectivePaid = paidAmount !== undefined ? paidAmount : b.dueAmount;
+      const newPaid = b.paidAmount + effectivePaid;
+      const newDue = Math.max(0, b.totalAmount - newPaid);
+      settledBill = {
+        ...b,
+        paidAmount: newPaid,
+        dueAmount: newDue,
+        status: newDue === 0 ? "Settled" : "Partial",
+        settlementMode: paymentMode,
+      };
+      return settledBill;
+    }
+    return b;
+  });
+
+  if (!settledBill) {
+    settledBill = dueBillsStore[0];
+  }
+
+  // Archive or update in All Order History
+  const now = new Date();
+  const dateStr = now.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+  const timeStr = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  const fullDateTime = `${dateStr} ${timeStr}`;
+
+  const existingHistoryIdx = allOrdersStore.records.findIndex(
+    (r) =>
+      r.orderNo === settledBill.billNo.replace("BILL-", "") ||
+      (settledBill.tableOrRoom && r.orderTypeDisplay.includes(settledBill.tableOrRoom))
+  );
+
+  const archivedRecord = {
+    id: `ord-settled-${settledBill.id}`,
+    orderNo: settledBill.billNo.replace("BILL-", ""),
+    orderType: settledBill.orderType.toLowerCase().includes("room")
+      ? ("room_service" as const)
+      : ("dine_in" as const),
+    orderTypeDisplay: `${settledBill.orderType} (${settledBill.tableOrRoom})`,
+    customerName: settledBill.customerName,
+    customerPhone: settledBill.customerPhone,
+    assignTo: settledBill.waiterName || "Captain",
+    itemsSummary: settledBill.itemsSummary || "Dishes & Beverages",
+    myAmount: Math.round(settledBill.totalAmount * 0.95),
+    taxAmount: Math.round(settledBill.totalAmount * 0.05),
+    discountAmount: 0.0,
+    grandTotal: settledBill.totalAmount,
+    paymentMode,
+    status: "Settled" as const,
+    createdAt: fullDateTime,
+    isOnlineOrder: false,
+  };
+
+  if (existingHistoryIdx > -1) {
+    allOrdersStore.records[existingHistoryIdx] = {
+      ...allOrdersStore.records[existingHistoryIdx],
+      status: "Settled",
+      paymentMode,
+      grandTotal: settledBill.totalAmount,
+    };
+  } else {
+    allOrdersStore = {
+      ...allOrdersStore,
+      totalCount: allOrdersStore.totalCount + 1,
+      grandTotal: allOrdersStore.grandTotal + settledBill.totalAmount,
+      records: [archivedRecord, ...allOrdersStore.records],
+    };
+  }
+
+  // Remove from live running tables if settled
+  liveOrdersStore = {
+    ...liveOrdersStore,
+    runningTables: liveOrdersStore.runningTables.filter(
+      (t) => !settledBill.tableOrRoom.includes(t.tableNumber) && t.id !== settledBill.tableId
+    ),
+    runningOrders: {
+      ...liveOrdersStore.runningOrders,
+      totalOrders: Math.max(0, liveOrdersStore.runningOrders.totalOrders - 1),
+      totalAmount: Math.max(0, liveOrdersStore.runningOrders.totalAmount - settledBill.totalAmount),
+    },
+  };
+
+  return { settledBill, archivedOrder: archivedRecord };
+}
+
+/**
+ * Frontdesk Edit/Update: Adds/deletes items from order and sends an incremental KOT ticket
+ */
+export function updateDineInOrder(input: {
+  tableId: string;
+  tableNumber: string;
+  waiterName?: string;
+  guestName?: string;
+  guestPhone?: string;
+  items: Array<{
+    id: string;
+    name: string;
+    quantity: number;
+    price: number;
+    selectedVariantName?: string;
+    notes?: string;
+  }>;
+  subtotal: number;
+  grandTotal: number;
+  modifiedSummaryText: string;
+}): { kotId: number } {
+  const kotId = kotCounter++;
+  const now = new Date();
+  const dateStr = now.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+  const fullDateTime = `${dateStr} ${now.toLocaleTimeString()}`;
+
+  const allItemsSummaryText = input.items
+    .map((i) => `${i.name}${i.selectedVariantName ? ` (${i.selectedVariantName})` : ""} × ${i.quantity}`)
+    .join(", ");
+  const totalItemCount = input.items.reduce((s, i) => s + i.quantity, 0);
+
+  // 1. Add Modification KOT ticket to kitchen
+  const updateKotRecord = {
+    id: `kot-${kotId}`,
+    kotId,
+    orderType: `Dine In (${input.tableNumber}) [UPDATED]`,
+    customerName: input.guestName || "--",
+    customerPhone: input.guestPhone || "--",
+    itemCount: totalItemCount,
+    itemsText: `[MODIFIED]: ${input.modifiedSummaryText || allItemsSummaryText}`,
+    status: "Not Prepared" as const,
+    billPrintDate: null,
+    completeDuration: null,
+    createdAt: fullDateTime,
+    isModified: true,
+  };
+
+  kotOrdersStore = {
+    ...kotOrdersStore,
+    totalCount: kotOrdersStore.totalCount + 1,
+    records: [updateKotRecord, ...kotOrdersStore.records],
+  };
+
+  // 2. Update Live Tables & Live Orders
+  liveOrdersStore = {
+    ...liveOrdersStore,
+    runningTables: liveOrdersStore.runningTables.map((t) => {
+      if (t.id === input.tableId || input.tableNumber.includes(t.tableNumber)) {
+        return {
+          ...t,
+          amount: input.grandTotal,
+        };
+      }
+      return t;
+    }),
+  };
+
+  // 3. Update in Due Bills if present
+  dueBillsStore = dueBillsStore.map((b) => {
+    if (b.tableId === input.tableId || b.tableOrRoom.includes(input.tableNumber.replace("Table #", ""))) {
+      return {
+        ...b,
+        itemsSummary: allItemsSummaryText,
+        totalAmount: input.grandTotal,
+        dueAmount: Math.max(0, input.grandTotal - b.paidAmount),
+      };
+    }
+    return b;
+  });
+
+  return { kotId };
+}
+

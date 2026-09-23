@@ -169,16 +169,16 @@ export function OutletConfigurationHubView() {
                 to={card.to}
                 className="rounded-2xl border border-slate-300 bg-white p-5 shadow-xs hover:shadow-sm hover:border-teal-400 transition flex items-start gap-4 cursor-pointer group"
               >
-                <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${card.bgColor}`}>
+                <div
+                  className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${card.bgColor}`}
+                >
                   <Icon className="h-6 w-6" />
                 </div>
                 <div className="space-y-1 min-w-0">
                   <h4 className="text-[14px] font-bold text-slate-900 group-hover:text-teal-700 transition">
                     {card.title}
                   </h4>
-                  <p className="text-[12px] text-slate-500 leading-relaxed">
-                    {card.desc}
-                  </p>
+                  <p className="text-[12px] text-slate-500 leading-relaxed">{card.desc}</p>
                 </div>
               </Link>
             );
@@ -198,16 +198,16 @@ export function OutletConfigurationHubView() {
                 to={card.to}
                 className="rounded-2xl border border-slate-300 bg-white p-5 shadow-xs hover:shadow-sm hover:border-teal-400 transition flex items-start gap-4 cursor-pointer group"
               >
-                <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${card.bgColor}`}>
+                <div
+                  className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${card.bgColor}`}
+                >
                   <Icon className="h-6 w-6" />
                 </div>
                 <div className="space-y-1 min-w-0">
                   <h4 className="text-[14px] font-bold text-slate-900 group-hover:text-teal-700 transition">
                     {card.title}
                   </h4>
-                  <p className="text-[12px] text-slate-500 leading-relaxed">
-                    {card.desc}
-                  </p>
+                  <p className="text-[12px] text-slate-500 leading-relaxed">{card.desc}</p>
                 </div>
               </Link>
             );

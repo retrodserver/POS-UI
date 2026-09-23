@@ -36,9 +36,7 @@ export function ReservationSidebar({
   const [searchQuery, setSearchQuery] = useState("");
 
   // Filter reservations and active seatings
-  const reservedItems = reservations.filter(
-    (r) => r.status === "reserved"
-  );
+  const reservedItems = reservations.filter((r) => r.status === "reserved");
   const occupiedTables = tables.filter((t) => t.status === "occupied");
 
   // Filter based on tab and search
@@ -117,9 +115,7 @@ export function ReservationSidebar({
             <span>On Dine</span>
             <span
               className={`text-[10px] px-1.5 py-0.2 rounded-full ${
-                filterTab === "on_dine"
-                  ? "bg-teal-800 text-white"
-                  : "bg-slate-200 text-slate-700"
+                filterTab === "on_dine" ? "bg-teal-800 text-white" : "bg-slate-200 text-slate-700"
               }`}
             >
               {onDineCount}

@@ -42,7 +42,9 @@ export function VirtualWalletView() {
       <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs">
         <div className="flex flex-wrap items-end gap-3 max-w-3xl">
           <div className="space-y-1 min-w-[180px]">
-            <label className="text-[11.5px] font-semibold text-slate-600">Customer Mobile No.</label>
+            <label className="text-[11.5px] font-semibold text-slate-600">
+              Customer Mobile No.
+            </label>
             <input
               type="text"
               placeholder="Search Mobile No"

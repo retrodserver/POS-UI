@@ -3,7 +3,7 @@ import { toast } from "sonner";
 
 export function MarketplaceSettingsView() {
   const [activeTab, setActiveTab] = useState<"pos_subscription" | "online_integration">(
-    "pos_subscription"
+    "pos_subscription",
   );
 
   const [ebillMethod, setEbillMethod] = useState<"text" | "whatsapp">("whatsapp");
@@ -89,7 +89,8 @@ export function MarketplaceSettingsView() {
                   </label>
                 </div>
                 <p className="text-[11.5px] text-slate-500">
-                  [Note: This configuration would not work if you have an active WhatsApp campaign or Green Receipt to send the ebill to customers.]
+                  [Note: This configuration would not work if you have an active WhatsApp campaign
+                  or Green Receipt to send the ebill to customers.]
                 </p>
               </div>
 
@@ -111,9 +112,7 @@ export function MarketplaceSettingsView() {
 
               {/* Field 3: Sender ID */}
               <div className="space-y-1.5 max-w-md">
-                <label className="text-[13px] font-bold text-slate-900 block">
-                  Sender ID
-                </label>
+                <label className="text-[13px] font-bold text-slate-900 block">Sender ID</label>
                 <input
                   type="text"
                   maxLength={6}
@@ -123,14 +122,16 @@ export function MarketplaceSettingsView() {
                   className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-[13px] font-mono text-slate-800 uppercase focus:border-teal-500 focus:outline-none"
                 />
                 <p className="text-[11.5px] text-slate-500">
-                  [Enter your 6 characters Sender ID. The sender ID is the name of the eBill sender which will display on the customer&apos;s phone eg. DM-PPOOJA or MD-PTPOOJ.]
+                  [Enter your 6 characters Sender ID. The sender ID is the name of the eBill sender
+                  which will display on the customer&apos;s phone eg. DM-PPOOJA or MD-PTPOOJ.]
                 </p>
               </div>
             </div>
           ) : (
             <div className="space-y-4">
               <p className="text-[13px] text-slate-600">
-                Third-party online delivery aggregation webhook triggers and automatic item toggle settings.
+                Third-party online delivery aggregation webhook triggers and automatic item toggle
+                settings.
               </p>
             </div>
           )}

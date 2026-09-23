@@ -54,4 +54,3 @@ export type StockItem = {
   variance?: number;
   notes?: string;
 };
-

@@ -1,15 +1,152 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { posMenuService } from "@/services/posMenuService";
+import type { MenuItem, MenuItemImage } from "@/types/posMenu";
 
 export const MENU_QUERY_KEYS = {
+  menuItems: (outletId?: string) => ["pos", "menu", "items", outletId || "all"] as const,
   specialNotes: ["pos", "menu", "special-notes"] as const,
   commissions: ["pos", "menu", "commissions"] as const,
-  stockItems: ["pos", "menu", "stock-items"] as const,
+  stockItems: (outletId?: string) => ["pos", "menu", "stock-items", outletId || "all"] as const,
   schedules: ["pos", "menu", "schedules"] as const,
-  virtualOutlets: ["pos", "menu", "virtual-outlets"] as const,
   physicalMenus: ["pos", "menu", "physical-menus"] as const,
 };
 
+// 1. Menu Items
+export function useMenuItems(outletId?: string) {
+  return useQuery({
+    queryKey: MENU_QUERY_KEYS.menuItems(outletId),
+    queryFn: () => posMenuService.getMenuItems(outletId),
+  });
+}
+
+export function useAddMenuItem() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (item: Omit<MenuItem, "id" | "updatedAt">) => posMenuService.addMenuItem(item),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["pos", "menu", "items"] });
+      queryClient.invalidateQueries({ queryKey: ["pos", "menu", "stock-items"] });
+    },
+  });
+}
+
+export function useUpdateMenuItem() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Partial<MenuItem> }) =>
+      posMenuService.updateMenuItem(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["pos", "menu", "items"] });
+      queryClient.invalidateQueries({ queryKey: ["pos", "menu", "stock-items"] });
+    },
+  });
+}
+
+export function useDeleteMenuItem() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => posMenuService.deleteMenuItem(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["pos", "menu", "items"] });
+      queryClient.invalidateQueries({ queryKey: ["pos", "menu", "stock-items"] });
+    },
+  });
+}
+
+// 2. Channel & Platform Availability
+export function useToggleItemPlatform() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      id,
+      platform,
+    }: {
+      id: string;
+      platform: "zomato" | "swiggy" | "direct" | "baseMenu";
+    }) => posMenuService.toggleItemPlatform(id, platform),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["pos", "menu", "items"] });
+      queryClient.invalidateQueries({ queryKey: ["pos", "menu", "stock-items"] });
+    },
+  });
+}
+
+export function useBulkUpdatePlatformAvailability() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      ids,
+      updates,
+    }: {
+      ids: string[];
+      updates: {
+        zomato?: boolean;
+        swiggy?: boolean;
+        direct?: boolean;
+        baseMenu?: boolean;
+      };
+    }) => posMenuService.bulkUpdatePlatformAvailability(ids, updates),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["pos", "menu", "items"] });
+      queryClient.invalidateQueries({ queryKey: ["pos", "menu", "stock-items"] });
+    },
+  });
+}
+
+// Backward-compat stock items
+export function useMenuStockItems(outletId?: string) {
+  return useQuery({
+    queryKey: MENU_QUERY_KEYS.stockItems(outletId),
+    queryFn: () => posMenuService.getStockItems(outletId),
+  });
+}
+
+export function useToggleMenuStock() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => posMenuService.toggleStockStatus(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["pos", "menu", "items"] });
+      queryClient.invalidateQueries({ queryKey: ["pos", "menu", "stock-items"] });
+    },
+  });
+}
+
+// 3. Multi-Image Management per Item
+export function useAddItemImages() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ itemId, images }: { itemId: string; images: MenuItemImage[] }) =>
+      posMenuService.addItemImages(itemId, images),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["pos", "menu", "items"] });
+    },
+  });
+}
+
+export function useRemoveItemImage() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ itemId, imageId }: { itemId: string; imageId: string }) =>
+      posMenuService.removeItemImage(itemId, imageId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["pos", "menu", "items"] });
+    },
+  });
+}
+
+export function useSetPrimaryImage() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ itemId, imageId }: { itemId: string; imageId: string }) =>
+      posMenuService.setPrimaryImage(itemId, imageId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["pos", "menu", "items"] });
+    },
+  });
+}
+
+// 4. Special Notes
 export function useSpecialNotes() {
   return useQuery({
     queryKey: MENU_QUERY_KEYS.specialNotes,
@@ -48,6 +185,7 @@ export function useDeleteSpecialNote() {
   });
 }
 
+// 5. Item Commissions
 export function useItemCommissions() {
   return useQuery({
     queryKey: MENU_QUERY_KEYS.commissions,
@@ -73,23 +211,7 @@ export function useUpdateItemCommission() {
   });
 }
 
-export function useMenuStockItems() {
-  return useQuery({
-    queryKey: MENU_QUERY_KEYS.stockItems,
-    queryFn: posMenuService.getStockItems,
-  });
-}
-
-export function useToggleMenuStock() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (id: string) => posMenuService.toggleStockStatus(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: MENU_QUERY_KEYS.stockItems });
-    },
-  });
-}
-
+// 6. Schedules
 export function useMenuSchedules() {
   return useQuery({
     queryKey: MENU_QUERY_KEYS.schedules,
@@ -97,24 +219,7 @@ export function useMenuSchedules() {
   });
 }
 
-export function useVirtualOutlets() {
-  return useQuery({
-    queryKey: MENU_QUERY_KEYS.virtualOutlets,
-    queryFn: posMenuService.getVirtualOutlets,
-  });
-}
-
-export function useAddVirtualOutlet() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: ({ name, cuisine }: { name: string; cuisine: string }) =>
-      posMenuService.addVirtualOutlet(name, cuisine),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: MENU_QUERY_KEYS.virtualOutlets });
-    },
-  });
-}
-
+// 7. Physical Menus
 export function usePhysicalMenus() {
   return useQuery({
     queryKey: MENU_QUERY_KEYS.physicalMenus,
@@ -143,12 +248,14 @@ export function useDeletePhysicalMenu() {
   });
 }
 
+// 8. Sync POS
 export function useSyncPos() {
   return useMutation({
     mutationFn: posMenuService.syncPos,
   });
 }
 
+// 9. Schedule Items & Details
 export function useScheduleItems() {
   return useQuery({
     queryKey: ["pos", "menu", "schedule-items"],
@@ -232,11 +339,17 @@ export function useToggleScheduleTable() {
 export function useAddScheduleTable() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ tableNo, areaName, noOfPersons }: { tableNo: string; areaName: string; noOfPersons?: number }) =>
-      posMenuService.addScheduleTable(tableNo, areaName, noOfPersons),
+    mutationFn: ({
+      tableNo,
+      areaName,
+      noOfPersons,
+    }: {
+      tableNo: string;
+      areaName: string;
+      noOfPersons?: number;
+    }) => posMenuService.addScheduleTable(tableNo, areaName, noOfPersons),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["pos", "menu", "schedule-tables"] });
     },
   });
 }
-

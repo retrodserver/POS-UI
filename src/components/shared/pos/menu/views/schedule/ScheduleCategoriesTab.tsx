@@ -11,6 +11,7 @@ import {
   Square,
 } from "lucide-react";
 import { useScheduleCategories, useAddScheduleCategory } from "@/hooks/queries/usePosMenu";
+import { DataTableFooter } from "@/components/common";
 import { toast } from "sonner";
 
 export function ScheduleCategoriesTab() {
@@ -27,6 +28,8 @@ export function ScheduleCategoriesTab() {
   const [isAdding, setIsAdding] = useState(false);
   const [newCatName, setNewCatName] = useState("");
   const [newParentCat, setNewParentCat] = useState("Soup & Starters");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   const filteredCategories = (categories ?? []).filter((cat) => {
     if (categoryNameFilter && !cat.name.toLowerCase().includes(categoryNameFilter.toLowerCase())) {
@@ -44,9 +47,7 @@ export function ScheduleCategoriesTab() {
   };
 
   const toggleSelectOne = (id: string) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
-    );
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
   };
 
   const handleAddCategorySubmit = (e: React.FormEvent) => {
@@ -64,7 +65,7 @@ export function ScheduleCategoriesTab() {
           setNewCatName("");
           setIsAdding(false);
         },
-      }
+      },
     );
   };
 
@@ -118,13 +119,16 @@ export function ScheduleCategoriesTab() {
             >
               {tab}
             </button>
-          )
+          ),
         )}
       </div>
 
       {/* Quick Add Form Drawer */}
       {isAdding && (
-        <form onSubmit={handleAddCategorySubmit} className="rounded-xl border border-teal-200 bg-teal-50/40 p-4 space-y-3">
+        <form
+          onSubmit={handleAddCategorySubmit}
+          className="rounded-xl border border-teal-200 bg-teal-50/40 p-4 space-y-3"
+        >
           <div className="flex items-center justify-between">
             <span className="text-[13px] font-bold text-blue-900">Add New Category</span>
             <button
@@ -222,7 +226,8 @@ export function ScheduleCategoriesTab() {
         </div>
 
         <div className="text-[11.5px] text-slate-400 mt-2">
-          Note: Please arrange category sequence/rank from the category section using import/export sheet.
+          Note: Please arrange category sequence/rank from the category section using import/export
+          sheet.
         </div>
       </div>
 
@@ -339,10 +344,17 @@ export function ScheduleCategoriesTab() {
           </table>
         </div>
 
-        {/* Pagination from Screenshot 2 */}
-        <div className="border-t border-slate-200 px-4 py-2.5 bg-slate-50 flex items-center justify-between text-[12px] text-slate-500">
-          <span>Showing 1 to {filteredCategories.length} of 27 records</span>
-        </div>
+        {/* Unified DataTableFooter */}
+        <DataTableFooter
+          currentPage={currentPage}
+          totalCount={filteredCategories.length}
+          pageSize={pageSize}
+          onPageSizeChange={setPageSize}
+          onPageChange={setCurrentPage}
+          selectedCount={selectedIds.length}
+          onClearSelection={() => setSelectedIds([])}
+          itemName="categories"
+        />
       </div>
     </div>
   );

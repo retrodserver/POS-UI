@@ -1,5 +1,14 @@
 import { useState } from "react";
-import { Star, FileText, ArrowRight, Download, Eye, TrendingUp, BarChart2, RefreshCw } from "lucide-react";
+import {
+  Star,
+  FileText,
+  ArrowRight,
+  Download,
+  Eye,
+  TrendingUp,
+  BarChart2,
+  RefreshCw,
+} from "lucide-react";
 import { toast } from "sonner";
 
 export function OtherReportsView() {
@@ -156,7 +165,9 @@ export function OtherReportsView() {
             >
               <div className="space-y-3">
                 <div className="flex items-start justify-between">
-                  <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${r.iconBg}`}>
+                  <div
+                    className={`flex h-10 w-10 items-center justify-center rounded-xl ${r.iconBg}`}
+                  >
                     <Icon className="h-5 w-5" />
                   </div>
                   <button

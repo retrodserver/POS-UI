@@ -16,103 +16,14 @@ import {
   ArrowRight,
   Receipt,
   Calendar,
+  User,
+  Phone,
+  Utensils,
 } from "lucide-react";
-
-interface DueBill {
-  id: string;
-  billNo: string;
-  orderType: string;
-  tableOrRoom: string;
-  customerName: string;
-  customerPhone: string;
-  totalAmount: number;
-  paidAmount: number;
-  dueAmount: number;
-  dueDate: string;
-  daysOverdue: number;
-  status: "Pending" | "Partial" | "Settled";
-  settlementMode?: "Cash" | "Card" | "UPI" | "Room Charge";
-  agingBucket: "0-15" | "16-30" | "30+";
-}
-
-const MOCK_DUE_BILLS: DueBill[] = [
-  {
-    id: "due-1",
-    billNo: "BILL-8901",
-    orderType: "Room Service",
-    tableOrRoom: "Room 302",
-    customerName: "Siddharth Malhotra",
-    customerPhone: "9876543210",
-    totalAmount: 4850,
-    paidAmount: 2000,
-    dueAmount: 2850,
-    dueDate: "28 Aug 2026",
-    daysOverdue: 7,
-    status: "Partial",
-    agingBucket: "0-15",
-  },
-  {
-    id: "due-2",
-    billNo: "BILL-8904",
-    orderType: "Dine In (Corporate)",
-    tableOrRoom: "Table T-15",
-    customerName: "Deloitte India Pvt Ltd",
-    customerPhone: "9811223344",
-    totalAmount: 14200,
-    paidAmount: 0,
-    dueAmount: 14200,
-    dueDate: "15 Aug 2026",
-    daysOverdue: 20,
-    status: "Pending",
-    agingBucket: "16-30",
-  },
-  {
-    id: "due-3",
-    billNo: "BILL-8910",
-    orderType: "Takeaway Credit",
-    tableOrRoom: "VIP Counter",
-    customerName: "Vikram Singhania",
-    customerPhone: "9988776655",
-    totalAmount: 3200,
-    paidAmount: 0,
-    dueAmount: 3200,
-    dueDate: "2 Aug 2026",
-    daysOverdue: 33,
-    status: "Pending",
-    agingBucket: "30+",
-  },
-  {
-    id: "due-4",
-    billNo: "BILL-8915",
-    orderType: "Room Service",
-    tableOrRoom: "Room 408",
-    customerName: "Meera Deshmukh",
-    customerPhone: "9712345678",
-    totalAmount: 1950,
-    paidAmount: 1950,
-    dueAmount: 0,
-    dueDate: "1 Sep 2026",
-    daysOverdue: 0,
-    status: "Settled",
-    settlementMode: "UPI",
-    agingBucket: "0-15",
-  },
-  {
-    id: "due-5",
-    billNo: "BILL-8922",
-    orderType: "Event Catering",
-    tableOrRoom: "Banquet Hall A",
-    customerName: "Infosys Bangalore",
-    customerPhone: "9845012345",
-    totalAmount: 45000,
-    paidAmount: 25000,
-    dueAmount: 20000,
-    dueDate: "18 Aug 2026",
-    daysOverdue: 17,
-    status: "Partial",
-    agingBucket: "16-30",
-  },
-];
+import { useDueBills, useSettleDueBillMutation } from "@/hooks/queries/usePosOrders";
+import { type DueBill } from "@/services/posOrdersService";
+import { DataTableFooter } from "@/components/common/DataTableHeader";
+import { toast } from "sonner";
 
 export function PosDueSettlementManager() {
   const [agingFilter, setAgingFilter] = useState<string>("all");
@@ -123,25 +34,31 @@ export function PosDueSettlementManager() {
 
   // Settlement Modal State
   const [selectedBill, setSelectedBill] = useState<DueBill | null>(null);
-  const [settlementMode, setSettlementMode] = useState<"Cash" | "Card" | "UPI" | "Room Charge">("UPI");
+  const [settlementMode, setSettlementMode] = useState<"Cash" | "Card" | "UPI" | "Room Charge" | "Split">(
+    "UPI",
+  );
   const [settlementAmount, setSettlementAmount] = useState<string>("");
 
-  const [records, setRecords] = useState<DueBill[]>(MOCK_DUE_BILLS);
+  const { data: dueBills = [] } = useDueBills();
+  const settleMutation = useSettleDueBillMutation();
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 6;
+  const pageSize = 8;
 
   const totalOpenDues = useMemo(() => {
-    return records.reduce((acc, curr) => acc + (curr.status !== "Settled" ? curr.dueAmount : 0), 0);
-  }, [records]);
+    return dueBills.reduce((acc, curr) => acc + (curr.status !== "Settled" ? curr.dueAmount : 0), 0);
+  }, [dueBills]);
 
   const totalSettledToday = useMemo(() => {
-    return records.reduce((acc, curr) => acc + (curr.status === "Settled" ? curr.totalAmount : 0), 0);
-  }, [records]);
+    return dueBills.reduce(
+      (acc, curr) => acc + (curr.status === "Settled" ? curr.totalAmount : 0),
+      0,
+    );
+  }, [dueBills]);
 
   const filteredRecords = useMemo(() => {
-    return records.filter((r) => {
+    return dueBills.filter((r) => {
       if (agingFilter !== "all" && r.agingBucket !== agingFilter) return false;
       if (statusFilter !== "all" && r.status !== statusFilter) return false;
 
@@ -156,7 +73,7 @@ export function PosDueSettlementManager() {
 
       return true;
     });
-  }, [records, agingFilter, statusFilter, searchQuery]);
+  }, [dueBills, agingFilter, statusFilter, searchQuery]);
 
   const totalRecords = filteredRecords.length;
   const totalPages = Math.ceil(totalRecords / pageSize) || 1;
@@ -172,31 +89,43 @@ export function PosDueSettlementManager() {
 
   const handleConfirmSettlement = () => {
     if (!selectedBill) return;
-    const settleAmt = parseFloat(settlementAmount) || 0;
+    const settleAmt = parseFloat(settlementAmount) || selectedBill.dueAmount;
 
-    setRecords((prev) =>
-      prev.map((b) => {
-        if (b.id !== selectedBill.id) return b;
-        const newPaid = b.paidAmount + settleAmt;
-        const newDue = Math.max(0, b.totalAmount - newPaid);
-        const newStatus: DueBill["status"] = newDue === 0 ? "Settled" : "Partial";
-
-        return {
-          ...b,
-          paidAmount: newPaid,
-          dueAmount: newDue,
-          status: newStatus,
-          settlementMode: newDue === 0 ? settlementMode : b.settlementMode,
-        };
-      })
+    settleMutation.mutate(
+      {
+        billId: selectedBill.id,
+        paymentMode: settlementMode,
+        paidAmount: settleAmt,
+      },
+      {
+        onSuccess: (data) => {
+          toast.success(`Payment Done: ₹${settleAmt} received!`, {
+            description: `Order ${selectedBill.billNo} saved to Order History and Table ${selectedBill.tableOrRoom} cleared.`,
+          });
+          setSelectedBill(null);
+          setSettlementAmount("");
+        },
+        onError: () => {
+          toast.error("Failed to process settlement");
+        },
+      },
     );
-
-    setSelectedBill(null);
-    setSettlementAmount("");
   };
 
   const handleExportCSV = () => {
-    const headers = ["Bill No", "Order Type", "Table/Room", "Customer", "Phone", "Total Amount", "Paid Amount", "Due Amount", "Due Date", "Days Overdue", "Status"];
+    const headers = [
+      "Bill No",
+      "Order Type",
+      "Table/Room",
+      "Customer",
+      "Phone",
+      "Total Amount",
+      "Paid Amount",
+      "Due Amount",
+      "Due Date",
+      "Days Overdue",
+      "Status",
+    ];
     const rows = filteredRecords.map((r) => [
       r.billNo,
       `"${r.orderType}"`,
@@ -210,11 +139,16 @@ export function PosDueSettlementManager() {
       r.daysOverdue,
       r.status,
     ]);
-    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map((e) => e.join(","))].join("\n");
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
+      [headers.join(","), ...rows.map((e) => e.join(","))].join("\n");
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `Due_Settlement_Ledger_${new Date().toISOString().slice(0, 10)}.csv`);
+    link.setAttribute(
+      "download",
+      `Due_Settlement_Ledger_${new Date().toISOString().slice(0, 10)}.csv`,
+    );
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -232,12 +166,16 @@ export function PosDueSettlementManager() {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-[16px] font-bold text-slate-900 leading-tight">Due Payment Settlement</h1>
+              <h1 className="text-[16px] font-bold text-slate-900 leading-tight">
+                Pending & Due Payments
+              </h1>
               <span className="inline-flex items-center gap-1 rounded-full bg-teal-50 px-2 py-0.2 text-[10.5px] font-bold text-teal-800 border border-teal-300">
-                Accounts Receivable
+                Frontdesk Billing Desk
               </span>
             </div>
-            <p className="text-[11px] text-slate-500">Collect outstanding guest credit, corporate ledgers & room bills</p>
+            <p className="text-[11px] text-slate-500">
+              Kitchen-prepared orders automatically routed here for collection · Settle & archive to Order History
+            </p>
           </div>
         </div>
 
@@ -265,7 +203,9 @@ export function PosDueSettlementManager() {
                       setShowRangeDropdown(false);
                     }}
                     className={`flex w-full items-center rounded-md px-3 py-1.5 text-left text-[12px] transition cursor-pointer ${
-                      selectedRange === r ? "bg-teal-50 text-teal-800 font-bold" : "text-slate-600 hover:bg-slate-50"
+                      selectedRange === r
+                        ? "bg-teal-50 text-teal-800 font-bold"
+                        : "text-slate-600 hover:bg-slate-50"
                     }`}
                   >
                     {r}
@@ -286,7 +226,7 @@ export function PosDueSettlementManager() {
         </div>
       </div>
 
-      {/* 2. KPI METRICS (3 Cards in Slate+Teal) */}
+      {/* 2. KPI METRICS */}
       <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
         <div className="rounded-xl border border-slate-300 bg-white p-3 shadow-2xs">
           <div className="flex items-center justify-between text-slate-500">
@@ -297,40 +237,41 @@ export function PosDueSettlementManager() {
             ₹ {totalOpenDues.toLocaleString("en-IN")}.00
           </div>
           <div className="text-[10.5px] font-medium text-slate-500">
-            {records.filter((r) => r.status !== "Settled").length} Outstanding Accounts
+            {dueBills.filter((r) => r.status !== "Settled").length} Outstanding Bills & Dues
           </div>
         </div>
 
         <div className="rounded-xl border border-slate-300 bg-white p-3 shadow-2xs">
           <div className="flex items-center justify-between text-slate-500">
-            <span className="text-[11px] font-bold uppercase tracking-wider">Collected Today</span>
+            <span className="text-[11px] font-bold uppercase tracking-wider">Collected / Settled</span>
             <CheckCircle2 className="h-4 w-4 text-teal-700" />
           </div>
           <div className="mt-0.5 text-[20px] font-black text-teal-700">
             ₹ {totalSettledToday.toLocaleString("en-IN")}.00
           </div>
           <div className="text-[10.5px] font-medium text-teal-700">
-            {records.filter((r) => r.status === "Settled").length} Bills Fully Cleared
+            {dueBills.filter((r) => r.status === "Settled").length} Bills Fully Cleared & Archived
           </div>
         </div>
 
         <div className="rounded-xl border border-slate-300 bg-white p-3 shadow-2xs">
           <div className="flex items-center justify-between text-slate-500">
-            <span className="text-[11px] font-bold uppercase tracking-wider">Active Credit Folios</span>
+            <span className="text-[11px] font-bold uppercase tracking-wider">
+              Total Tracked Bills
+            </span>
             <Receipt className="h-4 w-4 text-slate-500" />
           </div>
           <div className="mt-0.5 text-[20px] font-black text-slate-900">
-            {records.length} Bills Tracked
+            {dueBills.length} Invoices
           </div>
           <div className="text-[10.5px] font-medium text-slate-500">
-            Across Rooms & Dining Guests
+            Across Dining Tables & Room Service
           </div>
         </div>
       </div>
 
       {/* 3. AGING BUCKETS & FILTER BAR */}
       <div className="rounded-xl border border-slate-300 bg-white p-3 shadow-2xs space-y-2.5">
-        {/* Aging Tabs */}
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-2.5">
           <div className="flex items-center gap-1.5">
             <span className="text-[11.5px] font-bold text-slate-700 mr-1 flex items-center gap-1">
@@ -371,7 +312,7 @@ export function PosDueSettlementManager() {
             <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
-              placeholder="Search Bill #, Customer Name, Phone, or Room..."
+              placeholder="Search Bill #, Customer Name, Phone, or Table/Room..."
               value={searchQuery}
               onChange={(e) => {
                 setSearchQuery(e.target.value);
@@ -391,7 +332,7 @@ export function PosDueSettlementManager() {
               className="h-8.5 w-full appearance-none rounded-lg border border-slate-300 bg-white pl-3 pr-8 text-[12px] font-medium text-slate-700 focus:border-teal-500 focus:outline-hidden cursor-pointer shadow-2xs"
             >
               <option value="all">All Status</option>
-              <option value="Pending">Pending</option>
+              <option value="Pending">Pending / Unsettled</option>
               <option value="Partial">Partial</option>
               <option value="Settled">Settled</option>
             </select>
@@ -421,12 +362,12 @@ export function PosDueSettlementManager() {
           <table className="w-full text-left text-[12px] border-collapse">
             <thead>
               <tr className="border-b border-slate-300 bg-slate-100/90 text-[11px] font-bold uppercase tracking-wider text-slate-700">
-                <th className="py-2.5 px-3">Bill & Location</th>
-                <th className="py-2.5 px-3">Debtor / Customer</th>
+                <th className="py-2.5 px-3">Bill No & Location</th>
+                <th className="py-2.5 px-3">Guest & Waiter Details</th>
+                <th className="py-2.5 px-3">Items Summary</th>
                 <th className="py-2.5 px-3 text-right">Total Bill</th>
-                <th className="py-2.5 px-3 text-right">Paid Amount</th>
                 <th className="py-2.5 px-3 text-right">Balance Due</th>
-                <th className="py-2.5 px-3 text-center">Aging & Status</th>
+                <th className="py-2.5 px-3 text-center">Status</th>
                 <th className="py-2.5 px-3 text-right">Action</th>
               </tr>
             </thead>
@@ -434,7 +375,7 @@ export function PosDueSettlementManager() {
               {paginatedRecords.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="py-10 text-center text-slate-500">
-                    No due payment records found matching filters.
+                    No due payment records found. Kitchen prepared bills will appear here automatically.
                   </td>
                 </tr>
               ) : (
@@ -445,24 +386,33 @@ export function PosDueSettlementManager() {
                       <div className="font-mono text-[13px] font-black text-slate-900">
                         {bill.billNo}
                       </div>
-                      <div className="text-[11px] font-semibold text-slate-700 mt-0.5">
+                      <div className="text-[11.5px] font-bold text-teal-800 mt-0.5">
                         {bill.tableOrRoom}
                       </div>
-                      <div className="text-[10.5px] text-slate-400">
-                        Due: {bill.dueDate}
+                      <div className="text-[10.5px] text-slate-400">Date: {bill.dueDate}</div>
+                    </td>
+
+                    {/* Customer / Waiter */}
+                    <td className="py-3 px-3 align-top">
+                      <div className="font-bold text-slate-900 text-[12.5px] flex items-center gap-1">
+                        <User className="h-3 w-3 text-slate-400" />
+                        <span>{bill.customerName}</span>
+                      </div>
+                      {bill.customerPhone && bill.customerPhone !== "--" && (
+                        <div className="text-[11px] text-slate-500 font-mono flex items-center gap-1 mt-0.5">
+                          <Phone className="h-2.5 w-2.5 text-slate-400" />
+                          <span>{bill.customerPhone}</span>
+                        </div>
+                      )}
+                      <div className="text-[10.5px] text-slate-500 mt-0.5">
+                        Waiter: <span className="font-semibold text-slate-700">{bill.waiterName || "Captain"}</span>
                       </div>
                     </td>
 
-                    {/* Customer */}
+                    {/* Items Summary */}
                     <td className="py-3 px-3 align-top">
-                      <div className="font-bold text-slate-900 text-[12.5px]">
-                        {bill.customerName}
-                      </div>
-                      <div className="text-[11px] text-slate-500 font-mono">
-                        Ph: {bill.customerPhone}
-                      </div>
-                      <div className="text-[10.5px] text-slate-500">
-                        {bill.orderType}
+                      <div className="font-semibold text-slate-700 max-w-xs text-[11.5px] leading-relaxed">
+                        {bill.itemsSummary || "Dishes & Beverages"}
                       </div>
                     </td>
 
@@ -471,13 +421,11 @@ export function PosDueSettlementManager() {
                       <div className="font-bold text-slate-900 text-[12.5px]">
                         ₹ {bill.totalAmount.toLocaleString("en-IN")}.00
                       </div>
-                    </td>
-
-                    {/* Paid */}
-                    <td className="py-3 px-3 align-top text-right">
-                      <div className="font-medium text-slate-600 text-[12px]">
-                        ₹ {bill.paidAmount.toLocaleString("en-IN")}.00
-                      </div>
+                      {bill.paidAmount > 0 && (
+                        <div className="text-[10.5px] text-slate-500">
+                          Paid: ₹{bill.paidAmount.toLocaleString()}
+                        </div>
+                      )}
                     </td>
 
                     {/* Balance Due */}
@@ -494,21 +442,15 @@ export function PosDueSettlementManager() {
 
                     {/* Aging & Status */}
                     <td className="py-3 px-3 align-top text-center">
-                      <div className="flex flex-col items-center gap-1">
-                        <span
-                          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10.5px] font-bold border ${
-                            bill.status === "Settled"
-                              ? "bg-slate-100 text-slate-700 border-slate-300"
-                              : "bg-teal-50 text-teal-800 border-teal-300"
-                          }`}
-                        >
-                          {bill.status}
-                        </span>
-
-                        <span className="text-[10.5px] font-semibold text-slate-500">
-                          {bill.daysOverdue > 0 ? `${bill.daysOverdue}d overdue` : "Settled"}
-                        </span>
-                      </div>
+                      <span
+                        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10.5px] font-bold border ${
+                          bill.status === "Settled"
+                            ? "bg-slate-100 text-slate-700 border-slate-300"
+                            : "bg-teal-50 text-teal-800 border-teal-300"
+                        }`}
+                      >
+                        {bill.status}
+                      </span>
                     </td>
 
                     {/* Actions */}
@@ -517,15 +459,15 @@ export function PosDueSettlementManager() {
                         <button
                           type="button"
                           onClick={() => handleOpenSettleModal(bill)}
-                          className="flex h-7.5 items-center gap-1.5 rounded-lg bg-teal-700 px-3 text-[11.5px] font-bold text-white hover:bg-teal-800 active:scale-98 transition cursor-pointer shadow-2xs ml-auto"
+                          className="flex h-8 items-center gap-1.5 rounded-lg bg-teal-700 px-3.5 text-[11.5px] font-black text-white hover:bg-teal-800 active:scale-98 transition cursor-pointer shadow-xs ml-auto"
                         >
                           <CreditCard className="h-3.5 w-3.5" />
-                          <span>Settle Bill</span>
+                          <span>Settle & Done</span>
                         </button>
                       ) : (
                         <span className="inline-flex h-7.5 items-center gap-1 rounded-lg bg-slate-100 border border-slate-300 px-2.5 text-[11px] font-bold text-slate-600">
                           <Check className="h-3.5 w-3.5 text-teal-700" />
-                          <span>Paid</span>
+                          <span>Archived</span>
                         </span>
                       )}
                     </td>
@@ -536,52 +478,15 @@ export function PosDueSettlementManager() {
           </table>
         </div>
 
-        {/* Snug Pagination Bar */}
-        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-slate-200 bg-slate-50 px-3 py-2 text-[11.5px] text-slate-600">
-          <div>
-            Showing <strong className="text-slate-800">{totalRecords > 0 ? startIndex + 1 : 0}</strong> to{" "}
-            <strong className="text-slate-800">{Math.min(startIndex + pageSize, totalRecords)}</strong> of{" "}
-            <strong className="text-slate-800">{totalRecords}</strong> entries
-          </div>
-
-          <div className="flex items-center gap-1">
-            <button
-              type="button"
-              disabled={validPage <= 1}
-              onClick={() => setCurrentPage(1)}
-              className="rounded-md border border-slate-300 bg-white px-2 py-1 font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40 cursor-pointer shadow-2xs"
-            >
-              First
-            </button>
-            <button
-              type="button"
-              disabled={validPage <= 1}
-              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-              className="rounded-md border border-slate-300 bg-white px-2 py-1 font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40 cursor-pointer shadow-2xs"
-            >
-              Prev
-            </button>
-            <span className="px-2 font-bold text-teal-800">
-              Page {validPage} of {totalPages}
-            </span>
-            <button
-              type="button"
-              disabled={validPage >= totalPages}
-              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-              className="rounded-md border border-slate-300 bg-white px-2 py-1 font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40 cursor-pointer shadow-2xs"
-            >
-              Next
-            </button>
-            <button
-              type="button"
-              disabled={validPage >= totalPages}
-              onClick={() => setCurrentPage(totalPages)}
-              className="rounded-md border border-slate-300 bg-white px-2 py-1 font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40 cursor-pointer shadow-2xs"
-            >
-              Last
-            </button>
-          </div>
-        </div>
+        {/* Standardized DataTableFooter */}
+        <DataTableFooter
+          currentPage={validPage}
+          totalPages={totalPages}
+          totalCount={totalRecords}
+          pageSize={pageSize}
+          onPageChange={(p) => setCurrentPage(p)}
+          itemName="bills"
+        />
       </div>
 
       {/* QUICK SETTLEMENT MODAL */}
@@ -590,8 +495,12 @@ export function PosDueSettlementManager() {
           <div className="w-full max-w-md rounded-xl bg-white p-4.5 shadow-2xl space-y-3 border border-slate-300">
             <div className="flex items-center justify-between border-b border-slate-200 pb-2">
               <div>
-                <h3 className="text-[15px] font-black text-slate-900">Settle Outstanding Due</h3>
-                <p className="text-[11px] text-slate-500">{selectedBill.billNo} · {selectedBill.customerName}</p>
+                <h3 className="text-[15px] font-black text-slate-900">
+                  Payment Collection & Settlement
+                </h3>
+                <p className="text-[11px] text-slate-500">
+                  {selectedBill.billNo} · {selectedBill.tableOrRoom} ({selectedBill.customerName})
+                </p>
               </div>
               <button
                 type="button"
@@ -606,28 +515,44 @@ export function PosDueSettlementManager() {
             <div className="grid grid-cols-3 gap-2 rounded-lg bg-slate-50 p-2.5 border border-slate-300 text-center">
               <div>
                 <div className="text-[10.5px] font-bold text-slate-500 uppercase">Total Bill</div>
-                <div className="text-[13px] font-bold text-slate-800 mt-0.5">₹{selectedBill.totalAmount.toLocaleString()}</div>
+                <div className="text-[13px] font-bold text-slate-800 mt-0.5">
+                  ₹{selectedBill.totalAmount.toLocaleString()}
+                </div>
               </div>
               <div>
                 <div className="text-[10.5px] font-bold text-slate-500 uppercase">Paid So Far</div>
-                <div className="text-[13px] font-bold text-slate-600 mt-0.5">₹{selectedBill.paidAmount.toLocaleString()}</div>
+                <div className="text-[13px] font-bold text-slate-600 mt-0.5">
+                  ₹{selectedBill.paidAmount.toLocaleString()}
+                </div>
               </div>
               <div>
                 <div className="text-[10.5px] font-bold text-teal-800 uppercase">Balance Due</div>
-                <div className="text-[14px] font-black text-teal-800 mt-0.5">₹{selectedBill.dueAmount.toLocaleString()}</div>
+                <div className="text-[14px] font-black text-teal-800 mt-0.5">
+                  ₹{selectedBill.dueAmount.toLocaleString()}
+                </div>
               </div>
             </div>
 
+            {/* Dishes Ordered Preview */}
+            {selectedBill.itemsSummary && (
+              <div className="rounded-lg bg-slate-50 p-2 border border-slate-200 text-xs">
+                <span className="text-[10.5px] font-bold text-slate-500 block mb-0.5">Dishes Billed:</span>
+                <p className="text-slate-800 font-medium text-[11px] leading-snug">{selectedBill.itemsSummary}</p>
+              </div>
+            )}
+
             {/* Settlement Mode Selection */}
             <div className="space-y-1">
-              <label className="block text-[11.5px] font-bold text-slate-700">Payment Collection Mode</label>
-              <div className="grid grid-cols-4 gap-1.5">
-                {(["UPI", "Cash", "Card", "Room Charge"] as const).map((mode) => (
+              <label className="block text-[11.5px] font-bold text-slate-700">
+                Payment Collection Mode
+              </label>
+              <div className="grid grid-cols-5 gap-1">
+                {(["UPI", "Cash", "Card", "Room Charge", "Split"] as const).map((mode) => (
                   <button
                     key={mode}
                     type="button"
                     onClick={() => setSettlementMode(mode)}
-                    className={`rounded-lg py-1.5 text-[11.5px] font-bold transition cursor-pointer border ${
+                    className={`rounded-lg py-1.5 text-[11px] font-bold transition cursor-pointer border ${
                       settlementMode === mode
                         ? "bg-teal-700 text-white border-teal-700 shadow-2xs"
                         : "bg-white border-slate-300 text-slate-700 hover:bg-slate-50"
@@ -641,7 +566,9 @@ export function PosDueSettlementManager() {
 
             {/* Amount Input */}
             <div className="space-y-1">
-              <label className="block text-[11.5px] font-bold text-slate-700">Collection Amount (₹)</label>
+              <label className="block text-[11.5px] font-bold text-slate-700">
+                Collection Amount (₹)
+              </label>
               <div className="relative">
                 <IndianRupee className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
                 <input
@@ -658,10 +585,11 @@ export function PosDueSettlementManager() {
               <button
                 type="button"
                 onClick={handleConfirmSettlement}
+                disabled={settleMutation.isPending}
                 className="flex items-center justify-center gap-1.5 rounded-lg bg-teal-700 py-2 text-[12px] font-bold text-white hover:bg-teal-800 active:scale-98 transition cursor-pointer shadow-2xs"
               >
                 <Check className="h-4 w-4" />
-                <span>Confirm Settlement</span>
+                <span>Mark Done & Settle</span>
               </button>
               <button
                 type="button"
@@ -679,3 +607,4 @@ export function PosDueSettlementManager() {
 }
 
 export default PosDueSettlementManager;
+

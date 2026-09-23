@@ -14,9 +14,7 @@ export function PaymentInformationView() {
     <div className="space-y-4">
       {/* 1. Header matching Screenshot 1 */}
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-[18px] font-bold text-slate-900 tracking-tight">
-          Payment Information
-        </h2>
+        <h2 className="text-[18px] font-bold text-slate-900 tracking-tight">Payment Information</h2>
 
         <button
           type="button"

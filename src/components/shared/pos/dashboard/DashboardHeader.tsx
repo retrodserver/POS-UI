@@ -8,11 +8,7 @@ interface DashboardHeaderProps {
   onDateChange?: (range: "today" | "yesterday" | "this_week" | "this_month") => void;
 }
 
-export function DashboardHeader({
-  dateLabel,
-  isMockData,
-  onDateChange,
-}: DashboardHeaderProps) {
+export function DashboardHeader({ dateLabel, isMockData, onDateChange }: DashboardHeaderProps) {
   const [selectedRange, setSelectedRange] = useState(dateLabel);
   const [showDatePicker, setShowDatePicker] = useState(false);
 

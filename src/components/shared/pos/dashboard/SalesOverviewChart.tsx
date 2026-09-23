@@ -65,7 +65,9 @@ export function SalesOverviewChart({ data }: SalesOverviewChartProps) {
                     setShowMenu(false);
                   }}
                   className={`w-full rounded-md px-2 py-1.5 text-left text-[12px] ${
-                    timeRange === t ? "bg-teal-50 text-teal-700 font-semibold" : "text-slate-600 hover:bg-slate-50"
+                    timeRange === t
+                      ? "bg-teal-50 text-teal-700 font-semibold"
+                      : "text-slate-600 hover:bg-slate-50"
                   }`}
                 >
                   {t}

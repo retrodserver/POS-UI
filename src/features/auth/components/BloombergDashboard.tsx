@@ -79,8 +79,9 @@ export function BloombergDashboard() {
             </h1>
 
             <p className="mt-4 max-w-xl text-[13.5px] leading-relaxed text-white/65">
-              The unified cloud POS platform for modern dining — lightning touch billing,
-              real-time KOT kitchen display, multi-channel aggregator sync (Swiggy/Zomato), and automated inventory deductions.
+              The unified cloud POS platform for modern dining — lightning touch billing, real-time
+              KOT kitchen display, multi-channel aggregator sync (Swiggy/Zomato), and automated
+              inventory deductions.
             </p>
 
             {/* Benefits */}
@@ -212,7 +213,9 @@ function LiveOperationsCard() {
             Live Restaurant Velocity
           </div>
           <div className="mt-1 flex items-baseline gap-2">
-            <div className="font-display text-[19px] font-semibold text-white">184 Orders Today</div>
+            <div className="font-display text-[19px] font-semibold text-white">
+              184 Orders Today
+            </div>
             <div className="text-[11px] text-emerald-300/90">● 98.2% on time</div>
           </div>
         </div>
@@ -236,7 +239,8 @@ function LiveOperationsCard() {
 
       <div className="mt-3 flex items-center justify-between border-t border-white/10 pt-3 text-[11px] text-white/60">
         <span className="flex items-center gap-1.5">
-          <Clock className="h-3.5 w-3.5 text-primary" /> Avg Bill Turnaround: <b className="text-white">42s</b>
+          <Clock className="h-3.5 w-3.5 text-primary" /> Avg Bill Turnaround:{" "}
+          <b className="text-white">42s</b>
         </span>
         <span className="flex items-center gap-1 text-emerald-300">
           <CheckCircle2 className="h-3.5 w-3.5" /> 0 KOT Leakages
@@ -251,7 +255,8 @@ function TestimonialCard() {
     <div className="relative overflow-hidden rounded-xl border border-white/8 bg-gradient-to-br from-white/[0.05] to-white/[0.02] p-4">
       <Quote className="h-4 w-4 text-[oklch(0.78_0.14_85)]" />
       <p className="mt-2 text-[12px] leading-relaxed text-white/80">
-        "Retrod POS slashed our checkout time by 60% and unified our Swiggy, Zomato, and Dine-in operations effortlessly across all shifts."
+        "Retrod POS slashed our checkout time by 60% and unified our Swiggy, Zomato, and Dine-in
+        operations effortlessly across all shifts."
       </p>
       <div className="mt-3 flex items-center gap-2.5">
         <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-primary to-[oklch(0.55_0.22_295)] text-[10px] font-semibold text-white">

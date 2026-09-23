@@ -2,8 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
   ArrowLeft,
-  BadgePercent,
-  Upload,
+  UtensilsCrossed,
   Sliders,
   FileEdit,
   Coins,
@@ -11,12 +10,11 @@ import {
   BookOpen,
   RefreshCw,
   ChevronLeft,
-  CheckCircle2,
 } from "lucide-react";
 import type { MenuTabKey } from "@/types/posMenu";
 import { useSyncPos } from "@/hooks/queries/usePosMenu";
-import { MenuDiscountsView } from "./views/MenuDiscountsView";
-import { MultiItemImagesUploadView } from "./views/MultiItemImagesUploadView";
+import { useOutletContext } from "@/context/PosOutletContext";
+import { MenuListManagerView } from "./views/MenuListManagerView";
 import { MenuOnOffView } from "./views/MenuOnOffView";
 import { SpecialNoteView } from "./views/SpecialNoteView";
 import { SetItemCommissionView } from "./views/SetItemCommissionView";
@@ -26,7 +24,8 @@ import { toast } from "sonner";
 
 export function PosMenuManager() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<MenuTabKey>("menu_management");
+  const { activeOutlet } = useOutletContext();
+  const [activeTab, setActiveTab] = useState<MenuTabKey>("menu_list");
   const [lastSyncText, setLastSyncText] = useState("12 hr ago");
   const syncMutation = useSyncPos();
 
@@ -44,23 +43,18 @@ export function PosMenuManager() {
 
   const navMenuItems = [
     {
-      id: "menu_management" as MenuTabKey,
-      label: "Menu & Discounts",
-      icon: BadgePercent,
-    },
-    {
-      id: "upload_item_images" as MenuTabKey,
-      label: "Multi-Item Images Upload",
-      icon: Upload,
+      id: "menu_list" as MenuTabKey,
+      label: "Menu List",
+      icon: UtensilsCrossed,
     },
     {
       id: "item_on_off" as MenuTabKey,
-      label: "Menu on/off",
+      label: "Menu Availability",
       icon: Sliders,
     },
     {
       id: "special_note_list" as MenuTabKey,
-      label: "Special Note",
+      label: "Special Notes",
       icon: FileEdit,
     },
     {
@@ -70,19 +64,19 @@ export function PosMenuManager() {
     },
     {
       id: "menu_scheduling" as MenuTabKey,
-      label: "Schedule Changes",
+      label: "Menu Schedule",
       icon: Clock,
     },
     {
       id: "physical_menu" as MenuTabKey,
-      label: "Physical Menu",
+      label: "Printed Menu",
       icon: BookOpen,
     },
   ];
 
   return (
     <div className="flex min-h-[calc(100vh-4rem)] bg-[#f8fafc]">
-      {/* 1. Petpooja Style Left Menu Sub-Navigation Rail */}
+      {/* 1. Left Menu Sub-Navigation Rail */}
       <aside className="w-60 shrink-0 border-r border-slate-200 bg-white shadow-2xs flex flex-col justify-between">
         <div className="py-2">
           {/* Back To Billing Link */}
@@ -110,7 +104,9 @@ export function PosMenuManager() {
                       : "text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium"
                   }`}
                 >
-                  <Icon className={`h-4 w-4 shrink-0 ${isActive ? "text-teal-600" : "text-slate-400"}`} />
+                  <Icon
+                    className={`h-4 w-4 shrink-0 ${isActive ? "text-teal-600" : "text-slate-400"}`}
+                  />
                   <span className="truncate">{item.label}</span>
                 </button>
               );
@@ -123,8 +119,11 @@ export function PosMenuManager() {
           <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
             Outlet Context
           </div>
-          <div className="truncate text-[12px] font-bold text-slate-800 mt-0.5">
-            HIGHWAY INN BAR & RESTAURANT
+          <div
+            className="truncate text-[12px] font-bold text-slate-800 mt-0.5"
+            title={activeOutlet.name}
+          >
+            {activeOutlet.name}
           </div>
         </div>
       </aside>
@@ -135,21 +134,24 @@ export function PosMenuManager() {
         <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200/80 pb-4">
           <div className="flex items-center gap-2">
             <h1 className="text-[18px] font-bold text-slate-900">
-              {activeTab === "menu_management" && "Menu Management"}
-              {activeTab === "upload_item_images" && "Upload Item Images"}
-              {activeTab === "item_on_off" && "Menu on/off"}
-              {activeTab === "special_note_list" && "Special Note"}
-              {activeTab === "menucommission_list" && "Set Menu Commission"}
-              {activeTab === "menu_scheduling" && "Menu Scheduling"}
-              {activeTab === "physical_menu" && "Physical Menu"}
+              {activeTab === "menu_list" && "Menu List"}
+              {activeTab === "item_on_off" && "Menu Availability"}
+              {activeTab === "special_note_list" && "Special Notes"}
+              {activeTab === "menucommission_list" && "Set Item Commission"}
+              {activeTab === "menu_scheduling" && "Menu Schedule"}
+              {activeTab === "physical_menu" && "Printed Menu"}
             </h1>
           </div>
 
           <div className="flex items-center gap-2.5">
             {/* Last Menu Sync indicator */}
             <div className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50/80 px-3 py-1.5 text-[12px] text-amber-800 shadow-2xs">
-              <RefreshCw className={`h-3.5 w-3.5 text-amber-600 ${syncMutation.isPending ? "animate-spin" : ""}`} />
-              <span>Last Menu Sync <strong className="font-semibold">{lastSyncText}</strong></span>
+              <RefreshCw
+                className={`h-3.5 w-3.5 text-amber-600 ${syncMutation.isPending ? "animate-spin" : ""}`}
+              />
+              <span>
+                Last Menu Sync <strong className="font-semibold">{lastSyncText}</strong>
+              </span>
             </div>
 
             {/* Sync POS Action Button */}
@@ -159,7 +161,9 @@ export function PosMenuManager() {
               disabled={syncMutation.isPending}
               className="flex items-center gap-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 px-4 py-1.5 text-[12.5px] font-bold text-white shadow-2xs transition cursor-pointer disabled:opacity-50"
             >
-              <RefreshCw className={`h-3.5 w-3.5 ${syncMutation.isPending ? "animate-spin" : ""}`} />
+              <RefreshCw
+                className={`h-3.5 w-3.5 ${syncMutation.isPending ? "animate-spin" : ""}`}
+              />
               {syncMutation.isPending ? "Syncing..." : "Sync POS"}
             </button>
 
@@ -167,8 +171,8 @@ export function PosMenuManager() {
             <button
               type="button"
               onClick={() => {
-                if (activeTab !== "menu_management") {
-                  setActiveTab("menu_management");
+                if (activeTab !== "menu_list") {
+                  setActiveTab("menu_list");
                 } else {
                   navigate({ to: "/pos/billing" });
                 }
@@ -182,13 +186,20 @@ export function PosMenuManager() {
         </div>
 
         {/* Dynamic Sub-View Content */}
-        {activeTab === "menu_management" && <MenuDiscountsView />}
-        {activeTab === "upload_item_images" && <MultiItemImagesUploadView />}
-        {activeTab === "item_on_off" && <MenuOnOffView onBack={() => setActiveTab("menu_management")} />}
-        {activeTab === "special_note_list" && <SpecialNoteView onBack={() => setActiveTab("menu_management")} />}
-        {activeTab === "menucommission_list" && <SetItemCommissionView onBack={() => setActiveTab("menu_management")} />}
-        {activeTab === "menu_scheduling" && <ScheduleChangesView onBack={() => setActiveTab("menu_management")} />}
-        {activeTab === "physical_menu" && <PhysicalMenuView onBack={() => setActiveTab("menu_management")} />}
+        {activeTab === "menu_list" && <MenuListManagerView />}
+        {activeTab === "item_on_off" && <MenuOnOffView onBack={() => setActiveTab("menu_list")} />}
+        {activeTab === "special_note_list" && (
+          <SpecialNoteView onBack={() => setActiveTab("menu_list")} />
+        )}
+        {activeTab === "menucommission_list" && (
+          <SetItemCommissionView onBack={() => setActiveTab("menu_list")} />
+        )}
+        {activeTab === "menu_scheduling" && (
+          <ScheduleChangesView onBack={() => setActiveTab("menu_list")} />
+        )}
+        {activeTab === "physical_menu" && (
+          <PhysicalMenuView onBack={() => setActiveTab("menu_list")} />
+        )}
       </div>
     </div>
   );

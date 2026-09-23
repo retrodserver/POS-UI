@@ -24,13 +24,7 @@ export interface Reservation {
   eventMeta?: EventMeta;
 }
 
-export type ReservationType =
-  | "individual"
-  | "group"
-  | "corporate"
-  | "package"
-  | "walkin"
-  | "event";
+export type ReservationType = "individual" | "group" | "corporate" | "package" | "walkin" | "event";
 
 export type FrontDeskStatus =
   | "pre_arrival"
@@ -223,7 +217,6 @@ export interface GuestProfile {
   notes?: { at: string; author: string; text: string }[];
   stays?: { id: string; room: string; ci: string; co: string; amount: number }[];
 }
-
 
 export interface WaitlistEntry {
   id: string;
@@ -762,11 +755,7 @@ export type TaxComponentType =
   | "vat"
   | "luxury_tax";
 
-export type TaxCalculationBase =
-  | "room_tariff"
-  | "folio_subtotal"
-  | "per_night"
-  | "per_guest_night";
+export type TaxCalculationBase = "room_tariff" | "folio_subtotal" | "per_night" | "per_guest_night";
 
 export interface TaxComponent {
   id: string;

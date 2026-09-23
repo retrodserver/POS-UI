@@ -16,7 +16,9 @@ export function LoanInformationView() {
           <Landmark className="h-7 w-7" />
         </div>
         <div className="text-[14.5px] font-bold text-slate-700">No Active Loans</div>
-        <p className="text-[12px] text-slate-400">There are no outstanding capital finance deductions registered.</p>
+        <p className="text-[12px] text-slate-400">
+          There are no outstanding capital finance deductions registered.
+        </p>
       </div>
     </div>
   );

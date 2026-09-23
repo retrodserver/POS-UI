@@ -35,7 +35,7 @@ interface LiveTimelineOrder {
   startTime: string;
   elapsedMinutes: number;
   estDurationMinutes: number;
-  currentStage: "placed" | "prep" | "ready" | "dispatched";
+  currentStage: "placed" | "prepared" | "settled";
   stageLabel: string;
 }
 
@@ -53,8 +53,8 @@ const MOCK_TIMELINE_ORDERS: LiveTimelineOrder[] = [
     startTime: "16:10",
     elapsedMinutes: 28,
     estDurationMinutes: 40,
-    currentStage: "ready",
-    stageLabel: "Food Ready",
+    currentStage: "prepared",
+    stageLabel: "Prepared by Chef",
   },
   {
     id: "live-ord-2",
@@ -69,8 +69,8 @@ const MOCK_TIMELINE_ORDERS: LiveTimelineOrder[] = [
     startTime: "16:22",
     elapsedMinutes: 16,
     estDurationMinutes: 35,
-    currentStage: "prep",
-    stageLabel: "In Kitchen",
+    currentStage: "placed",
+    stageLabel: "Placed (In Kitchen)",
   },
   {
     id: "live-ord-3",
@@ -84,8 +84,8 @@ const MOCK_TIMELINE_ORDERS: LiveTimelineOrder[] = [
     startTime: "16:02",
     elapsedMinutes: 36,
     estDurationMinutes: 45,
-    currentStage: "dispatched",
-    stageLabel: "Out for Delivery",
+    currentStage: "prepared",
+    stageLabel: "Prepared by Chef",
   },
   {
     id: "live-ord-4",
@@ -99,8 +99,8 @@ const MOCK_TIMELINE_ORDERS: LiveTimelineOrder[] = [
     startTime: "16:30",
     elapsedMinutes: 8,
     estDurationMinutes: 20,
-    currentStage: "prep",
-    stageLabel: "In Kitchen",
+    currentStage: "placed",
+    stageLabel: "Placed (In Kitchen)",
   },
   {
     id: "live-ord-5",
@@ -116,19 +116,25 @@ const MOCK_TIMELINE_ORDERS: LiveTimelineOrder[] = [
     elapsedMinutes: 4,
     estDurationMinutes: 30,
     currentStage: "placed",
-    stageLabel: "Order Received",
+    stageLabel: "Placed (In Kitchen)",
   },
 ];
 
 export function PosLiveOrdersManager() {
-  const [activeTab, setActiveTab] = useState<"gantt_timeline" | "running_orders" | "running_tables">("gantt_timeline");
-  const [timelineFilter, setTimelineFilter] = useState<"all" | "dine_in" | "pickup" | "delivery">("all");
+  const [activeTab, setActiveTab] = useState<
+    "gantt_timeline" | "running_orders" | "running_tables"
+  >("gantt_timeline");
+  const [timelineFilter, setTimelineFilter] = useState<"all" | "dine_in" | "pickup" | "delivery">(
+    "all",
+  );
   const [stageFilter, setStageFilter] = useState<string>("all");
   const { data, refetch, isFetching } = useLiveOrders();
 
   const [selectedTable, setSelectedTable] = useState<any | null>(null);
   const [selectedBreakdownTitle, setSelectedBreakdownTitle] = useState<string | null>(null);
-  const [selectedTimelineOrder, setSelectedTimelineOrder] = useState<LiveTimelineOrder | null>(null);
+  const [selectedTimelineOrder, setSelectedTimelineOrder] = useState<LiveTimelineOrder | null>(
+    null,
+  );
 
   const running = data?.runningOrders ?? {
     totalOrders: 2,
@@ -151,39 +157,56 @@ export function PosLiveOrdersManager() {
   const handleAdvanceStage = (id: string, e?: React.MouseEvent) => {
     e?.stopPropagation();
     setTimelineOrders((prev) =>
-      prev.map((ord) => {
-        if (ord.id !== id) return ord;
-        if (ord.currentStage === "placed") {
-          return { ...ord, currentStage: "prep", stageLabel: "In Kitchen", elapsedMinutes: 1 };
-        }
-        if (ord.currentStage === "prep") {
-          return { ...ord, currentStage: "ready", stageLabel: "Food Ready", elapsedMinutes: 1 };
-        }
-        if (ord.currentStage === "ready") {
-          return { ...ord, currentStage: "dispatched", stageLabel: "Served / Dispatched", elapsedMinutes: 1 };
-        }
-        return ord;
-      })
+      prev
+        .map((ord) => {
+          if (ord.id !== id) return ord;
+          if (ord.currentStage === "placed") {
+            return {
+              ...ord,
+              currentStage: "prepared" as const,
+              stageLabel: "Prepared by Chef",
+              elapsedMinutes: 1,
+            };
+          }
+          if (ord.currentStage === "prepared") {
+            // Stage 3 Settle & Done -> order completes and goes to Order History
+            return null;
+          }
+          return ord;
+        })
+        .filter(Boolean) as LiveTimelineOrder[],
     );
   };
 
   const STAGES_CONFIG = [
-    { key: "placed", title: "1. Placed", short: "Placed", desc: "Ticket Received" },
-    { key: "prep", title: "2. Kitchen", short: "Kitchen", desc: "Cooking" },
-    { key: "ready", title: "3. Food Ready", short: "Ready", desc: "Plated & Packed" },
-    { key: "dispatched", title: "4. Served", short: "Served", desc: "Delivered / Done" },
+    {
+      key: "placed",
+      title: "1. Placed (In KOT)",
+      short: "Placed",
+      desc: "Order taken & sent to kitchen",
+    },
+    {
+      key: "prepared",
+      title: "2. Prepared",
+      short: "Prepared",
+      desc: "Chef 1-click Prepared · Sent to billing",
+    },
+    {
+      key: "settled",
+      title: "3. Settle & Done",
+      short: "Settled",
+      desc: "Frontdesk payment settled & archived",
+    },
   ] as const;
 
   const getStageIndex = (stage: LiveTimelineOrder["currentStage"]) => {
     switch (stage) {
       case "placed":
         return 0;
-      case "prep":
+      case "prepared":
         return 1;
-      case "ready":
+      case "settled":
         return 2;
-      case "dispatched":
-        return 3;
       default:
         return 0;
     }
@@ -197,6 +220,7 @@ export function PosLiveOrdersManager() {
     });
   }, [timelineOrders, timelineFilter, stageFilter]);
 
+
   return (
     <div className="space-y-2.5">
       {/* 1. TOP HEADER & VIEW SWITCHER */}
@@ -207,13 +231,15 @@ export function PosLiveOrdersManager() {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-[16px] font-bold text-slate-900 leading-tight">Live Orders</h1>
+              <h1 className="text-[16px] font-bold text-slate-900 leading-tight">Current Orders</h1>
               <span className="inline-flex items-center gap-1 rounded-full bg-teal-50 px-2 py-0.2 text-[10.5px] font-bold text-teal-700 border border-teal-300">
                 <span className="h-1.5 w-1.5 rounded-full bg-teal-600 animate-pulse" />
                 Live Feed
               </span>
             </div>
-            <p className="text-[11px] text-slate-500">Real-time status tracking, Gantt lifecycle timelines & floor tables</p>
+            <p className="text-[11px] text-slate-500">
+              Real-time status tracking, Gantt lifecycle timelines & floor tables
+            </p>
           </div>
         </div>
 
@@ -264,7 +290,9 @@ export function PosLiveOrdersManager() {
             disabled={isFetching}
             className="flex h-8 items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 text-[12px] font-medium text-slate-700 hover:bg-slate-50 shadow-2xs transition cursor-pointer"
           >
-            <RefreshCw className={`h-3 w-3 text-slate-500 ${isFetching ? "animate-spin text-teal-600" : ""}`} />
+            <RefreshCw
+              className={`h-3 w-3 text-slate-500 ${isFetching ? "animate-spin text-teal-600" : ""}`}
+            />
             <span>{isFetching ? "Syncing..." : "Sync"}</span>
           </button>
         </div>
@@ -277,7 +305,9 @@ export function PosLiveOrdersManager() {
             <span className="text-[11px] font-bold uppercase tracking-wider">Active Orders</span>
             <span className="h-2 w-2 rounded-full bg-teal-600" />
           </div>
-          <div className="mt-0.5 text-[20px] font-black text-slate-900">{running.totalOrders + pending.totalOrders}</div>
+          <div className="mt-0.5 text-[20px] font-black text-slate-900">
+            {running.totalOrders + pending.totalOrders}
+          </div>
           <div className="flex items-center gap-1 text-[10.5px] text-slate-500">
             <span className="font-bold text-teal-700">{running.totalOrders} Running</span>
             <span>·</span>
@@ -290,7 +320,9 @@ export function PosLiveOrdersManager() {
             <span className="text-[11px] font-bold uppercase tracking-wider">Live Revenue</span>
             <span className="h-2 w-2 rounded-full bg-teal-600" />
           </div>
-          <div className="mt-0.5 text-[20px] font-black text-slate-900">{running.totalAmountFormatted}</div>
+          <div className="mt-0.5 text-[20px] font-black text-slate-900">
+            {running.totalAmountFormatted}
+          </div>
           <div className="text-[10.5px] text-teal-700 font-medium">Synced in POS billing</div>
         </div>
 
@@ -299,7 +331,9 @@ export function PosLiveOrdersManager() {
             <span className="text-[11px] font-bold uppercase tracking-wider">In Kitchen</span>
             <ChefHat className="h-3.5 w-3.5 text-slate-600" />
           </div>
-          <div className="mt-0.5 text-[20px] font-black text-slate-900">{pending.inPreparation.count + 2}</div>
+          <div className="mt-0.5 text-[20px] font-black text-slate-900">
+            {pending.inPreparation.count + 2}
+          </div>
           <div className="text-[10.5px] text-slate-500">Avg prep time: 18m</div>
         </div>
 
@@ -308,7 +342,9 @@ export function PosLiveOrdersManager() {
             <span className="text-[11px] font-bold uppercase tracking-wider">Active Tables</span>
             <Utensils className="h-3.5 w-3.5 text-slate-600" />
           </div>
-          <div className="mt-0.5 text-[20px] font-black text-slate-900">{data?.runningTables.length ?? 3} / 16</div>
+          <div className="mt-0.5 text-[20px] font-black text-slate-900">
+            {data?.runningTables.length ?? 3} / 16
+          </div>
           <div className="text-[10.5px] text-teal-700 font-medium">19% Floor Occupancy</div>
         </div>
       </div>
@@ -346,10 +382,9 @@ export function PosLiveOrdersManager() {
                 className="h-7.5 rounded-md border border-slate-300 bg-slate-50 px-2 text-[11.5px] font-medium text-slate-700 focus:border-teal-500 focus:outline-hidden cursor-pointer"
               >
                 <option value="all">All Stages</option>
-                <option value="placed">Order Placed</option>
-                <option value="prep">In Preparation</option>
-                <option value="ready">Food Ready</option>
-                <option value="dispatched">Dispatched / Served</option>
+                <option value="placed">1. Placed (In KOT)</option>
+                <option value="prepared">2. Prepared by Chef</option>
+                <option value="settled">3. Settle & Done</option>
               </select>
             </div>
           </div>
@@ -360,21 +395,31 @@ export function PosLiveOrdersManager() {
             <div className="border-b border-slate-300 bg-slate-50 p-3">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div>
-                  <h2 className="text-[13.5px] font-bold text-slate-900">Live Order Process Stage Timeline</h2>
-                  <p className="text-[11px] text-slate-500">Step-by-step progress tracker with stage checkpoints & fast action</p>
+                  <h2 className="text-[13.5px] font-bold text-slate-900">
+                    Live Order Process Stage Timeline
+                  </h2>
+                  <p className="text-[11px] text-slate-500">
+                    Step-by-step progress tracker with stage checkpoints & fast action
+                  </p>
                 </div>
                 {/* 2-3 Color Legend */}
                 <div className="flex items-center gap-3 text-[11px] font-semibold text-slate-600">
                   <span className="flex items-center gap-1.5">
-                    <span className="flex h-4 w-4 items-center justify-center rounded-full bg-teal-700 text-white text-[9px] font-bold">✓</span>
+                    <span className="flex h-4 w-4 items-center justify-center rounded-full bg-teal-700 text-white text-[9px] font-bold">
+                      ✓
+                    </span>
                     <span>Completed</span>
                   </span>
                   <span className="flex items-center gap-1.5">
-                    <span className="flex h-4 w-4 items-center justify-center rounded-full border-2 border-teal-700 bg-teal-50 text-teal-800 text-[8px] font-bold">●</span>
+                    <span className="flex h-4 w-4 items-center justify-center rounded-full border-2 border-teal-700 bg-teal-50 text-teal-800 text-[8px] font-bold">
+                      ●
+                    </span>
                     <span className="text-teal-800 font-bold">In Progress</span>
                   </span>
                   <span className="flex items-center gap-1.5">
-                    <span className="flex h-4 w-4 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-400 text-[9px]">○</span>
+                    <span className="flex h-4 w-4 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-400 text-[9px]">
+                      ○
+                    </span>
                     <span className="text-slate-500">Upcoming</span>
                   </span>
                 </div>
@@ -394,11 +439,15 @@ export function PosLiveOrdersManager() {
                     {/* Left 4 Cols: Order Details */}
                     <div className="lg:col-span-4 space-y-1">
                       <div className="flex items-center gap-2">
-                        <span className="font-mono text-[13px] font-extrabold text-slate-900">{ord.orderNumber}</span>
+                        <span className="font-mono text-[13px] font-extrabold text-slate-900">
+                          {ord.orderNumber}
+                        </span>
                         <span className="rounded px-2 py-0.5 text-[10.5px] font-bold border border-slate-300 bg-slate-100 text-slate-700">
                           {ord.typeLabel}
                         </span>
-                        <span className="text-[11px] text-slate-400 font-medium">at {ord.startTime}</span>
+                        <span className="text-[11px] text-slate-400 font-medium">
+                          at {ord.startTime}
+                        </span>
                       </div>
 
                       <div className="text-[12px] font-semibold text-slate-800 flex items-center gap-1.5">
@@ -407,10 +456,14 @@ export function PosLiveOrdersManager() {
                         <span className="text-slate-600 font-normal">{ord.customerName}</span>
                       </div>
 
-                      <div className="text-[11px] text-slate-500 truncate max-w-sm">{ord.itemsSummary}</div>
+                      <div className="text-[11px] text-slate-500 truncate max-w-sm">
+                        {ord.itemsSummary}
+                      </div>
 
                       <div className="flex items-center gap-2 pt-0.5">
-                        <span className="text-[13px] font-black text-slate-900">{ord.amountFormatted}</span>
+                        <span className="text-[13px] font-black text-slate-900">
+                          {ord.amountFormatted}
+                        </span>
                         <span className="text-slate-300">·</span>
                         <span className="flex items-center gap-1 text-[11px] font-semibold text-slate-600">
                           <Clock className="h-3 w-3 text-slate-400" />
@@ -429,7 +482,10 @@ export function PosLiveOrdersManager() {
                           const isUpcoming = idx > stageIdx;
 
                           return (
-                            <div key={stage.key} className="relative z-10 flex flex-1 flex-col items-center">
+                            <div
+                              key={stage.key}
+                              className="relative z-10 flex flex-1 flex-col items-center"
+                            >
                               {/* Stop Node */}
                               <div className="flex items-center justify-center">
                                 {isCompleted ? (
@@ -454,8 +510,8 @@ export function PosLiveOrdersManager() {
                                     isActive
                                       ? "text-teal-900 font-extrabold"
                                       : isCompleted
-                                      ? "text-slate-800"
-                                      : "text-slate-400"
+                                        ? "text-slate-800"
+                                        : "text-slate-400"
                                   }`}
                                 >
                                   {stage.title}
@@ -480,8 +536,8 @@ export function PosLiveOrdersManager() {
                                     idx < stageIdx
                                       ? "bg-teal-700"
                                       : idx === stageIdx
-                                      ? "bg-slate-200"
-                                      : "bg-slate-200"
+                                        ? "bg-slate-200"
+                                        : "bg-slate-200"
                                   }`}
                                 />
                               )}
@@ -501,15 +557,13 @@ export function PosLiveOrdersManager() {
                           <span>View Details</span>
                         </button>
 
-                        {ord.currentStage !== "dispatched" ? (
+                        {ord.currentStage !== "settled" ? (
                           <button
                             type="button"
                             onClick={(e) => handleAdvanceStage(ord.id, e)}
                             className="flex h-7.5 items-center gap-1.5 rounded-lg bg-teal-700 px-3 text-[11.5px] font-bold text-white hover:bg-teal-800 active:scale-98 transition cursor-pointer shadow-2xs"
                           >
-                            <span>
-                              Advance to {STAGES_CONFIG[stageIdx + 1]?.short ?? "Next"}
-                            </span>
+                            <span>Advance to {STAGES_CONFIG[stageIdx + 1]?.short ?? "Next"}</span>
                             <ArrowRight className="h-3.5 w-3.5" />
                           </button>
                         ) : (
@@ -548,11 +602,15 @@ export function PosLiveOrdersManager() {
             <div className="grid grid-cols-2 gap-2.5 rounded-lg bg-slate-50 p-2.5 border border-slate-300 text-center">
               <div className="border-r border-slate-200 pr-2">
                 <div className="text-[11px] font-semibold text-slate-500">Total Orders</div>
-                <div className="mt-0.5 text-[18px] font-extrabold text-slate-900">{running.totalOrders}</div>
+                <div className="mt-0.5 text-[18px] font-extrabold text-slate-900">
+                  {running.totalOrders}
+                </div>
               </div>
               <div className="pl-2">
                 <div className="text-[11px] font-semibold text-slate-500">Total Amount</div>
-                <div className="mt-0.5 text-[18px] font-extrabold text-teal-700">{running.totalAmountFormatted}</div>
+                <div className="mt-0.5 text-[18px] font-extrabold text-teal-700">
+                  {running.totalAmountFormatted}
+                </div>
               </div>
             </div>
 
@@ -570,7 +628,9 @@ export function PosLiveOrdersManager() {
                     <div className="text-[11px] text-slate-500">{running.dineIn.count} orders</div>
                   </div>
                 </div>
-                <div className="text-[13px] font-black text-slate-900">{running.dineIn.amountFormatted}</div>
+                <div className="text-[13px] font-black text-slate-900">
+                  {running.dineIn.amountFormatted}
+                </div>
               </div>
 
               <div
@@ -586,7 +646,9 @@ export function PosLiveOrdersManager() {
                     <div className="text-[11px] text-slate-500">{running.pickUp.count} orders</div>
                   </div>
                 </div>
-                <div className="text-[13px] font-black text-slate-900">{running.pickUp.amountFormatted}</div>
+                <div className="text-[13px] font-black text-slate-900">
+                  {running.pickUp.amountFormatted}
+                </div>
               </div>
 
               <div
@@ -599,10 +661,14 @@ export function PosLiveOrdersManager() {
                   </div>
                   <div>
                     <div className="text-[12.5px] font-bold text-slate-900">Delivery</div>
-                    <div className="text-[11px] text-slate-500">{running.delivery.count} orders</div>
+                    <div className="text-[11px] text-slate-500">
+                      {running.delivery.count} orders
+                    </div>
                   </div>
                 </div>
-                <div className="text-[13px] font-black text-slate-900">{running.delivery.amountFormatted}</div>
+                <div className="text-[13px] font-black text-slate-900">
+                  {running.delivery.amountFormatted}
+                </div>
               </div>
             </div>
           </div>
@@ -624,11 +690,15 @@ export function PosLiveOrdersManager() {
             <div className="grid grid-cols-2 gap-2.5 rounded-lg bg-slate-50 p-2.5 border border-slate-300 text-center">
               <div className="border-r border-slate-200 pr-2">
                 <div className="text-[11px] font-semibold text-slate-500">Total Pending</div>
-                <div className="mt-0.5 text-[18px] font-extrabold text-slate-900">{pending.totalOrders}</div>
+                <div className="mt-0.5 text-[18px] font-extrabold text-slate-900">
+                  {pending.totalOrders}
+                </div>
               </div>
               <div className="pl-2">
                 <div className="text-[11px] font-semibold text-slate-500">Queue Value</div>
-                <div className="mt-0.5 text-[18px] font-extrabold text-slate-900">{pending.totalAmountFormatted}</div>
+                <div className="mt-0.5 text-[18px] font-extrabold text-slate-900">
+                  {pending.totalAmountFormatted}
+                </div>
               </div>
             </div>
 
@@ -643,10 +713,14 @@ export function PosLiveOrdersManager() {
                   </div>
                   <div>
                     <div className="text-[12.5px] font-bold text-slate-900">In Preparation</div>
-                    <div className="text-[11px] text-slate-500">{pending.inPreparation.count} tickets</div>
+                    <div className="text-[11px] text-slate-500">
+                      {pending.inPreparation.count} tickets
+                    </div>
                   </div>
                 </div>
-                <div className="text-[13px] font-black text-slate-900">{pending.inPreparation.amountFormatted}</div>
+                <div className="text-[13px] font-black text-slate-900">
+                  {pending.inPreparation.amountFormatted}
+                </div>
               </div>
 
               <div
@@ -659,10 +733,14 @@ export function PosLiveOrdersManager() {
                   </div>
                   <div>
                     <div className="text-[12.5px] font-bold text-slate-900">Waiting For Pickup</div>
-                    <div className="text-[11px] text-slate-500">{pending.waitingForPickup.count} packed</div>
+                    <div className="text-[11px] text-slate-500">
+                      {pending.waitingForPickup.count} packed
+                    </div>
                   </div>
                 </div>
-                <div className="text-[13px] font-black text-slate-900">{pending.waitingForPickup.amountFormatted}</div>
+                <div className="text-[13px] font-black text-slate-900">
+                  {pending.waitingForPickup.amountFormatted}
+                </div>
               </div>
 
               <div
@@ -675,10 +753,14 @@ export function PosLiveOrdersManager() {
                   </div>
                   <div>
                     <div className="text-[12.5px] font-bold text-slate-900">Out For Delivery</div>
-                    <div className="text-[11px] text-slate-500">{pending.outForDelivery.count} with riders</div>
+                    <div className="text-[11px] text-slate-500">
+                      {pending.outForDelivery.count} with riders
+                    </div>
                   </div>
                 </div>
-                <div className="text-[13px] font-black text-slate-900">{pending.outForDelivery.amountFormatted}</div>
+                <div className="text-[13px] font-black text-slate-900">
+                  {pending.outForDelivery.amountFormatted}
+                </div>
               </div>
             </div>
           </div>
@@ -691,7 +773,9 @@ export function PosLiveOrdersManager() {
           <div className="flex items-center justify-between border-b border-slate-200 pb-2">
             <div>
               <h2 className="text-[13.5px] font-bold text-slate-900">Active Dining Floor Grid</h2>
-              <p className="text-[11px] text-slate-500">Real-time table occupancies, elapsed dining duration, and quick settle</p>
+              <p className="text-[11px] text-slate-500">
+                Real-time table occupancies, elapsed dining duration, and quick settle
+              </p>
             </div>
             <span className="rounded border border-slate-300 bg-slate-50 px-2 py-0.5 text-[11px] font-bold text-slate-700">
               {data?.runningTables.length ?? 3} Active Tables
@@ -711,7 +795,9 @@ export function PosLiveOrdersManager() {
                       {t.tableNumber}
                     </div>
                     <div>
-                      <div className="text-[12.5px] font-bold text-slate-900">Table {t.tableNumber}</div>
+                      <div className="text-[12.5px] font-bold text-slate-900">
+                        Table {t.tableNumber}
+                      </div>
                       <div className="text-[10.5px] text-slate-500">{t.section}</div>
                     </div>
                   </div>
@@ -726,7 +812,9 @@ export function PosLiveOrdersManager() {
                 </div>
 
                 <div className="flex items-center justify-between text-[10.5px] text-slate-500 bg-slate-50 rounded-md p-1.5 border border-slate-200">
-                  <span>Guests: <strong className="text-slate-800">{t.occupancy}</strong> / {t.capacity}</span>
+                  <span>
+                    Guests: <strong className="text-slate-800">{t.occupancy}</strong> / {t.capacity}
+                  </span>
                   <span className="flex items-center gap-1 font-bold text-slate-700">
                     <Clock className="h-3 w-3 text-slate-500" /> {t.elapsedMinutes}m
                   </span>
@@ -747,7 +835,9 @@ export function PosLiveOrdersManager() {
                   {selectedTimelineOrder.tableOrRoom ?? "POS"}
                 </div>
                 <div>
-                  <h3 className="text-[14.5px] font-bold text-slate-900">{selectedTimelineOrder.orderNumber}</h3>
+                  <h3 className="text-[14.5px] font-bold text-slate-900">
+                    {selectedTimelineOrder.orderNumber}
+                  </h3>
                   <p className="text-[11px] text-slate-500">{selectedTimelineOrder.source}</p>
                 </div>
               </div>
@@ -763,15 +853,22 @@ export function PosLiveOrdersManager() {
             <div className="space-y-2 text-[12px]">
               <div className="flex justify-between py-0.5 border-b border-slate-100">
                 <span className="text-slate-500">Customer:</span>
-                <span className="font-bold text-slate-800">{selectedTimelineOrder.customerName}</span>
+                <span className="font-bold text-slate-800">
+                  {selectedTimelineOrder.customerName}
+                </span>
               </div>
               <div className="flex justify-between py-0.5 border-b border-slate-100">
                 <span className="text-slate-500">Stage:</span>
-                <span className="font-bold text-teal-800 capitalize">{selectedTimelineOrder.stageLabel}</span>
+                <span className="font-bold text-teal-800 capitalize">
+                  {selectedTimelineOrder.stageLabel}
+                </span>
               </div>
               <div className="flex justify-between py-0.5 border-b border-slate-100">
                 <span className="text-slate-500">Elapsed Time:</span>
-                <span className="font-bold text-slate-800">{selectedTimelineOrder.elapsedMinutes}m (Est: {selectedTimelineOrder.estDurationMinutes}m)</span>
+                <span className="font-bold text-slate-800">
+                  {selectedTimelineOrder.elapsedMinutes}m (Est:{" "}
+                  {selectedTimelineOrder.estDurationMinutes}m)
+                </span>
               </div>
               <div className="py-0.5">
                 <span className="text-slate-500 block mb-1 font-semibold">Items:</span>
@@ -781,7 +878,9 @@ export function PosLiveOrdersManager() {
               </div>
               <div className="flex justify-between items-center pt-1 border-t border-slate-200">
                 <span className="text-slate-500 font-bold">Total Bill:</span>
-                <span className="font-black text-[15px] text-teal-800">{selectedTimelineOrder.amountFormatted}</span>
+                <span className="font-black text-[15px] text-teal-800">
+                  {selectedTimelineOrder.amountFormatted}
+                </span>
               </div>
             </div>
 
@@ -837,15 +936,21 @@ export function PosLiveOrdersManager() {
             <div className="space-y-1.5 text-[12px]">
               <div className="flex justify-between">
                 <span className="text-slate-500">Seating Occupancy:</span>
-                <span className="font-semibold text-slate-800">{selectedTable.occupancy} of {selectedTable.capacity} Seats</span>
+                <span className="font-semibold text-slate-800">
+                  {selectedTable.occupancy} of {selectedTable.capacity} Seats
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-500">Duration on Table:</span>
-                <span className="font-semibold text-slate-800">{selectedTable.elapsedMinutes} minutes</span>
+                <span className="font-semibold text-slate-800">
+                  {selectedTable.elapsedMinutes} minutes
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-500">Running Total:</span>
-                <span className="font-black text-[15px] text-teal-800">{selectedTable.amountFormatted}</span>
+                <span className="font-black text-[15px] text-teal-800">
+                  {selectedTable.amountFormatted}
+                </span>
               </div>
             </div>
 
@@ -891,8 +996,9 @@ export function PosLiveOrdersManager() {
                 <X className="h-4 w-4" />
               </button>
             </div>
-            <p className="text-[12px] text-slate-600">
-              Live orders in this category are synchronized with the floor management station and POS terminal.
+            <p className="text-[12px] text-slate-400 mt-0.5">
+              Current orders in this category are synchronized with the floor management station and
+              POS terminal.
             </p>
             <div className="flex justify-end pt-1.5">
               <button

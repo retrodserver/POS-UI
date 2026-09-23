@@ -3,7 +3,7 @@ import { PosInventoryHeader } from "@/components/shared/pos/inventory/PosInvento
 import { InventoryDashboardView } from "@/components/shared/pos/inventory/views/InventoryDashboardView";
 
 export const Route = createFileRoute("/pos/inventory")({
-  head: () => ({ meta: [{ title: "Inventory Dashboard — Retrod POS" }] }),
+  head: () => ({ meta: [{ title: "Stock Overview — Retrod POS" }] }),
   component: InventoryLayoutRoute,
 });
 

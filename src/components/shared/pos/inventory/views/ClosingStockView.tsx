@@ -37,7 +37,14 @@ export function ClosingStockView() {
   const [notesInputs, setNotesInputs] = useState<Record<string, string>>({});
   const [activeNoteId, setActiveNoteId] = useState<string | null>(null);
 
-  const categories = ["All categories", "No category", "Appetizers", "Non-Veg Appetizers", "Groceries", "Dairy"];
+  const categories = [
+    "All categories",
+    "No category",
+    "Appetizers",
+    "Non-Veg Appetizers",
+    "Groceries",
+    "Dairy",
+  ];
 
   const filteredItems = (stockItems ?? []).filter((item) => {
     if (selectedCategory !== "All categories" && item.category !== selectedCategory) {
@@ -116,16 +123,18 @@ export function ClosingStockView() {
     saveMutation.mutate(sampleImportEntries, {
       onSuccess: () => {
         setStep(3);
-        toast.success(`Successfully imported closing stock for ${sampleImportEntries.length} items from ${uploadedFile?.name || "Excel"}`);
+        toast.success(
+          `Successfully imported closing stock for ${sampleImportEntries.length} items from ${uploadedFile?.name || "Excel"}`,
+        );
       },
     });
   };
 
   return (
     <div className="space-y-4">
-      {/* 1. Header matching Screenshot 2 */}
+      {/* 1. Header */}
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-[18px] font-bold text-slate-900 tracking-tight">Closing Stock</h2>
+        <h2 className="text-[18px] font-bold text-slate-900 tracking-tight">Daily Stock Count</h2>
 
         <div className="flex flex-wrap items-center gap-2">
           <input
@@ -137,7 +146,7 @@ export function ClosingStockView() {
 
           <button
             type="button"
-            onClick={() => toast.info("Stock closing history log")}
+            onClick={() => toast.info("Stock count history log")}
             className="flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3.5 py-1.5 text-[12.5px] font-medium text-slate-700 hover:bg-slate-50 transition cursor-pointer"
           >
             <Clock className="h-3.5 w-3.5 text-slate-500" />
@@ -155,7 +164,7 @@ export function ClosingStockView() {
         </div>
       </div>
 
-      {/* 2. Tabs matching Screenshot 2 */}
+      {/* 2. Tabs */}
       <div className="flex border-b border-slate-200">
         <button
           type="button"
@@ -166,7 +175,7 @@ export function ClosingStockView() {
               : "text-slate-600 hover:text-slate-900"
           }`}
         >
-          Add Closing Stock
+          Daily Stock Count
         </button>
         <button
           type="button"
@@ -249,9 +258,12 @@ export function ClosingStockView() {
           {/* Subheader action row */}
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
-              <h3 className="text-[15px] font-bold text-slate-900">Upload Your Closing Stock Excel</h3>
+              <h3 className="text-[15px] font-bold text-slate-900">
+                Upload Your Closing Stock Excel
+              </h3>
               <p className="text-[12.5px] text-slate-500 mt-0.5">
-                Download the sample template, fill in your closing counts and variance notes, and upload the completed file.
+                Download the sample template, fill in your closing counts and variance notes, and
+                upload the completed file.
               </p>
             </div>
 
@@ -424,7 +436,8 @@ export function ClosingStockView() {
                     {filteredItems.map((item) => {
                       const enteredVal = newStockInputs[item.id] ?? "";
                       const parsedNewStock = enteredVal !== "" ? parseFloat(enteredVal) : null;
-                      const variance = parsedNewStock !== null ? parsedNewStock - item.closingStock : null;
+                      const variance =
+                        parsedNewStock !== null ? parsedNewStock - item.closingStock : null;
 
                       return (
                         <tr key={item.id} className="hover:bg-slate-50/60 transition">
@@ -459,8 +472,8 @@ export function ClosingStockView() {
                                   variance === 0
                                     ? "text-slate-500"
                                     : variance > 0
-                                    ? "text-emerald-600 font-bold"
-                                    : "text-red-600 font-bold"
+                                      ? "text-emerald-600 font-bold"
+                                      : "text-red-600 font-bold"
                                 }
                               >
                                 {variance > 0 ? `+${variance}` : variance} {item.unit}

@@ -1,14 +1,7 @@
 import { useState } from "react";
-import {
-  Download,
-  Search,
-  ChevronDown,
-  Calendar,
-  FileText,
-  Eye,
-  CheckCircle2,
-} from "lucide-react";
+import { Download, Search, ChevronDown, Calendar, FileText, Eye, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
+import { DataTableFooter } from "@/components/common";
 
 interface DayEndRecord {
   id: string;
@@ -46,9 +39,7 @@ export function DayEndSummaryView() {
   };
 
   const toggleSelect = (id: string) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
-    );
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
   };
 
   return (
@@ -169,7 +160,9 @@ export function DayEndSummaryView() {
                       </button>
                       <button
                         type="button"
-                        onClick={() => toast.success(`Downloading PDF day-end slip for ${r.date}...`)}
+                        onClick={() =>
+                          toast.success(`Downloading PDF day-end slip for ${r.date}...`)
+                        }
                         className="rounded-lg p-1.5 hover:bg-slate-100 hover:text-slate-700 transition cursor-pointer"
                         title="Download Summary"
                       >
@@ -183,36 +176,15 @@ export function DayEndSummaryView() {
           </table>
         </div>
 
-        {/* Footer with pagination matching Screenshot 1 */}
-        <div className="border-t border-slate-100 px-4 py-3 bg-slate-50/50 flex items-center justify-between text-[12px] text-slate-500">
-          <div>Showing 1 to {records.length} of 30 records</div>
-          <div className="flex items-center gap-1">
-            <button
-              type="button"
-              className="h-7 w-7 rounded-md border border-teal-600 bg-teal-50 text-teal-700 font-bold flex items-center justify-center cursor-pointer"
-            >
-              1
-            </button>
-            <button
-              type="button"
-              className="h-7 w-7 rounded-md border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 flex items-center justify-center cursor-pointer"
-            >
-              2
-            </button>
-            <button
-              type="button"
-              className="px-2.5 py-1 rounded-md border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 flex items-center justify-center cursor-pointer"
-            >
-              Next
-            </button>
-            <button
-              type="button"
-              className="px-2.5 py-1 rounded-md border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 flex items-center justify-center cursor-pointer"
-            >
-              Last
-            </button>
-          </div>
-        </div>
+        {/* Reusable DataTableFooter */}
+        <DataTableFooter
+          currentPage={currentPage}
+          totalCount={30}
+          pageSize={10}
+          onPageChange={setCurrentPage}
+          selectedCount={selectedIds.length}
+          onClearSelection={() => setSelectedIds([])}
+        />
       </div>
     </div>
   );

@@ -7,7 +7,7 @@ export function GstInformationView() {
   const [gstNumber, setGstNumber] = useState("");
   const [registeredName, setRegisteredName] = useState("HIGHWAY INN BAR & RESTAURANT");
   const [registeredAddress, setRegisteredAddress] = useState(
-    "PLOT NO 1977 KHATA NO 304/102, KARADAGADIA, Angul, Angul, Odisha, 759132"
+    "PLOT NO 1977 KHATA NO 304/102, KARADAGADIA, Angul, Angul, Odisha, 759132",
   );
   const [state, setState] = useState("Odisha");
   const [city, setCity] = useState("Angul");
@@ -140,7 +140,9 @@ export function GstInformationView() {
         {/* VAT, PAN, CIN */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="space-y-1.5">
-            <label className="text-[12.5px] font-semibold text-slate-800">Vat Number (If Any)</label>
+            <label className="text-[12.5px] font-semibold text-slate-800">
+              Vat Number (If Any)
+            </label>
             <input
               type="text"
               value={vatNumber}

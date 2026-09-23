@@ -6,10 +6,42 @@ export function StockTransferView() {
   const [search, setSearch] = useState("");
 
   const transfers = [
-    { id: "TR-2026-081", date: "02 Sep 2026", from: "Central Store", to: "Bar Section", items: "Sprite (24), Soda (48), Lime (5kg)", status: "Completed", by: "Rajesh S." },
-    { id: "TR-2026-080", date: "01 Sep 2026", from: "Cold Storage", to: "Main Kitchen", items: "Chicken Breast (15kg), Paneer (10kg)", status: "Completed", by: "Chef Vikram" },
-    { id: "TR-2026-079", date: "01 Sep 2026", from: "Dry Store", to: "Pastry Bakery", items: "Refined Flour (25kg), Butter (10kg)", status: "Completed", by: "Sunita M." },
-    { id: "TR-2026-078", date: "31 Aug 2026", from: "Central Store", to: "Banquet Bar", items: "Whiskey, Rum, Tonic Waters", status: "In Transit", by: "Karan D." },
+    {
+      id: "TR-2026-081",
+      date: "02 Sep 2026",
+      from: "Central Store",
+      to: "Bar Section",
+      items: "Sprite (24), Soda (48), Lime (5kg)",
+      status: "Completed",
+      by: "Rajesh S.",
+    },
+    {
+      id: "TR-2026-080",
+      date: "01 Sep 2026",
+      from: "Cold Storage",
+      to: "Main Kitchen",
+      items: "Chicken Breast (15kg), Paneer (10kg)",
+      status: "Completed",
+      by: "Chef Vikram",
+    },
+    {
+      id: "TR-2026-079",
+      date: "01 Sep 2026",
+      from: "Dry Store",
+      to: "Pastry Bakery",
+      items: "Refined Flour (25kg), Butter (10kg)",
+      status: "Completed",
+      by: "Sunita M.",
+    },
+    {
+      id: "TR-2026-078",
+      date: "31 Aug 2026",
+      from: "Central Store",
+      to: "Banquet Bar",
+      items: "Whiskey, Rum, Tonic Waters",
+      status: "In Transit",
+      by: "Karan D.",
+    },
   ];
 
   const filtered = transfers.filter(
@@ -17,7 +49,7 @@ export function StockTransferView() {
       t.id.toLowerCase().includes(search.toLowerCase()) ||
       t.from.toLowerCase().includes(search.toLowerCase()) ||
       t.to.toLowerCase().includes(search.toLowerCase()) ||
-      t.items.toLowerCase().includes(search.toLowerCase())
+      t.items.toLowerCase().includes(search.toLowerCase()),
   );
 
   return (
@@ -77,7 +109,9 @@ export function StockTransferView() {
                   <td className="px-4 py-3 text-slate-600 text-[12.5px]">{t.date}</td>
                   <td className="px-4 py-3 font-semibold text-slate-800">{t.from}</td>
                   <td className="px-4 py-3 font-semibold text-slate-800">{t.to}</td>
-                  <td className="px-4 py-3 text-slate-600 text-[12.5px] max-w-xs truncate">{t.items}</td>
+                  <td className="px-4 py-3 text-slate-600 text-[12.5px] max-w-xs truncate">
+                    {t.items}
+                  </td>
                   <td className="px-4 py-3 text-slate-500 text-[12px]">{t.by}</td>
                   <td className="px-4 py-3">
                     <span

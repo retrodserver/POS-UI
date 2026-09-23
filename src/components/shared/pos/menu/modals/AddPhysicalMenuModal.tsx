@@ -54,7 +54,7 @@ export function AddPhysicalMenuModal({
         onError: () => {
           toast.error("Failed to upload physical menu file");
         },
-      }
+      },
     );
   };
 

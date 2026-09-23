@@ -7,17 +7,57 @@ export function SalesConsumptionView() {
   const [selectedDate, setSelectedDate] = useState("2026-09-02");
 
   const consumptionRecords = [
-    { id: "SC-101", item: "Chicken Breast", category: "Meat", quantity: "14.5 kg", salesVolume: "29 orders", cost: "₹ 4,350", wastage: "0.5 kg" },
-    { id: "SC-102", item: "Paneer (Cottage Cheese)", category: "Dairy", quantity: "8.2 kg", salesVolume: "41 orders", cost: "₹ 2,870", wastage: "0.2 kg" },
-    { id: "SC-103", item: "Basmati Rice", category: "Groceries", quantity: "22.0 kg", salesVolume: "68 orders", cost: "₹ 1,980", wastage: "0.8 kg" },
-    { id: "SC-104", item: "Cooking Oil (Sunflower)", category: "Groceries", quantity: "12.0 L", salesVolume: "105 orders", cost: "₹ 1,680", wastage: "0.1 L" },
-    { id: "SC-105", item: "Sprite Cans (330ml)", category: "Beverages", quantity: "34 units", salesVolume: "34 orders", cost: "₹ 1,020", wastage: "0 units" },
+    {
+      id: "SC-101",
+      item: "Chicken Breast",
+      category: "Meat",
+      quantity: "14.5 kg",
+      salesVolume: "29 orders",
+      cost: "₹ 4,350",
+      wastage: "0.5 kg",
+    },
+    {
+      id: "SC-102",
+      item: "Paneer (Cottage Cheese)",
+      category: "Dairy",
+      quantity: "8.2 kg",
+      salesVolume: "41 orders",
+      cost: "₹ 2,870",
+      wastage: "0.2 kg",
+    },
+    {
+      id: "SC-103",
+      item: "Basmati Rice",
+      category: "Groceries",
+      quantity: "22.0 kg",
+      salesVolume: "68 orders",
+      cost: "₹ 1,980",
+      wastage: "0.8 kg",
+    },
+    {
+      id: "SC-104",
+      item: "Cooking Oil (Sunflower)",
+      category: "Groceries",
+      quantity: "12.0 L",
+      salesVolume: "105 orders",
+      cost: "₹ 1,680",
+      wastage: "0.1 L",
+    },
+    {
+      id: "SC-105",
+      item: "Sprite Cans (330ml)",
+      category: "Beverages",
+      quantity: "34 units",
+      salesVolume: "34 orders",
+      cost: "₹ 1,020",
+      wastage: "0 units",
+    },
   ];
 
   const filtered = consumptionRecords.filter(
     (r) =>
       r.item.toLowerCase().includes(search.toLowerCase()) ||
-      r.category.toLowerCase().includes(search.toLowerCase())
+      r.category.toLowerCase().includes(search.toLowerCase()),
   );
 
   return (
@@ -55,7 +95,9 @@ export function SalesConsumptionView() {
         <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-2xs">
           <div className="text-[12px] font-medium text-slate-500">Total Ingredients Consumed</div>
           <div className="text-[22px] font-extrabold text-slate-900 mt-1">94.7 kg / L</div>
-          <div className="text-[11px] text-emerald-600 font-semibold mt-0.5">Across 277 customer orders</div>
+          <div className="text-[11px] text-emerald-600 font-semibold mt-0.5">
+            Across 277 customer orders
+          </div>
         </div>
         <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-2xs">
           <div className="text-[12px] font-medium text-slate-500">Total Consumption Value</div>

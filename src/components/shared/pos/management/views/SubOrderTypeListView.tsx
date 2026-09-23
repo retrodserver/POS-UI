@@ -92,22 +92,18 @@ export function SubOrderTypeListView() {
   };
 
   const toggleSelect = (id: string) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
-    );
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
   };
 
   const filteredItems = items.filter((item) =>
-    item.name.toLowerCase().includes(searchName.toLowerCase())
+    item.name.toLowerCase().includes(searchName.toLowerCase()),
   );
 
   return (
     <div className="space-y-4">
       {/* 1. Header Bar matching Screenshot 2 */}
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-[18px] font-bold text-slate-900 tracking-tight">
-          Sub Order Type
-        </h2>
+        <h2 className="text-[18px] font-bold text-slate-900 tracking-tight">Sub Order Type</h2>
 
         <div className="flex items-center gap-2">
           <button

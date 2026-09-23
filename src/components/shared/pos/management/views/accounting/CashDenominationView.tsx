@@ -24,7 +24,8 @@ export function CashDenominationView() {
           </p>
         </div>
         <div className="text-[14px] font-bold text-slate-900">
-          Total Drawer Cash: <span className="font-mono text-emerald-600">₹{total.toLocaleString("en-IN")}</span>
+          Total Drawer Cash:{" "}
+          <span className="font-mono text-emerald-600">₹{total.toLocaleString("en-IN")}</span>
         </div>
       </div>
 
@@ -41,7 +42,7 @@ export function CashDenominationView() {
                   onChange={(e) => {
                     const val = parseInt(e.target.value) || 0;
                     setDenominations((prev) =>
-                      prev.map((item, i) => (i === index ? { ...item, count: val } : item))
+                      prev.map((item, i) => (i === index ? { ...item, count: val } : item)),
                     );
                   }}
                   className="w-24 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-[13px] font-mono text-slate-800 text-center"

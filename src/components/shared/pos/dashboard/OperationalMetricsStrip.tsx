@@ -15,7 +15,9 @@ export function OperationalMetricsStrip({ operations }: OperationalMetricsStripP
           <Clock className="h-4 w-4" />
         </div>
         <div>
-          <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Avg. preparation</div>
+          <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+            Avg. preparation
+          </div>
           <div className="text-[15px] font-bold text-slate-900">
             {operations.avgPrepTimeMinutes} min
           </div>
@@ -28,10 +30,10 @@ export function OperationalMetricsStrip({ operations }: OperationalMetricsStripP
           <CheckCircle2 className="h-4 w-4" />
         </div>
         <div>
-          <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Successful</div>
-          <div className="text-[15px] font-bold text-slate-900">
-            {operations.successfulCount}
+          <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+            Successful
           </div>
+          <div className="text-[15px] font-bold text-slate-900">{operations.successfulCount}</div>
         </div>
       </div>
 
@@ -41,7 +43,9 @@ export function OperationalMetricsStrip({ operations }: OperationalMetricsStripP
           <Gift className="h-4 w-4" />
         </div>
         <div>
-          <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Complimentary</div>
+          <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+            Complimentary
+          </div>
           <div className="text-[15px] font-bold text-slate-900">
             {operations.complimentaryCount}
           </div>
@@ -54,10 +58,10 @@ export function OperationalMetricsStrip({ operations }: OperationalMetricsStripP
           <XCircle className="h-4 w-4" />
         </div>
         <div>
-          <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Cancelled</div>
-          <div className="text-[15px] font-bold text-slate-900">
-            {operations.cancelledCount}
+          <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+            Cancelled
           </div>
+          <div className="text-[15px] font-bold text-slate-900">{operations.cancelledCount}</div>
         </div>
       </div>
 
@@ -68,16 +72,13 @@ export function OperationalMetricsStrip({ operations }: OperationalMetricsStripP
             <AlertTriangle className="h-4 w-4" />
           </div>
           <div>
-            <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Discounts & NC</div>
-            <div className="text-[15px] font-bold text-slate-900">
-              {operations.discountsCount}
+            <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+              Discounts & NC
             </div>
+            <div className="text-[15px] font-bold text-slate-900">{operations.discountsCount}</div>
           </div>
         </div>
-        <Link
-          to="/pos/reports"
-          className="text-[11px] font-bold text-teal-700 hover:underline"
-        >
+        <Link to="/pos/reports" className="text-[11px] font-bold text-teal-700 hover:underline">
           View →
         </Link>
       </div>

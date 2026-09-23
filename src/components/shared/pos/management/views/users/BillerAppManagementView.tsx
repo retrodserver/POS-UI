@@ -64,23 +64,23 @@ export function BillerAppManagementView() {
     activeTab === "biller"
       ? billerUsers
       : activeTab === "captain"
-      ? captainUsers
-      : activeTab === "delivery_boy"
-      ? deliveryUsers
-      : activeTab === "waiter"
-      ? waiterUsers
-      : orderAcceptanceUsers;
+        ? captainUsers
+        : activeTab === "delivery_boy"
+          ? deliveryUsers
+          : activeTab === "waiter"
+            ? waiterUsers
+            : orderAcceptanceUsers;
 
   const titleText =
     activeTab === "biller"
       ? "Biller"
       : activeTab === "captain"
-      ? "Captain"
-      : activeTab === "delivery_boy"
-      ? "Delivery Boy"
-      : activeTab === "waiter"
-      ? "Waiter"
-      : "Order Acceptance App";
+        ? "Captain"
+        : activeTab === "delivery_boy"
+          ? "Delivery Boy"
+          : activeTab === "waiter"
+            ? "Waiter"
+            : "Order Acceptance App";
 
   const toggleSelectAll = () => {
     if (selectedIds.length === currentList.length) {
@@ -91,9 +91,7 @@ export function BillerAppManagementView() {
   };
 
   const toggleSelect = (id: string) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
-    );
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
   };
 
   const toggleStatus = (id: string) => {

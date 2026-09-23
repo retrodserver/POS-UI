@@ -37,7 +37,7 @@ export function PosSidebar({
         (other) =>
           other !== to &&
           other.length > to.length &&
-          (pathname === other || pathname.startsWith(`${other}/`))
+          (pathname === other || pathname.startsWith(`${other}/`)),
       );
       return !hasMoreSpecific;
     }
@@ -89,7 +89,10 @@ export function PosSidebar({
       </div>
 
       {/* Main Navigation */}
-      <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4 scrollbar-thin" aria-label="POS navigation">
+      <nav
+        className="flex-1 space-y-1 overflow-y-auto px-3 py-4 scrollbar-thin"
+        aria-label="POS navigation"
+      >
         {navItems.map((item) => {
           const Icon = item.icon;
           const hasChildren = Boolean(item.children?.length);
@@ -124,7 +127,9 @@ export function PosSidebar({
                         if (node.children?.length) {
                           const isFolderOpen = Boolean(openFolders[node.id]);
                           const folderHasActive = node.children.some((c) =>
-                            c.to ? isLinkActive(c.to) : c.children?.some((sc) => isLinkActive(sc.to))
+                            c.to
+                              ? isLinkActive(c.to)
+                              : c.children?.some((sc) => isLinkActive(sc.to)),
                           );
 
                           return (
@@ -155,7 +160,7 @@ export function PosSidebar({
                               {isFolderOpen && (
                                 <div className="ml-3 space-y-0.5 border-l border-slate-700/60 pl-2.5 py-0.5">
                                   {node.children.map((subNode) =>
-                                    renderNavChild(subNode, depth + 1)
+                                    renderNavChild(subNode, depth + 1),
                                   )}
                                 </div>
                               )}

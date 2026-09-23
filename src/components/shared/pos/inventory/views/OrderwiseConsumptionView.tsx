@@ -6,25 +6,53 @@ export function OrderwiseConsumptionView() {
   const [search, setSearch] = useState("");
 
   const orders = [
-    { id: "ORD-9912", kot: "KOT-401", time: "14:25", table: "T-04", item: "Butter Chicken x 2", recipeItems: "Chicken Breast (600g), Makhani Gravy (400ml), Butter (60g)", cost: "₹ 340", status: "Billed" },
-    { id: "ORD-9911", kot: "KOT-400", time: "14:10", table: "Takeaway", item: "Paneer Tikka Pizza x 1", recipeItems: "Pizza Dough (250g), Paneer (120g), Mozzarella (100g), Capsicum", cost: "₹ 185", status: "Billed" },
-    { id: "ORD-9910", kot: "KOT-399", time: "13:48", table: "T-09", item: "Veg Manchurian Dry x 2", recipeItems: "Manchuria Balls (16 pcs), Soya Sauce, Spring Onion, Oil", cost: "₹ 140", status: "Billed" },
+    {
+      id: "ORD-9912",
+      kot: "KOT-401",
+      time: "14:25",
+      table: "T-04",
+      item: "Butter Chicken x 2",
+      recipeItems: "Chicken Breast (600g), Makhani Gravy (400ml), Butter (60g)",
+      cost: "₹ 340",
+      status: "Billed",
+    },
+    {
+      id: "ORD-9911",
+      kot: "KOT-400",
+      time: "14:10",
+      table: "Takeaway",
+      item: "Paneer Tikka Pizza x 1",
+      recipeItems: "Pizza Dough (250g), Paneer (120g), Mozzarella (100g), Capsicum",
+      cost: "₹ 185",
+      status: "Billed",
+    },
+    {
+      id: "ORD-9910",
+      kot: "KOT-399",
+      time: "13:48",
+      table: "T-09",
+      item: "Veg Manchurian Dry x 2",
+      recipeItems: "Manchuria Balls (16 pcs), Soya Sauce, Spring Onion, Oil",
+      cost: "₹ 140",
+      status: "Billed",
+    },
   ];
 
   const filtered = orders.filter(
     (o) =>
       o.id.toLowerCase().includes(search.toLowerCase()) ||
       o.item.toLowerCase().includes(search.toLowerCase()) ||
-      o.table.toLowerCase().includes(search.toLowerCase())
+      o.table.toLowerCase().includes(search.toLowerCase()),
   );
 
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-[18px] font-bold text-slate-900 tracking-tight">Orderwise Consumption</h2>
+          <h2 className="text-[18px] font-bold text-slate-900 tracking-tight">Usage by Order</h2>
           <p className="text-[12.5px] text-slate-500 mt-0.5">
-            Billed bill-of-materials and recipe ingredient deduction broken down by individual KOT and ticket.
+            Billed bill-of-materials and recipe ingredient deduction broken down by individual KOT
+            and ticket.
           </p>
         </div>
 
@@ -76,7 +104,9 @@ export function OrderwiseConsumptionView() {
                   </td>
                   <td className="px-4 py-3 font-semibold text-slate-700">{o.table}</td>
                   <td className="px-4 py-3 font-bold text-slate-900">{o.item}</td>
-                  <td className="px-4 py-3 text-slate-600 text-[12px] max-w-sm truncate">{o.recipeItems}</td>
+                  <td className="px-4 py-3 text-slate-600 text-[12px] max-w-sm truncate">
+                    {o.recipeItems}
+                  </td>
                   <td className="px-4 py-3 font-mono font-bold text-slate-900">{o.cost}</td>
                   <td className="px-4 py-3">
                     <span className="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-700">

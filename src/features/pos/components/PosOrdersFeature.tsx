@@ -1,11 +1,42 @@
 import { Plus, UtensilsCrossed } from "lucide-react";
-import { PageHeader, Button, Card, CardHeader, KpiCard, StatusBadge } from "@/components/ui/Primitives";
+import {
+  PageHeader,
+  Button,
+  Card,
+  CardHeader,
+  KpiCard,
+  StatusBadge,
+} from "@/components/ui/Primitives";
 
 const orders = [
-  { id: "ORD-441", table: "T-12", items: "2× Butter Chicken, Naan", amount: 4860, status: "Served" },
-  { id: "ORD-440", table: "T-08", items: "Continental Breakfast × 2", amount: 1640, status: "Preparing" },
-  { id: "ORD-439", table: "Room 312", items: "Room service · Club sandwich", amount: 980, status: "Delivered" },
-  { id: "ORD-438", table: "T-04", items: "Chef's tasting menu × 2", amount: 7200, status: "Served" },
+  {
+    id: "ORD-441",
+    table: "T-12",
+    items: "2× Butter Chicken, Naan",
+    amount: 4860,
+    status: "Served",
+  },
+  {
+    id: "ORD-440",
+    table: "T-08",
+    items: "Continental Breakfast × 2",
+    amount: 1640,
+    status: "Preparing",
+  },
+  {
+    id: "ORD-439",
+    table: "Room 312",
+    items: "Room service · Club sandwich",
+    amount: 980,
+    status: "Delivered",
+  },
+  {
+    id: "ORD-438",
+    table: "T-04",
+    items: "Chef's tasting menu × 2",
+    amount: 7200,
+    status: "Served",
+  },
 ];
 
 export function PosOrdersFeature() {
@@ -13,7 +44,7 @@ export function PosOrdersFeature() {
     <div>
       <PageHeader
         eyebrow="Outlet · Main Restaurant"
-        title="Live Orders"
+        title="Current Orders"
         description="Floor service, room charges, and kitchen dispatch."
         actions={
           <Button size="sm">
@@ -57,7 +88,10 @@ export function PosOrdersFeature() {
               </thead>
               <tbody>
                 {orders.map((order) => (
-                  <tr key={order.id} className="border-b border-border-subtle hover:bg-surface-2/40">
+                  <tr
+                    key={order.id}
+                    className="border-b border-border-subtle hover:bg-surface-2/40"
+                  >
                     <td className="px-4 py-3 font-mono text-[12px]">{order.id}</td>
                     <td className="px-4 py-3">{order.table}</td>
                     <td className="px-4 py-3 text-text-secondary">{order.items}</td>

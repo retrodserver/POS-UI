@@ -26,7 +26,9 @@ export function UtilityBillsView() {
           <Zap className="h-7 w-7" />
         </div>
         <div className="text-[14.5px] font-bold text-slate-700">No Utility Bills Logged</div>
-        <p className="text-[12px] text-slate-400">All regular utility payments for this fiscal month are clear.</p>
+        <p className="text-[12px] text-slate-400">
+          All regular utility payments for this fiscal month are clear.
+        </p>
       </div>
     </div>
   );

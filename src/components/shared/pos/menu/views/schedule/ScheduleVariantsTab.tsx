@@ -33,9 +33,7 @@ export function ScheduleVariantsTab() {
   };
 
   const toggleSelectOne = (id: string) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
-    );
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
   };
 
   const handleAddSubmit = (e: React.FormEvent) => {
@@ -53,7 +51,7 @@ export function ScheduleVariantsTab() {
           setNewVarName("");
           setIsAdding(false);
         },
-      }
+      },
     );
   };
 
@@ -94,7 +92,10 @@ export function ScheduleVariantsTab() {
 
       {/* Quick Add Drawer */}
       {isAdding && (
-        <form onSubmit={handleAddSubmit} className="rounded-xl border border-teal-200 bg-teal-50/40 p-4 space-y-3">
+        <form
+          onSubmit={handleAddSubmit}
+          className="rounded-xl border border-teal-200 bg-teal-50/40 p-4 space-y-3"
+        >
           <div className="flex items-center justify-between">
             <span className="text-[13px] font-bold text-teal-900">Add New Variation</span>
             <button
@@ -151,9 +152,7 @@ export function ScheduleVariantsTab() {
           </div>
 
           <div className="w-48">
-            <label className="block text-[11.5px] font-medium text-slate-600 mb-1">
-              Search By
-            </label>
+            <label className="block text-[11.5px] font-medium text-slate-600 mb-1">Search By</label>
             <select
               value={searchByFilter}
               onChange={(e) => setSearchByFilter(e.target.value)}
@@ -292,7 +291,9 @@ export function ScheduleVariantsTab() {
         </div>
 
         <div className="border-t border-slate-200 px-4 py-2.5 bg-slate-50 flex items-center justify-between text-[12px] text-slate-500">
-          <span>Showing 1 to {filteredVariants.length} of {filteredVariants.length} records</span>
+          <span>
+            Showing 1 to {filteredVariants.length} of {filteredVariants.length} records
+          </span>
         </div>
       </div>
     </div>

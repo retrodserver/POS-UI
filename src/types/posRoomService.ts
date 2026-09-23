@@ -6,7 +6,7 @@ export type RoomServiceOrderStatus =
   | "clearance_needed"
   | "settled";
 
-export type RoomType = "Standard Deluxe" | "Executive Club" | "Presidential Suite" | "Penthouse";
+export type RoomType = "Standard Room" | "Executive Room" | "Deluxe Room" | "Royal Deluxe" | string;
 
 export type RoomFloor = "All" | "Floor 1" | "Floor 2" | "Floor 3 (Executive)" | "Floor 4 (Suites)";
 

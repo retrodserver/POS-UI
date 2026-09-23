@@ -29,7 +29,9 @@ export function BankDetailsView() {
             </div>
             <div>
               <div className="text-[14px] font-bold text-slate-900">HDFC Bank — Current A/C</div>
-              <div className="text-[12px] font-mono text-slate-500">A/C: ************4821 • IFSC: HDFC0001248</div>
+              <div className="text-[12px] font-mono text-slate-500">
+                A/C: ************4821 • IFSC: HDFC0001248
+              </div>
             </div>
           </div>
           <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-200">

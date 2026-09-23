@@ -180,7 +180,13 @@ export const frontDeskWorkflowReservations: FrontDeskWorkflowReservation[] = [
       { key: "find_guest", label: "Find guest", done: true, required: true },
       { key: "verify_id", label: "Verify ID", done: false, required: true },
       { key: "assign_room", label: "Assign room", done: true, required: true },
-      { key: "collect_payment", label: "Collect payment", done: false, required: true, note: "₹4,800 due" },
+      {
+        key: "collect_payment",
+        label: "Collect payment",
+        done: false,
+        required: true,
+        note: "₹4,800 due",
+      },
       { key: "issue_key", label: "Issue key", done: false, required: true },
     ],
     checkoutChecklist: [
@@ -228,7 +234,13 @@ export const frontDeskWorkflowReservations: FrontDeskWorkflowReservation[] = [
       { key: "find_guest", label: "Find guest", done: true, required: true },
       { key: "verify_id", label: "Verify ID", done: false, required: true },
       { key: "assign_room", label: "Assign room", done: true, required: true },
-      { key: "collect_payment", label: "Collect payment", done: false, required: true, note: "Awaiting PO" },
+      {
+        key: "collect_payment",
+        label: "Collect payment",
+        done: false,
+        required: true,
+        note: "Awaiting PO",
+      },
       { key: "issue_key", label: "Issue key", done: false, required: true },
     ],
     checkoutChecklist: [
@@ -1302,12 +1314,48 @@ export const hotelPackages: Package[] = [
 ];
 
 export const packageItems: PackageItem[] = [
-  { id: "pkg-item-1", packageId: "pkg-honeymoon", type: "room", name: "Suite upgrade", included: true },
-  { id: "pkg-item-2", packageId: "pkg-honeymoon", type: "service", name: "Room decoration", included: true },
-  { id: "pkg-item-3", packageId: "pkg-honeymoon", type: "meal", name: "Candle light dinner", included: true },
-  { id: "pkg-item-4", packageId: "pkg-family", type: "meal", name: "Kids meal plan", included: true },
-  { id: "pkg-item-5", packageId: "pkg-family", type: "activity", name: "City tour", included: false },
-  { id: "pkg-item-6", packageId: "pkg-business", type: "service", name: "Airport pickup", included: true },
+  {
+    id: "pkg-item-1",
+    packageId: "pkg-honeymoon",
+    type: "room",
+    name: "Suite upgrade",
+    included: true,
+  },
+  {
+    id: "pkg-item-2",
+    packageId: "pkg-honeymoon",
+    type: "service",
+    name: "Room decoration",
+    included: true,
+  },
+  {
+    id: "pkg-item-3",
+    packageId: "pkg-honeymoon",
+    type: "meal",
+    name: "Candle light dinner",
+    included: true,
+  },
+  {
+    id: "pkg-item-4",
+    packageId: "pkg-family",
+    type: "meal",
+    name: "Kids meal plan",
+    included: true,
+  },
+  {
+    id: "pkg-item-5",
+    packageId: "pkg-family",
+    type: "activity",
+    name: "City tour",
+    included: false,
+  },
+  {
+    id: "pkg-item-6",
+    packageId: "pkg-business",
+    type: "service",
+    name: "Airport pickup",
+    included: true,
+  },
 ];
 
 export const occupancyPricingRules: OccupancyPricing[] = [

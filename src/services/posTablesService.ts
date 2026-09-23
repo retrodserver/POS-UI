@@ -4,6 +4,7 @@ import type {
   TableManagementStats,
   DiningArea,
 } from "@/types/posTables";
+import { createDineInOrder, updateDineInOrder, type CreateDineInOrderInput } from "./posOrdersService";
 
 // Initial mock reservations matching the provided design
 const INITIAL_RESERVATIONS: ReservationItem[] = [
@@ -439,15 +440,56 @@ const INITIAL_TABLES: RestaurantTable[] = [
 ];
 
 // In-memory store
+let areasStore: string[] = ["Main Dining", "Terrace", "Outdoor"];
 let tablesStore: RestaurantTable[] = [...INITIAL_TABLES];
 let reservationsStore: ReservationItem[] = [...INITIAL_RESERVATIONS];
 
 export const posTablesService = {
+  getAreas: async (): Promise<string[]> => {
+    return [...areasStore];
+  },
+
+  addArea: async (areaName: string): Promise<string[]> => {
+    const trimmed = areaName.trim();
+    if (trimmed && !areasStore.includes(trimmed)) {
+      areasStore = [...areasStore, trimmed];
+    }
+    return [...areasStore];
+  },
+
+  addTable: async (input: {
+    tableNumber: string;
+    capacity: number;
+    area: string;
+    shape?: "rectangle" | "square" | "circle";
+  }): Promise<RestaurantTable> => {
+    const rawNum = parseInt(input.tableNumber.replace(/\D/g, ""), 10) || tablesStore.length + 1;
+    const defaultShape = input.capacity >= 6 ? "rectangle" : "square";
+
+    const newTable: RestaurantTable = {
+      id: `tbl-${Date.now()}`,
+      tableNumber: input.tableNumber.startsWith("Table #")
+        ? input.tableNumber
+        : input.tableNumber.startsWith("#")
+          ? `Table ${input.tableNumber}`
+          : `Table #${input.tableNumber}`,
+      tableNumberRaw: rawNum,
+      capacity: input.capacity,
+      currentGuests: 0,
+      shape: input.shape || defaultShape,
+      area: input.area || "Main Dining",
+      status: "vacant",
+    };
+
+    tablesStore = [...tablesStore, newTable];
+    return newTable;
+  },
+
   getTables: async (area?: DiningArea): Promise<RestaurantTable[]> => {
     // Re-link reservations in case status changed
     const current = tablesStore.map((tbl) => {
       const activeRes = reservationsStore.find(
-        (r) => r.tableId === tbl.id && (r.status === "reserved" || r.status === "seated")
+        (r) => r.tableId === tbl.id && (r.status === "reserved" || r.status === "seated"),
       );
       return {
         ...tbl,
@@ -485,7 +527,7 @@ export const posTablesService = {
   },
 
   addReservation: async (
-    data: Omit<ReservationItem, "id" | "createdAt" | "status">
+    data: Omit<ReservationItem, "id" | "createdAt" | "status">,
   ): Promise<ReservationItem> => {
     const newReservation: ReservationItem = {
       ...data,
@@ -606,4 +648,121 @@ export const posTablesService = {
 
     return updatedTable;
   },
+
+  createTableOrder: async (input: {
+    tableId: string;
+    waiterName?: string;
+    pax: number;
+    guestName?: string;
+    guestPhone?: string;
+    items: Array<{
+      id: string;
+      name: string;
+      quantity: number;
+      price: number;
+      selectedVariantName?: string;
+      notes?: string;
+    }>;
+    subtotal: number;
+    grandTotal: number;
+  }): Promise<{ table: RestaurantTable; orderNumber: string; kotId: number }> => {
+    let targetTable = tablesStore.find((t) => t.id === input.tableId);
+    const tableNumber = targetTable?.tableNumber || `Table #${input.tableId}`;
+    const section = targetTable?.area || "Main Dining";
+
+    // 1. Sync to POS Live Orders & KOT ledger
+    const { orderNumber, kotId } = createDineInOrder({
+      tableId: input.tableId,
+      tableNumber,
+      section,
+      waiterName: input.waiterName || "Captain",
+      pax: input.pax,
+      guestName: input.guestName,
+      guestPhone: input.guestPhone,
+      items: input.items,
+      subtotal: input.subtotal,
+      grandTotal: input.grandTotal,
+    });
+
+    // 2. Update Table Store state
+    let updatedTable!: RestaurantTable;
+    tablesStore = tablesStore.map((tbl) => {
+      if (tbl.id === input.tableId) {
+        updatedTable = {
+          ...tbl,
+          status: "occupied",
+          currentGuests: input.pax,
+          activeOrder: {
+            orderId: `ord-${Date.now()}`,
+            orderNumber,
+            serverName: input.waiterName || "Captain",
+            seatedAt: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+            elapsedMinutes: 1,
+            itemsCount: input.items.reduce((s, i) => s + i.quantity, 0),
+            subtotal: input.subtotal,
+            totalAmount: input.grandTotal,
+            status: "in_prep",
+            guestName: input.guestName,
+            guestPhone: input.guestPhone,
+            items: input.items,
+          },
+        };
+        return updatedTable;
+      }
+      return tbl;
+    });
+
+    return { table: updatedTable, orderNumber, kotId };
+  },
+
+  updateTableOrder: async (input: {
+    tableId: string;
+    items: Array<{
+      id: string;
+      name: string;
+      quantity: number;
+      price: number;
+      selectedVariantName?: string;
+      notes?: string;
+    }>;
+    subtotal: number;
+    grandTotal: number;
+    modifiedSummaryText: string;
+  }): Promise<{ table: RestaurantTable; kotId: number }> => {
+    let targetTable = tablesStore.find((t) => t.id === input.tableId);
+    const tableNumber = targetTable?.tableNumber || `Table #${input.tableId}`;
+
+    const { kotId } = updateDineInOrder({
+      tableId: input.tableId,
+      tableNumber,
+      waiterName: targetTable?.activeOrder?.serverName || "Captain",
+      guestName: targetTable?.activeOrder?.guestName,
+      guestPhone: targetTable?.activeOrder?.guestPhone,
+      items: input.items,
+      subtotal: input.subtotal,
+      grandTotal: input.grandTotal,
+      modifiedSummaryText: input.modifiedSummaryText,
+    });
+
+    let updatedTable!: RestaurantTable;
+    tablesStore = tablesStore.map((tbl) => {
+      if (tbl.id === input.tableId && tbl.activeOrder) {
+        updatedTable = {
+          ...tbl,
+          activeOrder: {
+            ...tbl.activeOrder,
+            itemsCount: input.items.reduce((s, i) => s + i.quantity, 0),
+            subtotal: input.subtotal,
+            totalAmount: input.grandTotal,
+            items: input.items,
+          },
+        };
+        return updatedTable;
+      }
+      return tbl;
+    });
+
+    return { table: updatedTable || targetTable, kotId };
+  },
 };
+
