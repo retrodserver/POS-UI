@@ -161,36 +161,44 @@ export function ProductionView() {
               themeVariant="primary"
             />
             <tbody className="divide-y divide-slate-100">
-              {filtered.map((b) => (
-                <tr key={b.id} className="hover:bg-slate-50/60 transition">
-                  <td className="px-4 py-3 font-mono font-bold text-teal-600 text-[12px]">
-                    {b.id}
-                  </td>
-                  <td className="px-4 py-3 text-slate-600 text-[12.5px]">{b.date}</td>
-                  <td className="px-4 py-3 font-bold text-slate-800">{b.product}</td>
-                  <td className="px-4 py-3 font-mono font-semibold text-slate-900">{b.yieldQty}</td>
-                  <td className="px-4 py-3 text-slate-600 text-[12px] max-w-xs truncate">
-                    {b.ingredients}
-                  </td>
-                  <td className="px-4 py-3 text-slate-500 text-[12px]">{b.chef}</td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-bold ${
-                        b.status === "Ready"
-                          ? "bg-emerald-50 text-emerald-700"
-                          : "bg-amber-50 text-amber-700"
-                      }`}
-                    >
-                      {b.status === "Ready" ? (
-                        <CheckCircle2 className="h-3 w-3" />
-                      ) : (
-                        <Clock className="h-3 w-3" />
-                      )}
-                      {b.status}
-                    </span>
+              {filtered.length === 0 ? (
+                <tr>
+                  <td colSpan={batchColumns.length} className="py-12 text-center text-slate-400">
+                    No production batches found for this period.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                filtered.map((b) => (
+                  <tr key={b.id} className="hover:bg-slate-50/60 transition">
+                    <td className="px-4 py-3 font-mono font-bold text-teal-600 text-[12px]">
+                      {b.id}
+                    </td>
+                    <td className="px-4 py-3 text-slate-600 text-[12.5px]">{b.date}</td>
+                    <td className="px-4 py-3 font-bold text-slate-800">{b.product}</td>
+                    <td className="px-4 py-3 font-mono font-semibold text-slate-900">{b.yieldQty}</td>
+                    <td className="px-4 py-3 text-slate-600 text-[12px] max-w-xs truncate">
+                      {b.ingredients}
+                    </td>
+                    <td className="px-4 py-3 text-slate-500 text-[12px]">{b.chef}</td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-bold ${
+                          b.status === "Ready"
+                            ? "bg-emerald-50 text-emerald-700"
+                            : "bg-amber-50 text-amber-700"
+                        }`}
+                      >
+                        {b.status === "Ready" ? (
+                          <CheckCircle2 className="h-3 w-3" />
+                        ) : (
+                          <Clock className="h-3 w-3" />
+                        )}
+                        {b.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

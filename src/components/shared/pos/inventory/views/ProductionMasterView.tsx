@@ -280,46 +280,49 @@ export function ProductionMasterView() {
         </div>
       </div>
 
-      {/* 3. Content matching Screenshot 1 Empty State or Table */}
-      {filteredRecords.length === 0 ? (
-        <div className="rounded-2xl border border-slate-200 bg-white p-16 text-center shadow-xs space-y-3">
-          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-slate-50 text-slate-300">
-            <FileText className="h-10 w-10" />
-          </div>
-          <div className="text-[15px] font-bold text-slate-700">
-            Convert Raw Material Management Record Not Found
-          </div>
-          <p className="text-[12.5px] text-slate-400 max-w-sm mx-auto">
-            No conversion recipes match your search criteria. You can create a new conversion
-            recipe.
-          </p>
-          <button
-            type="button"
-            onClick={() => setIsCreateOpen(true)}
-            className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-teal-600 px-4 py-2 text-[12.5px] font-semibold text-white hover:bg-teal-700 shadow-2xs cursor-pointer"
-          >
-            <Plus className="h-4 w-4" />
-            Create Production Recipe
-          </button>
+      {/* 3. Production Conversion Recipes Table with Always-Present Header */}
+      <div className="rounded-2xl border border-slate-200 bg-white shadow-xs overflow-hidden">
+        <div className="p-4 border-b border-slate-100 flex items-center justify-between">
+          <h3 className="text-[14px] font-bold text-slate-800">
+            Raw Material Conversion Recipes
+          </h3>
+          <span className="text-[12px] text-slate-500">{filteredRecords.length} recipes</span>
         </div>
-      ) : (
-        <div className="rounded-2xl border border-slate-200 bg-white shadow-xs overflow-hidden">
-          <div className="p-4 border-b border-slate-100 flex items-center justify-between">
-            <h3 className="text-[14px] font-bold text-slate-800">
-              Raw Material Conversion Recipes
-            </h3>
-            <span className="text-[12px] text-slate-500">{filteredRecords.length} recipes</span>
-          </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-[13px] border-collapse">
-              <DataTableHeader
-                columns={masterColumns}
-                data={filteredRecords}
-                themeVariant="primary"
-              />
-              <tbody className="divide-y divide-slate-100">
-                {filteredRecords.map((r) => (
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-[13px] border-collapse">
+            <DataTableHeader
+              columns={masterColumns}
+              data={filteredRecords}
+              themeVariant="primary"
+            />
+            <tbody className="divide-y divide-slate-100">
+              {filteredRecords.length === 0 ? (
+                <tr>
+                  <td colSpan={masterColumns.length} className="py-14 text-center">
+                    <div className="flex flex-col items-center justify-center space-y-2">
+                      <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-slate-50 text-slate-300">
+                        <FileText className="h-8 w-8" />
+                      </div>
+                      <div className="text-[14.5px] font-bold text-slate-700">
+                        Convert Raw Material Management Record Not Found
+                      </div>
+                      <p className="text-[12px] text-slate-400 max-w-sm mx-auto">
+                        No conversion recipes match your search criteria. You can create a new conversion recipe.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => setIsCreateOpen(true)}
+                        className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-teal-600 px-4 py-2 text-[12.5px] font-semibold text-white hover:bg-teal-700 shadow-2xs cursor-pointer"
+                      >
+                        <Plus className="h-4 w-4" />
+                        Create Production Recipe
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                filteredRecords.map((r) => (
                   <tr key={r.id} className="hover:bg-slate-50/60 transition">
                     <td className="px-4 py-3 font-mono font-bold text-teal-600">{r.id}</td>
                     <td className="px-4 py-3 font-bold text-slate-900">{r.name}</td>
@@ -343,12 +346,12 @@ export function ProductionMasterView() {
                       </button>
                     </td>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
-      )}
+      </div>
 
       {/* 4. Create Modal */}
       {isCreateOpen && (

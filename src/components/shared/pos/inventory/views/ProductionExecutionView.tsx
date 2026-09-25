@@ -150,34 +150,42 @@ export function ProductionExecutionView() {
               themeVariant="primary"
             />
             <tbody className="divide-y divide-slate-100">
-              {filtered.map((r) => (
-                <tr key={r.id} className="hover:bg-slate-50/60 transition">
-                  <td className="px-4 py-3 font-mono font-bold text-teal-600">{r.id}</td>
-                  <td className="px-4 py-3 text-slate-600 text-[12.5px]">{r.date}</td>
-                  <td className="px-4 py-3 font-bold text-slate-900">{r.item}</td>
-                  <td className="px-4 py-3 font-mono font-semibold text-slate-800">{r.batchQty}</td>
-                  <td className="px-4 py-3 text-slate-600 text-[12px] max-w-xs truncate">
-                    {r.rawMaterialsDeducted}
-                  </td>
-                  <td className="px-4 py-3 text-slate-500 text-[12px]">{r.operator}</td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-bold ${
-                        r.status === "Completed"
-                          ? "bg-emerald-50 text-emerald-700"
-                          : "bg-amber-50 text-amber-700"
-                      }`}
-                    >
-                      {r.status === "Completed" ? (
-                        <CheckCircle2 className="h-3 w-3" />
-                      ) : (
-                        <Clock className="h-3 w-3" />
-                      )}
-                      {r.status}
-                    </span>
+              {filtered.length === 0 ? (
+                <tr>
+                  <td colSpan={execColumns.length} className="py-12 text-center text-slate-400">
+                    No production execution records found for this period.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                filtered.map((r) => (
+                  <tr key={r.id} className="hover:bg-slate-50/60 transition">
+                    <td className="px-4 py-3 font-mono font-bold text-teal-600">{r.id}</td>
+                    <td className="px-4 py-3 text-slate-600 text-[12.5px]">{r.date}</td>
+                    <td className="px-4 py-3 font-bold text-slate-900">{r.item}</td>
+                    <td className="px-4 py-3 font-mono font-semibold text-slate-800">{r.batchQty}</td>
+                    <td className="px-4 py-3 text-slate-600 text-[12px] max-w-xs truncate">
+                      {r.rawMaterialsDeducted}
+                    </td>
+                    <td className="px-4 py-3 text-slate-500 text-[12px]">{r.operator}</td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-bold ${
+                          r.status === "Completed"
+                            ? "bg-emerald-50 text-emerald-700"
+                            : "bg-amber-50 text-amber-700"
+                        }`}
+                      >
+                        {r.status === "Completed" ? (
+                          <CheckCircle2 className="h-3 w-3" />
+                        ) : (
+                          <Clock className="h-3 w-3" />
+                        )}
+                        {r.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

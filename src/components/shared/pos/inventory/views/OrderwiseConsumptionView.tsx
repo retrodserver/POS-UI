@@ -154,26 +154,34 @@ export function OrderwiseConsumptionView() {
               themeVariant="primary"
             />
             <tbody className="divide-y divide-slate-100">
-              {filtered.map((o) => (
-                <tr key={o.id} className="hover:bg-slate-50/60 transition">
-                  <td className="px-4 py-3 font-mono font-bold text-teal-600">{o.id}</td>
-                  <td className="px-4 py-3 text-slate-600 text-[12px]">
-                    <div className="font-semibold text-slate-800">{o.kot}</div>
-                    <div className="text-slate-400">{o.time}</div>
-                  </td>
-                  <td className="px-4 py-3 font-semibold text-slate-700">{o.table}</td>
-                  <td className="px-4 py-3 font-bold text-slate-900">{o.item}</td>
-                  <td className="px-4 py-3 text-slate-600 text-[12px] max-w-sm truncate">
-                    {o.recipeItems}
-                  </td>
-                  <td className="px-4 py-3 font-mono font-bold text-slate-900">{o.cost}</td>
-                  <td className="px-4 py-3">
-                    <span className="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-700">
-                      {o.status}
-                    </span>
+              {filtered.length === 0 ? (
+                <tr>
+                  <td colSpan={orderColumns.length} className="py-12 text-center text-slate-400">
+                    No order consumption records found for this date.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                filtered.map((o) => (
+                  <tr key={o.id} className="hover:bg-slate-50/60 transition">
+                    <td className="px-4 py-3 font-mono font-bold text-teal-600">{o.id}</td>
+                    <td className="px-4 py-3 text-slate-600 text-[12px]">
+                      <div className="font-semibold text-slate-800">{o.kot}</div>
+                      <div className="text-slate-400">{o.time}</div>
+                    </td>
+                    <td className="px-4 py-3 font-semibold text-slate-700">{o.table}</td>
+                    <td className="px-4 py-3 font-bold text-slate-900">{o.item}</td>
+                    <td className="px-4 py-3 text-slate-600 text-[12px] max-w-sm truncate">
+                      {o.recipeItems}
+                    </td>
+                    <td className="px-4 py-3 font-mono font-bold text-slate-900">{o.cost}</td>
+                    <td className="px-4 py-3">
+                      <span className="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-700">
+                        {o.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

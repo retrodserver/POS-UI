@@ -200,17 +200,25 @@ export function SalesConsumptionView() {
               themeVariant="primary"
             />
             <tbody className="divide-y divide-slate-100">
-              {filtered.map((r) => (
-                <tr key={r.id} className="hover:bg-slate-50/60 transition">
-                  <td className="px-4 py-3 font-mono text-[12px] text-slate-500">{r.id}</td>
-                  <td className="px-4 py-3 font-bold text-slate-800">{r.item}</td>
-                  <td className="px-4 py-3 text-slate-600">{r.category}</td>
-                  <td className="px-4 py-3 font-mono font-bold text-slate-900">{r.quantity}</td>
-                  <td className="px-4 py-3 text-slate-600">{r.salesVolume}</td>
-                  <td className="px-4 py-3 font-semibold text-slate-900">{r.cost}</td>
-                  <td className="px-4 py-3 font-mono text-amber-600 text-[12px]">{r.wastage}</td>
+              {filtered.length === 0 ? (
+                <tr>
+                  <td colSpan={consumptionColumns.length} className="py-12 text-center text-slate-400">
+                    No ingredient consumption logs found for this date.
+                  </td>
                 </tr>
-              ))}
+              ) : (
+                filtered.map((r) => (
+                  <tr key={r.id} className="hover:bg-slate-50/60 transition">
+                    <td className="px-4 py-3 font-mono text-[12px] text-slate-500">{r.id}</td>
+                    <td className="px-4 py-3 font-bold text-slate-800">{r.item}</td>
+                    <td className="px-4 py-3 text-slate-600">{r.category}</td>
+                    <td className="px-4 py-3 font-mono font-bold text-slate-900">{r.quantity}</td>
+                    <td className="px-4 py-3 text-slate-600">{r.salesVolume}</td>
+                    <td className="px-4 py-3 font-semibold text-slate-900">{r.cost}</td>
+                    <td className="px-4 py-3 font-mono text-amber-600 text-[12px]">{r.wastage}</td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

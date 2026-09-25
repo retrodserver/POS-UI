@@ -269,51 +269,59 @@ export function RecipeManagementView() {
               themeVariant="primary"
             />
             <tbody className="divide-y divide-slate-100">
-              {filtered.map((item) => (
-                <tr key={item.id} className="hover:bg-slate-50/50 transition">
-                  <td className="px-4 py-3 text-center">
-                    <input type="checkbox" className="rounded border-slate-300 cursor-pointer" />
-                  </td>
-                  <td className="px-4 py-3 font-semibold text-slate-900">{item.name}</td>
-                  <td className="px-4 py-3 text-slate-600 text-[12.5px]">{item.category}</td>
-                  <td className="px-4 py-3 text-right">
-                    <div className="inline-flex items-center gap-1 text-slate-400">
-                      <button
-                        type="button"
-                        onClick={() => toast.info(`Viewing ingredients breakdown for ${item.name}`)}
-                        className="rounded-lg p-1.5 hover:bg-slate-100 hover:text-slate-700 transition cursor-pointer"
-                        title="View Ingredients"
-                      >
-                        <Copy className="h-4 w-4" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => toast.info(`Editing recipe for ${item.name}`)}
-                        className="rounded-lg p-1.5 hover:bg-slate-100 hover:text-slate-700 transition cursor-pointer"
-                        title="Edit Recipe"
-                      >
-                        <Edit2 className="h-4 w-4" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => toast.info(`Delete recipe for ${item.name}`)}
-                        className="rounded-lg p-1.5 hover:bg-slate-100 hover:text-rose-600 transition cursor-pointer"
-                        title="Delete"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => toast.success(`Recipe for ${item.name} cloned`)}
-                        className="rounded-lg p-1.5 hover:bg-slate-100 hover:text-slate-700 transition cursor-pointer"
-                        title="Duplicate"
-                      >
-                        <Files className="h-4 w-4" />
-                      </button>
-                    </div>
+              {filtered.length === 0 ? (
+                <tr>
+                  <td colSpan={recipeColumns.length + 1} className="py-12 text-center text-slate-400">
+                    No recipe templates found for the selected category.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                filtered.map((item) => (
+                  <tr key={item.id} className="hover:bg-slate-50/50 transition">
+                    <td className="px-4 py-3 text-center">
+                      <input type="checkbox" className="rounded border-slate-300 cursor-pointer" />
+                    </td>
+                    <td className="px-4 py-3 font-semibold text-slate-900">{item.name}</td>
+                    <td className="px-4 py-3 text-slate-600 text-[12.5px]">{item.category}</td>
+                    <td className="px-4 py-3 text-right">
+                      <div className="inline-flex items-center gap-1 text-slate-400">
+                        <button
+                          type="button"
+                          onClick={() => toast.info(`Viewing ingredients breakdown for ${item.name}`)}
+                          className="rounded-lg p-1.5 hover:bg-slate-100 hover:text-slate-700 transition cursor-pointer"
+                          title="View Ingredients"
+                        >
+                          <Copy className="h-4 w-4" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => toast.info(`Editing recipe for ${item.name}`)}
+                          className="rounded-lg p-1.5 hover:bg-slate-100 hover:text-slate-700 transition cursor-pointer"
+                          title="Edit Recipe"
+                        >
+                          <Edit2 className="h-4 w-4" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => toast.info(`Delete recipe for ${item.name}`)}
+                          className="rounded-lg p-1.5 hover:bg-slate-100 hover:text-rose-600 transition cursor-pointer"
+                          title="Delete"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => toast.success(`Recipe for ${item.name} cloned`)}
+                          className="rounded-lg p-1.5 hover:bg-slate-100 hover:text-slate-700 transition cursor-pointer"
+                          title="Duplicate"
+                        >
+                          <Files className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

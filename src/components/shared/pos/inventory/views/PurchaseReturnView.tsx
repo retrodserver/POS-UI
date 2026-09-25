@@ -224,45 +224,47 @@ export function PurchaseReturnView() {
         </div>
       </div>
 
-      {/* 3. Empty State or Returns Data Table from Screenshot 3 */}
-      <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-xs min-h-[380px] flex flex-col justify-center">
-        {filteredReturns.length === 0 ? (
-          /* Empty State exactly matching Screenshot 3 */
-          <div className="text-center py-12">
-            <div className="relative mx-auto mb-4 flex h-16 w-16 items-center justify-center">
-              <div className="h-14 w-12 rounded-lg border-2 border-slate-300 bg-slate-50 p-2 shadow-2xs">
-                <div className="h-1 w-full rounded bg-slate-200 mb-1.5" />
-                <div className="h-1 w-3/4 rounded bg-slate-200 mb-1.5" />
-                <div className="h-1 w-1/2 rounded bg-slate-200" />
-              </div>
-              <div className="absolute -bottom-1 -right-1 flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-md border border-slate-200">
-                <Search className="h-4 w-4 text-slate-500" />
-              </div>
-            </div>
-            <h4 className="text-[15px] font-semibold text-slate-800">No Purchase Return Found</h4>
-            <p className="text-[12.5px] text-slate-400 mt-1">
-              Debit notes for returned inventory or damaged stock will appear here.
-            </p>
-            <button
-              type="button"
-              onClick={() => setIsCreateOpen(true)}
-              className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-teal-600 px-4 py-2 text-[13px] font-semibold text-white shadow-sm hover:bg-teal-700 transition cursor-pointer"
-            >
-              <Plus className="h-4 w-4" />
-              Create Purchase Return
-            </button>
-          </div>
-        ) : (
-          /* Returns Table */
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-[13px] border-collapse">
-              <DataTableHeader
-                columns={returnColumns}
-                data={filteredReturns}
-                themeVariant="primary"
-              />
-              <tbody className="divide-y divide-slate-100">
-                {filteredReturns.map((pr) => (
+      {/* 3. Returns Data Table with Always-Present Header */}
+      <div className="rounded-2xl border border-slate-200 bg-white shadow-xs overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-[13px] border-collapse">
+            <DataTableHeader
+              columns={returnColumns}
+              data={filteredReturns}
+              themeVariant="primary"
+            />
+            <tbody className="divide-y divide-slate-100">
+              {filteredReturns.length === 0 ? (
+                <tr>
+                  <td colSpan={returnColumns.length} className="py-14 text-center">
+                    <div className="flex flex-col items-center justify-center">
+                      <div className="relative mb-4 flex h-16 w-16 items-center justify-center">
+                        <div className="h-14 w-12 rounded-lg border-2 border-slate-300 bg-slate-50 p-2 shadow-2xs">
+                          <div className="h-1 w-full rounded bg-slate-200 mb-1.5" />
+                          <div className="h-1 w-3/4 rounded bg-slate-200 mb-1.5" />
+                          <div className="h-1 w-1/2 rounded bg-slate-200" />
+                        </div>
+                        <div className="absolute -bottom-1 -right-1 flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-md border border-slate-200">
+                          <Search className="h-4 w-4 text-slate-500" />
+                        </div>
+                      </div>
+                      <h4 className="text-[15px] font-semibold text-slate-800">No Purchase Return Found</h4>
+                      <p className="text-[12.5px] text-slate-400 mt-1 max-w-sm">
+                        Debit notes for returned inventory or damaged stock will appear here.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => setIsCreateOpen(true)}
+                        className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-teal-600 px-4 py-2 text-[13px] font-semibold text-white shadow-sm hover:bg-teal-700 transition cursor-pointer"
+                      >
+                        <Plus className="h-4 w-4" />
+                        Create Purchase Return
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                filteredReturns.map((pr) => (
                   <tr key={pr.id} className="hover:bg-slate-50/80 transition">
                     <td className="px-4 py-3 font-bold text-slate-900 font-mono">
                       {pr.debitNoteNo}
@@ -303,11 +305,11 @@ export function PurchaseReturnView() {
                       </div>
                     </td>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <CreatePurchaseReturnModal isOpen={isCreateOpen} onClose={() => setIsCreateOpen(false)} />

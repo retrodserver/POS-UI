@@ -160,35 +160,43 @@ export function UnitsMasterView() {
               themeVariant="primary"
             />
             <tbody className="divide-y divide-slate-100">
-              {units.map((u) => (
-                <tr key={u.id} className="hover:bg-slate-50/60 transition">
-                  <td className="px-4 py-3 font-semibold text-slate-900">{u.name}</td>
-                  <td className="px-4 py-3 font-mono font-bold text-teal-600">{u.symbol}</td>
-                  <td className="px-4 py-3 text-slate-600">{u.type}</td>
-                  <td className="px-4 py-3 font-mono text-slate-700 text-[12.5px]">{u.ratio}</td>
-                  <td className="px-4 py-3 text-right">
-                    <div className="inline-flex items-center gap-1 text-slate-400">
-                      <button
-                        type="button"
-                        onClick={() => toast.info(`Editing ${u.name}`)}
-                        className="rounded-lg p-1.5 hover:bg-slate-100 hover:text-slate-700 transition cursor-pointer"
-                      >
-                        <Edit2 className="h-4 w-4" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setUnits(units.filter((x) => x.id !== u.id));
-                          toast.success(`Deleted unit ${u.name}`);
-                        }}
-                        className="rounded-lg p-1.5 hover:bg-slate-100 hover:text-rose-600 transition cursor-pointer"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
+              {units.length === 0 ? (
+                <tr>
+                  <td colSpan={unitColumns.length} className="py-12 text-center text-slate-400">
+                    No measurement units found.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                units.map((u) => (
+                  <tr key={u.id} className="hover:bg-slate-50/60 transition">
+                    <td className="px-4 py-3 font-semibold text-slate-900">{u.name}</td>
+                    <td className="px-4 py-3 font-mono font-bold text-teal-600">{u.symbol}</td>
+                    <td className="px-4 py-3 text-slate-600">{u.type}</td>
+                    <td className="px-4 py-3 font-mono text-slate-700 text-[12.5px]">{u.ratio}</td>
+                    <td className="px-4 py-3 text-right">
+                      <div className="inline-flex items-center gap-1 text-slate-400">
+                        <button
+                          type="button"
+                          onClick={() => toast.info(`Editing ${u.name}`)}
+                          className="rounded-lg p-1.5 hover:bg-slate-100 hover:text-slate-700 transition cursor-pointer"
+                        >
+                          <Edit2 className="h-4 w-4" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setUnits(units.filter((x) => x.id !== u.id));
+                            toast.success(`Deleted unit ${u.name}`);
+                          }}
+                          className="rounded-lg p-1.5 hover:bg-slate-100 hover:text-rose-600 transition cursor-pointer"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

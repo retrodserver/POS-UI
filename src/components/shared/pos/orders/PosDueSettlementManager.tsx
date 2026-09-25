@@ -435,7 +435,7 @@ export function PosDueSettlementManager() {
             <tbody className="divide-y divide-slate-200">
               {paginatedRecords.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-10 text-center text-slate-500">
+                  <td colSpan={dueColumns.length} className="py-10 text-center text-slate-500">
                     No due payment records found. Kitchen prepared bills will appear here automatically.
                   </td>
                 </tr>

@@ -170,17 +170,25 @@ export function InventoryMastersView() {
                 themeVariant="primary"
               />
               <tbody className="divide-y divide-slate-100">
-                {stockItems?.map((item) => (
-                  <tr key={item.id} className="hover:bg-slate-50/60 transition">
-                    <td className="px-4 py-3 font-bold text-slate-900">{item.rawMaterial}</td>
-                    <td className="px-4 py-3 text-slate-600">{item.category}</td>
-                    <td className="px-4 py-3 font-mono text-slate-600">{item.unit}</td>
-                    <td className="px-4 py-3 font-mono text-amber-600">5 {item.unit}</td>
-                    <td className="px-4 py-3 font-mono font-semibold text-slate-800">
-                      ₹ {Math.round(item.closingStock * 45 + 100)}
+                {(!stockItems || stockItems.length === 0) ? (
+                  <tr>
+                    <td colSpan={rawMaterialColumns.length} className="py-12 text-center text-slate-400">
+                      No raw materials found.
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  stockItems.map((item) => (
+                    <tr key={item.id} className="hover:bg-slate-50/60 transition">
+                      <td className="px-4 py-3 font-bold text-slate-900">{item.rawMaterial}</td>
+                      <td className="px-4 py-3 text-slate-600">{item.category}</td>
+                      <td className="px-4 py-3 font-mono text-slate-600">{item.unit}</td>
+                      <td className="px-4 py-3 font-mono text-amber-600">5 {item.unit}</td>
+                      <td className="px-4 py-3 font-mono font-semibold text-slate-800">
+                        ₹ {Math.round(item.closingStock * 45 + 100)}
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
@@ -195,15 +203,23 @@ export function InventoryMastersView() {
                 themeVariant="primary"
               />
               <tbody className="divide-y divide-slate-100">
-                {vendors?.map((v) => (
-                  <tr key={v.id} className="hover:bg-slate-50/60 transition">
-                    <td className="px-4 py-3 font-bold text-slate-900">{v.name}</td>
-                    <td className="px-4 py-3 text-slate-700">{v.category}</td>
-                    <td className="px-4 py-3 font-mono text-slate-600">{v.phone}</td>
-                    <td className="px-4 py-3 font-mono text-slate-500 text-[12px]">{v.id}</td>
-                    <td className="px-4 py-3 text-slate-600 text-[12px]">Net 15 Days</td>
+                {(!vendors || vendors.length === 0) ? (
+                  <tr>
+                    <td colSpan={vendorColumns.length} className="py-12 text-center text-slate-400">
+                      No vendors/suppliers registered yet.
+                    </td>
                   </tr>
-                ))}
+                ) : (
+                  vendors.map((v) => (
+                    <tr key={v.id} className="hover:bg-slate-50/60 transition">
+                      <td className="px-4 py-3 font-bold text-slate-900">{v.name}</td>
+                      <td className="px-4 py-3 text-slate-700">{v.category}</td>
+                      <td className="px-4 py-3 font-mono text-slate-600">{v.phone}</td>
+                      <td className="px-4 py-3 font-mono text-slate-500 text-[12px]">{v.id}</td>
+                      <td className="px-4 py-3 text-slate-600 text-[12px]">Net 15 Days</td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

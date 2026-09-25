@@ -190,35 +190,39 @@ export function PurchaseBillPaymentsView() {
         </div>
       </div>
 
-      {/* 3. Empty State matching Screenshot 4 or Settlement Table */}
-      {filtered.length === 0 ? (
-        <div className="rounded-2xl border border-slate-200 bg-white p-16 text-center shadow-xs space-y-3">
-          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-slate-50 text-slate-300">
-            <FileText className="h-10 w-10" />
-          </div>
-          <div className="text-[15px] font-bold text-slate-700">
-            Purchase Invoice Settlement Record Not Found
-          </div>
-          <p className="text-[12.5px] text-slate-400 max-w-sm mx-auto">
-            No pending purchase invoices found for settlement in the selected date range.
-          </p>
+      {/* 3. Pending Purchase Invoices Table with Always-Present Header */}
+      <div className="rounded-2xl border border-slate-200 bg-white shadow-xs overflow-hidden">
+        <div className="p-4 border-b border-slate-100 flex items-center justify-between">
+          <h3 className="text-[14px] font-bold text-slate-800">Pending Purchase Invoices</h3>
+          <span className="text-[12px] text-slate-500">{filtered.length} invoices to settle</span>
         </div>
-      ) : (
-        <div className="rounded-2xl border border-slate-200 bg-white shadow-xs overflow-hidden">
-          <div className="p-4 border-b border-slate-100 flex items-center justify-between">
-            <h3 className="text-[14px] font-bold text-slate-800">Pending Purchase Invoices</h3>
-            <span className="text-[12px] text-slate-500">{filtered.length} invoices to settle</span>
-          </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-[13px] border-collapse">
-              <DataTableHeader
-                columns={billColumns}
-                data={filtered}
-                themeVariant="primary"
-              />
-              <tbody className="divide-y divide-slate-100">
-                {filtered.map((inv) => (
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-[13px] border-collapse">
+            <DataTableHeader
+              columns={billColumns}
+              data={filtered}
+              themeVariant="primary"
+            />
+            <tbody className="divide-y divide-slate-100">
+              {filtered.length === 0 ? (
+                <tr>
+                  <td colSpan={billColumns.length} className="py-14 text-center">
+                    <div className="flex flex-col items-center justify-center space-y-2">
+                      <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-slate-50 text-slate-300">
+                        <FileText className="h-8 w-8" />
+                      </div>
+                      <div className="text-[14.5px] font-bold text-slate-700">
+                        Purchase Invoice Settlement Record Not Found
+                      </div>
+                      <p className="text-[12px] text-slate-400 max-w-sm mx-auto">
+                        No pending purchase invoices found for settlement in the selected date range.
+                      </p>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                filtered.map((inv) => (
                   <tr key={inv.id} className="hover:bg-slate-50/60 transition">
                     <td className="px-4 py-3 font-mono font-bold text-teal-600">{inv.id}</td>
                     <td className="px-4 py-3 font-semibold text-slate-900">{inv.vendor}</td>
@@ -256,12 +260,12 @@ export function PurchaseBillPaymentsView() {
                       )}
                     </td>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
-      )}
+      </div>
     </div>
   );
 }

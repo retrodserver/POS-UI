@@ -223,45 +223,47 @@ export function PurchaseOrderView() {
         </div>
       </div>
 
-      {/* 3. Empty State or PO Data Table from Screenshot 2 */}
-      <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-xs min-h-[380px] flex flex-col justify-center">
-        {filteredOrders.length === 0 ? (
-          /* Empty State exactly matching Screenshot 2 */
-          <div className="text-center py-12">
-            <div className="relative mx-auto mb-4 flex h-16 w-16 items-center justify-center">
-              <div className="h-14 w-12 rounded-lg border-2 border-slate-300 bg-slate-50 p-2 shadow-2xs">
-                <div className="h-1 w-full rounded bg-slate-200 mb-1.5" />
-                <div className="h-1 w-3/4 rounded bg-slate-200 mb-1.5" />
-                <div className="h-1 w-1/2 rounded bg-slate-200" />
-              </div>
-              <div className="absolute -bottom-1 -right-1 flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-md border border-slate-200">
-                <Search className="h-4 w-4 text-slate-500" />
-              </div>
-            </div>
-            <h4 className="text-[15px] font-semibold text-slate-800">No Purchase Found</h4>
-            <p className="text-[12.5px] text-slate-400 mt-1">
-              Create a purchase order to request items and ingredients from suppliers.
-            </p>
-            <button
-              type="button"
-              onClick={() => setIsCreateOpen(true)}
-              className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-teal-600 px-4 py-2 text-[13px] font-semibold text-white shadow-sm hover:bg-teal-700 transition cursor-pointer"
-            >
-              <Plus className="h-4 w-4" />
-              Create Purchase Order
-            </button>
-          </div>
-        ) : (
-          /* PO Table */
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-[13px] border-collapse">
-              <DataTableHeader
-                columns={poColumns}
-                data={filteredOrders}
-                themeVariant="primary"
-              />
-              <tbody className="divide-y divide-slate-100">
-                {filteredOrders.map((po) => (
+      {/* 3. PO Data Table with Always-Present Header */}
+      <div className="rounded-2xl border border-slate-200 bg-white shadow-xs overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-[13px] border-collapse">
+            <DataTableHeader
+              columns={poColumns}
+              data={filteredOrders}
+              themeVariant="primary"
+            />
+            <tbody className="divide-y divide-slate-100">
+              {filteredOrders.length === 0 ? (
+                <tr>
+                  <td colSpan={poColumns.length} className="py-14 text-center">
+                    <div className="flex flex-col items-center justify-center">
+                      <div className="relative mb-4 flex h-16 w-16 items-center justify-center">
+                        <div className="h-14 w-12 rounded-lg border-2 border-slate-300 bg-slate-50 p-2 shadow-2xs">
+                          <div className="h-1 w-full rounded bg-slate-200 mb-1.5" />
+                          <div className="h-1 w-3/4 rounded bg-slate-200 mb-1.5" />
+                          <div className="h-1 w-1/2 rounded bg-slate-200" />
+                        </div>
+                        <div className="absolute -bottom-1 -right-1 flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-md border border-slate-200">
+                          <Search className="h-4 w-4 text-slate-500" />
+                        </div>
+                      </div>
+                      <h4 className="text-[15px] font-semibold text-slate-800">No Purchase Found</h4>
+                      <p className="text-[12.5px] text-slate-400 mt-1 max-w-sm">
+                        Create a purchase order to request items and ingredients from suppliers.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => setIsCreateOpen(true)}
+                        className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-teal-600 px-4 py-2 text-[13px] font-semibold text-white shadow-sm hover:bg-teal-700 transition cursor-pointer"
+                      >
+                        <Plus className="h-4 w-4" />
+                        Create Purchase Order
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                filteredOrders.map((po) => (
                   <tr key={po.id} className="hover:bg-slate-50/80 transition">
                     <td className="px-4 py-3 font-bold text-slate-900 font-mono">{po.poNumber}</td>
                     <td className="px-4 py-3 font-medium text-slate-800">{po.vendorName}</td>
@@ -300,21 +302,21 @@ export function PurchaseOrderView() {
                       </div>
                     </td>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                ))
+              )}
+            </tbody>
+          </table>
 
-            {/* Unified DataTableFooter */}
-            <DataTableFooter
-              currentPage={currentPage}
-              totalCount={filteredOrders.length}
-              pageSize={pageSize}
-              onPageSizeChange={setPageSize}
-              onPageChange={setCurrentPage}
-              itemName="orders"
-            />
-          </div>
-        )}
+          {/* Unified DataTableFooter */}
+          <DataTableFooter
+            currentPage={currentPage}
+            totalCount={filteredOrders.length}
+            pageSize={pageSize}
+            onPageSizeChange={setPageSize}
+            onPageChange={setCurrentPage}
+            itemName="orders"
+          />
+        </div>
       </div>
 
       <CreatePurchaseOrderModal isOpen={isCreateOpen} onClose={() => setIsCreateOpen(false)} />

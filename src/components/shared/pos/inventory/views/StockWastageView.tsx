@@ -202,17 +202,25 @@ export function StockWastageView() {
               themeVariant="primary"
             />
             <tbody className="divide-y divide-slate-100">
-              {filtered.map((w) => (
-                <tr key={w.id} className="hover:bg-slate-50/60 transition">
-                  <td className="px-4 py-3 font-mono font-bold text-red-600 text-[12px]">{w.id}</td>
-                  <td className="px-4 py-3 text-slate-600 text-[12.5px]">{w.date}</td>
-                  <td className="px-4 py-3 font-bold text-slate-800">{w.item}</td>
-                  <td className="px-4 py-3 font-mono font-semibold text-slate-900">{w.quantity}</td>
-                  <td className="px-4 py-3 font-mono font-bold text-red-600">{w.cost}</td>
-                  <td className="px-4 py-3 text-slate-600 text-[12.5px]">{w.reason}</td>
-                  <td className="px-4 py-3 text-slate-500 text-[12px]">{w.approvedBy}</td>
+              {filtered.length === 0 ? (
+                <tr>
+                  <td colSpan={wastageColumns.length} className="py-12 text-center text-slate-400">
+                    No stock wastage incidents recorded.
+                  </td>
                 </tr>
-              ))}
+              ) : (
+                filtered.map((w) => (
+                  <tr key={w.id} className="hover:bg-slate-50/60 transition">
+                    <td className="px-4 py-3 font-mono font-bold text-red-600 text-[12px]">{w.id}</td>
+                    <td className="px-4 py-3 text-slate-600 text-[12.5px]">{w.date}</td>
+                    <td className="px-4 py-3 font-bold text-slate-800">{w.item}</td>
+                    <td className="px-4 py-3 font-mono font-semibold text-slate-900">{w.quantity}</td>
+                    <td className="px-4 py-3 font-mono font-bold text-red-600">{w.cost}</td>
+                    <td className="px-4 py-3 text-slate-600 text-[12.5px]">{w.reason}</td>
+                    <td className="px-4 py-3 text-slate-500 text-[12px]">{w.approvedBy}</td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

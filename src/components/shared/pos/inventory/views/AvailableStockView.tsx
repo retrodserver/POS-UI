@@ -294,27 +294,35 @@ export function AvailableStockView() {
                 themeVariant="primary"
               />
               <tbody className="divide-y divide-slate-100">
-                {stockItems?.map((item) => (
-                  <tr key={item.id} className="hover:bg-slate-50/80 transition">
-                    <td className="px-4 py-3 font-semibold text-slate-900">{item.rawMaterial}</td>
-                    <td className="px-4 py-3 text-slate-600">{item.category}</td>
-                    <td className="px-4 py-3 font-mono font-bold text-slate-900">
-                      {item.availableStock}
-                    </td>
-                    <td className="px-4 py-3 text-slate-500">{item.unit}</td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold ${
-                          item.availableStock > 0
-                            ? "bg-emerald-50 text-emerald-700"
-                            : "bg-amber-50 text-amber-700"
-                        }`}
-                      >
-                        {item.availableStock > 0 ? "In Stock" : "Zero Stock"}
-                      </span>
+                {(!stockItems || stockItems.length === 0) ? (
+                  <tr>
+                    <td colSpan={availableStockColumns.length} className="py-12 text-center text-slate-400">
+                      No available stock items recorded yet.
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  stockItems.map((item) => (
+                    <tr key={item.id} className="hover:bg-slate-50/80 transition">
+                      <td className="px-4 py-3 font-semibold text-slate-900">{item.rawMaterial}</td>
+                      <td className="px-4 py-3 text-slate-600">{item.category}</td>
+                      <td className="px-4 py-3 font-mono font-bold text-slate-900">
+                        {item.availableStock}
+                      </td>
+                      <td className="px-4 py-3 text-slate-500">{item.unit}</td>
+                      <td className="px-4 py-3">
+                        <span
+                          className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold ${
+                            item.availableStock > 0
+                              ? "bg-emerald-50 text-emerald-700"
+                              : "bg-amber-50 text-amber-700"
+                          }`}
+                        >
+                          {item.availableStock > 0 ? "In Stock" : "Zero Stock"}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

@@ -162,34 +162,42 @@ export function StockTransferView() {
               themeVariant="primary"
             />
             <tbody className="divide-y divide-slate-100">
-              {filtered.map((t) => (
-                <tr key={t.id} className="hover:bg-slate-50/60 transition">
-                  <td className="px-4 py-3 font-mono font-bold text-teal-600">{t.id}</td>
-                  <td className="px-4 py-3 text-slate-600 text-[12.5px]">{t.date}</td>
-                  <td className="px-4 py-3 font-semibold text-slate-800">{t.from}</td>
-                  <td className="px-4 py-3 font-semibold text-slate-800">{t.to}</td>
-                  <td className="px-4 py-3 text-slate-600 text-[12.5px] max-w-xs truncate">
-                    {t.items}
-                  </td>
-                  <td className="px-4 py-3 text-slate-500 text-[12px]">{t.by}</td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-bold ${
-                        t.status === "Completed"
-                          ? "bg-emerald-50 text-emerald-700"
-                          : "bg-amber-50 text-amber-700"
-                      }`}
-                    >
-                      {t.status === "Completed" ? (
-                        <CheckCircle2 className="h-3 w-3" />
-                      ) : (
-                        <Clock className="h-3 w-3" />
-                      )}
-                      {t.status}
-                    </span>
+              {filtered.length === 0 ? (
+                <tr>
+                  <td colSpan={transferColumns.length} className="py-12 text-center text-slate-400">
+                    No stock transfer records found.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                filtered.map((t) => (
+                  <tr key={t.id} className="hover:bg-slate-50/60 transition">
+                    <td className="px-4 py-3 font-mono font-bold text-teal-600">{t.id}</td>
+                    <td className="px-4 py-3 text-slate-600 text-[12.5px]">{t.date}</td>
+                    <td className="px-4 py-3 font-semibold text-slate-800">{t.from}</td>
+                    <td className="px-4 py-3 font-semibold text-slate-800">{t.to}</td>
+                    <td className="px-4 py-3 text-slate-600 text-[12.5px] max-w-xs truncate">
+                      {t.items}
+                    </td>
+                    <td className="px-4 py-3 text-slate-500 text-[12px]">{t.by}</td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-bold ${
+                          t.status === "Completed"
+                            ? "bg-emerald-50 text-emerald-700"
+                            : "bg-amber-50 text-amber-700"
+                        }`}
+                      >
+                        {t.status === "Completed" ? (
+                          <CheckCircle2 className="h-3 w-3" />
+                        ) : (
+                          <Clock className="h-3 w-3" />
+                        )}
+                        {t.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
