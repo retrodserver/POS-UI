@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   Search,
   Clock,
@@ -16,6 +16,10 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { useStockItems, useSaveClosingStock } from "@/hooks/queries/usePosInventory";
+import {
+  DataTableHeader,
+  type DataTableColumn,
+} from "@/components/common/DataTableHeader";
 import { toast } from "sonner";
 
 export function ClosingStockView() {
@@ -31,6 +35,49 @@ export function ClosingStockView() {
   // Excel import state matching AvailableStockView
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [step, setStep] = useState<1 | 2 | 3>(1);
+
+  const closingColumns: DataTableColumn<any>[] = useMemo(
+    () => [
+      {
+        id: "rawMaterial",
+        label: "Raw Material",
+        sortable: true,
+        filterable: true,
+        defaultWidth: 200,
+        getValue: (r) => r.rawMaterial,
+      },
+      {
+        id: "closingStock",
+        label: "Closing Stock",
+        sortable: true,
+        align: "right",
+        defaultWidth: 140,
+        getValue: (r) => `${r.closingStock} ${r.unit}`,
+      },
+      {
+        id: "newStock",
+        label: "New Stock",
+        sortable: false,
+        defaultWidth: 160,
+      },
+      {
+        id: "variance",
+        label: "Variance",
+        sortable: false,
+        align: "center",
+        defaultWidth: 120,
+      },
+      {
+        id: "actions",
+        label: "Actions",
+        sortable: false,
+        filterable: false,
+        align: "right",
+        defaultWidth: 100,
+      },
+    ],
+    [],
+  );
 
   // Local state for stock entry values
   const [newStockInputs, setNewStockInputs] = useState<Record<string, string>>({});
@@ -422,16 +469,12 @@ export function ClosingStockView() {
             {/* Right Data Table from Screenshot 2 */}
             <div className="flex-1 min-w-0 rounded-xl border border-slate-200 bg-white shadow-xs overflow-hidden">
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-[13px]">
-                  <thead>
-                    <tr className="border-b border-slate-200 bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-                      <th className="px-4 py-3">Raw Material</th>
-                      <th className="px-4 py-3">Closing Stock</th>
-                      <th className="px-4 py-3">New Stock</th>
-                      <th className="px-4 py-3">Variance</th>
-                      <th className="px-4 py-3 text-right">Actions</th>
-                    </tr>
-                  </thead>
+                <table className="w-full text-left text-[13px] border-collapse">
+                  <DataTableHeader
+                    columns={closingColumns}
+                    data={filteredItems}
+                    themeVariant="primary"
+                  />
                   <tbody className="divide-y divide-slate-100">
                     {filteredItems.map((item) => {
                       const enteredVal = newStockInputs[item.id] ?? "";

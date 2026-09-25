@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   Plus,
   Search,
@@ -11,6 +11,10 @@ import {
   Layers,
   ArrowRight,
 } from "lucide-react";
+import {
+  DataTableHeader,
+  type DataTableColumn,
+} from "@/components/common/DataTableHeader";
 import { toast } from "sonner";
 
 interface ProductionMasterRecord {
@@ -28,6 +32,67 @@ export function ProductionMasterView() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+
+  const masterColumns: DataTableColumn<ProductionMasterRecord>[] = useMemo(
+    () => [
+      {
+        id: "id",
+        label: "Recipe ID",
+        sortable: true,
+        filterable: true,
+        defaultWidth: 130,
+        getValue: (r) => r.id,
+      },
+      {
+        id: "name",
+        label: "Production Item",
+        sortable: true,
+        filterable: true,
+        defaultWidth: 200,
+        getValue: (r) => r.name,
+      },
+      {
+        id: "category",
+        label: "Category",
+        sortable: true,
+        filterable: true,
+        defaultWidth: 150,
+        getValue: (r) => r.category,
+      },
+      {
+        id: "expectedYield",
+        label: "Expected Batch Yield",
+        sortable: true,
+        align: "right",
+        defaultWidth: 160,
+        getValue: (r) => `${r.expectedYield} ${r.outputUnit}`,
+      },
+      {
+        id: "ingredientsSummary",
+        label: "Input Raw Materials",
+        sortable: false,
+        defaultWidth: 240,
+        getValue: (r) => r.ingredientsSummary,
+      },
+      {
+        id: "standardCost",
+        label: "Standard Cost",
+        sortable: true,
+        align: "right",
+        defaultWidth: 140,
+        getValue: (r) => `₹ ${r.standardCost}`,
+      },
+      {
+        id: "actions",
+        label: "Actions",
+        sortable: false,
+        filterable: false,
+        align: "right",
+        defaultWidth: 110,
+      },
+    ],
+    [],
+  );
 
   // Demo production master conversion recipes
   const [records, setRecords] = useState<ProductionMasterRecord[]>([
@@ -247,18 +312,12 @@ export function ProductionMasterView() {
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-[13px]">
-              <thead>
-                <tr className="border-b border-slate-200 bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-                  <th className="px-4 py-3">Recipe ID</th>
-                  <th className="px-4 py-3">Production Item</th>
-                  <th className="px-4 py-3">Category</th>
-                  <th className="px-4 py-3">Expected Batch Yield</th>
-                  <th className="px-4 py-3">Input Raw Materials</th>
-                  <th className="px-4 py-3">Standard Cost</th>
-                  <th className="px-4 py-3 text-right">Actions</th>
-                </tr>
-              </thead>
+            <table className="w-full text-left text-[13px] border-collapse">
+              <DataTableHeader
+                columns={masterColumns}
+                data={filteredRecords}
+                themeVariant="primary"
+              />
               <tbody className="divide-y divide-slate-100">
                 {filteredRecords.map((r) => (
                   <tr key={r.id} className="hover:bg-slate-50/60 transition">

@@ -40,6 +40,31 @@ export function MultiItemImagesUploadView() {
     toast.success(`Matched ${uploadedFiles.length} images to menu items! Ready for review.`);
   };
 
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      const newFiles = Array.from(e.dataTransfer.files);
+      setUploadedFiles((prev) => [...prev, ...newFiles]);
+      toast.success(`${newFiles.length} images queued for matching`);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* 1. "How It Works" Banner from Petpooja Screenshot 2 */}
@@ -186,13 +211,20 @@ export function MultiItemImagesUploadView() {
               />
               <div
                 onClick={() => fileInputRef.current?.click()}
-                className="border-2 border-dashed border-slate-300 hover:border-teal-500 rounded-2xl p-10 text-center cursor-pointer transition bg-slate-50/50 hover:bg-teal-50/20"
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                className={`border-2 border-dashed rounded-2xl p-10 text-center cursor-pointer transition ${
+                  isDragging
+                    ? "border-teal-500 bg-teal-50/60 ring-2 ring-teal-500/20"
+                    : "border-slate-300 hover:border-teal-500 bg-slate-50/50 hover:bg-teal-50/20"
+                }`}
               >
                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-teal-50 text-teal-600 mx-auto mb-3 border border-teal-200">
                   <Upload className="h-6 w-6" />
                 </div>
                 <h4 className="text-[14px] font-bold text-slate-800">
-                  Click to select images or drag and drop files here
+                  {isDragging ? "Drop your images now!" : "Click to select images or drag and drop files here"}
                 </h4>
                 <p className="text-[12px] text-slate-500 mt-1 max-w-md mx-auto">
                   Images will be matched automatically by filename to menu items (e.g.{" "}

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   Upload,
   Download,
@@ -10,6 +10,10 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { useStockItems } from "@/hooks/queries/usePosInventory";
+import {
+  DataTableHeader,
+  type DataTableColumn,
+} from "@/components/common/DataTableHeader";
 import { toast } from "sonner";
 
 export function AvailableStockView() {
@@ -20,6 +24,52 @@ export function AvailableStockView() {
   const [updateCycle, setUpdateCycle] = useState("Daily");
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [step, setStep] = useState<1 | 2 | 3>(1);
+
+  const availableStockColumns: DataTableColumn<any>[] = useMemo(
+    () => [
+      {
+        id: "rawMaterial",
+        label: "Raw Material / Item",
+        sortable: true,
+        filterable: true,
+        defaultWidth: 240,
+        getValue: (r) => r.rawMaterial,
+      },
+      {
+        id: "category",
+        label: "Category",
+        sortable: true,
+        filterable: true,
+        defaultWidth: 160,
+        getValue: (r) => r.category,
+      },
+      {
+        id: "availableStock",
+        label: "Available Stock",
+        sortable: true,
+        align: "right",
+        defaultWidth: 150,
+        getValue: (r) => String(r.availableStock),
+      },
+      {
+        id: "unit",
+        label: "Unit",
+        sortable: true,
+        defaultWidth: 100,
+        getValue: (r) => r.unit,
+      },
+      {
+        id: "status",
+        label: "Status",
+        sortable: true,
+        filterable: true,
+        align: "center",
+        defaultWidth: 130,
+        getValue: (r) => (r.availableStock > 0 ? "In Stock" : "Zero Stock"),
+      },
+    ],
+    [],
+  );
 
   const handleDownloadSample = () => {
     toast.success("Downloading Stock_Import_Template.xlsx...");
@@ -237,16 +287,12 @@ export function AvailableStockView() {
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-[13px]">
-              <thead>
-                <tr className="border-b border-slate-200 bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-                  <th className="px-4 py-3">Raw Material / Item</th>
-                  <th className="px-4 py-3">Category</th>
-                  <th className="px-4 py-3">Available Stock</th>
-                  <th className="px-4 py-3">Unit</th>
-                  <th className="px-4 py-3">Status</th>
-                </tr>
-              </thead>
+            <table className="w-full text-left text-[13px] border-collapse">
+              <DataTableHeader
+                columns={availableStockColumns}
+                data={stockItems ?? []}
+                themeVariant="primary"
+              />
               <tbody className="divide-y divide-slate-100">
                 {stockItems?.map((item) => (
                   <tr key={item.id} className="hover:bg-slate-50/80 transition">

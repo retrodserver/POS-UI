@@ -1,5 +1,9 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Search, ChevronDown, FileText, Calendar, CreditCard, CheckCircle2 } from "lucide-react";
+import {
+  DataTableHeader,
+  type DataTableColumn,
+} from "@/components/common/DataTableHeader";
 import { toast } from "sonner";
 
 export function PurchaseBillPaymentsView() {
@@ -29,6 +33,83 @@ export function PurchaseBillPaymentsView() {
       status: "Unpaid",
     },
   ]);
+
+  const billColumns: DataTableColumn<any>[] = useMemo(
+    () => [
+      {
+        id: "id",
+        label: "Invoice No.",
+        sortable: true,
+        filterable: true,
+        defaultWidth: 140,
+        getValue: (r) => r.id,
+      },
+      {
+        id: "vendor",
+        label: "Vendor / Supplier",
+        sortable: true,
+        filterable: true,
+        defaultWidth: 200,
+        getValue: (r) => r.vendor,
+      },
+      {
+        id: "billDate",
+        label: "Bill Date",
+        sortable: true,
+        defaultWidth: 120,
+        getValue: (r) => r.billDate,
+      },
+      {
+        id: "dueDate",
+        label: "Due Date",
+        sortable: true,
+        defaultWidth: 120,
+        getValue: (r) => r.dueDate,
+      },
+      {
+        id: "total",
+        label: "Total (₹)",
+        sortable: true,
+        align: "right",
+        defaultWidth: 120,
+        getValue: (r) => `₹ ${r.total}`,
+      },
+      {
+        id: "paid",
+        label: "Paid (₹)",
+        sortable: true,
+        align: "right",
+        defaultWidth: 120,
+        getValue: (r) => `₹ ${r.paid}`,
+      },
+      {
+        id: "balance",
+        label: "Balance Due",
+        sortable: true,
+        align: "right",
+        defaultWidth: 130,
+        getValue: (r) => `₹ ${r.balance}`,
+      },
+      {
+        id: "status",
+        label: "Status",
+        sortable: true,
+        filterable: true,
+        align: "center",
+        defaultWidth: 120,
+        getValue: (r) => r.status,
+      },
+      {
+        id: "actions",
+        label: "Action",
+        sortable: false,
+        filterable: false,
+        align: "right",
+        defaultWidth: 110,
+      },
+    ],
+    [],
+  );
 
   const filtered = invoices.filter((inv) => {
     if (selectType !== "Select type" && inv.status !== selectType) return false;
@@ -130,20 +211,12 @@ export function PurchaseBillPaymentsView() {
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-[13px]">
-              <thead>
-                <tr className="border-b border-slate-200 bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-                  <th className="px-4 py-3">Invoice No.</th>
-                  <th className="px-4 py-3">Vendor / Supplier</th>
-                  <th className="px-4 py-3">Bill Date</th>
-                  <th className="px-4 py-3">Due Date</th>
-                  <th className="px-4 py-3 font-mono">Total (₹)</th>
-                  <th className="px-4 py-3 font-mono">Paid (₹)</th>
-                  <th className="px-4 py-3 font-mono text-rose-600">Balance Due</th>
-                  <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3 text-right">Action</th>
-                </tr>
-              </thead>
+            <table className="w-full text-left text-[13px] border-collapse">
+              <DataTableHeader
+                columns={billColumns}
+                data={filtered}
+                themeVariant="primary"
+              />
               <tbody className="divide-y divide-slate-100">
                 {filtered.map((inv) => (
                   <tr key={inv.id} className="hover:bg-slate-50/60 transition">

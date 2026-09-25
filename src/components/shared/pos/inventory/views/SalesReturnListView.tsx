@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   Plus,
   Search,
@@ -13,6 +13,10 @@ import {
   PackageCheck,
   AlertCircle,
 } from "lucide-react";
+import {
+  DataTableHeader,
+  type DataTableColumn,
+} from "@/components/common/DataTableHeader";
 import { toast } from "sonner";
 
 interface SalesReturnRecord {
@@ -33,6 +37,83 @@ export function SalesReturnListView() {
   const [orderSource, setOrderSource] = useState("All");
   const [invoiceQuery, setInvoiceQuery] = useState("");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+  const salesReturnColumns: DataTableColumn<SalesReturnRecord>[] = useMemo(
+    () => [
+      {
+        id: "id",
+        label: "Return ID",
+        sortable: true,
+        filterable: true,
+        defaultWidth: 130,
+        getValue: (r) => r.id,
+      },
+      {
+        id: "date",
+        label: "Date",
+        sortable: true,
+        defaultWidth: 120,
+        getValue: (r) => r.date,
+      },
+      {
+        id: "invoiceNo",
+        label: "Invoice No.",
+        sortable: true,
+        filterable: true,
+        defaultWidth: 140,
+        getValue: (r) => r.invoiceNo,
+      },
+      {
+        id: "orderType",
+        label: "Channel / Source",
+        sortable: true,
+        filterable: true,
+        defaultWidth: 150,
+        getValue: (r) => r.orderType,
+      },
+      {
+        id: "items",
+        label: "Returned Items",
+        sortable: false,
+        defaultWidth: 200,
+        getValue: (r) => r.items,
+      },
+      {
+        id: "amount",
+        label: "Refund Amount",
+        sortable: true,
+        align: "right",
+        defaultWidth: 140,
+        getValue: (r) => `₹ ${r.amount}`,
+      },
+      {
+        id: "restockAction",
+        label: "Inventory Action",
+        sortable: true,
+        filterable: true,
+        align: "center",
+        defaultWidth: 180,
+        getValue: (r) => r.restockAction,
+      },
+      {
+        id: "reason",
+        label: "Reason",
+        sortable: true,
+        filterable: true,
+        defaultWidth: 180,
+        getValue: (r) => r.reason,
+      },
+      {
+        id: "processedBy",
+        label: "Processed By",
+        sortable: true,
+        filterable: true,
+        defaultWidth: 130,
+        getValue: (r) => r.processedBy,
+      },
+    ],
+    [],
+  );
 
   // Initial demo records
   const [returns, setReturns] = useState<SalesReturnRecord[]>([
@@ -268,20 +349,12 @@ export function SalesReturnListView() {
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-[13px]">
-              <thead>
-                <tr className="border-b border-slate-200 bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-                  <th className="px-4 py-3">Return ID</th>
-                  <th className="px-4 py-3">Date</th>
-                  <th className="px-4 py-3">Invoice No.</th>
-                  <th className="px-4 py-3">Channel / Source</th>
-                  <th className="px-4 py-3">Returned Items</th>
-                  <th className="px-4 py-3">Refund Amount</th>
-                  <th className="px-4 py-3">Inventory Action</th>
-                  <th className="px-4 py-3">Reason</th>
-                  <th className="px-4 py-3">Processed By</th>
-                </tr>
-              </thead>
+            <table className="w-full text-left text-[13px] border-collapse">
+              <DataTableHeader
+                columns={salesReturnColumns}
+                data={filteredReturns}
+                themeVariant="primary"
+              />
               <tbody className="divide-y divide-slate-100">
                 {filteredReturns.map((r) => (
                   <tr key={r.id} className="hover:bg-slate-50/60 transition">

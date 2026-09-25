@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Plus, Download, Search, Trash2, Eye, SlidersHorizontal, ChevronDown } from "lucide-react";
 import {
   usePurchaseOrders,
@@ -6,7 +6,11 @@ import {
   useDeletePurchaseOrder,
 } from "@/hooks/queries/usePosInventory";
 import { CreatePurchaseOrderModal } from "../modals/CreatePurchaseOrderModal";
-import { DataTableFooter } from "@/components/common";
+import {
+  DataTableHeader,
+  DataTableFooter,
+  type DataTableColumn,
+} from "@/components/common/DataTableHeader";
 import { toast } from "sonner";
 
 export function PurchaseOrderView() {
@@ -21,6 +25,75 @@ export function PurchaseOrderView() {
   const [poFilter, setPoFilter] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+
+  const poColumns: DataTableColumn<any>[] = useMemo(
+    () => [
+      {
+        id: "poNumber",
+        label: "PO Number",
+        sortable: true,
+        filterable: true,
+        defaultWidth: 150,
+        getValue: (r) => r.poNumber,
+      },
+      {
+        id: "vendorName",
+        label: "Vendor",
+        sortable: true,
+        filterable: true,
+        defaultWidth: 180,
+        getValue: (r) => r.vendorName,
+      },
+      {
+        id: "orderDate",
+        label: "Order Date",
+        sortable: true,
+        defaultWidth: 130,
+        getValue: (r) => r.orderDate,
+      },
+      {
+        id: "expectedDeliveryDate",
+        label: "Expected Delivery",
+        sortable: true,
+        defaultWidth: 150,
+        getValue: (r) => r.expectedDeliveryDate,
+      },
+      {
+        id: "itemCount",
+        label: "Item Count",
+        sortable: true,
+        align: "center",
+        defaultWidth: 120,
+        getValue: (r) => `${r.itemCount} Items`,
+      },
+      {
+        id: "estimatedAmount",
+        label: "Est Value",
+        sortable: true,
+        align: "right",
+        defaultWidth: 130,
+        getValue: (r) => `₹${r.estimatedAmount}`,
+      },
+      {
+        id: "status",
+        label: "Status",
+        sortable: true,
+        filterable: true,
+        align: "center",
+        defaultWidth: 120,
+        getValue: (r) => r.status,
+      },
+      {
+        id: "actions",
+        label: "Actions",
+        sortable: false,
+        filterable: false,
+        align: "right",
+        defaultWidth: 100,
+      },
+    ],
+    [],
+  );
 
   const filteredOrders = (purchaseOrders ?? []).filter((po) => {
     if (vendorFilter !== "All" && po.vendorName !== vendorFilter) return false;
@@ -181,19 +254,12 @@ export function PurchaseOrderView() {
         ) : (
           /* PO Table */
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-[13px]">
-              <thead>
-                <tr className="border-b border-slate-200 bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-                  <th className="px-4 py-3">PO Number</th>
-                  <th className="px-4 py-3">Vendor</th>
-                  <th className="px-4 py-3">Order Date</th>
-                  <th className="px-4 py-3">Expected Delivery</th>
-                  <th className="px-4 py-3">Item Count</th>
-                  <th className="px-4 py-3">Est Value</th>
-                  <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3 text-right">Actions</th>
-                </tr>
-              </thead>
+            <table className="w-full text-left text-[13px] border-collapse">
+              <DataTableHeader
+                columns={poColumns}
+                data={filteredOrders}
+                themeVariant="primary"
+              />
               <tbody className="divide-y divide-slate-100">
                 {filteredOrders.map((po) => (
                   <tr key={po.id} className="hover:bg-slate-50/80 transition">

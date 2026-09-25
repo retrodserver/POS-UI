@@ -1,5 +1,9 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Plus, Search, Calendar, Clock, CheckCircle2, Factory } from "lucide-react";
+import {
+  DataTableHeader,
+  type DataTableColumn,
+} from "@/components/common/DataTableHeader";
 import { toast } from "sonner";
 
 export function ProductionExecutionView() {
@@ -34,6 +38,67 @@ export function ProductionExecutionView() {
       operator: "Chef Vikram",
     },
   ];
+
+  const execColumns: DataTableColumn<any>[] = useMemo(
+    () => [
+      {
+        id: "id",
+        label: "Execution ID",
+        sortable: true,
+        filterable: true,
+        defaultWidth: 130,
+        getValue: (r) => r.id,
+      },
+      {
+        id: "date",
+        label: "Date",
+        sortable: true,
+        defaultWidth: 120,
+        getValue: (r) => r.date,
+      },
+      {
+        id: "item",
+        label: "Produced Item",
+        sortable: true,
+        filterable: true,
+        defaultWidth: 200,
+        getValue: (r) => r.item,
+      },
+      {
+        id: "batchQty",
+        label: "Batch Output",
+        sortable: true,
+        align: "right",
+        defaultWidth: 130,
+        getValue: (r) => r.batchQty,
+      },
+      {
+        id: "rawMaterialsDeducted",
+        label: "Raw Materials Deducted",
+        sortable: false,
+        defaultWidth: 240,
+        getValue: (r) => r.rawMaterialsDeducted,
+      },
+      {
+        id: "operator",
+        label: "Operator",
+        sortable: true,
+        filterable: true,
+        defaultWidth: 140,
+        getValue: (r) => r.operator,
+      },
+      {
+        id: "status",
+        label: "Status",
+        sortable: true,
+        filterable: true,
+        align: "center",
+        defaultWidth: 120,
+        getValue: (r) => r.status,
+      },
+    ],
+    [],
+  );
 
   const filtered = runs.filter(
     (r) =>
@@ -78,18 +143,12 @@ export function ProductionExecutionView() {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-[13px]">
-            <thead>
-              <tr className="border-b border-slate-200 bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-                <th className="px-4 py-3">Execution ID</th>
-                <th className="px-4 py-3">Date</th>
-                <th className="px-4 py-3">Produced Item</th>
-                <th className="px-4 py-3">Batch Output</th>
-                <th className="px-4 py-3">Raw Materials Deducted</th>
-                <th className="px-4 py-3">Operator</th>
-                <th className="px-4 py-3">Status</th>
-              </tr>
-            </thead>
+          <table className="w-full text-left text-[13px] border-collapse">
+            <DataTableHeader
+              columns={execColumns}
+              data={filtered}
+              themeVariant="primary"
+            />
             <tbody className="divide-y divide-slate-100">
               {filtered.map((r) => (
                 <tr key={r.id} className="hover:bg-slate-50/60 transition">
@@ -126,3 +185,4 @@ export function ProductionExecutionView() {
     </div>
   );
 }
+

@@ -1,5 +1,9 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Search, Download, ChevronDown, Calendar, Eye } from "lucide-react";
+import {
+  DataTableHeader,
+  type DataTableColumn,
+} from "@/components/common/DataTableHeader";
 import { toast } from "sonner";
 
 export function OrderwiseConsumptionView() {
@@ -37,6 +41,67 @@ export function OrderwiseConsumptionView() {
       status: "Billed",
     },
   ];
+
+  const orderColumns: DataTableColumn<any>[] = useMemo(
+    () => [
+      {
+        id: "id",
+        label: "Order ID",
+        sortable: true,
+        filterable: true,
+        defaultWidth: 120,
+        getValue: (r) => r.id,
+      },
+      {
+        id: "kot",
+        label: "KOT / Time",
+        sortable: true,
+        defaultWidth: 130,
+        getValue: (r) => `${r.kot} ${r.time}`,
+      },
+      {
+        id: "table",
+        label: "Source / Table",
+        sortable: true,
+        filterable: true,
+        defaultWidth: 140,
+        getValue: (r) => r.table,
+      },
+      {
+        id: "item",
+        label: "Ordered Item",
+        sortable: true,
+        filterable: true,
+        defaultWidth: 180,
+        getValue: (r) => r.item,
+      },
+      {
+        id: "recipeItems",
+        label: "Ingredients Deducted",
+        sortable: false,
+        defaultWidth: 260,
+        getValue: (r) => r.recipeItems,
+      },
+      {
+        id: "cost",
+        label: "Theoretical Food Cost",
+        sortable: true,
+        align: "right",
+        defaultWidth: 150,
+        getValue: (r) => r.cost,
+      },
+      {
+        id: "status",
+        label: "Status",
+        sortable: true,
+        filterable: true,
+        align: "center",
+        defaultWidth: 110,
+        getValue: (r) => r.status,
+      },
+    ],
+    [],
+  );
 
   const filtered = orders.filter(
     (o) =>
@@ -82,18 +147,12 @@ export function OrderwiseConsumptionView() {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-[13px]">
-            <thead>
-              <tr className="border-b border-slate-200 bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-                <th className="px-4 py-3">Order ID</th>
-                <th className="px-4 py-3">KOT / Time</th>
-                <th className="px-4 py-3">Source / Table</th>
-                <th className="px-4 py-3">Ordered Item</th>
-                <th className="px-4 py-3">Ingredients Deducted</th>
-                <th className="px-4 py-3">Theoretical Food Cost</th>
-                <th className="px-4 py-3">Status</th>
-              </tr>
-            </thead>
+          <table className="w-full text-left text-[13px] border-collapse">
+            <DataTableHeader
+              columns={orderColumns}
+              data={filtered}
+              themeVariant="primary"
+            />
             <tbody className="divide-y divide-slate-100">
               {filtered.map((o) => (
                 <tr key={o.id} className="hover:bg-slate-50/60 transition">
@@ -122,3 +181,4 @@ export function OrderwiseConsumptionView() {
     </div>
   );
 }
+

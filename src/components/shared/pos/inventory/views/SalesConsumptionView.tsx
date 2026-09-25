@@ -1,5 +1,9 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Search, Calendar, Download, Filter, TrendingDown, ArrowUpRight } from "lucide-react";
+import {
+  DataTableHeader,
+  type DataTableColumn,
+} from "@/components/common/DataTableHeader";
 import { toast } from "sonner";
 
 export function SalesConsumptionView() {
@@ -53,6 +57,67 @@ export function SalesConsumptionView() {
       wastage: "0 units",
     },
   ];
+
+  const consumptionColumns: DataTableColumn<any>[] = useMemo(
+    () => [
+      {
+        id: "id",
+        label: "Code",
+        sortable: true,
+        filterable: true,
+        defaultWidth: 110,
+        getValue: (r) => r.id,
+      },
+      {
+        id: "item",
+        label: "Raw Material",
+        sortable: true,
+        filterable: true,
+        defaultWidth: 220,
+        getValue: (r) => r.item,
+      },
+      {
+        id: "category",
+        label: "Category",
+        sortable: true,
+        filterable: true,
+        defaultWidth: 150,
+        getValue: (r) => r.category,
+      },
+      {
+        id: "quantity",
+        label: "Quantity Consumed",
+        sortable: true,
+        align: "right",
+        defaultWidth: 160,
+        getValue: (r) => r.quantity,
+      },
+      {
+        id: "salesVolume",
+        label: "Billed In",
+        sortable: true,
+        defaultWidth: 140,
+        getValue: (r) => r.salesVolume,
+      },
+      {
+        id: "cost",
+        label: "Cost Value",
+        sortable: true,
+        align: "right",
+        defaultWidth: 130,
+        getValue: (r) => r.cost,
+      },
+      {
+        id: "wastage",
+        label: "Prep Variance",
+        sortable: true,
+        align: "center",
+        defaultWidth: 130,
+        getValue: (r) => r.wastage,
+      },
+    ],
+    [],
+  );
 
   const filtered = consumptionRecords.filter(
     (r) =>
@@ -128,18 +193,12 @@ export function SalesConsumptionView() {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-[13px]">
-            <thead>
-              <tr className="border-b border-slate-200 bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-                <th className="px-4 py-3">Code</th>
-                <th className="px-4 py-3">Raw Material</th>
-                <th className="px-4 py-3">Category</th>
-                <th className="px-4 py-3">Quantity Consumed</th>
-                <th className="px-4 py-3">Billed In</th>
-                <th className="px-4 py-3">Cost Value</th>
-                <th className="px-4 py-3">Prep Variance</th>
-              </tr>
-            </thead>
+          <table className="w-full text-left text-[13px] border-collapse">
+            <DataTableHeader
+              columns={consumptionColumns}
+              data={filtered}
+              themeVariant="primary"
+            />
             <tbody className="divide-y divide-slate-100">
               {filtered.map((r) => (
                 <tr key={r.id} className="hover:bg-slate-50/60 transition">
@@ -159,3 +218,4 @@ export function SalesConsumptionView() {
     </div>
   );
 }
+

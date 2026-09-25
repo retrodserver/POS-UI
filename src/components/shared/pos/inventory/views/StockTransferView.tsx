@@ -1,5 +1,9 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Plus, Search, ArrowLeftRight, Calendar, CheckCircle2, Clock } from "lucide-react";
+import {
+  DataTableHeader,
+  type DataTableColumn,
+} from "@/components/common/DataTableHeader";
 import { toast } from "sonner";
 
 export function StockTransferView() {
@@ -43,6 +47,67 @@ export function StockTransferView() {
       by: "Karan D.",
     },
   ];
+
+  const transferColumns: DataTableColumn<any>[] = useMemo(
+    () => [
+      {
+        id: "id",
+        label: "Transfer Voucher",
+        sortable: true,
+        filterable: true,
+        defaultWidth: 150,
+        getValue: (r) => r.id,
+      },
+      {
+        id: "date",
+        label: "Date",
+        sortable: true,
+        defaultWidth: 120,
+        getValue: (r) => r.date,
+      },
+      {
+        id: "from",
+        label: "Source Location",
+        sortable: true,
+        filterable: true,
+        defaultWidth: 160,
+        getValue: (r) => r.from,
+      },
+      {
+        id: "to",
+        label: "Destination",
+        sortable: true,
+        filterable: true,
+        defaultWidth: 160,
+        getValue: (r) => r.to,
+      },
+      {
+        id: "items",
+        label: "Items Transferred",
+        sortable: false,
+        defaultWidth: 240,
+        getValue: (r) => r.items,
+      },
+      {
+        id: "by",
+        label: "Created By",
+        sortable: true,
+        filterable: true,
+        defaultWidth: 130,
+        getValue: (r) => r.by,
+      },
+      {
+        id: "status",
+        label: "Status",
+        sortable: true,
+        filterable: true,
+        align: "center",
+        defaultWidth: 120,
+        getValue: (r) => r.status,
+      },
+    ],
+    [],
+  );
 
   const filtered = transfers.filter(
     (t) =>
@@ -90,18 +155,12 @@ export function StockTransferView() {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-[13px]">
-            <thead>
-              <tr className="border-b border-slate-200 bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-                <th className="px-4 py-3">Transfer Voucher</th>
-                <th className="px-4 py-3">Date</th>
-                <th className="px-4 py-3">Source Location</th>
-                <th className="px-4 py-3">Destination</th>
-                <th className="px-4 py-3">Items Transferred</th>
-                <th className="px-4 py-3">Created By</th>
-                <th className="px-4 py-3">Status</th>
-              </tr>
-            </thead>
+          <table className="w-full text-left text-[13px] border-collapse">
+            <DataTableHeader
+              columns={transferColumns}
+              data={filtered}
+              themeVariant="primary"
+            />
             <tbody className="divide-y divide-slate-100">
               {filtered.map((t) => (
                 <tr key={t.id} className="hover:bg-slate-50/60 transition">
@@ -138,3 +197,4 @@ export function StockTransferView() {
     </div>
   );
 }
+

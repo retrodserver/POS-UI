@@ -22,7 +22,11 @@ import {
 } from "lucide-react";
 import { useDueBills, useSettleDueBillMutation } from "@/hooks/queries/usePosOrders";
 import { type DueBill } from "@/services/posOrdersService";
-import { DataTableFooter } from "@/components/common/DataTableHeader";
+import {
+  DataTableHeader,
+  DataTableFooter,
+  type DataTableColumn,
+} from "@/components/common/DataTableHeader";
 import { toast } from "sonner";
 
 export function PosDueSettlementManager() {
@@ -74,6 +78,69 @@ export function PosDueSettlementManager() {
       return true;
     });
   }, [dueBills, agingFilter, statusFilter, searchQuery]);
+
+  const dueColumns: DataTableColumn<DueBill>[] = useMemo(
+    () => [
+      {
+        id: "billNo",
+        label: "Bill No & Location",
+        sortable: true,
+        filterable: true,
+        defaultWidth: 190,
+        getValue: (r) => `${r.billNo} ${r.tableOrRoom} ${r.dueDate}`,
+      },
+      {
+        id: "customer",
+        label: "Guest & Waiter Details",
+        sortable: true,
+        filterable: true,
+        defaultWidth: 210,
+        getValue: (r) => `${r.customerName} ${r.customerPhone} ${r.waiterName || ""}`,
+      },
+      {
+        id: "itemsSummary",
+        label: "Items Summary",
+        sortable: false,
+        filterable: false,
+        defaultWidth: 230,
+        getValue: (r) => r.itemsSummary || "",
+      },
+      {
+        id: "totalAmount",
+        label: "Total Bill",
+        sortable: true,
+        align: "right",
+        defaultWidth: 130,
+        getValue: (r) => `₹${r.totalAmount}`,
+      },
+      {
+        id: "dueAmount",
+        label: "Balance Due",
+        sortable: true,
+        align: "right",
+        defaultWidth: 140,
+        getValue: (r) => `₹${r.dueAmount}`,
+      },
+      {
+        id: "status",
+        label: "Status",
+        sortable: true,
+        filterable: true,
+        align: "center",
+        defaultWidth: 110,
+        getValue: (r) => r.status,
+      },
+      {
+        id: "actions",
+        label: "Action",
+        sortable: false,
+        filterable: false,
+        align: "right",
+        defaultWidth: 130,
+      },
+    ],
+    [],
+  );
 
   const totalRecords = filteredRecords.length;
   const totalPages = Math.ceil(totalRecords / pageSize) || 1;
@@ -360,17 +427,11 @@ export function PosDueSettlementManager() {
       <div className="overflow-hidden rounded-xl border border-slate-300 bg-white shadow-2xs">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-[12px] border-collapse">
-            <thead>
-              <tr className="border-b border-slate-300 bg-slate-100/90 text-[11px] font-bold uppercase tracking-wider text-slate-700">
-                <th className="py-2.5 px-3">Bill No & Location</th>
-                <th className="py-2.5 px-3">Guest & Waiter Details</th>
-                <th className="py-2.5 px-3">Items Summary</th>
-                <th className="py-2.5 px-3 text-right">Total Bill</th>
-                <th className="py-2.5 px-3 text-right">Balance Due</th>
-                <th className="py-2.5 px-3 text-center">Status</th>
-                <th className="py-2.5 px-3 text-right">Action</th>
-              </tr>
-            </thead>
+            <DataTableHeader
+              columns={dueColumns}
+              data={filteredRecords}
+              themeVariant="primary"
+            />
             <tbody className="divide-y divide-slate-200">
               {paginatedRecords.length === 0 ? (
                 <tr>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Plus, Download, Search, Trash2, Eye, SlidersHorizontal, ChevronDown } from "lucide-react";
 import {
   usePurchaseReturns,
@@ -6,6 +6,10 @@ import {
   useDeletePurchaseReturn,
 } from "@/hooks/queries/usePosInventory";
 import { CreatePurchaseReturnModal } from "../modals/CreatePurchaseReturnModal";
+import {
+  DataTableHeader,
+  type DataTableColumn,
+} from "@/components/common/DataTableHeader";
 import { toast } from "sonner";
 
 export function PurchaseReturnView() {
@@ -18,6 +22,75 @@ export function PurchaseReturnView() {
   const [endDate, setEndDate] = useState("2026-09-02");
   const [vendorFilter, setVendorFilter] = useState("All");
   const [debitNoteFilter, setDebitNoteFilter] = useState("");
+
+  const returnColumns: DataTableColumn<any>[] = useMemo(
+    () => [
+      {
+        id: "debitNoteNo",
+        label: "Debit Note No",
+        sortable: true,
+        filterable: true,
+        defaultWidth: 150,
+        getValue: (r) => r.debitNoteNo,
+      },
+      {
+        id: "vendorName",
+        label: "Vendor",
+        sortable: true,
+        filterable: true,
+        defaultWidth: 180,
+        getValue: (r) => r.vendorName,
+      },
+      {
+        id: "returnDate",
+        label: "Return Date",
+        sortable: true,
+        defaultWidth: 130,
+        getValue: (r) => r.returnDate,
+      },
+      {
+        id: "reason",
+        label: "Reason",
+        sortable: true,
+        defaultWidth: 160,
+        getValue: (r) => r.reason,
+      },
+      {
+        id: "itemCount",
+        label: "Item Count",
+        sortable: true,
+        align: "center",
+        defaultWidth: 120,
+        getValue: (r) => `${r.itemCount} Items`,
+      },
+      {
+        id: "returnAmount",
+        label: "Amount",
+        sortable: true,
+        align: "right",
+        defaultWidth: 130,
+        getValue: (r) => `₹${r.returnAmount}`,
+      },
+      {
+        id: "status",
+        label: "Status",
+        sortable: true,
+        filterable: true,
+        align: "center",
+        defaultWidth: 120,
+        getValue: (r) => r.status,
+      },
+      {
+        id: "actions",
+        label: "Actions",
+        sortable: false,
+        filterable: false,
+        align: "right",
+        defaultWidth: 100,
+      },
+    ],
+    [],
+  );
 
   const filteredReturns = (purchaseReturns ?? []).filter((pr) => {
     if (vendorFilter !== "All" && pr.vendorName !== vendorFilter) return false;
@@ -182,19 +255,12 @@ export function PurchaseReturnView() {
         ) : (
           /* Returns Table */
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-[13px]">
-              <thead>
-                <tr className="border-b border-slate-200 bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-                  <th className="px-4 py-3">Debit Note No</th>
-                  <th className="px-4 py-3">Vendor</th>
-                  <th className="px-4 py-3">Return Date</th>
-                  <th className="px-4 py-3">Reason</th>
-                  <th className="px-4 py-3">Item Count</th>
-                  <th className="px-4 py-3">Amount</th>
-                  <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3 text-right">Actions</th>
-                </tr>
-              </thead>
+            <table className="w-full text-left text-[13px] border-collapse">
+              <DataTableHeader
+                columns={returnColumns}
+                data={filteredReturns}
+                themeVariant="primary"
+              />
               <tbody className="divide-y divide-slate-100">
                 {filteredReturns.map((pr) => (
                   <tr key={pr.id} className="hover:bg-slate-50/80 transition">

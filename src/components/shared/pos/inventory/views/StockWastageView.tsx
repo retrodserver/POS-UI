@@ -1,5 +1,9 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Plus, Search, Trash2, AlertTriangle, Download, Calendar } from "lucide-react";
+import {
+  DataTableHeader,
+  type DataTableColumn,
+} from "@/components/common/DataTableHeader";
 import { toast } from "sonner";
 
 export function StockWastageView() {
@@ -47,6 +51,67 @@ export function StockWastageView() {
       approvedBy: "Chef Vikram",
     },
   ];
+
+  const wastageColumns: DataTableColumn<any>[] = useMemo(
+    () => [
+      {
+        id: "id",
+        label: "Wastage ID",
+        sortable: true,
+        filterable: true,
+        defaultWidth: 130,
+        getValue: (r) => r.id,
+      },
+      {
+        id: "date",
+        label: "Date",
+        sortable: true,
+        defaultWidth: 120,
+        getValue: (r) => r.date,
+      },
+      {
+        id: "item",
+        label: "Raw Material / Item",
+        sortable: true,
+        filterable: true,
+        defaultWidth: 200,
+        getValue: (r) => r.item,
+      },
+      {
+        id: "quantity",
+        label: "Quantity Wasted",
+        sortable: true,
+        align: "right",
+        defaultWidth: 140,
+        getValue: (r) => r.quantity,
+      },
+      {
+        id: "cost",
+        label: "Cost Loss",
+        sortable: true,
+        align: "right",
+        defaultWidth: 120,
+        getValue: (r) => r.cost,
+      },
+      {
+        id: "reason",
+        label: "Reason / Cause",
+        sortable: true,
+        filterable: true,
+        defaultWidth: 220,
+        getValue: (r) => r.reason,
+      },
+      {
+        id: "approvedBy",
+        label: "Approved By",
+        sortable: true,
+        filterable: true,
+        defaultWidth: 140,
+        getValue: (r) => r.approvedBy,
+      },
+    ],
+    [],
+  );
 
   const filtered = wastageEntries.filter(
     (w) =>
@@ -130,18 +195,12 @@ export function StockWastageView() {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-[13px]">
-            <thead>
-              <tr className="border-b border-slate-200 bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-                <th className="px-4 py-3">Wastage ID</th>
-                <th className="px-4 py-3">Date</th>
-                <th className="px-4 py-3">Raw Material / Item</th>
-                <th className="px-4 py-3">Quantity Wasted</th>
-                <th className="px-4 py-3">Cost Loss</th>
-                <th className="px-4 py-3">Reason / Cause</th>
-                <th className="px-4 py-3">Approved By</th>
-              </tr>
-            </thead>
+          <table className="w-full text-left text-[13px] border-collapse">
+            <DataTableHeader
+              columns={wastageColumns}
+              data={filtered}
+              themeVariant="primary"
+            />
             <tbody className="divide-y divide-slate-100">
               {filtered.map((w) => (
                 <tr key={w.id} className="hover:bg-slate-50/60 transition">
@@ -161,3 +220,4 @@ export function StockWastageView() {
     </div>
   );
 }
+

@@ -1,7 +1,11 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Plus, Search, Database, Layers, Tag, Scale } from "lucide-react";
 import { toast } from "sonner";
 import { useInventoryVendors, useStockItems } from "@/hooks/queries/usePosInventory";
+import {
+  DataTableHeader,
+  type DataTableColumn,
+} from "@/components/common/DataTableHeader";
 
 export function InventoryMastersView() {
   const [activeTab, setActiveTab] = useState<"raw_materials" | "vendors" | "units">(
@@ -9,6 +13,94 @@ export function InventoryMastersView() {
   );
   const { data: stockItems } = useStockItems();
   const { data: vendors } = useInventoryVendors();
+
+  const rawMaterialColumns: DataTableColumn<any>[] = useMemo(
+    () => [
+      {
+        id: "rawMaterial",
+        label: "Item Name",
+        sortable: true,
+        filterable: true,
+        defaultWidth: 220,
+        getValue: (r) => r.rawMaterial,
+      },
+      {
+        id: "category",
+        label: "Category",
+        sortable: true,
+        filterable: true,
+        defaultWidth: 160,
+        getValue: (r) => r.category,
+      },
+      {
+        id: "unit",
+        label: "Default Unit",
+        sortable: true,
+        defaultWidth: 130,
+        getValue: (r) => r.unit,
+      },
+      {
+        id: "threshold",
+        label: "Min Threshold",
+        sortable: true,
+        align: "right",
+        defaultWidth: 140,
+        getValue: (r) => `5 ${r.unit}`,
+      },
+      {
+        id: "rate",
+        label: "Closing Stock Rate",
+        sortable: true,
+        align: "right",
+        defaultWidth: 160,
+        getValue: (r) => `₹ ${Math.round(r.closingStock * 45 + 100)}`,
+      },
+    ],
+    [],
+  );
+
+  const vendorColumns: DataTableColumn<any>[] = useMemo(
+    () => [
+      {
+        id: "name",
+        label: "Vendor / Company",
+        sortable: true,
+        filterable: true,
+        defaultWidth: 220,
+        getValue: (r) => r.name,
+      },
+      {
+        id: "category",
+        label: "Supply Category",
+        sortable: true,
+        filterable: true,
+        defaultWidth: 180,
+        getValue: (r) => r.category,
+      },
+      {
+        id: "phone",
+        label: "Phone",
+        sortable: true,
+        defaultWidth: 150,
+        getValue: (r) => r.phone,
+      },
+      {
+        id: "id",
+        label: "Vendor ID",
+        sortable: true,
+        defaultWidth: 130,
+        getValue: (r) => r.id,
+      },
+      {
+        id: "terms",
+        label: "Payment Terms",
+        sortable: true,
+        defaultWidth: 140,
+        getValue: () => "Net 15 Days",
+      },
+    ],
+    [],
+  );
 
   return (
     <div className="space-y-4">
@@ -71,16 +163,12 @@ export function InventoryMastersView() {
       <div className="rounded-2xl border border-slate-200 bg-white shadow-xs overflow-hidden">
         {activeTab === "raw_materials" && (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-[13px]">
-              <thead>
-                <tr className="border-b border-slate-200 bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-                  <th className="px-4 py-3">Item Name</th>
-                  <th className="px-4 py-3">Category</th>
-                  <th className="px-4 py-3">Default Unit</th>
-                  <th className="px-4 py-3">Min Threshold</th>
-                  <th className="px-4 py-3">Closing Stock Rate</th>
-                </tr>
-              </thead>
+            <table className="w-full text-left text-[13px] border-collapse">
+              <DataTableHeader
+                columns={rawMaterialColumns}
+                data={stockItems ?? []}
+                themeVariant="primary"
+              />
               <tbody className="divide-y divide-slate-100">
                 {stockItems?.map((item) => (
                   <tr key={item.id} className="hover:bg-slate-50/60 transition">
@@ -100,16 +188,12 @@ export function InventoryMastersView() {
 
         {activeTab === "vendors" && (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-[13px]">
-              <thead>
-                <tr className="border-b border-slate-200 bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-                  <th className="px-4 py-3">Vendor / Company</th>
-                  <th className="px-4 py-3">Supply Category</th>
-                  <th className="px-4 py-3">Phone</th>
-                  <th className="px-4 py-3">Vendor ID</th>
-                  <th className="px-4 py-3">Payment Terms</th>
-                </tr>
-              </thead>
+            <table className="w-full text-left text-[13px] border-collapse">
+              <DataTableHeader
+                columns={vendorColumns}
+                data={vendors ?? []}
+                themeVariant="primary"
+              />
               <tbody className="divide-y divide-slate-100">
                 {vendors?.map((v) => (
                   <tr key={v.id} className="hover:bg-slate-50/60 transition">
@@ -151,3 +235,4 @@ export function InventoryMastersView() {
     </div>
   );
 }
+

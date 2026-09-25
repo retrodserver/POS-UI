@@ -1,5 +1,9 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Plus, Search, Scale, CheckCircle2, Edit2, Trash2, X } from "lucide-react";
+import {
+  DataTableHeader,
+  type DataTableColumn,
+} from "@/components/common/DataTableHeader";
 import { toast } from "sonner";
 
 export function UnitsMasterView() {
@@ -54,6 +58,51 @@ export function UnitsMasterView() {
     },
   ]);
 
+  const unitColumns: DataTableColumn<any>[] = useMemo(
+    () => [
+      {
+        id: "name",
+        label: "Unit Name",
+        sortable: true,
+        filterable: true,
+        defaultWidth: 180,
+        getValue: (r) => r.name,
+      },
+      {
+        id: "symbol",
+        label: "Symbol / Short Form",
+        sortable: true,
+        filterable: true,
+        defaultWidth: 180,
+        getValue: (r) => r.symbol,
+      },
+      {
+        id: "type",
+        label: "Category / Type",
+        sortable: true,
+        filterable: true,
+        defaultWidth: 160,
+        getValue: (r) => r.type,
+      },
+      {
+        id: "ratio",
+        label: "Conversion Factor",
+        sortable: true,
+        defaultWidth: 200,
+        getValue: (r) => r.ratio,
+      },
+      {
+        id: "actions",
+        label: "Actions",
+        sortable: false,
+        filterable: false,
+        align: "right",
+        defaultWidth: 110,
+      },
+    ],
+    [],
+  );
+
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [newUnit, setNewUnit] = useState({
     name: "",
@@ -104,16 +153,12 @@ export function UnitsMasterView() {
 
       <div className="rounded-2xl border border-slate-200 bg-white shadow-xs overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-[13px]">
-            <thead>
-              <tr className="border-b border-slate-200 bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-                <th className="px-4 py-3">Unit Name</th>
-                <th className="px-4 py-3">Symbol / Short Form</th>
-                <th className="px-4 py-3">Category / Type</th>
-                <th className="px-4 py-3">Conversion Factor</th>
-                <th className="px-4 py-3 text-right">Actions</th>
-              </tr>
-            </thead>
+          <table className="w-full text-left text-[13px] border-collapse">
+            <DataTableHeader
+              columns={unitColumns}
+              data={units}
+              themeVariant="primary"
+            />
             <tbody className="divide-y divide-slate-100">
               {units.map((u) => (
                 <tr key={u.id} className="hover:bg-slate-50/60 transition">

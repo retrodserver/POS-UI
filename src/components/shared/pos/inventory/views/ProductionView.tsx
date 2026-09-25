@@ -1,6 +1,10 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Plus, Search, Factory, CheckCircle2, Clock } from "lucide-react";
-import { DataTableFooter } from "@/components/common";
+import {
+  DataTableHeader,
+  DataTableFooter,
+  type DataTableColumn,
+} from "@/components/common/DataTableHeader";
 import { toast } from "sonner";
 
 export function ProductionView() {
@@ -47,6 +51,67 @@ export function ProductionView() {
     },
   ];
 
+  const batchColumns: DataTableColumn<any>[] = useMemo(
+    () => [
+      {
+        id: "id",
+        label: "Batch ID",
+        sortable: true,
+        filterable: true,
+        defaultWidth: 120,
+        getValue: (r) => r.id,
+      },
+      {
+        id: "date",
+        label: "Date",
+        sortable: true,
+        defaultWidth: 120,
+        getValue: (r) => r.date,
+      },
+      {
+        id: "product",
+        label: "Prepared Item",
+        sortable: true,
+        filterable: true,
+        defaultWidth: 200,
+        getValue: (r) => r.product,
+      },
+      {
+        id: "yieldQty",
+        label: "Batch Yield",
+        sortable: true,
+        align: "right",
+        defaultWidth: 140,
+        getValue: (r) => r.yieldQty,
+      },
+      {
+        id: "ingredients",
+        label: "Key Ingredients Consumed",
+        sortable: false,
+        defaultWidth: 240,
+        getValue: (r) => r.ingredients,
+      },
+      {
+        id: "chef",
+        label: "In-Charge",
+        sortable: true,
+        filterable: true,
+        defaultWidth: 140,
+        getValue: (r) => r.chef,
+      },
+      {
+        id: "status",
+        label: "Status",
+        sortable: true,
+        filterable: true,
+        align: "center",
+        defaultWidth: 120,
+        getValue: (r) => r.status,
+      },
+    ],
+    [],
+  );
+
   const filtered = batches.filter(
     (b) =>
       b.product.toLowerCase().includes(search.toLowerCase()) ||
@@ -89,18 +154,12 @@ export function ProductionView() {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-[13px]">
-            <thead>
-              <tr className="border-b border-slate-200 bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-                <th className="px-4 py-3">Batch ID</th>
-                <th className="px-4 py-3">Date</th>
-                <th className="px-4 py-3">Prepared Item</th>
-                <th className="px-4 py-3">Batch Yield</th>
-                <th className="px-4 py-3">Key Ingredients Consumed</th>
-                <th className="px-4 py-3">In-Charge</th>
-                <th className="px-4 py-3">Status</th>
-              </tr>
-            </thead>
+          <table className="w-full text-left text-[13px] border-collapse">
+            <DataTableHeader
+              columns={batchColumns}
+              data={filtered}
+              themeVariant="primary"
+            />
             <tbody className="divide-y divide-slate-100">
               {filtered.map((b) => (
                 <tr key={b.id} className="hover:bg-slate-50/60 transition">
@@ -149,3 +208,4 @@ export function ProductionView() {
     </div>
   );
 }
+

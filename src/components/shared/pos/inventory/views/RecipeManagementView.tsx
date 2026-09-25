@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   Sparkles,
   Plus,
@@ -11,7 +11,11 @@ import {
   ChevronRight,
   Search,
 } from "lucide-react";
-import { DataTableFooter } from "@/components/common";
+import {
+  DataTableHeader,
+  DataTableFooter,
+  type DataTableColumn,
+} from "@/components/common/DataTableHeader";
 import { toast } from "sonner";
 
 interface RecipeRow {
@@ -28,6 +32,36 @@ export function RecipeManagementView() {
   const [recipeStatus, setRecipeStatus] = useState("Created Recipes");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+
+  const recipeColumns: DataTableColumn<RecipeRow>[] = useMemo(
+    () => [
+      {
+        id: "name",
+        label: "Name",
+        sortable: true,
+        filterable: true,
+        defaultWidth: 260,
+        getValue: (r) => r.name,
+      },
+      {
+        id: "category",
+        label: "Category",
+        sortable: true,
+        filterable: true,
+        defaultWidth: 200,
+        getValue: (r) => r.category,
+      },
+      {
+        id: "actions",
+        label: "Action",
+        sortable: false,
+        filterable: false,
+        align: "right",
+        defaultWidth: 120,
+      },
+    ],
+    [],
+  );
 
   const [recipes, setRecipes] = useState<RecipeRow[]>([
     { id: "RCP-1", name: "Veg Manchuria Dry", category: "Veg Starters" },
@@ -227,17 +261,13 @@ export function RecipeManagementView() {
       {/* 5. Recipes Table matching Screenshot 2 */}
       <div className="rounded-2xl border border-slate-200 bg-white shadow-xs overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-[13px]">
-            <thead>
-              <tr className="border-b border-slate-200 bg-slate-50/80 text-[11.5px] font-semibold text-slate-600">
-                <th className="w-10 px-4 py-3 text-center">
-                  <input type="checkbox" className="rounded border-slate-300 cursor-pointer" />
-                </th>
-                <th className="px-4 py-3 font-semibold text-slate-700">Name</th>
-                <th className="px-4 py-3 font-semibold text-slate-700">Category</th>
-                <th className="px-4 py-3 text-right font-semibold text-slate-700">Action</th>
-              </tr>
-            </thead>
+          <table className="w-full text-left text-[13px] border-collapse">
+            <DataTableHeader
+              columns={recipeColumns}
+              data={filtered}
+              selectable
+              themeVariant="primary"
+            />
             <tbody className="divide-y divide-slate-100">
               {filtered.map((item) => (
                 <tr key={item.id} className="hover:bg-slate-50/50 transition">
