@@ -1,4 +1,6 @@
 import { useMemo } from "react";
+import { Link } from "@tanstack/react-router";
+import { RetrodLogo } from "@/components/common";
 import {
   Sparkles,
   ShieldCheck,
@@ -44,15 +46,13 @@ export function BloombergDashboard() {
 
       {/* Top bar */}
       <div className="relative flex items-center justify-between px-12 pt-10">
-        <div className="flex items-center gap-2.5">
-          <div className="flex h-10 w-10 items-center justify-center rounded-md bg-gradient-to-br from-primary to-[oklch(0.55_0.22_295)] font-display text-[18px] font-semibold text-white shadow-lg shadow-primary/30">
-            R
-          </div>
-          <span className="font-display text-[26px] font-semibold tracking-tight">Retrod</span>
-          <span className="ml-1 rounded-sm bg-primary/30 border border-primary/40 px-1.5 py-0.5 text-[10px] uppercase font-bold tracking-wider text-white">
-            POS
-          </span>
-        </div>
+        <Link
+          to="/pos"
+          className="flex items-center gap-2.5 transition-transform hover:scale-105 cursor-pointer"
+          title="Go to POS Dashboard"
+        >
+          <RetrodLogo variant="dark" size="lg" />
+        </Link>
         <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] text-white/70 backdrop-blur">
           <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_oklch(0.7_0.18_155)]" />
           POS Server Online · Cloud Synced

@@ -2,6 +2,7 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { useState } from "react";
 import { ChevronDown, ChevronRight, Folder } from "lucide-react";
 import { POS_NAV_ITEMS, POS_FOOTER_NAV_ITEMS } from "@/app/navigation/pos-nav-config";
+import { RetrodLogo } from "@/components/common";
 import { cn } from "@/lib/utils";
 
 const ALL_NAV_LINKS: string[] = [];
@@ -60,30 +61,26 @@ export function PosSidebar({
         collapsed ? "w-[68px]" : "w-[240px]",
       )}
     >
+
       {/* Brand Header */}
       <div className="flex h-16 shrink-0 items-center border-b border-slate-800/80 px-4">
         {!collapsed ? (
-          <Link to="/pos" onClick={onNavigate} className="flex min-w-0 items-center gap-3">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-teal-500 font-display text-[18px] font-bold text-white shadow-md shadow-teal-500/20">
-              R
-            </div>
-            <div className="min-w-0">
-              <div className="truncate text-[15px] font-bold tracking-tight text-white">
-                Retrod POS
-              </div>
-              <div className="truncate text-[11px] font-normal text-slate-400">
-                Hotel & Restaurant
-              </div>
-            </div>
+          <Link
+            to="/pos"
+            onClick={onNavigate}
+            className="flex min-w-0 items-center py-1 transition-opacity hover:opacity-90 cursor-pointer"
+            title="Go to POS Dashboard"
+          >
+            <RetrodLogo variant="dark" size="md" />
           </Link>
         ) : (
           <Link
             to="/pos"
             onClick={onNavigate}
-            title="Retrod POS"
-            className="mx-auto flex h-9 w-9 items-center justify-center rounded-lg bg-teal-500 font-display text-[18px] font-bold text-white shadow-md shadow-teal-500/20"
+            title="Go to POS Dashboard"
+            className="mx-auto flex items-center justify-center cursor-pointer transition-transform hover:scale-105"
           >
-            R
+            <RetrodLogo collapsed variant="dark" />
           </Link>
         )}
       </div>

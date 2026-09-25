@@ -1,48 +1,40 @@
-import { useState } from "react";
-import { Plus, Upload, Edit2, CheckSquare, Square } from "lucide-react";
+import { useState, useMemo } from "react";
+import { Plus, Upload, Edit2 } from "lucide-react";
 import { useItemCommissions } from "@/hooks/queries/usePosMenu";
 import { SetCommissionModal } from "../modals/SetCommissionModal";
 import type { MenuItemCommission } from "@/types/posMenu";
-import { DataTableFooter } from "@/components/common";
+import { PosDataGrid, type DataGridColumn } from "@/components/ui/data-grid";
 import { toast } from "sonner";
 
-export function SetItemCommissionView({ onBack }: { onBack?: () => void }) {
-  const { data: commissions, isFetching } = useItemCommissions();
+export function SetItemCommissionView({ onBack }: { onBack?: () => void } = {}) {
+  const { data: commissions, isFetching, isLoading } = useItemCommissions();
 
   const [activeTab, setActiveTab] = useState<"item" | "addon">("item");
   const [categoryFilter, setCategoryFilter] = useState("All");
   const [itemQuery, setItemQuery] = useState("");
   const [commissionTypeFilter, setCommissionTypeFilter] = useState("All");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
   // Edit modal state
   const [editingItem, setEditingItem] = useState<MenuItemCommission | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const categories = ["All", ...Array.from(new Set(commissions?.map((c) => c.category) ?? []))];
+  const categories = useMemo(
+    () => ["All", ...Array.from(new Set(commissions?.map((c) => c.category) ?? []))],
+    [commissions],
+  );
 
   // Filtering
-  const filteredCommissions = (commissions ?? []).filter((item) => {
-    if (categoryFilter !== "All" && item.category !== categoryFilter) return false;
-    if (itemQuery && !item.name.toLowerCase().includes(itemQuery.toLowerCase())) return false;
-    if (commissionTypeFilter !== "All" && item.commissionType !== commissionTypeFilter)
-      return false;
-    return true;
-  });
-
-  const toggleSelectAll = () => {
-    if (selectedIds.length === filteredCommissions.length) {
-      setSelectedIds([]);
-    } else {
-      setSelectedIds(filteredCommissions.map((i) => i.id));
-    }
-  };
-
-  const toggleSelectOne = (id: string) => {
-    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
-  };
+  const filteredCommissions = useMemo(() => {
+    return (commissions ?? []).filter((item) => {
+      if (categoryFilter !== "All" && item.category !== categoryFilter) return false;
+      if (itemQuery && !item.name.toLowerCase().includes(itemQuery.toLowerCase())) return false;
+      if (commissionTypeFilter !== "All" && item.commissionType !== commissionTypeFilter)
+        return false;
+      return true;
+    });
+  }, [commissions, categoryFilter, itemQuery, commissionTypeFilter]);
 
   const openEditModal = (item: MenuItemCommission) => {
     setEditingItem(item);
@@ -51,7 +43,6 @@ export function SetItemCommissionView({ onBack }: { onBack?: () => void }) {
 
   const handleBulkAdd = () => {
     if (selectedIds.length === 0) {
-      // Pick first item as template
       if (filteredCommissions.length > 0) {
         openEditModal(filteredCommissions[0]);
       } else {
@@ -63,9 +54,103 @@ export function SetItemCommissionView({ onBack }: { onBack?: () => void }) {
     }
   };
 
+  const columns: DataGridColumn<MenuItemCommission>[] = useMemo(
+    () => [
+      {
+        id: "name",
+        header: "Item",
+        accessorKey: "name",
+        enableSorting: true,
+        enableFiltering: true,
+        minWidth: 200,
+        cell: ({ row }) => <span className="font-semibold text-slate-800">{row.name}</span>,
+      },
+      {
+        id: "category",
+        header: "Category",
+        accessorKey: "category",
+        enableSorting: true,
+        enableFiltering: true,
+        minWidth: 140,
+        cell: ({ row }) => <span className="text-slate-600">{row.category}</span>,
+      },
+      {
+        id: "price",
+        header: "Item Price",
+        accessorKey: "price",
+        enableSorting: true,
+        enableFiltering: true,
+        align: "right",
+        minWidth: 120,
+        cell: ({ row }) => (
+          <span className="font-mono font-bold text-slate-800">₹{row.price}</span>
+        ),
+      },
+      {
+        id: "commissionType",
+        header: "Commission Type",
+        accessorKey: "commissionType",
+        enableSorting: true,
+        enableFiltering: true,
+        align: "center",
+        minWidth: 150,
+        cell: ({ row }) => (
+          <span
+            className={`inline-flex px-2 py-0.5 rounded-full text-[11px] font-medium ${
+              row.commissionType === "Not Configured"
+                ? "bg-slate-100 text-slate-500"
+                : "bg-teal-50 text-teal-700 font-semibold"
+            }`}
+          >
+            {row.commissionType}
+          </span>
+        ),
+      },
+      {
+        id: "commissionValue",
+        header: "Commission Value",
+        accessorKey: "commissionValue",
+        enableSorting: true,
+        enableFiltering: true,
+        align: "right",
+        minWidth: 140,
+        cell: ({ row }) => (
+          <span className="font-mono font-semibold text-slate-800">
+            {row.commissionValue != null
+              ? row.commissionType === "Percentage"
+                ? `${row.commissionValue}%`
+                : `₹${row.commissionValue}`
+              : "—"}
+          </span>
+        ),
+      },
+      {
+        id: "actions",
+        header: "Actions",
+        align: "right",
+        minWidth: 90,
+        sortable: false,
+        filterable: false,
+        cell: ({ row }) => (
+          <div className="flex justify-end">
+            <button
+              type="button"
+              onClick={() => openEditModal(row)}
+              className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-teal-600 transition cursor-pointer"
+              title="Edit Commission"
+            >
+              <Edit2 className="h-4 w-4" />
+            </button>
+          </div>
+        ),
+      },
+    ],
+    [],
+  );
+
   return (
     <div className="space-y-4">
-      {/* 1. Top Header & Action Buttons from Petpooja Screenshot 5 */}
+      {/* 1. Top Header & Action Buttons */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <span className="text-[13px] text-slate-500">Menu</span>
@@ -93,7 +178,7 @@ export function SetItemCommissionView({ onBack }: { onBack?: () => void }) {
         </div>
       </div>
 
-      {/* 2. Sub Tabs: Item Commission & Addon Item Commission from Screenshot 5 */}
+      {/* 2. Sub Tabs: Item Commission & Addon Item Commission */}
       <div className="flex border-b border-slate-200">
         <button
           type="button"
@@ -119,7 +204,7 @@ export function SetItemCommissionView({ onBack }: { onBack?: () => void }) {
         </button>
       </div>
 
-      {/* 3. Filter Bar from Screenshot 5 */}
+      {/* 3. Filter Bar */}
       <div className="rounded-xl border border-slate-300 bg-white p-4 shadow-xs">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 items-end">
           <div>
@@ -145,7 +230,8 @@ export function SetItemCommissionView({ onBack }: { onBack?: () => void }) {
               value={itemQuery}
               onChange={(e) => setItemQuery(e.target.value)}
               className="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-[12.5px] text-slate-800 focus:border-teal-500 focus:outline-hidden"
-            />
+            >
+            </input>
           </div>
 
           <div>
@@ -188,106 +274,19 @@ export function SetItemCommissionView({ onBack }: { onBack?: () => void }) {
         </div>
       </div>
 
-      {/* 4. Table from Screenshot 5 */}
-      <div className="rounded-xl border border-slate-200 bg-white shadow-xs overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-[13px]">
-            <thead>
-              <tr className="border-b border-slate-200 bg-slate-50/80 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-                <th className="w-12 px-4 py-3">
-                  <button
-                    type="button"
-                    onClick={toggleSelectAll}
-                    className="text-slate-400 hover:text-slate-600"
-                  >
-                    {selectedIds.length > 0 && selectedIds.length === filteredCommissions.length ? (
-                      <CheckSquare className="h-4 w-4 text-teal-600" />
-                    ) : (
-                      <Square className="h-4 w-4" />
-                    )}
-                  </button>
-                </th>
-                <th className="px-4 py-3">Item</th>
-                <th className="px-4 py-3">Category</th>
-                <th className="px-4 py-3">Item Price</th>
-                <th className="px-4 py-3">Commission Type</th>
-                <th className="px-4 py-3">Commission Value</th>
-                <th className="px-4 py-3 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {filteredCommissions.map((item) => {
-                const isSelected = selectedIds.includes(item.id);
-                return (
-                  <tr
-                    key={item.id}
-                    className={`transition hover:bg-slate-50/80 ${
-                      isSelected ? "bg-teal-50/40" : ""
-                    }`}
-                  >
-                    <td className="px-4 py-3">
-                      <button
-                        type="button"
-                        onClick={() => toggleSelectOne(item.id)}
-                        className="text-slate-400 hover:text-slate-600"
-                      >
-                        {isSelected ? (
-                          <CheckSquare className="h-4 w-4 text-teal-600" />
-                        ) : (
-                          <Square className="h-4 w-4" />
-                        )}
-                      </button>
-                    </td>
-                    <td className="px-4 py-3 font-medium text-slate-800">{item.name}</td>
-                    <td className="px-4 py-3 text-slate-500">{item.category}</td>
-                    <td className="px-4 py-3 font-semibold text-slate-800">₹{item.price}</td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={`inline-flex px-2 py-0.5 rounded-full text-[11px] font-medium ${
-                          item.commissionType === "Not Configured"
-                            ? "bg-slate-100 text-slate-500"
-                            : "bg-teal-50 text-teal-700 font-semibold"
-                        }`}
-                      >
-                        {item.commissionType}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 font-mono font-medium text-slate-800">
-                      {item.commissionValue != null
-                        ? item.commissionType === "Percentage"
-                          ? `${item.commissionValue}%`
-                          : `₹${item.commissionValue}`
-                        : "—"}
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <button
-                        type="button"
-                        onClick={() => openEditModal(item)}
-                        className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-teal-600 transition cursor-pointer"
-                        title="Edit Commission"
-                      >
-                        <Edit2 className="h-4 w-4" />
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-
-        {/* 5. Unified DataTableFooter */}
-        <DataTableFooter
-          currentPage={currentPage}
-          totalCount={filteredCommissions.length}
-          pageSize={pageSize}
-          onPageSizeChange={setPageSize}
-          onPageChange={setCurrentPage}
-          selectedCount={selectedIds.length}
-          onClearSelection={() => setSelectedIds([])}
-          itemName="items"
-        />
-      </div>
+      {/* 4. PosDataGrid with complete DataTableHeader */}
+      <PosDataGrid<MenuItemCommission>
+        data={filteredCommissions}
+        columns={columns}
+        isLoading={isLoading || isFetching}
+        enableSelection={true}
+        selectedRowIds={selectedIds}
+        onSelectionChange={setSelectedIds}
+        enablePagination={true}
+        pageSize={pageSize}
+        pageSizeOptions={[10, 25, 50, 100]}
+        emptyMessage="No commission rules found for selected filter."
+      />
 
       {/* Commission Edit Modal */}
       <SetCommissionModal

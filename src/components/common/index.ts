@@ -26,4 +26,7 @@ export type {
   ThemeVariant,
 } from "./DataTableHeader";
 
+export { RetrodLogo } from "./RetrodLogo";
+export type { RetrodLogoProps } from "./RetrodLogo";
+
 export default DataTableHeader;

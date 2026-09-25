@@ -20,6 +20,8 @@ import {
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
+import { RetrodLogo } from "@/components/common";
+
 export function PosInventorySidebar({
   collapsed,
   onNavigate,
@@ -51,18 +53,13 @@ export function PosInventorySidebar({
     <aside className="flex h-full w-[240px] flex-col border-r border-slate-200 bg-white text-slate-800 shadow-sm transition-all duration-200">
       {/* Brand Header */}
       <div className="flex h-16 shrink-0 items-center justify-between border-b border-slate-100 px-4">
-        <Link to="/pos/inventory" onClick={onNavigate} className="flex items-center gap-2.5">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-600 font-bold text-white text-[13px] shadow-sm">
-            P
-          </div>
-          <div>
-            <div className="text-[13px] font-extrabold tracking-tight text-slate-900 leading-tight">
-              RETROD POS
-            </div>
-            <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
-              Inventory
-            </div>
-          </div>
+        <Link
+          to="/pos"
+          onClick={onNavigate}
+          className="flex items-center py-1 transition-opacity hover:opacity-90 cursor-pointer"
+          title="Go to POS Dashboard"
+        >
+          <RetrodLogo variant="light" size="md" />
         </Link>
       </div>
 

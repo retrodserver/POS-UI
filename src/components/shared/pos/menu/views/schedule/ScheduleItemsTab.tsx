@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   Search,
   ChevronDown,
@@ -8,11 +8,6 @@ import {
   Copy,
   Edit2,
   FileText,
-  CheckSquare,
-  Square,
-  Utensils,
-  ArrowLeft,
-  SlidersHorizontal,
 } from "lucide-react";
 import {
   useScheduleItems,
@@ -20,10 +15,12 @@ import {
   useToggleScheduleItem,
   useAddScheduleItem,
 } from "@/hooks/queries/usePosMenu";
+import type { ScheduleMenuItem } from "@/types/posMenu";
+import { PosDataGrid, type DataGridColumn } from "@/components/ui/data-grid";
 import { toast } from "sonner";
 
 export function ScheduleItemsTab() {
-  const { data: items } = useScheduleItems();
+  const { data: items, isLoading, isFetching } = useScheduleItems();
   const { data: categories } = useScheduleCategories();
   const toggleMutation = useToggleScheduleItem();
   const addMutation = useAddScheduleItem();
@@ -50,23 +47,13 @@ export function ScheduleItemsTab() {
     "Bread",
   ];
 
-  const filteredItems = (items ?? []).filter((item) => {
-    if (selectedCategory && item.category !== selectedCategory) return false;
-    if (searchQuery && !item.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
-    return true;
-  });
-
-  const toggleSelectAll = () => {
-    if (selectedIds.length === filteredItems.length) {
-      setSelectedIds([]);
-    } else {
-      setSelectedIds(filteredItems.map((i) => i.id));
-    }
-  };
-
-  const toggleSelectOne = (id: string) => {
-    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
-  };
+  const filteredItems = useMemo(() => {
+    return (items ?? []).filter((item) => {
+      if (selectedCategory && item.category !== selectedCategory) return false;
+      if (searchQuery && !item.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+      return true;
+    });
+  }, [items, selectedCategory, searchQuery]);
 
   const handleDuplicate = (name: string, price: number, isVeg: boolean) => {
     addMutation.mutate(
@@ -118,9 +105,119 @@ export function ScheduleItemsTab() {
     );
   };
 
+  const columns: DataGridColumn<ScheduleMenuItem>[] = useMemo(
+    () => [
+      {
+        id: "name",
+        header: "Name",
+        accessorKey: "name",
+        enableSorting: true,
+        enableFiltering: true,
+        minWidth: 180,
+        cell: ({ row }) => (
+          <div className="flex items-center gap-2">
+            <span
+              className={`h-4 w-1 rounded-full ${
+                row.isVeg ? "bg-emerald-500" : "bg-red-500"
+              }`}
+            />
+            <span className="font-semibold text-slate-900">{row.name}</span>
+          </div>
+        ),
+      },
+      {
+        id: "shortCode",
+        header: "Short Code",
+        accessorKey: "shortCode",
+        enableSorting: true,
+        enableFiltering: true,
+        minWidth: 130,
+        cell: ({ row }) => (
+          <div className="font-mono text-[12px] text-slate-600">
+            {row.indicators && <span className="text-slate-400 mr-2 text-[11px]">{row.indicators}</span>}
+            <span className="font-bold text-slate-800">{row.shortCode}</span>
+          </div>
+        ),
+      },
+      {
+        id: "onlineDisplayName",
+        header: "Online Display Name",
+        accessorKey: "onlineDisplayName",
+        enableSorting: true,
+        enableFiltering: true,
+        minWidth: 160,
+        cell: ({ row }) => (
+          <span className="text-slate-600 text-[12.5px]">{row.onlineDisplayName || "—"}</span>
+        ),
+      },
+      {
+        id: "price",
+        header: "Price",
+        accessorKey: "price",
+        enableSorting: true,
+        enableFiltering: true,
+        align: "right",
+        minWidth: 100,
+        cell: ({ row }) => (
+          <span className="font-semibold text-slate-800 font-mono">₹{row.price}</span>
+        ),
+      },
+      {
+        id: "description",
+        header: "Description",
+        accessorKey: "description",
+        enableSorting: true,
+        enableFiltering: true,
+        minWidth: 150,
+        cell: ({ row }) => (
+          <span className="text-slate-400 text-[12px] truncate block max-w-xs">
+            {row.description || "—"}
+          </span>
+        ),
+      },
+      {
+        id: "actions",
+        header: "Actions",
+        align: "right",
+        minWidth: 110,
+        sortable: false,
+        filterable: false,
+        cell: ({ row }) => (
+          <div className="flex items-center justify-end gap-1.5 text-slate-400">
+            <button
+              type="button"
+              onClick={() => handleDuplicate(row.name, row.price, row.isVeg)}
+              className="p-1 hover:text-teal-600 hover:bg-slate-100 rounded transition cursor-pointer"
+              title="Duplicate Item"
+            >
+              <Copy className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => toast.info(`Quick edit opened for ${row.name}`)}
+              className="p-1 hover:text-teal-600 hover:bg-slate-100 rounded transition cursor-pointer"
+              title="Edit Item"
+            >
+              <Edit2 className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => toast.info(`Recipe/modifier mapping for ${row.name}`)}
+              className="p-1 hover:text-slate-700 hover:bg-slate-100 rounded transition cursor-pointer"
+              title="Modifier / Recipe Link"
+            >
+              <FileText className="h-4 w-4" />
+            </button>
+          </div>
+        ),
+      },
+    ],
+    [selectedCategory],
+  );
+
   return (
     <div className="space-y-4">
-      {/* 1. Yellow Guidance Banner from Screenshot 1 */}
+      {/* 1. Yellow Guidance Banner */}
       <div className="rounded-xl border border-amber-200 bg-amber-50/90 px-4 py-2.5 text-[13px] text-amber-900 shadow-2xs flex items-center justify-between">
         <span>
           You can make updates to your restaurant's menu anytime and have them go live on the exact
@@ -128,7 +225,7 @@ export function ScheduleItemsTab() {
         </span>
       </div>
 
-      {/* 2. Main Two-Column Layout (Left Category Rail + Right Items Table) from Screenshot 1 */}
+      {/* 2. Main Two-Column Layout (Left Category Rail + Right Items Table) */}
       <div className="flex flex-col md:flex-row items-start gap-4">
         {/* Left Categories Rail */}
         <div className="w-full md:w-64 shrink-0 rounded-xl border border-slate-200 bg-white shadow-xs p-3 space-y-3">
@@ -164,7 +261,7 @@ export function ScheduleItemsTab() {
             ))}
           </select>
 
-          {/* Vertical Category Links from Screenshot 1 */}
+          {/* Vertical Category Links */}
           <div className="space-y-0.5 max-h-[500px] overflow-y-auto">
             {categoryNames.map((cat) => {
               const isSelected = selectedCategory === cat;
@@ -192,7 +289,7 @@ export function ScheduleItemsTab() {
 
         {/* Right Content / Table Area */}
         <div className="flex-1 min-w-0 space-y-3">
-          {/* Top Action Bar from Screenshot 1 */}
+          {/* Top Action Bar */}
           <div className="flex flex-wrap items-center justify-between gap-2.5 rounded-xl border border-slate-200 bg-white p-3 shadow-xs">
             <div className="flex flex-wrap items-center gap-2">
               <div className="relative min-w-[200px]">
@@ -240,7 +337,7 @@ export function ScheduleItemsTab() {
             </div>
           </div>
 
-          {/* Sub-row Controls: Normal / Rank wise, + Add Items, Available switch */}
+          {/* Sub-row Controls */}
           <div className="flex flex-wrap items-center justify-between gap-3 px-1">
             <div className="flex items-center gap-4">
               <label className="flex items-center gap-1.5 text-[12.5px] text-slate-700 font-medium cursor-pointer">
@@ -299,7 +396,7 @@ export function ScheduleItemsTab() {
             </div>
           </div>
 
-          {/* Quick Add Form Drawer if triggered */}
+          {/* Quick Add Form Drawer */}
           {isAddingItem && (
             <form
               onSubmit={handleAddItemSubmit}
@@ -343,138 +440,19 @@ export function ScheduleItemsTab() {
             </form>
           )}
 
-          {/* Items Data Table from Screenshot 1 */}
-          <div className="rounded-xl border border-slate-200 bg-white shadow-xs overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-[13px]">
-                <thead>
-                  <tr className="border-b border-slate-200 bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-                    <th className="w-12 px-4 py-3">
-                      <button
-                        type="button"
-                        onClick={toggleSelectAll}
-                        className="text-slate-400 hover:text-slate-600"
-                      >
-                        {selectedIds.length > 0 && selectedIds.length === filteredItems.length ? (
-                          <CheckSquare className="h-4 w-4 text-teal-600" />
-                        ) : (
-                          <Square className="h-4 w-4" />
-                        )}
-                      </button>
-                    </th>
-                    <th className="px-4 py-3">Name *</th>
-                    <th className="px-4 py-3">Short Code *</th>
-                    <th className="px-4 py-3">Online Display Name</th>
-                    <th className="px-4 py-3">Price *</th>
-                    <th className="px-4 py-3">Description</th>
-                    <th className="px-4 py-3 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {filteredItems.map((item) => {
-                    const isSelected = selectedIds.includes(item.id);
-                    return (
-                      <tr
-                        key={item.id}
-                        className={`transition hover:bg-slate-50/80 ${
-                          isSelected ? "bg-teal-50/40" : ""
-                        }`}
-                      >
-                        <td className="px-4 py-3">
-                          <button
-                            type="button"
-                            onClick={() => toggleSelectOne(item.id)}
-                            className="text-slate-400 hover:text-slate-600"
-                          >
-                            {isSelected ? (
-                              <CheckSquare className="h-4 w-4 text-teal-600" />
-                            ) : (
-                              <Square className="h-4 w-4" />
-                            )}
-                          </button>
-                        </td>
-
-                        {/* Name with green vertical veg indicator from Screenshot 1 */}
-                        <td className="px-4 py-3">
-                          <div className="flex items-center gap-2">
-                            <span
-                              className={`h-4 w-1 rounded-full ${
-                                item.isVeg ? "bg-emerald-500" : "bg-red-500"
-                              }`}
-                            />
-                            <span className="font-medium text-slate-900">{item.name}</span>
-                          </div>
-                        </td>
-
-                        {/* Short code & v+ | O | D indicator */}
-                        <td className="px-4 py-3 text-slate-600 font-mono text-[12px]">
-                          <span className="text-slate-400 mr-2 text-[11px]">{item.indicators}</span>
-                          <span className="font-bold text-slate-800">{item.shortCode}</span>
-                        </td>
-
-                        {/* Online display name */}
-                        <td className="px-4 py-3 text-slate-600 text-[12.5px]">
-                          {item.onlineDisplayName}
-                        </td>
-
-                        {/* Price */}
-                        <td className="px-4 py-3 font-semibold text-slate-800 font-mono">
-                          ₹{item.price}
-                        </td>
-
-                        {/* Description */}
-                        <td className="px-4 py-3 text-slate-400 text-[12px]">
-                          {item.description || "—"}
-                        </td>
-
-                        {/* Actions from Screenshot 1 (Copy, Edit, Recipe) */}
-                        <td className="px-4 py-3 text-right">
-                          <div className="flex items-center justify-end gap-1.5 text-slate-400">
-                            <button
-                              type="button"
-                              onClick={() => handleDuplicate(item.name, item.price, item.isVeg)}
-                              className="p-1 hover:text-teal-600 hover:bg-slate-100 rounded transition cursor-pointer"
-                              title="Duplicate Item"
-                            >
-                              <Copy className="h-4 w-4" />
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => toast.info(`Quick edit opened for ${item.name}`)}
-                              className="p-1 hover:text-teal-600 hover:bg-slate-100 rounded transition cursor-pointer"
-                              title="Edit Item"
-                            >
-                              <Edit2 className="h-4 w-4" />
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => toast.info(`Recipe/modifier mapping for ${item.name}`)}
-                              className="p-1 hover:text-slate-700 hover:bg-slate-100 rounded transition cursor-pointer"
-                              title="Modifier / Recipe Link"
-                            >
-                              <FileText className="h-4 w-4" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Record count footer */}
-            <div className="border-t border-slate-200 px-4 py-2.5 bg-slate-50 flex items-center justify-between text-[12px] text-slate-500">
-              <span>
-                Showing {filteredItems.length} items in {selectedCategory}
-              </span>
-              {selectedIds.length > 0 && (
-                <span className="text-teal-600 font-medium">
-                  {selectedIds.length} items selected
-                </span>
-              )}
-            </div>
-          </div>
+          {/* PosDataGrid with DataTableHeader */}
+          <PosDataGrid<ScheduleMenuItem>
+            data={filteredItems}
+            columns={columns}
+            isLoading={isLoading || isFetching}
+            enableSelection={true}
+            selectedRowIds={selectedIds}
+            onSelectionChange={setSelectedIds}
+            enablePagination={true}
+            pageSize={10}
+            pageSizeOptions={[10, 25, 50, 100]}
+            emptyMessage={`No items found in ${selectedCategory}.`}
+          />
         </div>
       </div>
     </div>

@@ -1,26 +1,77 @@
-import { useState } from "react";
-import { Plus, ChevronDown, Download, Upload, Search, Layers, X } from "lucide-react";
+import { useState, useMemo } from "react";
+import {
+  Plus,
+  ChevronDown,
+  Download,
+  Upload,
+  Edit2,
+  Trash2,
+  X,
+} from "lucide-react";
+import { PosDataGrid, type DataGridColumn } from "@/components/ui/data-grid";
 import { toast } from "sonner";
+
+interface AddonGroupItem {
+  id: string;
+  name: string;
+  dept: string;
+  minSelect: number;
+  maxSelect: number;
+  itemsCount: number;
+}
 
 export function ScheduleAddonsTab() {
   const [departmentFilter, setDepartmentFilter] = useState("");
   const [addonNameFilter, setAddonNameFilter] = useState("");
   const [deptSelect, setDeptSelect] = useState("All");
 
-  const [addonGroups, setAddonGroups] = useState<
-    Array<{
-      id: string;
-      name: string;
-      dept: string;
-      minSelect: number;
-      maxSelect: number;
-      itemsCount: number;
-    }>
-  >([]);
+  const [addonGroups, setAddonGroups] = useState<AddonGroupItem[]>([
+    {
+      id: "ag-1",
+      name: "Choice of Crust",
+      dept: "Kitchen",
+      minSelect: 1,
+      maxSelect: 1,
+      itemsCount: 4,
+    },
+    {
+      id: "ag-2",
+      name: "Extra Cheese & Dips",
+      dept: "Kitchen",
+      minSelect: 0,
+      maxSelect: 3,
+      itemsCount: 5,
+    },
+    {
+      id: "ag-3",
+      name: "Beverage Flavour",
+      dept: "Bar",
+      minSelect: 1,
+      maxSelect: 1,
+      itemsCount: 3,
+    },
+  ]);
 
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isAddingGroup, setIsAddingGroup] = useState(false);
   const [newGroupName, setNewGroupName] = useState("");
   const [newGroupDept, setNewGroupDept] = useState("Kitchen");
+  const [pageSize, setPageSize] = useState(10);
+
+  const filteredGroups = useMemo(() => {
+    return addonGroups.filter((g) => {
+      if (departmentFilter && !g.dept.toLowerCase().includes(departmentFilter.toLowerCase())) {
+        return false;
+      }
+      if (addonNameFilter && !g.name.toLowerCase().includes(addonNameFilter.toLowerCase())) {
+        return false;
+      }
+      if (deptSelect !== "All" && g.dept !== deptSelect) {
+        return false;
+      }
+      return true;
+    });
+  }, [addonGroups, departmentFilter, addonNameFilter, deptSelect]);
 
   const handleAddGroupSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,7 +80,7 @@ export function ScheduleAddonsTab() {
       return;
     }
 
-    const newGroup = {
+    const newGroup: AddonGroupItem = {
       id: `ag-${Date.now()}`,
       name: newGroupName.trim(),
       dept: newGroupDept,
@@ -42,6 +93,99 @@ export function ScheduleAddonsTab() {
     setNewGroupName("");
     setIsAddingGroup(false);
   };
+
+  const handleDeleteGroup = (id: string, name: string) => {
+    setAddonGroups(addonGroups.filter((g) => g.id !== id));
+    toast.success(`Removed addon group "${name}"`);
+  };
+
+  const columns: DataGridColumn<AddonGroupItem>[] = useMemo(
+    () => [
+      {
+        id: "name",
+        header: "Addon Group Name",
+        accessorKey: "name",
+        enableSorting: true,
+        enableFiltering: true,
+        minWidth: 180,
+        cell: ({ row }) => <span className="font-bold text-slate-900">{row.name}</span>,
+      },
+      {
+        id: "dept",
+        header: "Department",
+        accessorKey: "dept",
+        enableSorting: true,
+        enableFiltering: true,
+        minWidth: 140,
+        cell: ({ row }) => (
+          <span className="rounded-full bg-teal-50 px-2.5 py-0.5 text-[11px] font-semibold text-teal-800 border border-teal-200">
+            {row.dept}
+          </span>
+        ),
+      },
+      {
+        id: "minSelect",
+        header: "Min Select",
+        accessorKey: "minSelect",
+        enableSorting: true,
+        enableFiltering: true,
+        align: "center",
+        minWidth: 100,
+        cell: ({ row }) => <span className="text-slate-700 font-medium">{row.minSelect}</span>,
+      },
+      {
+        id: "maxSelect",
+        header: "Max Select",
+        accessorKey: "maxSelect",
+        enableSorting: true,
+        enableFiltering: true,
+        align: "center",
+        minWidth: 100,
+        cell: ({ row }) => <span className="text-slate-700 font-medium">{row.maxSelect}</span>,
+      },
+      {
+        id: "itemsCount",
+        header: "Modifiers Count",
+        accessorKey: "itemsCount",
+        enableSorting: true,
+        enableFiltering: true,
+        align: "center",
+        minWidth: 130,
+        cell: ({ row }) => (
+          <span className="font-semibold text-slate-800">{row.itemsCount} modifiers</span>
+        ),
+      },
+      {
+        id: "actions",
+        header: "Actions",
+        align: "right",
+        minWidth: 120,
+        sortable: false,
+        filterable: false,
+        cell: ({ row }) => (
+          <div className="flex items-center justify-end gap-1.5 text-slate-400">
+            <button
+              type="button"
+              onClick={() => toast.info(`Configuring items for ${row.name}`)}
+              className="p-1 hover:text-teal-600 hover:bg-slate-100 rounded transition cursor-pointer"
+              title="Edit Modifiers"
+            >
+              <Edit2 className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => handleDeleteGroup(row.id, row.name)}
+              className="p-1 hover:text-red-600 hover:bg-slate-100 rounded transition cursor-pointer"
+              title="Delete"
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+          </div>
+        ),
+      },
+    ],
+    [addonGroups],
+  );
 
   return (
     <div className="space-y-4">
@@ -104,11 +248,11 @@ export function ScheduleAddonsTab() {
 
           <div className="lg:col-span-2">
             <label className="block text-[11.5px] font-medium text-slate-600 mb-1">
-              Addon Item Name
+              Addon Group Name
             </label>
             <input
               type="text"
-              placeholder="Addon item..."
+              placeholder="Addon Group..."
               value={addonNameFilter}
               onChange={(e) => setAddonNameFilter(e.target.value)}
               className="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-[12.5px] text-slate-800 focus:border-teal-500 focus:outline-hidden"
@@ -133,7 +277,7 @@ export function ScheduleAddonsTab() {
           <div className="flex items-center gap-2 lg:col-span-2">
             <button
               type="button"
-              onClick={() => toast.info("Filter applied")}
+              onClick={() => toast.info(`Filter applied: ${filteredGroups.length} groups found`)}
               className="flex-1 rounded-lg bg-teal-600 px-3 py-1.5 text-[12.5px] font-medium text-white hover:bg-teal-700 transition cursor-pointer shadow-xs"
             >
               Search
@@ -150,77 +294,22 @@ export function ScheduleAddonsTab() {
             >
               Show All
             </button>
-            <button
-              type="button"
-              onClick={() => toast.info("Rank update saved")}
-              className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-[12.5px] font-medium text-slate-700 hover:bg-slate-50 transition cursor-pointer"
-            >
-              Update Rank
-            </button>
-            <button
-              type="button"
-              onClick={() => toast.info("Assign Addons drawer opened")}
-              className="rounded-lg border border-teal-200 bg-teal-50 px-3 py-1.5 text-[12.5px] font-semibold text-teal-700 hover:bg-teal-100 transition cursor-pointer"
-            >
-              Assign Addons
-            </button>
           </div>
         </div>
       </div>
 
-      {/* 3. Addon Groups List or Empty State from Screenshot 4 */}
-      <div className="rounded-2xl border border-slate-300 bg-white p-8 shadow-xs min-h-[380px] flex flex-col justify-center">
-        {addonGroups.length === 0 ? (
-          /* Empty State matching Screenshot 4 */
-          <div className="text-center py-12">
-            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-teal-50 text-teal-600 mx-auto mb-3 border border-teal-200">
-              <Search className="h-7 w-7" />
-            </div>
-            <h4 className="text-[15px] font-semibold text-slate-800">No Record Found</h4>
-            <p className="text-[12.5px] text-slate-400 mt-1 max-w-sm mx-auto">
-              We could not find what you searched for. Try searching again or create a new addon
-              group.
-            </p>
-            <button
-              type="button"
-              onClick={() => setIsAddingGroup(true)}
-              className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-teal-600 px-4 py-2 text-[13px] font-semibold text-white shadow-xs hover:bg-teal-700 transition cursor-pointer"
-            >
-              <Plus className="h-4 w-4" />
-              Add First Addon Group
-            </button>
-          </div>
-        ) : (
-          /* Addon groups listing */
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {addonGroups.map((group) => (
-              <div
-                key={group.id}
-                className="rounded-xl border border-slate-300 bg-slate-50/50 p-4 shadow-2xs hover:bg-white transition"
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <span className="font-bold text-slate-900 text-[14px]">{group.name}</span>
-                  <span className="rounded-full bg-teal-50 px-2 py-0.5 text-[11px] font-semibold text-teal-800 border border-teal-200">
-                    {group.dept}
-                  </span>
-                </div>
-                <div className="text-[12px] text-slate-500">
-                  {group.itemsCount} modifiers · Min {group.minSelect}, Max {group.maxSelect}
-                </div>
-                <div className="mt-3 pt-3 border-t border-slate-200 flex justify-end">
-                  <button
-                    type="button"
-                    onClick={() => toast.info(`Configuring items for ${group.name}`)}
-                    className="text-[12px] font-semibold text-teal-700 hover:underline cursor-pointer"
-                  >
-                    Edit Modifiers →
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+      {/* 3. PosDataGrid with DataTableHeader */}
+      <PosDataGrid<AddonGroupItem>
+        data={filteredGroups}
+        columns={columns}
+        enableSelection={true}
+        selectedRowIds={selectedIds}
+        onSelectionChange={setSelectedIds}
+        enablePagination={true}
+        pageSize={pageSize}
+        pageSizeOptions={[10, 25, 50, 100]}
+        emptyMessage="No addon groups found matching filters."
+      />
 
       {/* Add Addon Group Modal */}
       {isAddingGroup && (

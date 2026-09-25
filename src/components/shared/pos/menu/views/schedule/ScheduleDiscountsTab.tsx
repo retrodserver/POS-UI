@@ -1,22 +1,39 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   Plus,
   ChevronDown,
-  Search,
-  Copy,
   Edit2,
   Trash2,
   X,
-  Tag,
-  Percent,
-  IndianRupee,
 } from "lucide-react";
 import type { ScheduleDiscountItem } from "@/types/posMenu";
+import { PosDataGrid, type DataGridColumn } from "@/components/ui/data-grid";
 import { toast } from "sonner";
 
 export function ScheduleDiscountsTab() {
-  const [discounts, setDiscounts] = useState<ScheduleDiscountItem[]>([]);
+  const [discounts, setDiscounts] = useState<ScheduleDiscountItem[]>([
+    {
+      id: "disc-1",
+      title: "Happy Hours 15%",
+      discountType: "Percentage",
+      value: 15,
+      minBillAmount: 499,
+      status: "Active",
+      createdAt: "10 Aug 2024",
+    },
+    {
+      id: "disc-2",
+      title: "Flat ₹100 Off Corporate",
+      discountType: "Fixed Amount",
+      value: 100,
+      minBillAmount: 999,
+      status: "Active",
+      createdAt: "15 Aug 2024",
+    },
+  ]);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [pageSize, setPageSize] = useState(10);
 
   // Modal form state
   const [newTitle, setNewTitle] = useState("");
@@ -65,9 +82,118 @@ export function ScheduleDiscountsTab() {
     toast.success(`Removed discount "${title}"`);
   };
 
+  const columns: DataGridColumn<ScheduleDiscountItem>[] = useMemo(
+    () => [
+      {
+        id: "title",
+        header: "Discount Title",
+        accessorKey: "title",
+        enableSorting: true,
+        enableFiltering: true,
+        minWidth: 180,
+        cell: ({ row }) => <span className="font-bold text-slate-900">{row.title}</span>,
+      },
+      {
+        id: "discountType",
+        header: "Type",
+        accessorKey: "discountType",
+        enableSorting: true,
+        enableFiltering: true,
+        minWidth: 140,
+        cell: ({ row }) => <span className="text-slate-600">{row.discountType}</span>,
+      },
+      {
+        id: "value",
+        header: "Discount Value",
+        accessorKey: "value",
+        enableSorting: true,
+        enableFiltering: true,
+        align: "right",
+        minWidth: 130,
+        cell: ({ row }) => (
+          <span className="font-mono font-semibold text-slate-800">
+            {row.discountType === "Percentage" ? `${row.value}%` : `₹${row.value}`}
+          </span>
+        ),
+      },
+      {
+        id: "minBillAmount",
+        header: "Min Bill Amount",
+        accessorKey: "minBillAmount",
+        enableSorting: true,
+        enableFiltering: true,
+        align: "right",
+        minWidth: 130,
+        cell: ({ row }) => (
+          <span className="font-mono text-slate-600">₹{row.minBillAmount ?? 0}</span>
+        ),
+      },
+      {
+        id: "status",
+        header: "Status",
+        accessorKey: "status",
+        enableSorting: true,
+        enableFiltering: true,
+        align: "center",
+        minWidth: 100,
+        cell: ({ row }) => (
+          <button
+            type="button"
+            onClick={() => handleToggleStatus(row.id, row.status)}
+            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold cursor-pointer transition ${
+              row.status === "Active"
+                ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
+                : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+            }`}
+          >
+            {row.status}
+          </button>
+        ),
+      },
+      {
+        id: "createdAt",
+        header: "Created",
+        accessorKey: "createdAt",
+        enableSorting: true,
+        enableFiltering: true,
+        minWidth: 120,
+        cell: ({ row }) => <span className="text-slate-500 text-[12px]">{row.createdAt}</span>,
+      },
+      {
+        id: "actions",
+        header: "Actions",
+        align: "right",
+        minWidth: 90,
+        sortable: false,
+        filterable: false,
+        cell: ({ row }) => (
+          <div className="flex items-center justify-end gap-1.5 text-slate-400">
+            <button
+              type="button"
+              onClick={() => toast.info(`Editing discount ${row.title}`)}
+              className="p-1 hover:text-teal-600 hover:bg-slate-100 rounded transition cursor-pointer"
+              title="Edit"
+            >
+              <Edit2 className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => handleDelete(row.id, row.title)}
+              className="p-1 hover:text-red-600 hover:bg-slate-100 rounded transition cursor-pointer"
+              title="Delete"
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+          </div>
+        ),
+      },
+    ],
+    [],
+  );
+
   return (
     <div className="space-y-4">
-      {/* 1. Header & Actions matching Petpooja Discount Screenshot */}
+      {/* 1. Header & Actions */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <span className="text-[13px] text-slate-500">Menu</span>
@@ -88,6 +214,7 @@ export function ScheduleDiscountsTab() {
             onClick={() => setIsAddModalOpen(true)}
             className="rounded-lg bg-teal-600 px-3.5 py-1.5 text-[12.5px] font-semibold text-white shadow-2xs hover:bg-teal-700 transition cursor-pointer"
           >
+            <Plus className="h-4 w-4 inline mr-1" />
             Add Discount
           </button>
           <button
@@ -99,101 +226,25 @@ export function ScheduleDiscountsTab() {
         </div>
       </div>
 
-      {/* 2. Content Area: Empty State or Discount Listing */}
-      <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-xs min-h-[380px] flex flex-col justify-center">
-        {discounts.length === 0 ? (
-          /* Empty State exactly matching Screenshot */
-          <div className="text-center py-12">
-            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-teal-50 text-teal-600 mx-auto mb-3">
-              <Search className="h-7 w-7 stroke-[1.5]" />
-            </div>
-            <h4 className="text-[15px] font-semibold text-slate-800">No Record Found</h4>
-            <p className="text-[12.5px] text-slate-400 mt-1 max-w-sm mx-auto">
-              We could not find what you searched for Try searching again
-            </p>
-            <button
-              type="button"
-              onClick={() => setIsAddModalOpen(true)}
-              className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-teal-600 px-4 py-2 text-[13px] font-semibold text-white shadow-sm hover:bg-teal-700 transition cursor-pointer"
-            >
-              <Plus className="h-4 w-4" />
-              Add First Discount
-            </button>
-          </div>
-        ) : (
-          /* Active Discounts Table */
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-[13px]">
-              <thead>
-                <tr className="border-b border-slate-200 bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-                  <th className="px-4 py-3">Discount Title</th>
-                  <th className="px-4 py-3">Type</th>
-                  <th className="px-4 py-3">Discount Value</th>
-                  <th className="px-4 py-3">Min Bill Amount</th>
-                  <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3">Created</th>
-                  <th className="px-4 py-3 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {discounts.map((disc) => (
-                  <tr key={disc.id} className="hover:bg-slate-50/80 transition">
-                    <td className="px-4 py-3 font-bold text-slate-900">{disc.title}</td>
-                    <td className="px-4 py-3 text-slate-600">{disc.discountType}</td>
-                    <td className="px-4 py-3 font-mono font-semibold text-slate-800">
-                      {disc.discountType === "Percentage" ? `${disc.value}%` : `₹${disc.value}`}
-                    </td>
-                    <td className="px-4 py-3 font-mono text-slate-600">
-                      ₹{disc.minBillAmount ?? 0}
-                    </td>
-                    <td className="px-4 py-3">
-                      <button
-                        type="button"
-                        onClick={() => handleToggleStatus(disc.id, disc.status)}
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold cursor-pointer ${
-                          disc.status === "Active"
-                            ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
-                            : "bg-slate-100 text-slate-500 hover:bg-slate-200"
-                        }`}
-                      >
-                        {disc.status}
-                      </button>
-                    </td>
-                    <td className="px-4 py-3 text-slate-500 text-[12px]">{disc.createdAt}</td>
-                    <td className="px-4 py-3 text-right">
-                      <div className="flex items-center justify-end gap-1.5 text-slate-400">
-                        <button
-                          type="button"
-                          onClick={() => toast.info(`Editing discount ${disc.title}`)}
-                          className="p-1 hover:text-teal-600 hover:bg-slate-100 rounded transition cursor-pointer"
-                          title="Edit"
-                        >
-                          <Edit2 className="h-4 w-4" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleDelete(disc.id, disc.title)}
-                          className="p-1 hover:text-red-600 hover:bg-slate-100 rounded transition cursor-pointer"
-                          title="Delete"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+      {/* 2. PosDataGrid with DataTableHeader */}
+      <PosDataGrid<ScheduleDiscountItem>
+        data={discounts}
+        columns={columns}
+        enableSelection={true}
+        selectedRowIds={selectedIds}
+        onSelectionChange={setSelectedIds}
+        enablePagination={true}
+        pageSize={pageSize}
+        pageSizeOptions={[10, 25, 50, 100]}
+        emptyMessage="No discounts configured yet."
+      />
 
       {/* Add Discount Modal */}
       {isAddModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
-          <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+          <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl border border-slate-300 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4 bg-slate-50">
-              <h3 className="text-[16px] font-bold text-slate-900">Add Discount Configuration</h3>
+              <h3 className="text-[16px] font-bold text-slate-900">Create New Discount Rule</h3>
               <button
                 type="button"
                 onClick={() => setIsAddModalOpen(false)}
@@ -206,74 +257,58 @@ export function ScheduleDiscountsTab() {
             <form onSubmit={handleAddDiscountSubmit} className="p-6 space-y-4">
               <div>
                 <label className="block text-[13px] font-medium text-slate-700 mb-1.5">
-                  Discount Campaign Title <span className="text-red-500">*</span>
+                  Discount Title <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
-                  placeholder="e.g. Happy Hours 20%, Weekend Bonanza"
+                  placeholder="e.g. Weekend Special, Flat 10%"
                   value={newTitle}
                   onChange={(e) => setNewTitle(e.target.value)}
-                  className="w-full rounded-lg border border-slate-300 px-3.5 py-2 text-[13.5px] focus:outline-none focus:border-teal-500"
+                  className="w-full rounded-lg border border-slate-300 px-3.5 py-2 text-[13.5px] focus:outline-hidden focus:border-teal-500"
                   autoFocus
                 />
-              </div>
-
-              <div>
-                <label className="block text-[13px] font-medium text-slate-700 mb-1.5">
-                  Discount Type
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setDiscountType("Percentage")}
-                    className={`rounded-lg border px-3 py-2 text-[12.5px] font-medium transition cursor-pointer flex items-center justify-center gap-1.5 ${
-                      discountType === "Percentage"
-                        ? "border-teal-500 bg-teal-50 text-teal-700 font-semibold"
-                        : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
-                    }`}
-                  >
-                    <Percent className="h-4 w-4" /> Percentage (%)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setDiscountType("Fixed Amount")}
-                    className={`rounded-lg border px-3 py-2 text-[12.5px] font-medium transition cursor-pointer flex items-center justify-center gap-1.5 ${
-                      discountType === "Fixed Amount"
-                        ? "border-teal-500 bg-teal-50 text-teal-700 font-semibold"
-                        : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
-                    }`}
-                  >
-                    <IndianRupee className="h-4 w-4" /> Fixed Amount (₹)
-                  </button>
-                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[13px] font-medium text-slate-700 mb-1.5">
-                    Discount Value {discountType === "Percentage" ? "(%)" : "(₹)"}
+                    Discount Type
                   </label>
-                  <input
-                    type="number"
-                    step="any"
-                    min="0"
-                    value={discountValue}
-                    onChange={(e) => setDiscountValue(e.target.value)}
-                    className="w-full rounded-lg border border-slate-300 px-3.5 py-2 text-[13.5px] focus:outline-none focus:border-teal-500"
-                  />
+                  <select
+                    value={discountType}
+                    onChange={(e) => setDiscountType(e.target.value as any)}
+                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-[13.5px] focus:outline-hidden focus:border-teal-500 cursor-pointer"
+                  >
+                    <option value="Percentage">Percentage (%)</option>
+                    <option value="Fixed Amount">Fixed Amount (₹)</option>
+                  </select>
                 </div>
+
                 <div>
                   <label className="block text-[13px] font-medium text-slate-700 mb-1.5">
-                    Min Bill Amount (₹)
+                    Discount Value <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="number"
-                    min="0"
-                    value={minBill}
-                    onChange={(e) => setMinBill(e.target.value)}
-                    className="w-full rounded-lg border border-slate-300 px-3.5 py-2 text-[13.5px] focus:outline-none focus:border-teal-500"
+                    placeholder="10"
+                    value={discountValue}
+                    onChange={(e) => setDiscountValue(e.target.value)}
+                    className="w-full rounded-lg border border-slate-300 px-3.5 py-2 text-[13.5px] focus:outline-hidden focus:border-teal-500"
                   />
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-[13px] font-medium text-slate-700 mb-1.5">
+                  Min Bill Amount (₹)
+                </label>
+                <input
+                  type="number"
+                  placeholder="500"
+                  value={minBill}
+                  onChange={(e) => setMinBill(e.target.value)}
+                  className="w-full rounded-lg border border-slate-300 px-3.5 py-2 text-[13.5px] focus:outline-hidden focus:border-teal-500"
+                />
               </div>
 
               <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-slate-200">
@@ -286,7 +321,7 @@ export function ScheduleDiscountsTab() {
                 </button>
                 <button
                   type="submit"
-                  className="rounded-lg bg-teal-600 px-5 py-2 text-[13px] font-semibold text-white hover:bg-teal-700 shadow-sm cursor-pointer"
+                  className="rounded-lg bg-teal-600 px-5 py-2 text-[13px] font-semibold text-white hover:bg-teal-700 shadow-xs cursor-pointer"
                 >
                   Save Discount
                 </button>

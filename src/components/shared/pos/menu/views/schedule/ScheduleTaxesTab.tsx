@@ -1,17 +1,14 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   Plus,
   ChevronDown,
   Edit2,
-  Copy,
-  Download,
   Trash2,
-  CheckSquare,
-  Square,
   X,
   Percent,
 } from "lucide-react";
 import type { ScheduleTaxItem } from "@/types/posMenu";
+import { PosDataGrid, type DataGridColumn } from "@/components/ui/data-grid";
 import { toast } from "sonner";
 
 export function ScheduleTaxesTab() {
@@ -54,18 +51,7 @@ export function ScheduleTaxesTab() {
   const [newTaxType, setNewTaxType] = useState<"Forward Tax" | "Backward Tax">("Forward Tax");
   const [newRateType, setNewRateType] = useState<"Percentage" | "Fixed Amount">("Percentage");
   const [newAmount, setNewAmount] = useState("5");
-
-  const toggleSelectAll = () => {
-    if (selectedIds.length === taxes.length) {
-      setSelectedIds([]);
-    } else {
-      setSelectedIds(taxes.map((t) => t.id));
-    }
-  };
-
-  const toggleSelectOne = (id: string) => {
-    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
-  };
+  const [pageSize, setPageSize] = useState(10);
 
   const handleAddTaxSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -100,57 +86,133 @@ export function ScheduleTaxesTab() {
     toast.success(`Removed tax "${title}"`);
   };
 
+  const columns: DataGridColumn<ScheduleTaxItem>[] = useMemo(
+    () => [
+      {
+        id: "title",
+        header: "Title",
+        accessorKey: "title",
+        enableSorting: true,
+        enableFiltering: true,
+        minWidth: 150,
+        cell: ({ row }) => <span className="font-bold text-slate-900">{row.title}</span>,
+      },
+      {
+        id: "onlineDisplayName",
+        header: "Online Display Name",
+        accessorKey: "onlineDisplayName",
+        enableSorting: true,
+        enableFiltering: true,
+        minWidth: 160,
+        cell: ({ row }) => (
+          <span className="text-slate-600 text-[12.5px]">{row.onlineDisplayName ?? "—"}</span>
+        ),
+      },
+      {
+        id: "taxType",
+        header: "Tax Type",
+        accessorKey: "taxType",
+        enableSorting: true,
+        enableFiltering: true,
+        minWidth: 140,
+        cell: ({ row }) => <span className="text-slate-700">{row.taxType}</span>,
+      },
+      {
+        id: "type",
+        header: "Type",
+        accessorKey: "type",
+        enableSorting: true,
+        enableFiltering: true,
+        minWidth: 130,
+        cell: ({ row }) => <span className="text-slate-700">{row.type}</span>,
+      },
+      {
+        id: "amount",
+        header: "Amount",
+        accessorKey: "amount",
+        enableSorting: true,
+        enableFiltering: true,
+        align: "right",
+        minWidth: 100,
+        cell: ({ row }) => (
+          <span className="font-mono font-semibold text-slate-800">
+            {row.type === "Percentage" ? `${row.amount}%` : `₹${row.amount}`}
+          </span>
+        ),
+      },
+      {
+        id: "status",
+        header: "Status",
+        accessorKey: "status",
+        enableSorting: true,
+        enableFiltering: true,
+        align: "center",
+        minWidth: 100,
+        cell: ({ row }) => (
+          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700">
+            {row.status}
+          </span>
+        ),
+      },
+      {
+        id: "createdAt",
+        header: "Created",
+        accessorKey: "createdAt",
+        enableSorting: true,
+        enableFiltering: true,
+        minWidth: 120,
+        cell: ({ row }) => <span className="text-slate-500 text-[12px]">{row.createdAt}</span>,
+      },
+      {
+        id: "actions",
+        header: "Actions",
+        align: "right",
+        minWidth: 90,
+        sortable: false,
+        filterable: false,
+        cell: ({ row }) => (
+          <div className="flex items-center justify-end gap-1.5 text-slate-400">
+            <button
+              type="button"
+              onClick={() => toast.info(`Editing tax slab ${row.title}`)}
+              className="p-1 hover:text-teal-600 hover:bg-slate-100 rounded transition cursor-pointer"
+              title="Edit Tax"
+            >
+              <Edit2 className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => handleDelete(row.id, row.title)}
+              className="p-1 hover:text-red-600 hover:bg-slate-100 rounded transition cursor-pointer"
+              title="Delete Tax"
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+          </div>
+        ),
+      },
+    ],
+    [],
+  );
+
   return (
     <div className="space-y-4">
-      {/* 1. Header & Action Buttons matching Petpooja Taxes Screenshot */}
+      {/* 1. Header and Actions from Screenshot */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <span className="text-[13px] text-slate-500">Menu</span>
           <span className="text-[13px] text-slate-400">›</span>
-          <span className="text-[14px] font-bold text-slate-900">Tax Configuration</span>
+          <span className="text-[14px] font-bold text-slate-900">Tax Slabs</span>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
-            onClick={() => toast.info("Area to area copy tax opened")}
-            className="rounded-lg bg-teal-600 px-3.5 py-1.5 text-[12.5px] font-semibold text-white shadow-xs hover:bg-teal-700 transition cursor-pointer"
-          >
-            Area To Area Copy Tax
-          </button>
-          <button
-            type="button"
             onClick={() => setIsAddModalOpen(true)}
-            className="rounded-lg bg-teal-600 px-3.5 py-1.5 text-[12.5px] font-semibold text-white shadow-xs hover:bg-teal-700 transition cursor-pointer"
+            className="flex items-center gap-1.5 rounded-lg bg-teal-600 px-3.5 py-1.5 text-[12.5px] font-semibold text-white shadow-2xs hover:bg-teal-700 transition cursor-pointer"
           >
+            <Plus className="h-4 w-4" />
             Add Tax
-          </button>
-          <button
-            type="button"
-            onClick={() => toast.info("Backward tax printing settings opened")}
-            className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-[12.5px] font-medium text-slate-700 hover:bg-slate-50 transition cursor-pointer"
-          >
-            Backward Tax Printing Settings
-          </button>
-          <button
-            type="button"
-            onClick={() => toast.info("Bill number reset counter configured")}
-            className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-[12.5px] font-medium text-slate-700 hover:bg-slate-50 transition cursor-pointer"
-          >
-            Reset Bill No.
-          </button>
-          <button
-            type="button"
-            onClick={() => toast.success("Consolidated tax exported as Excel")}
-            className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-[12.5px] font-medium text-slate-700 hover:bg-slate-50 transition cursor-pointer"
-          >
-            Export Consolidated Tax
-          </button>
-          <button
-            type="button"
-            className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-[12.5px] font-medium text-slate-700 hover:bg-slate-50 transition cursor-pointer"
-          >
-            Tax Type : Item Wise
           </button>
           <button
             type="button"
@@ -161,122 +223,25 @@ export function ScheduleTaxesTab() {
         </div>
       </div>
 
-      {/* 2. Taxes Data Table from Screenshot */}
-      <div className="rounded-xl border border-slate-200 bg-white shadow-xs overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-[13px]">
-            <thead>
-              <tr className="border-b border-slate-200 bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-                <th className="w-12 px-4 py-3">
-                  <button
-                    type="button"
-                    onClick={toggleSelectAll}
-                    className="text-slate-400 hover:text-slate-600"
-                  >
-                    {selectedIds.length > 0 && selectedIds.length === taxes.length ? (
-                      <CheckSquare className="h-4 w-4 text-teal-600" />
-                    ) : (
-                      <Square className="h-4 w-4" />
-                    )}
-                  </button>
-                </th>
-                <th className="px-4 py-3">Title</th>
-                <th className="px-4 py-3">Online Display Name</th>
-                <th className="px-4 py-3">Tax Type</th>
-                <th className="px-4 py-3">Type</th>
-                <th className="px-4 py-3">Amount</th>
-                <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3">Created</th>
-                <th className="px-4 py-3 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {taxes.map((tax) => {
-                const isSelected = selectedIds.includes(tax.id);
-                return (
-                  <tr
-                    key={tax.id}
-                    className={`transition hover:bg-slate-50/80 ${
-                      isSelected ? "bg-teal-50/40" : ""
-                    }`}
-                  >
-                    <td className="px-4 py-3">
-                      <button
-                        type="button"
-                        onClick={() => toggleSelectOne(tax.id)}
-                        className="text-slate-400 hover:text-slate-600"
-                      >
-                        {isSelected ? (
-                          <CheckSquare className="h-4 w-4 text-teal-600" />
-                        ) : (
-                          <Square className="h-4 w-4" />
-                        )}
-                      </button>
-                    </td>
-
-                    <td className="px-4 py-3 font-bold text-slate-900">{tax.title}</td>
-                    <td className="px-4 py-3 text-slate-600">{tax.onlineDisplayName ?? "—"}</td>
-                    <td className="px-4 py-3 text-slate-700">{tax.taxType}</td>
-                    <td className="px-4 py-3 text-slate-700">{tax.type}</td>
-                    <td className="px-4 py-3 font-mono font-semibold text-slate-800">
-                      {tax.amount}
-                    </td>
-
-                    <td className="px-4 py-3">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700">
-                        {tax.status}
-                      </span>
-                    </td>
-
-                    <td className="px-4 py-3 text-slate-500 text-[12px]">{tax.createdAt}</td>
-
-                    <td className="px-4 py-3 text-right">
-                      <div className="flex items-center justify-end gap-1.5 text-slate-400">
-                        <button
-                          type="button"
-                          onClick={() => toast.info(`Editing tax slab ${tax.title}`)}
-                          className="p-1 hover:text-teal-600 hover:bg-slate-100 rounded transition cursor-pointer"
-                          title="Edit Tax"
-                        >
-                          <Edit2 className="h-4 w-4" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => toast.info(`Assign items to ${tax.title}`)}
-                          className="p-1 hover:text-teal-600 hover:bg-slate-100 rounded transition cursor-pointer"
-                          title="Assign Items"
-                        >
-                          <Download className="h-4 w-4" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleDelete(tax.id, tax.title)}
-                          className="p-1 hover:text-red-600 hover:bg-slate-100 rounded transition cursor-pointer"
-                          title="Delete Tax"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-
-        <div className="border-t border-slate-200 px-4 py-2.5 bg-slate-50 flex items-center justify-between text-[11.5px] text-slate-500">
-          <span>Note : Drag row to change order/rank.</span>
-          <span>Showing {taxes.length} tax slabs</span>
-        </div>
-      </div>
+      {/* 2. PosDataGrid with DataTableHeader */}
+      <PosDataGrid<ScheduleTaxItem>
+        data={taxes}
+        columns={columns}
+        enableSelection={true}
+        selectedRowIds={selectedIds}
+        onSelectionChange={setSelectedIds}
+        enablePagination={true}
+        pageSize={pageSize}
+        pageSizeOptions={[10, 25, 50, 100]}
+        emptyMessage="No taxes configured yet."
+      />
 
       {/* Add Tax Modal */}
       {isAddModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
-          <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+          <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl border border-slate-300 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4 bg-slate-50">
-              <h3 className="text-[16px] font-bold text-slate-900">Add Tax Configuration</h3>
+              <h3 className="text-[16px] font-bold text-slate-900">Create New Tax Slab</h3>
               <button
                 type="button"
                 onClick={() => setIsAddModalOpen(false)}
@@ -285,6 +250,7 @@ export function ScheduleTaxesTab() {
                 <X className="h-5 w-5" />
               </button>
             </div>
+
             <form onSubmit={handleAddTaxSubmit} className="p-6 space-y-4">
               <div>
                 <label className="block text-[13px] font-medium text-slate-700 mb-1.5">
@@ -292,29 +258,29 @@ export function ScheduleTaxesTab() {
                 </label>
                 <input
                   type="text"
-                  placeholder="e.g. VAT 10%, Service Charge 5%"
+                  placeholder="e.g. VAT 5%, Liquor Tax"
                   value={newTitle}
                   onChange={(e) => setNewTitle(e.target.value)}
-                  className="w-full rounded-lg border border-slate-300 px-3.5 py-2 text-[13.5px] focus:outline-none focus:border-teal-500"
+                  className="w-full rounded-lg border border-slate-300 px-3.5 py-2 text-[13.5px] focus:outline-hidden focus:border-teal-500"
                   autoFocus
                 />
               </div>
 
-              <div>
-                <label className="block text-[13px] font-medium text-slate-700 mb-1.5">
-                  Tax Application Type
-                </label>
-                <select
-                  value={newTaxType}
-                  onChange={(e) => setNewTaxType(e.target.value as any)}
-                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-[13.5px] focus:outline-none focus:border-teal-500 cursor-pointer"
-                >
-                  <option value="Forward Tax">Forward Tax (Exclusive on bill)</option>
-                  <option value="Backward Tax">Backward Tax (Inclusive in item price)</option>
-                </select>
-              </div>
-
               <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[13px] font-medium text-slate-700 mb-1.5">
+                    Tax Type
+                  </label>
+                  <select
+                    value={newTaxType}
+                    onChange={(e) => setNewTaxType(e.target.value as any)}
+                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-[13.5px] focus:outline-hidden focus:border-teal-500 cursor-pointer"
+                  >
+                    <option value="Forward Tax">Forward Tax</option>
+                    <option value="Backward Tax">Backward Tax</option>
+                  </select>
+                </div>
+
                 <div>
                   <label className="block text-[13px] font-medium text-slate-700 mb-1.5">
                     Rate Type
@@ -322,25 +288,26 @@ export function ScheduleTaxesTab() {
                   <select
                     value={newRateType}
                     onChange={(e) => setNewRateType(e.target.value as any)}
-                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-[13.5px] focus:outline-none focus:border-teal-500 cursor-pointer"
+                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-[13.5px] focus:outline-hidden focus:border-teal-500 cursor-pointer"
                   >
                     <option value="Percentage">Percentage (%)</option>
                     <option value="Fixed Amount">Fixed Amount (₹)</option>
                   </select>
                 </div>
-                <div>
-                  <label className="block text-[13px] font-medium text-slate-700 mb-1.5">
-                    Amount / Rate
-                  </label>
-                  <input
-                    type="number"
-                    step="any"
-                    min="0"
-                    value={newAmount}
-                    onChange={(e) => setNewAmount(e.target.value)}
-                    className="w-full rounded-lg border border-slate-300 px-3.5 py-2 text-[13.5px] focus:outline-none focus:border-teal-500"
-                  />
-                </div>
+              </div>
+
+              <div>
+                <label className="block text-[13px] font-medium text-slate-700 mb-1.5">
+                  Tax Rate / Amount <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  placeholder="5"
+                  value={newAmount}
+                  onChange={(e) => setNewAmount(e.target.value)}
+                  className="w-full rounded-lg border border-slate-300 px-3.5 py-2 text-[13.5px] focus:outline-hidden focus:border-teal-500"
+                />
               </div>
 
               <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-slate-200">
@@ -355,7 +322,7 @@ export function ScheduleTaxesTab() {
                   type="submit"
                   className="rounded-lg bg-teal-600 px-5 py-2 text-[13px] font-semibold text-white hover:bg-teal-700 shadow-xs cursor-pointer"
                 >
-                  Save Tax
+                  Save Tax Slab
                 </button>
               </div>
             </form>
