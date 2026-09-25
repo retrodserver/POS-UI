@@ -30,6 +30,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-~$*
-*.tmp
-*.zip
+# Office & Spreadsheet artifacts
+*.xlsx
+*.xls
+*.docx
+scripts/*.py
