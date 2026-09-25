@@ -297,6 +297,7 @@ export function mapDtoToDashboardModel(
     successfulCount: opDto.successfulOrdersCount,
     complimentaryCount: opDto.complimentaryOrdersCount,
     cancelledCount: opDto.cancelledOrdersCount,
+    discountsCount: opDto.complimentaryOrdersCount,
   };
 
   return {

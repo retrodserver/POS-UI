@@ -8,14 +8,21 @@ export type RoomServiceOrderStatus =
 
 export type RoomType = "Standard Room" | "Executive Room" | "Deluxe Room" | "Royal Deluxe" | string;
 
-export type RoomFloor = "All" | "Floor 1" | "Floor 2" | "Floor 3 (Executive)" | "Floor 4 (Suites)";
+export type RoomFloor =
+  | "All"
+  | "Floor 1"
+  | "Floor 2"
+  | "Floor 3"
+  | "Floor 4"
+  | "Floor 3 (Executive)"
+  | "Floor 4 (Suites)";
 
 export interface RoomGuest {
   name: string;
   vipTier?: "Silver" | "Gold" | "Platinum";
-  checkInDate: string;
-  checkOutDate: string;
-  phoneExtension: string;
+  checkInDate?: string;
+  checkOutDate?: string;
+  phoneExtension?: string;
 }
 
 export interface RoomOrderItem {

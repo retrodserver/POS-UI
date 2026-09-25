@@ -98,13 +98,13 @@ export function ManageMenuModal({ isOpen, onClose }: { isOpen: boolean; onClose:
                   <td className="px-4 py-3">
                     <span
                       className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11.5px] font-medium ${
-                        item.status === "In Stock"
+                        item.status === "Active"
                           ? "bg-emerald-50 text-emerald-700"
                           : "bg-red-50 text-red-700"
                       }`}
                     >
                       <span
-                        className={`h-1.5 w-1.5 rounded-full ${item.status === "In Stock" ? "bg-emerald-500" : "bg-red-500"}`}
+                        className={`h-1.5 w-1.5 rounded-full ${item.status === "Active" ? "bg-emerald-500" : "bg-red-500"}`}
                       />
                       {item.status}
                     </span>

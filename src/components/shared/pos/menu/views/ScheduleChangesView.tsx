@@ -8,7 +8,7 @@ import { ScheduleTablesTab } from "./schedule/ScheduleTablesTab";
 import { ScheduleTaxesTab } from "./schedule/ScheduleTaxesTab";
 import { ScheduleDiscountsTab } from "./schedule/ScheduleDiscountsTab";
 
-export function ScheduleChangesView() {
+export function ScheduleChangesView({ onBack }: { onBack?: () => void } = {}) {
   const [activeSubTab, setActiveSubTab] = useState<
     "Items" | "Categories" | "Variants" | "Addons" | "Tables/Areas" | "Taxes" | "Discounts"
   >("Items");

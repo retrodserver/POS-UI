@@ -353,3 +353,23 @@ export function useAddScheduleTable() {
     },
   });
 }
+
+// 10. Virtual Outlets
+export function useVirtualOutlets() {
+  return useQuery({
+    queryKey: ["pos", "menu", "virtual-outlets"],
+    queryFn: posMenuService.getVirtualOutlets,
+  });
+}
+
+export function useAddVirtualOutlet() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (outlet: { name: string; cuisine?: string }) =>
+      posMenuService.addVirtualOutlet(outlet),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["pos", "menu", "virtual-outlets"] });
+    },
+  });
+}
+

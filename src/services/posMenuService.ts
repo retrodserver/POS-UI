@@ -1244,4 +1244,56 @@ export const posMenuService = {
       categoriesSynced: scheduleCategoriesStore.length,
     };
   },
+
+  // 10. Virtual Outlets
+  getVirtualOutlets: async (): Promise<VirtualOutlet[]> => {
+    return [...virtualOutletsStore];
+  },
+
+  addVirtualOutlet: async (outlet: { name: string; cuisine?: string }): Promise<VirtualOutlet> => {
+    const newVo: VirtualOutlet = {
+      id: `vo-${Date.now()}`,
+      name: outlet.name,
+      code: `VO-${Math.floor(100 + Math.random() * 900)}`,
+      type: "Virtual Outlet",
+      cuisine: outlet.cuisine || "Multi-Cuisine",
+      description: "Cloud kitchen virtual brand",
+      address: "Main Outlet Kitchen",
+      contact: "+91 98765 00000",
+      orderTypes: ["Delivery", "Takeaway"],
+      status: "Active",
+      menuCount: 0,
+    };
+    virtualOutletsStore = [...virtualOutletsStore, newVo];
+    return newVo;
+  },
 };
+
+let virtualOutletsStore: VirtualOutlet[] = [
+  {
+    id: "vo-1",
+    name: "Biryani Blues (Cloud)",
+    code: "BB-01",
+    type: "Virtual Outlet",
+    cuisine: "Hyderabadi / Biryani",
+    description: "Cloud kitchen virtual outlet for biryani specials",
+    address: "Central Kitchen, Block B",
+    contact: "+91 98765 43210",
+    orderTypes: ["Delivery", "Takeaway"],
+    status: "Active",
+    menuCount: 24,
+  },
+  {
+    id: "vo-2",
+    name: "Burger Bae (Cloud)",
+    code: "BB-02",
+    type: "Virtual Outlet",
+    cuisine: "American / Fast Food",
+    description: "Virtual burger brand",
+    address: "Central Kitchen, Block B",
+    contact: "+91 98765 43211",
+    orderTypes: ["Delivery"],
+    status: "Active",
+    menuCount: 18,
+  },
+];

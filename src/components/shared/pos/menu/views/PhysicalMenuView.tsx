@@ -762,7 +762,7 @@ export function PhysicalMenuView({ onBack }: { onBack?: () => void }) {
                                 <div className="h-13 w-13 sm:h-14 sm:w-14 rounded-lg overflow-hidden shrink-0 border border-orange-200/80 bg-orange-50 flex items-center justify-center">
                                   {item.images && item.images.length > 0 && item.images[0] ? (
                                     <img
-                                      src={item.images[0]}
+                                      src={item.images[0].url}
                                       alt={item.name}
                                       className="h-full w-full object-cover"
                                       loading="lazy"

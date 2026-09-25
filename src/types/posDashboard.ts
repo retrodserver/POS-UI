@@ -75,6 +75,7 @@ export interface OperationsSummary {
   successfulCount: number;
   complimentaryCount: number;
   cancelledCount: number;
+  discountsCount?: number;
 }
 
 export interface PosDashboardData {

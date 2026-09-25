@@ -113,7 +113,9 @@ export function OnlineOrderReconciliationView() {
               }`}
             >
               <span>{tab.label}</span>
-              <Info className="h-3.5 w-3.5 text-slate-400" title={tab.desc} />
+              <span title={tab.desc}>
+                <Info className="h-3.5 w-3.5 text-slate-400" />
+              </span>
             </button>
           ))}
         </div>
