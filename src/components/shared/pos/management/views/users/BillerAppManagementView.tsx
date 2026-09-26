@@ -1,6 +1,11 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Plus, RefreshCw, Eye, Edit2, Copy, Trash2, CheckCircle2, Download } from "lucide-react";
 import { toast } from "sonner";
+import {
+  DataTableHeader,
+  DataTableFooter,
+  type DataTableColumn,
+} from "@/components/common";
 
 interface StaffUser {
   id: string;
@@ -16,6 +21,9 @@ export function BillerAppManagementView() {
   >("biller");
 
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [sortConfig, setSortConfig] = useState<{ colId: string; direction: "asc" | "desc" } | null>(null);
 
   // 1. Biller Users (Screenshot 1)
   const [billerUsers, setBillerUsers] = useState<StaffUser[]>([
@@ -82,11 +90,77 @@ export function BillerAppManagementView() {
             ? "Waiter"
             : "Order Acceptance App";
 
+  const columns: DataTableColumn<StaffUser>[] = useMemo(
+    () => [
+      {
+        id: "name",
+        label: `${titleText} Name`,
+        sortable: true,
+        filterable: true,
+        defaultWidth: 200,
+        getValue: (r) => r.name,
+      },
+      {
+        id: "username",
+        label: "User Name",
+        sortable: true,
+        filterable: true,
+        defaultWidth: 180,
+        getValue: (r) => r.username,
+      },
+      {
+        id: "userCode",
+        label: "User Code",
+        sortable: true,
+        filterable: true,
+        defaultWidth: 140,
+        getValue: (r) => r.userCode,
+      },
+      {
+        id: "status",
+        label: "Status",
+        sortable: true,
+        filterable: true,
+        align: "center",
+        defaultWidth: 130,
+        getValue: (r) => (r.status ? "Active" : "Inactive"),
+      },
+      {
+        id: "actions",
+        label: "Action",
+        sortable: false,
+        filterable: false,
+        align: "right",
+        defaultWidth: 150,
+      },
+    ],
+    [titleText],
+  );
+
+  const sortedList = useMemo(() => {
+    if (!sortConfig) return currentList;
+    return [...currentList].sort((a, b) => {
+      const field = sortConfig.colId as keyof StaffUser;
+      const aVal = a[field];
+      const bVal = b[field];
+      if (typeof aVal === "boolean" && typeof bVal === "boolean") {
+        return sortConfig.direction === "asc" ? (aVal === bVal ? 0 : aVal ? 1 : -1) : (aVal === bVal ? 0 : aVal ? -1 : 1);
+      }
+      return sortConfig.direction === "asc"
+        ? String(aVal).localeCompare(String(bVal))
+        : String(bVal).localeCompare(String(aVal));
+    });
+  }, [currentList, sortConfig]);
+
+  const totalPages = Math.max(1, Math.ceil(sortedList.length / pageSize));
+  const validPage = Math.min(currentPage, totalPages);
+  const paginatedList = sortedList.slice((validPage - 1) * pageSize, validPage * pageSize);
+
   const toggleSelectAll = () => {
-    if (selectedIds.length === currentList.length) {
+    if (selectedIds.length === sortedList.length) {
       setSelectedIds([]);
     } else {
-      setSelectedIds(currentList.map((u) => u.id));
+      setSelectedIds(sortedList.map((u) => u.id));
     }
   };
 
@@ -161,6 +235,7 @@ export function BillerAppManagementView() {
             onClick={() => {
               setActiveTab(tab.id);
               setSelectedIds([]);
+              setCurrentPage(1);
             }}
             className={`px-4 py-2.5 text-[13px] font-medium transition cursor-pointer border-b-2 ${
               activeTab === tab.id
@@ -173,31 +248,25 @@ export function BillerAppManagementView() {
         ))}
       </div>
 
-      {/* 3. Data Table matching Screenshots 1, 2, 3 */}
-      <div className="rounded-2xl border border-slate-200 bg-white shadow-xs overflow-hidden">
+      {/* 3. Data Table with DataTableHeader & DataTableFooter */}
+      <div className="rounded-2xl border border-slate-300 bg-white shadow-xs overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-[13px]">
-            <thead>
-              <tr className="border-b border-slate-200 bg-slate-50/80 text-[11.5px] font-semibold text-slate-600">
-                <th className="w-10 px-4 py-3.5 text-center">
-                  <input
-                    type="checkbox"
-                    checked={selectedIds.length === currentList.length && currentList.length > 0}
-                    onChange={toggleSelectAll}
-                    className="rounded border-slate-300 cursor-pointer"
-                  />
-                </th>
-                <th className="px-5 py-3.5 font-semibold text-slate-700">Biller Name</th>
-                <th className="px-5 py-3.5 font-semibold text-slate-700">User Name</th>
-                <th className="px-5 py-3.5 font-semibold text-slate-700">User Code</th>
-                <th className="px-5 py-3.5 font-semibold text-slate-700 text-center">Status</th>
-                <th className="px-5 py-3.5 text-right font-semibold text-slate-700">Action</th>
-              </tr>
-            </thead>
+          <table className="w-full text-left text-[13px] border-collapse">
+            <DataTableHeader
+              columns={columns}
+              data={sortedList}
+              selectable
+              isAllSelected={selectedIds.length === sortedList.length && sortedList.length > 0}
+              isSomeSelected={selectedIds.length > 0 && selectedIds.length < sortedList.length}
+              onToggleSelectAll={toggleSelectAll}
+              sortConfig={sortConfig}
+              onSortChange={setSortConfig}
+              themeVariant="primary"
+            />
             <tbody className="divide-y divide-slate-100">
-              {currentList.map((user) => (
+              {paginatedList.map((user) => (
                 <tr key={user.id} className="hover:bg-slate-50/50 transition">
-                  <td className="px-4 py-3.5 text-center">
+                  <td className="w-12 px-3 py-3.5 text-center">
                     <input
                       type="checkbox"
                       checked={selectedIds.includes(user.id)}
@@ -270,9 +339,16 @@ export function BillerAppManagementView() {
           </table>
         </div>
 
-        <div className="border-t border-slate-100 px-5 py-3 bg-slate-50/50 text-[12px] text-slate-500">
-          Showing 1 to {currentList.length} of {currentList.length} records
-        </div>
+        <DataTableFooter
+          currentPage={validPage}
+          totalCount={sortedList.length}
+          pageSize={pageSize}
+          onPageSizeChange={setPageSize}
+          onPageChange={setCurrentPage}
+          selectedCount={selectedIds.length}
+          onClearSelection={() => setSelectedIds([])}
+          itemName="users"
+        />
       </div>
     </div>
   );

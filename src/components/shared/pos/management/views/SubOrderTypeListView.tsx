@@ -1,6 +1,11 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Plus, ChevronDown, Search, Edit2, Trash2, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
+import {
+  DataTableHeader,
+  DataTableFooter,
+  type DataTableColumn,
+} from "@/components/common";
 
 interface SubOrderTypeItem {
   id: string;
@@ -14,6 +19,9 @@ interface SubOrderTypeItem {
 export function SubOrderTypeListView() {
   const [searchName, setSearchName] = useState("");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [sortConfig, setSortConfig] = useState<{ colId: string; direction: "asc" | "desc" } | null>(null);
 
   // Exact data rows matching Screenshot 2
   const [items, setItems] = useState<SubOrderTypeItem[]>([
@@ -83,21 +91,93 @@ export function SubOrderTypeListView() {
     },
   ]);
 
+  const columns: DataTableColumn<SubOrderTypeItem>[] = useMemo(
+    () => [
+      {
+        id: "name",
+        label: "Name",
+        sortable: true,
+        filterable: true,
+        defaultWidth: 180,
+        getValue: (r) => r.name,
+      },
+      {
+        id: "type",
+        label: "Type",
+        sortable: true,
+        filterable: true,
+        defaultWidth: 200,
+        getValue: (r) => r.type,
+      },
+      {
+        id: "orderType",
+        label: "Order Type",
+        sortable: true,
+        filterable: true,
+        defaultWidth: 170,
+        getValue: (r) => r.orderType,
+      },
+      {
+        id: "status",
+        label: "Status",
+        sortable: true,
+        filterable: true,
+        align: "center",
+        defaultWidth: 120,
+        getValue: (r) => r.status,
+      },
+      {
+        id: "created",
+        label: "Created",
+        sortable: true,
+        defaultWidth: 140,
+        getValue: (r) => r.created,
+      },
+      {
+        id: "actions",
+        label: "Actions",
+        sortable: false,
+        filterable: false,
+        align: "right",
+        defaultWidth: 110,
+      },
+    ],
+    [],
+  );
+
+  const filteredItems = useMemo(() => {
+    return items.filter((item) =>
+      item.name.toLowerCase().includes(searchName.toLowerCase()),
+    );
+  }, [items, searchName]);
+
+  const sortedItems = useMemo(() => {
+    if (!sortConfig) return filteredItems;
+    return [...filteredItems].sort((a, b) => {
+      const field = sortConfig.colId as keyof SubOrderTypeItem;
+      const aVal = a[field];
+      const bVal = b[field];
+      return sortConfig.direction === "asc"
+        ? String(aVal).localeCompare(String(bVal))
+        : String(bVal).localeCompare(String(aVal));
+    });
+  }, [filteredItems, sortConfig]);
+
+  const totalPages = Math.max(1, Math.ceil(sortedItems.length / pageSize));
+  const validPage = Math.min(currentPage, totalPages);
+  const paginatedItems = sortedItems.slice((validPage - 1) * pageSize, validPage * pageSize);
+
   const toggleSelectAll = () => {
-    if (selectedIds.length === items.length) {
+    if (selectedIds.length === sortedItems.length) {
       setSelectedIds([]);
     } else {
-      setSelectedIds(items.map((i) => i.id));
+      setSelectedIds(sortedItems.map((i) => i.id));
     }
   };
 
   const toggleSelect = (id: string) => {
     setSelectedIds((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
   };
-
-  const filteredItems = items.filter((item) =>
-    item.name.toLowerCase().includes(searchName.toLowerCase()),
-  );
 
   return (
     <div className="space-y-4">
@@ -135,7 +215,10 @@ export function SubOrderTypeListView() {
             <input
               type="text"
               value={searchName}
-              onChange={(e) => setSearchName(e.target.value)}
+              onChange={(e) => {
+                setSearchName(e.target.value);
+                setCurrentPage(1);
+              }}
               placeholder="Search name"
               className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-[12.5px] text-slate-800 shadow-2xs focus:border-teal-500 focus:outline-hidden"
             />
@@ -153,6 +236,7 @@ export function SubOrderTypeListView() {
               type="button"
               onClick={() => {
                 setSearchName("");
+                setCurrentPage(1);
                 toast.info("Showing all order types");
               }}
               className="rounded-lg border border-slate-300 bg-white px-4 py-1.5 text-[12.5px] font-medium text-slate-700 shadow-2xs hover:bg-slate-50 transition cursor-pointer"
@@ -163,32 +247,25 @@ export function SubOrderTypeListView() {
         </div>
       </div>
 
-      {/* 3. Table matching Screenshot 2 */}
-      <div className="rounded-2xl border border-slate-200 bg-white shadow-xs overflow-hidden">
+      {/* 3. Table with DataTableHeader & DataTableFooter */}
+      <div className="rounded-2xl border border-slate-300 bg-white shadow-xs overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-[13px]">
-            <thead>
-              <tr className="border-b border-slate-200 bg-slate-50/80 text-[11.5px] font-semibold text-slate-600">
-                <th className="w-10 px-4 py-3 text-center">
-                  <input
-                    type="checkbox"
-                    checked={selectedIds.length === items.length}
-                    onChange={toggleSelectAll}
-                    className="rounded border-slate-300 cursor-pointer"
-                  />
-                </th>
-                <th className="px-4 py-3 font-semibold text-slate-700">Name</th>
-                <th className="px-4 py-3 font-semibold text-slate-700">Type</th>
-                <th className="px-4 py-3 font-semibold text-slate-700">Order Type</th>
-                <th className="px-4 py-3 font-semibold text-slate-700">Status</th>
-                <th className="px-4 py-3 font-semibold text-slate-700">Created</th>
-                <th className="px-4 py-3 text-right font-semibold text-slate-700">Actions</th>
-              </tr>
-            </thead>
+          <table className="w-full text-left text-[13px] border-collapse">
+            <DataTableHeader
+              columns={columns}
+              data={sortedItems}
+              selectable
+              isAllSelected={selectedIds.length === sortedItems.length && sortedItems.length > 0}
+              isSomeSelected={selectedIds.length > 0 && selectedIds.length < sortedItems.length}
+              onToggleSelectAll={toggleSelectAll}
+              sortConfig={sortConfig}
+              onSortChange={setSortConfig}
+              themeVariant="primary"
+            />
             <tbody className="divide-y divide-slate-100">
-              {filteredItems.map((item) => (
+              {paginatedItems.map((item) => (
                 <tr key={item.id} className="hover:bg-slate-50/50 transition">
-                  <td className="px-4 py-3 text-center">
+                  <td className="w-12 px-3 py-3 text-center">
                     <input
                       type="checkbox"
                       checked={selectedIds.includes(item.id)}
@@ -199,7 +276,7 @@ export function SubOrderTypeListView() {
                   <td className="px-4 py-3 font-medium text-slate-900">{item.name}</td>
                   <td className="px-4 py-3 text-slate-600">{item.type}</td>
                   <td className="px-4 py-3 text-slate-600">{item.orderType}</td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3 text-center">
                     <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-200">
                       {item.status}
                     </span>
@@ -233,6 +310,17 @@ export function SubOrderTypeListView() {
             </tbody>
           </table>
         </div>
+
+        <DataTableFooter
+          currentPage={validPage}
+          totalCount={sortedItems.length}
+          pageSize={pageSize}
+          onPageSizeChange={setPageSize}
+          onPageChange={setCurrentPage}
+          selectedCount={selectedIds.length}
+          onClearSelection={() => setSelectedIds([])}
+          itemName="sub order types"
+        />
       </div>
     </div>
   );

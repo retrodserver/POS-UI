@@ -1,6 +1,95 @@
-import { useState } from "react";
-import { Upload, ChevronDown, FileSpreadsheet, Info, CheckCircle2 } from "lucide-react";
+import { useState, useMemo } from "react";
+import { Upload, ChevronDown, FileSpreadsheet, Info, CheckCircle2, AlertTriangle, XCircle, Download, RefreshCw, Eye } from "lucide-react";
 import { toast } from "sonner";
+import { DataTableHeader, DataTableFooter, type DataTableColumn } from "@/components/common";
+
+interface ReconcileRecord {
+  id: string;
+  aggregatorOrderId: string;
+  posBillNo: string;
+  tabType: "missing" | "status_mismatch" | "variance" | "rejected" | "final";
+  channel: "Zomato" | "Swiggy";
+  aggregatorAmount: number;
+  posAmount: number;
+  varianceAmount: number;
+  aggregatorStatus: string;
+  posStatus: string;
+  orderDate: string;
+  settlementStatus: "Disputed" | "Resolved" | "Pending Review";
+}
+
+const SAMPLE_RECON_DATA: ReconcileRecord[] = [
+  {
+    id: "rec-1",
+    aggregatorOrderId: "ZOM-7821940",
+    posBillNo: "-- (Missing)",
+    tabType: "missing",
+    channel: "Zomato",
+    aggregatorAmount: 680,
+    posAmount: 0,
+    varianceAmount: 680,
+    aggregatorStatus: "DELIVERED",
+    posStatus: "NOT_FOUND",
+    orderDate: "2026-08-31 20:15",
+    settlementStatus: "Disputed",
+  },
+  {
+    id: "rec-2",
+    aggregatorOrderId: "SWG-9018241",
+    posBillNo: "RET-2026-0791",
+    tabType: "status_mismatch",
+    channel: "Swiggy",
+    aggregatorAmount: 1240,
+    posAmount: 1240,
+    varianceAmount: 0,
+    aggregatorStatus: "CANCELLED_AFTER_PREP",
+    posStatus: "COMPLETED",
+    orderDate: "2026-08-30 21:40",
+    settlementStatus: "Pending Review",
+  },
+  {
+    id: "rec-3",
+    aggregatorOrderId: "ZOM-7821998",
+    posBillNo: "RET-2026-0805",
+    tabType: "variance",
+    channel: "Zomato",
+    aggregatorAmount: 1850,
+    posAmount: 2100,
+    varianceAmount: -250,
+    aggregatorStatus: "DELIVERED",
+    posStatus: "COMPLETED",
+    orderDate: "2026-08-29 19:25",
+    settlementStatus: "Disputed",
+  },
+  {
+    id: "rec-4",
+    aggregatorOrderId: "SWG-9018310",
+    posBillNo: "RET-2026-0810",
+    tabType: "rejected",
+    channel: "Swiggy",
+    aggregatorAmount: 490,
+    posAmount: 0,
+    varianceAmount: 490,
+    aggregatorStatus: "MERCHANT_REJECTED",
+    posStatus: "CANCELLED",
+    orderDate: "2026-08-28 14:10",
+    settlementStatus: "Resolved",
+  },
+  {
+    id: "rec-5",
+    aggregatorOrderId: "ZOM-7822055",
+    posBillNo: "RET-2026-0820",
+    tabType: "final",
+    channel: "Zomato",
+    aggregatorAmount: 34500,
+    posAmount: 34500,
+    varianceAmount: 0,
+    aggregatorStatus: "SETTLED_TO_BANK",
+    posStatus: "RECONCILED",
+    orderDate: "2026-08-27 to 2026-09-01",
+    settlementStatus: "Resolved",
+  },
+];
 
 export function OnlineOrderReconciliationView() {
   const [activeTab, setActiveTab] = useState<
@@ -8,6 +97,12 @@ export function OnlineOrderReconciliationView() {
   >("missing");
 
   const [dateRange, setDateRange] = useState("27th Aug to 1st Sep");
+  const [records, setRecords] = useState<ReconcileRecord[]>(SAMPLE_RECON_DATA);
+
+  // Pagination & selection
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   const tabs = [
     {
@@ -37,16 +132,199 @@ export function OnlineOrderReconciliationView() {
     },
   ] as const;
 
+  // Filtered by active tab
+  const filteredRecords = useMemo(() => {
+    return records.filter((r) => r.tabType === activeTab);
+  }, [records, activeTab]);
+
+  const totalPages = Math.ceil(filteredRecords.length / pageSize) || 1;
+  const paginatedRecords = useMemo(() => {
+    const start = (page - 1) * pageSize;
+    return filteredRecords.slice(start, start + pageSize);
+  }, [filteredRecords, page, pageSize]);
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedIds(filteredRecords.map((r) => r.id));
+    } else {
+      setSelectedIds([]);
+    }
+  };
+
+  const handleToggleRow = (id: string) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
+  const columns: DataTableColumn<ReconcileRecord>[] = [
+    {
+      id: "select",
+      label: "",
+      width: "44px",
+      align: "center",
+      headerRender: () => (
+        <input
+          type="checkbox"
+          checked={
+            paginatedRecords.length > 0 &&
+            paginatedRecords.every((r) => selectedIds.includes(r.id))
+          }
+          onChange={(e) => handleSelectAll(e.target.checked)}
+          className="rounded border-slate-300 text-teal-600 focus:ring-teal-500 cursor-pointer"
+        />
+      ),
+      render: (r) => (
+        <input
+          type="checkbox"
+          checked={selectedIds.includes(r.id)}
+          onChange={() => handleToggleRow(r.id)}
+          className="rounded border-slate-300 text-teal-600 focus:ring-teal-500 cursor-pointer"
+        />
+      ),
+    },
+    {
+      id: "aggregatorOrderId",
+      label: "Aggregator Order ID",
+      sortable: true,
+      getValue: (r) => r.aggregatorOrderId,
+      render: (r) => (
+        <div>
+          <div className="font-mono text-[12.5px] font-bold text-slate-900">{r.aggregatorOrderId}</div>
+          <div className="text-[11px] text-slate-500">{r.orderDate}</div>
+        </div>
+      ),
+    },
+    {
+      id: "channel",
+      label: "Channel",
+      sortable: true,
+      filterable: true,
+      filterOptions: ["Zomato", "Swiggy"],
+      getValue: (r) => r.channel,
+      render: (r) => (
+        <span
+          className={`inline-flex items-center rounded-md px-2.5 py-0.5 text-[11px] font-bold ${
+            r.channel === "Zomato"
+              ? "bg-rose-50 text-rose-700 border border-rose-200"
+              : "bg-orange-50 text-orange-700 border border-orange-200"
+          }`}
+        >
+          {r.channel}
+        </span>
+      ),
+    },
+    {
+      id: "posBillNo",
+      label: "POS Bill Ref",
+      sortable: true,
+      getValue: (r) => r.posBillNo,
+      render: (r) => (
+        <span className="font-mono text-[12px] text-slate-700 font-medium">{r.posBillNo}</span>
+      ),
+    },
+    {
+      id: "aggregatorAmount",
+      label: "Payout Claimed",
+      align: "right",
+      sortable: true,
+      getValue: (r) => r.aggregatorAmount,
+      render: (r) => (
+        <div className="font-mono font-bold text-slate-900">₹{r.aggregatorAmount.toLocaleString()}</div>
+      ),
+    },
+    {
+      id: "posAmount",
+      label: "POS Billed",
+      align: "right",
+      sortable: true,
+      getValue: (r) => r.posAmount,
+      render: (r) => (
+        <div className="font-mono text-slate-600">₹{r.posAmount.toLocaleString()}</div>
+      ),
+    },
+    {
+      id: "varianceAmount",
+      label: "Variance Diff",
+      align: "right",
+      sortable: true,
+      getValue: (r) => r.varianceAmount,
+      render: (r) => (
+        <div
+          className={`font-mono font-bold ${
+            r.varianceAmount === 0
+              ? "text-slate-400"
+              : r.varianceAmount > 0
+              ? "text-rose-600"
+              : "text-amber-600"
+          }`}
+        >
+          {r.varianceAmount > 0 ? `+₹${r.varianceAmount}` : r.varianceAmount < 0 ? `-₹${Math.abs(r.varianceAmount)}` : "₹0"}
+        </div>
+      ),
+    },
+    {
+      id: "settlementStatus",
+      label: "Reconciliation Status",
+      sortable: true,
+      filterable: true,
+      filterOptions: ["Disputed", "Pending Review", "Resolved"],
+      getValue: (r) => r.settlementStatus,
+      render: (r) => (
+        <span
+          className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-bold ${
+            r.settlementStatus === "Resolved"
+              ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+              : r.settlementStatus === "Pending Review"
+              ? "bg-amber-50 text-amber-700 border border-amber-200"
+              : "bg-rose-50 text-rose-700 border border-rose-200"
+          }`}
+        >
+          {r.settlementStatus === "Resolved" && <CheckCircle2 className="h-3 w-3 text-emerald-600" />}
+          {r.settlementStatus === "Pending Review" && <AlertTriangle className="h-3 w-3 text-amber-600" />}
+          {r.settlementStatus === "Disputed" && <XCircle className="h-3 w-3 text-rose-600" />}
+          {r.settlementStatus}
+        </span>
+      ),
+    },
+    {
+      id: "actions",
+      label: "Action",
+      align: "center",
+      render: (r) => (
+        <button
+          type="button"
+          onClick={() => toast.info(`Investigating payout for ${r.aggregatorOrderId}`)}
+          title="Review Dispute"
+          className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-teal-600 transition cursor-pointer"
+        >
+          <Eye className="h-3.5 w-3.5" />
+        </button>
+      ),
+    },
+  ];
+
   return (
     <div className="space-y-4">
       {/* 1. Header matching Screenshot 3 */}
-      <div>
-        <h2 className="text-[18px] font-bold text-slate-900 tracking-tight">
-          Manage Your All Third Party Online Orders Reconciliation
-        </h2>
-        <p className="text-[12px] text-slate-500 mt-0.5">
-          Note: You would be able to view and reconcile the data till the previous day
-        </p>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 className="text-[18px] font-bold text-slate-900 tracking-tight">
+            Third Party Online Orders Reconciliation
+          </h2>
+          <p className="text-[12px] text-slate-500 mt-0.5">
+            Note: You can view and reconcile third-party platform settlement sheets till the previous day.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => toast.success("Exporting reconciliation settlement report...")}
+          className="flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3.5 py-1.5 text-[12.5px] font-medium text-slate-700 hover:bg-slate-50 transition cursor-pointer shadow-2xs"
+        >
+          <Download className="h-3.5 w-3.5 text-slate-500" />
+          Export Settlement
+        </button>
       </div>
 
       {/* 2. Top Integrations Filter Bar matching Screenshot 3 */}
@@ -77,7 +355,7 @@ export function OnlineOrderReconciliationView() {
 
           <div className="space-y-1">
             <label className="text-[11.5px] font-semibold text-slate-600">
-              Please upload a file
+              Please upload payout sheet
             </label>
             <div>
               <button
@@ -86,14 +364,16 @@ export function OnlineOrderReconciliationView() {
                 className="flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-4 py-1.5 text-[12.5px] font-medium text-slate-700 hover:bg-slate-50 transition cursor-pointer shadow-2xs"
               >
                 <Upload className="h-3.5 w-3.5 text-slate-500" />
-                Upload
+                Upload File
               </button>
             </div>
           </div>
 
           <div className="space-y-1">
-            <div className="text-[11.5px] font-semibold text-slate-600">Integration Live On:</div>
-            <div className="text-[13px] font-bold text-slate-800">-</div>
+            <div className="text-[11.5px] font-semibold text-slate-600">Integration Status:</div>
+            <div className="text-[13px] font-bold text-emerald-700 flex items-center gap-1">
+              <span className="h-2 w-2 rounded-full bg-emerald-500" /> Active Sync
+            </div>
           </div>
         </div>
       </div>
@@ -105,7 +385,10 @@ export function OnlineOrderReconciliationView() {
             <button
               key={tab.id}
               type="button"
-              onClick={() => setActiveTab(tab.id)}
+              onClick={() => {
+                setActiveTab(tab.id);
+                setPage(1);
+              }}
               className={`flex items-center gap-1.5 px-5 py-3 text-[13px] font-medium transition cursor-pointer border-b-2 ${
                 activeTab === tab.id
                   ? "border-teal-600 bg-white text-teal-600 font-bold"
@@ -120,22 +403,69 @@ export function OnlineOrderReconciliationView() {
           ))}
         </div>
 
-        {/* Empty State matching Screenshot 3 */}
-        <div className="p-20 text-center space-y-4">
-          <div className="mx-auto relative flex h-20 w-20 items-center justify-center">
-            <div className="absolute h-16 w-16 rounded-full bg-rose-50 -left-2 -top-1" />
-            <div className="absolute h-8 w-8 rounded-full bg-rose-100 right-0 bottom-0" />
-            <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-white border border-slate-200 shadow-sm text-slate-400">
-              <FileSpreadsheet className="h-8 w-8" />
+        {/* Table / Empty State */}
+        {filteredRecords.length === 0 ? (
+          <div className="p-20 text-center space-y-4">
+            <div className="mx-auto relative flex h-20 w-20 items-center justify-center">
+              <div className="absolute h-16 w-16 rounded-full bg-rose-50 -left-2 -top-1" />
+              <div className="absolute h-8 w-8 rounded-full bg-rose-100 right-0 bottom-0" />
+              <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-white border border-slate-200 shadow-sm text-slate-400">
+                <FileSpreadsheet className="h-8 w-8" />
+              </div>
             </div>
+            <div className="text-[15px] font-bold text-slate-700">Records Not Found.</div>
+            <p className="text-[12px] text-slate-400 max-w-sm mx-auto">
+              Upload aggregator payout reports to automatically detect missing orders, discount variances, and commissions.
+            </p>
           </div>
-          <div className="text-[15px] font-bold text-slate-700">Records Not Found.</div>
-          <p className="text-[12px] text-slate-400 max-w-sm mx-auto">
-            Upload aggregator payout reports to automatically detect missing orders, discount
-            variances, and commissions.
-          </p>
-        </div>
+        ) : (
+          <div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-[13px] border-collapse">
+                <DataTableHeader
+                  columns={columns}
+                  data={filteredRecords}
+                  themeVariant="primary"
+                />
+                <tbody className="divide-y divide-slate-100">
+                  {paginatedRecords.map((r) => (
+                    <tr key={r.id} className="hover:bg-slate-50/70 transition">
+                      {columns.map((col) => (
+                        <td
+                          key={col.id}
+                          className={`py-3 px-3.5 align-middle ${
+                            col.align === "center"
+                              ? "text-center"
+                              : col.align === "right"
+                              ? "text-right"
+                              : "text-left"
+                          }`}
+                        >
+                          {col.render ? col.render(r) : String(col.getValue ? col.getValue(r) : (r as any)[col.id] || "")}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <DataTableFooter
+              totalRecords={filteredRecords.length}
+              currentPage={page}
+              pageSize={pageSize}
+              onPageChange={setPage}
+              onPageSizeChange={(sz) => {
+                setPageSize(sz);
+                setPage(1);
+              }}
+              selectedCount={selectedIds.length}
+              onExport={(fmt) => toast.success(`Exporting reconciliation data as ${fmt.toUpperCase()}...`)}
+            />
+          </div>
+        )}
       </div>
     </div>
   );
 }
+

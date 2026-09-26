@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Download, Search, ChevronDown, Calendar, FileText, Eye, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
-import { DataTableFooter } from "@/components/common";
+import { DataTableHeader, DataTableFooter, type DataTableColumn } from "@/components/common";
 
 interface DayEndRecord {
   id: string;
@@ -30,11 +30,68 @@ export function DayEndSummaryView() {
     { id: "10", date: "23 Aug 2026", orderCount: 68, totalAmount: 65400 },
   ];
 
+  const columns: DataTableColumn<DayEndRecord>[] = useMemo(
+    () => [
+      {
+        id: "date",
+        label: "Created Date",
+        sortable: true,
+        filterable: true,
+        defaultWidth: 200,
+        getValue: (r) => r.date,
+      },
+      {
+        id: "orderCount",
+        label: "No. Of Orders",
+        sortable: true,
+        filterable: true,
+        align: "right",
+        defaultWidth: 150,
+        getValue: (r) => String(r.orderCount),
+      },
+      {
+        id: "totalAmount",
+        label: "Total (₹)",
+        sortable: true,
+        filterable: true,
+        align: "right",
+        defaultWidth: 160,
+        getValue: (r) => `₹${r.totalAmount.toLocaleString("en-IN")}`,
+      },
+      {
+        id: "actions",
+        label: "Actions",
+        sortable: false,
+        filterable: false,
+        align: "right",
+        defaultWidth: 120,
+      },
+    ],
+    [],
+  );
+
+  const [sortConfig, setSortConfig] = useState<{ colId: string; direction: "asc" | "desc" } | null>(null);
+
+  const sortedRecords = useMemo(() => {
+    if (!sortConfig) return records;
+    return [...records].sort((a, b) => {
+      const field = sortConfig.colId as keyof DayEndRecord;
+      const aVal = a[field];
+      const bVal = b[field];
+      if (typeof aVal === "number" && typeof bVal === "number") {
+        return sortConfig.direction === "asc" ? aVal - bVal : bVal - aVal;
+      }
+      return sortConfig.direction === "asc"
+        ? String(aVal).localeCompare(String(bVal))
+        : String(bVal).localeCompare(String(aVal));
+    });
+  }, [records, sortConfig]);
+
   const toggleSelectAll = () => {
-    if (selectedIds.length === records.length) {
+    if (selectedIds.length === sortedRecords.length) {
       setSelectedIds([]);
     } else {
-      setSelectedIds(records.map((r) => r.id));
+      setSelectedIds(sortedRecords.map((r) => r.id));
     }
   };
 
@@ -117,27 +174,22 @@ export function DayEndSummaryView() {
 
       <div className="rounded-2xl border border-slate-300 bg-white shadow-xs overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-[13px]">
-            <thead>
-              <tr className="border-b border-slate-200 bg-slate-50/80 text-[11.5px] font-semibold text-slate-600">
-                <th className="w-10 px-4 py-3 text-center">
-                  <input
-                    type="checkbox"
-                    checked={selectedIds.length === records.length}
-                    onChange={toggleSelectAll}
-                    className="rounded border-slate-300 cursor-pointer"
-                  />
-                </th>
-                <th className="px-4 py-3 font-semibold text-slate-700">Created Date</th>
-                <th className="px-4 py-3 font-semibold text-slate-700">No. Of Orders</th>
-                <th className="px-4 py-3 font-semibold text-slate-700">Total (₹)</th>
-                <th className="px-4 py-3 text-right font-semibold text-slate-700">Actions</th>
-              </tr>
-            </thead>
+          <table className="w-full text-left text-[13px] border-collapse">
+            <DataTableHeader
+              columns={columns}
+              data={sortedRecords}
+              selectable
+              isAllSelected={selectedIds.length === sortedRecords.length && sortedRecords.length > 0}
+              isSomeSelected={selectedIds.length > 0 && selectedIds.length < sortedRecords.length}
+              onToggleSelectAll={toggleSelectAll}
+              sortConfig={sortConfig}
+              onSortChange={setSortConfig}
+              themeVariant="primary"
+            />
             <tbody className="divide-y divide-slate-100">
-              {records.map((r) => (
+              {sortedRecords.map((r) => (
                 <tr key={r.id} className="hover:bg-slate-50/50 transition">
-                  <td className="px-4 py-3 text-center">
+                  <td className="w-12 px-3 py-3 text-center">
                     <input
                       type="checkbox"
                       checked={selectedIds.includes(r.id)}
@@ -146,8 +198,8 @@ export function DayEndSummaryView() {
                     />
                   </td>
                   <td className="px-4 py-3 font-medium text-slate-800">{r.date}</td>
-                  <td className="px-4 py-3 text-slate-600 font-mono font-medium">{r.orderCount}</td>
-                  <td className="px-4 py-3 font-mono font-bold text-slate-900">{r.totalAmount}</td>
+                  <td className="px-4 py-3 text-right text-slate-600 font-mono font-medium">{r.orderCount}</td>
+                  <td className="px-4 py-3 text-right font-mono font-bold text-slate-900">₹{r.totalAmount.toLocaleString("en-IN")}</td>
                   <td className="px-4 py-3 text-right">
                     <div className="inline-flex items-center gap-1.5 text-slate-400">
                       <button
