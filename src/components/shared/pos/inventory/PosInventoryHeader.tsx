@@ -3,7 +3,7 @@ import { toast } from "sonner";
 
 export function PosInventoryHeader() {
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-5 py-3 shadow-xs">
+    <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-300 bg-white px-5 py-3 shadow-2xs">
       <div className="flex items-center gap-2.5">
         <span className="text-[14.5px] font-bold text-slate-800 tracking-tight">
           HIGHWAY INN BAR & RESTAURANT
