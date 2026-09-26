@@ -586,7 +586,7 @@ export function DataTableHeader<T = any>({
             : "inset -1px 0 0 rgba(255,255,255,0.2)",
         },
         className: cn(
-          "sticky z-30",
+          "sticky z-10",
           theme.th
         ),
       };
@@ -612,7 +612,7 @@ export function DataTableHeader<T = any>({
             : "inset 1px 0 0 rgba(255,255,255,0.2)",
         },
         className: cn(
-          "sticky z-30",
+          "sticky z-10",
           theme.th
         ),
       };
@@ -634,7 +634,7 @@ export function DataTableHeader<T = any>({
               maxWidth: "48px",
             }}
             className={cn(
-              "sticky left-0 z-30 w-12 px-3 py-3 text-center border-r select-none",
+              "sticky left-0 z-10 w-12 px-3 py-3 text-center border-r select-none",
               theme.th,
               theme.border
             )}

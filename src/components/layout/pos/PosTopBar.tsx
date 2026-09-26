@@ -39,7 +39,7 @@ export function PosTopBar({ onOpenMobileNav }: { onOpenMobileNav?: () => void })
   const virtualOutlets = outlets.filter((o) => o.type === "Virtual Outlet");
 
   return (
-    <header className="sticky top-0 z-20 flex h-13 sm:h-14 items-center justify-between border-b border-slate-300 bg-white px-3 sm:px-4 lg:px-5 shadow-2xs">
+    <header className="sticky top-0 z-40 flex h-13 sm:h-14 items-center justify-between border-b border-slate-300 bg-white px-3 sm:px-4 lg:px-5 shadow-2xs">
       {/* Left: Mobile Nav Toggle & Search Bar */}
       <div className="flex flex-1 items-center gap-2.5">
         {onOpenMobileNav && (
