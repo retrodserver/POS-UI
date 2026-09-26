@@ -1402,7 +1402,8 @@ export function ChooseColumnsMenu({
 export interface DataTableFooterProps {
   currentPage: number;
   totalPages?: number;
-  totalCount: number;
+  totalCount?: number;
+  totalRecords?: number;
   pageSize?: number;
   pageSizeOptions?: number[];
   onPageSizeChange?: (size: number) => void;
@@ -1416,12 +1417,15 @@ export interface DataTableFooterProps {
   themeVariant?: ThemeVariant | "subtle";
   leftContent?: React.ReactNode;
   rightContent?: React.ReactNode;
+  onExport?: (format: string) => void;
+  onPrint?: () => void;
 }
 
 export function DataTableFooter({
   currentPage,
   totalPages,
   totalCount,
+  totalRecords,
   pageSize = 10,
   pageSizeOptions = [10, 20, 50, 100],
   onPageSizeChange,
@@ -1435,11 +1439,14 @@ export function DataTableFooter({
   themeVariant = "subtle",
   leftContent,
   rightContent,
+  onExport,
+  onPrint,
 }: DataTableFooterProps) {
+  const count = totalCount !== undefined ? totalCount : totalRecords !== undefined ? totalRecords : 0;
   const effectiveTotalPages =
     typeof totalPages === "number" && !isNaN(totalPages)
       ? totalPages
-      : Math.max(1, Math.ceil((totalCount || 0) / Math.max(1, pageSize)));
+    : Math.max(1, Math.ceil((count || 0) / Math.max(1, pageSize)));
 
   const handlePageSizeChange = (newSize: number) => {
     try {
@@ -1464,8 +1471,8 @@ export function DataTableFooter({
     return [1, "...", currentPage - 1, currentPage, currentPage + 1, "...", effectiveTotalPages];
   }, [currentPage, effectiveTotalPages]);
 
-  const startItem = totalCount === 0 ? 0 : (currentPage - 1) * pageSize + 1;
-  const endItem = Math.min(currentPage * pageSize, totalCount);
+  const startItem = count === 0 ? 0 : (currentPage - 1) * pageSize + 1;
+  const endItem = Math.min(currentPage * pageSize, count);
 
   const getContainerStyle = () => {
     switch (themeVariant) {
@@ -1507,18 +1514,18 @@ export function DataTableFooter({
         ) : null}
 
         <span className="font-medium text-muted-foreground text-[12px]">
-          {totalCount === 0 ? (
+          {count === 0 ? (
             "No records"
-          ) : totalCount <= pageSize ? (
+          ) : count <= pageSize ? (
             <>
-              Showing <strong className="text-foreground font-semibold">{totalCount}</strong> of{" "}
-              <strong className="text-foreground font-semibold">{totalCount}</strong> {itemName}
+              Showing <strong className="text-foreground font-semibold">{count}</strong> of{" "}
+              <strong className="text-foreground font-semibold">{count}</strong> {itemName}
             </>
           ) : (
             <>
               Showing <strong className="text-foreground font-semibold">{startItem}</strong> to{" "}
               <strong className="text-foreground font-semibold">{endItem}</strong> of{" "}
-              <strong className="text-foreground font-semibold">{totalCount}</strong> {itemName}
+              <strong className="text-foreground font-semibold">{count}</strong> {itemName}
             </>
           )}
         </span>
@@ -1544,7 +1551,29 @@ export function DataTableFooter({
         {leftContent}
       </div>
 
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-1.5 flex-wrap">
+        {onPrint && (
+          <button
+            type="button"
+            onClick={onPrint}
+            className="flex items-center gap-1 px-2.5 py-1 rounded-md border border-border bg-surface text-muted-foreground hover:text-foreground hover:bg-surface-2 transition text-[11.5px] font-medium cursor-pointer shadow-2xs"
+            title="Print"
+          >
+            <Printer className="h-3.5 w-3.5" />
+            <span>Print</span>
+          </button>
+        )}
+        {onExport && (
+          <button
+            type="button"
+            onClick={() => onExport("csv")}
+            className="flex items-center gap-1 px-2.5 py-1 rounded-md border border-border bg-surface text-muted-foreground hover:text-foreground hover:bg-surface-2 transition text-[11.5px] font-medium cursor-pointer shadow-2xs mr-1"
+            title="Export"
+          >
+            <Download className="h-3.5 w-3.5" />
+            <span>Export</span>
+          </button>
+        )}
         {rightContent}
 
         {effectiveTotalPages > 1 && (

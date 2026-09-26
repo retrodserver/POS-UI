@@ -269,11 +269,10 @@ export function PosDueSettlementManager() {
                       setSelectedRange(r);
                       setShowRangeDropdown(false);
                     }}
-                    className={`flex w-full items-center rounded-md px-3 py-1.5 text-left text-[12px] transition cursor-pointer ${
-                      selectedRange === r
+                    className={`flex w-full items-center rounded-md px-3 py-1.5 text-left text-[12px] transition cursor-pointer ${selectedRange === r
                         ? "bg-teal-50 text-teal-800 font-bold"
                         : "text-slate-600 hover:bg-slate-50"
-                    }`}
+                      }`}
                   >
                     {r}
                   </button>
@@ -357,11 +356,10 @@ export function PosDueSettlementManager() {
                   setAgingFilter(tab.key);
                   setCurrentPage(1);
                 }}
-                className={`rounded-lg px-3 py-1 text-[11.5px] font-bold transition cursor-pointer border ${
-                  agingFilter === tab.key
+                className={`rounded-lg px-3 py-1 text-[11.5px] font-bold transition cursor-pointer border ${agingFilter === tab.key
                     ? "bg-teal-700 text-white border-teal-700 shadow-2xs"
                     : "bg-white border-slate-300 text-slate-700 hover:bg-slate-50 shadow-2xs"
-                }`}
+                  }`}
               >
                 {tab.label}
               </button>
@@ -504,11 +502,10 @@ export function PosDueSettlementManager() {
                     {/* Aging & Status */}
                     <td className="py-3 px-3 align-top text-center">
                       <span
-                        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10.5px] font-bold border ${
-                          bill.status === "Settled"
+                        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10.5px] font-bold border ${bill.status === "Settled"
                             ? "bg-slate-100 text-slate-700 border-slate-300"
                             : "bg-teal-50 text-teal-800 border-teal-300"
-                        }`}
+                          }`}
                       >
                         {bill.status}
                       </span>
@@ -613,11 +610,10 @@ export function PosDueSettlementManager() {
                     key={mode}
                     type="button"
                     onClick={() => setSettlementMode(mode)}
-                    className={`rounded-lg py-1.5 text-[11px] font-bold transition cursor-pointer border ${
-                      settlementMode === mode
+                    className={`rounded-lg py-1.5 text-[11px] font-bold transition cursor-pointer border ${settlementMode === mode
                         ? "bg-teal-700 text-white border-teal-700 shadow-2xs"
                         : "bg-white border-slate-300 text-slate-700 hover:bg-slate-50"
-                    }`}
+                      }`}
                   >
                     {mode}
                   </button>
