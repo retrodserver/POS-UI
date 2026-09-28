@@ -18,3 +18,10 @@ export function formatNumber(
   if (value === null || value === undefined || Number.isNaN(value)) return "—";
   return new Intl.NumberFormat(undefined, options).format(value);
 }
+
+export function formatCurrency(
+  value: number | null | undefined,
+): string {
+  if (value === null || value === undefined || Number.isNaN(value)) return "₹0";
+  return `₹${Number(value).toLocaleString("en-IN")}`;
+}

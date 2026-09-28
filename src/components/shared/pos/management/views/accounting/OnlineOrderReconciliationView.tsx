@@ -381,13 +381,12 @@ export function OnlineOrderReconciliationView() {
       defaultWidth: 130,
       render: (_, row) => (
         <span
-          className={`inline-flex items-center rounded-md px-2.5 py-0.5 text-[11px] font-bold ${
-            row.channel === "Zomato"
-              ? "bg-rose-50 text-rose-700 border border-rose-200"
-              : row.channel === "Swiggy"
+          className={`inline-flex items-center rounded-md px-2.5 py-0.5 text-[11px] font-bold ${row.channel === "Zomato"
+            ? "bg-rose-50 text-rose-700 border border-rose-200"
+            : row.channel === "Swiggy"
               ? "bg-orange-50 text-orange-700 border border-orange-200"
               : "bg-purple-50 text-purple-700 border border-purple-200"
-          }`}
+            }`}
         >
           {row.channel}
         </span>
@@ -428,13 +427,12 @@ export function OnlineOrderReconciliationView() {
       defaultWidth: 150,
       render: (_, row) => (
         <div
-          className={`font-mono font-bold ${
-            row.varianceAmount === 0
-              ? "text-slate-400"
-              : row.varianceAmount > 0
+          className={`font-mono font-bold ${row.varianceAmount === 0
+            ? "text-slate-400"
+            : row.varianceAmount > 0
               ? "text-rose-600"
               : "text-amber-600"
-          }`}
+            }`}
         >
           {row.varianceAmount > 0 ? `+₹${row.varianceAmount}` : row.varianceAmount < 0 ? `-₹${Math.abs(row.varianceAmount)}` : "₹0"}
         </div>
@@ -450,13 +448,12 @@ export function OnlineOrderReconciliationView() {
       defaultWidth: 170,
       render: (_, row) => (
         <span
-          className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-bold ${
-            row.settlementStatus === "Resolved"
-              ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-              : row.settlementStatus === "Pending Review"
+          className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-bold ${row.settlementStatus === "Resolved"
+            ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+            : row.settlementStatus === "Pending Review"
               ? "bg-amber-50 text-amber-700 border border-amber-200"
               : "bg-rose-50 text-rose-700 border border-rose-200"
-          }`}
+            }`}
         >
           {row.settlementStatus === "Resolved" && <CheckCircle2 className="h-3 w-3 text-emerald-600" />}
           {row.settlementStatus === "Pending Review" && <AlertTriangle className="h-3 w-3 text-amber-600" />}
@@ -648,11 +645,10 @@ export function OnlineOrderReconciliationView() {
                 setActiveTab(tab.id);
                 setPage(1);
               }}
-              className={`flex items-center gap-1.5 px-5 py-3 text-[13px] font-medium transition cursor-pointer border-b-2 ${
-                activeTab === tab.id
-                  ? "border-teal-600 bg-white text-teal-600 font-bold"
-                  : "border-transparent text-slate-600 hover:text-slate-900"
-              }`}
+              className={`flex items-center gap-1.5 px-5 py-3 text-[13px] font-medium transition cursor-pointer border-b-2 ${activeTab === tab.id
+                ? "border-teal-600 bg-white text-teal-600 font-bold"
+                : "border-transparent text-slate-600 hover:text-slate-900"
+                }`}
             >
               <span>{tab.label}</span>
               <span title={tab.desc}>
@@ -778,11 +774,10 @@ export function OnlineOrderReconciliationView() {
                   placeholder="e.g. 45000"
                   value={uploadData.totalClaimedAmount}
                   onChange={(e) => setUploadData({ ...uploadData, totalClaimedAmount: e.target.value })}
-                  className={`w-full rounded-lg border bg-white px-3 py-2 text-[13px] font-mono text-slate-900 focus:outline-none ${
-                    uploadTouched.totalClaimedAmount && uploadErrors.totalClaimedAmount
-                      ? "border-rose-400 focus:border-rose-500"
-                      : "border-slate-300 focus:border-teal-500"
-                  }`}
+                  className={`w-full rounded-lg border bg-white px-3 py-2 text-[13px] font-mono text-slate-900 focus:outline-none ${uploadTouched.totalClaimedAmount && uploadErrors.totalClaimedAmount
+                    ? "border-rose-400 focus:border-rose-500"
+                    : "border-slate-300 focus:border-teal-500"
+                    }`}
                 />
                 {uploadTouched.totalClaimedAmount && uploadErrors.totalClaimedAmount && (
                   <div className="flex items-center gap-1 text-[11.5px] font-medium text-rose-600">
@@ -803,11 +798,10 @@ export function OnlineOrderReconciliationView() {
                 <button
                   type="submit"
                   disabled={!isUploadValid}
-                  className={`rounded-lg px-5 py-2 text-[12.5px] font-bold transition shadow-xs ${
-                    isUploadValid
-                      ? "bg-teal-600 text-white hover:bg-teal-700 cursor-pointer"
-                      : "bg-slate-200 text-slate-400 cursor-not-allowed"
-                  }`}
+                  className={`rounded-lg px-5 py-2 text-[12.5px] font-bold transition shadow-xs ${isUploadValid
+                    ? "bg-teal-600 text-white hover:bg-teal-700 cursor-pointer"
+                    : "bg-slate-200 text-slate-400 cursor-not-allowed"
+                    }`}
                 >
                   Upload & Reconcile
                 </button>
@@ -846,11 +840,10 @@ export function OnlineOrderReconciliationView() {
                     placeholder="e.g. ZOM-7821940"
                     value={disputeData.aggregatorOrderId}
                     onChange={(e) => setDisputeData({ ...disputeData, aggregatorOrderId: e.target.value })}
-                    className={`w-full rounded-lg border bg-white px-3 py-2 text-[13px] font-mono text-slate-900 focus:outline-none ${
-                      disputeTouched.aggregatorOrderId && disputeErrors.aggregatorOrderId
-                        ? "border-rose-400 focus:border-rose-500"
-                        : "border-slate-300 focus:border-teal-500"
-                    }`}
+                    className={`w-full rounded-lg border bg-white px-3 py-2 text-[13px] font-mono text-slate-900 focus:outline-none ${disputeTouched.aggregatorOrderId && disputeErrors.aggregatorOrderId
+                      ? "border-rose-400 focus:border-rose-500"
+                      : "border-slate-300 focus:border-teal-500"
+                      }`}
                   />
                   {disputeTouched.aggregatorOrderId && disputeErrors.aggregatorOrderId && (
                     <div className="flex items-center gap-1 text-[11.5px] font-medium text-rose-600">
@@ -885,11 +878,10 @@ export function OnlineOrderReconciliationView() {
                     placeholder="e.g. RET-2026-0812"
                     value={disputeData.posBillNo}
                     onChange={(e) => setDisputeData({ ...disputeData, posBillNo: e.target.value })}
-                    className={`w-full rounded-lg border bg-white px-3 py-2 text-[13px] font-mono text-slate-900 focus:outline-none ${
-                      disputeTouched.posBillNo && disputeErrors.posBillNo
-                        ? "border-rose-400 focus:border-rose-500"
-                        : "border-slate-300 focus:border-teal-500"
-                    }`}
+                    className={`w-full rounded-lg border bg-white px-3 py-2 text-[13px] font-mono text-slate-900 focus:outline-none ${disputeTouched.posBillNo && disputeErrors.posBillNo
+                      ? "border-rose-400 focus:border-rose-500"
+                      : "border-slate-300 focus:border-teal-500"
+                      }`}
                   />
                   {disputeTouched.posBillNo && disputeErrors.posBillNo && (
                     <div className="flex items-center gap-1 text-[11.5px] font-medium text-rose-600">
@@ -925,11 +917,10 @@ export function OnlineOrderReconciliationView() {
                     placeholder="0.00"
                     value={disputeData.aggregatorAmount}
                     onChange={(e) => setDisputeData({ ...disputeData, aggregatorAmount: e.target.value })}
-                    className={`w-full rounded-lg border bg-white px-3 py-2 text-[13px] font-mono text-slate-900 focus:outline-none ${
-                      disputeTouched.aggregatorAmount && disputeErrors.aggregatorAmount
-                        ? "border-rose-400 focus:border-rose-500"
-                        : "border-slate-300 focus:border-teal-500"
-                    }`}
+                    className={`w-full rounded-lg border bg-white px-3 py-2 text-[13px] font-mono text-slate-900 focus:outline-none ${disputeTouched.aggregatorAmount && disputeErrors.aggregatorAmount
+                      ? "border-rose-400 focus:border-rose-500"
+                      : "border-slate-300 focus:border-teal-500"
+                      }`}
                   />
                   {disputeTouched.aggregatorAmount && disputeErrors.aggregatorAmount && (
                     <div className="flex items-center gap-1 text-[11.5px] font-medium text-rose-600">
@@ -949,11 +940,10 @@ export function OnlineOrderReconciliationView() {
                     placeholder="0.00"
                     value={disputeData.posAmount}
                     onChange={(e) => setDisputeData({ ...disputeData, posAmount: e.target.value })}
-                    className={`w-full rounded-lg border bg-white px-3 py-2 text-[13px] font-mono text-slate-900 focus:outline-none ${
-                      disputeTouched.posAmount && disputeErrors.posAmount
-                        ? "border-rose-400 focus:border-rose-500"
-                        : "border-slate-300 focus:border-teal-500"
-                    }`}
+                    className={`w-full rounded-lg border bg-white px-3 py-2 text-[13px] font-mono text-slate-900 focus:outline-none ${disputeTouched.posAmount && disputeErrors.posAmount
+                      ? "border-rose-400 focus:border-rose-500"
+                      : "border-slate-300 focus:border-teal-500"
+                      }`}
                   />
                   {disputeTouched.posAmount && disputeErrors.posAmount && (
                     <div className="flex items-center gap-1 text-[11.5px] font-medium text-rose-600">
@@ -973,11 +963,10 @@ export function OnlineOrderReconciliationView() {
                   placeholder="Explain why commission, discount, or delivery charge was wrongfully deducted..."
                   value={disputeData.disputeReason}
                   onChange={(e) => setDisputeData({ ...disputeData, disputeReason: e.target.value })}
-                  className={`w-full rounded-lg border bg-white px-3 py-2 text-[13px] text-slate-900 focus:outline-none ${
-                    disputeTouched.disputeReason && disputeErrors.disputeReason
-                      ? "border-rose-400 focus:border-rose-500"
-                      : "border-slate-300 focus:border-teal-500"
-                  }`}
+                  className={`w-full rounded-lg border bg-white px-3 py-2 text-[13px] text-slate-900 focus:outline-none ${disputeTouched.disputeReason && disputeErrors.disputeReason
+                    ? "border-rose-400 focus:border-rose-500"
+                    : "border-slate-300 focus:border-teal-500"
+                    }`}
                 />
                 {disputeTouched.disputeReason && disputeErrors.disputeReason && (
                   <div className="flex items-center gap-1 text-[11.5px] font-medium text-rose-600">
@@ -998,11 +987,10 @@ export function OnlineOrderReconciliationView() {
                 <button
                   type="submit"
                   disabled={!isDisputeValid}
-                  className={`rounded-lg px-5 py-2 text-[12.5px] font-bold transition shadow-xs ${
-                    isDisputeValid
-                      ? "bg-teal-600 text-white hover:bg-teal-700 cursor-pointer"
-                      : "bg-slate-200 text-slate-400 cursor-not-allowed"
-                  }`}
+                  className={`rounded-lg px-5 py-2 text-[12.5px] font-bold transition shadow-xs ${isDisputeValid
+                    ? "bg-teal-600 text-white hover:bg-teal-700 cursor-pointer"
+                    : "bg-slate-200 text-slate-400 cursor-not-allowed"
+                    }`}
                 >
                   Submit Dispute Claim
                 </button>

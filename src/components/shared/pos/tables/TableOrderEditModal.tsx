@@ -492,8 +492,8 @@ export function TableOrderEditModal({
                           {item.name}
                         </h4>
                       </div>
-                      <span className="text-[12.5px] font-black text-teal-800 shrink-0">
-                        ₹{item.price}
+                      <span className="font-mono text-[13px] font-bold text-primary shrink-0">
+                        ₹{item.price.toLocaleString()}
                       </span>
                     </div>
                     <p className="text-[11px] text-slate-500 mt-1 line-clamp-2 leading-relaxed">
@@ -514,9 +514,9 @@ export function TableOrderEditModal({
                             key={v.name}
                             type="button"
                             onClick={() => handleAddItemToCart(item, v)}
-                            className="rounded-md border border-teal-300 bg-teal-50 px-2 py-1 text-[10.5px] font-bold text-teal-800 hover:bg-teal-700 hover:text-white transition cursor-pointer"
+                            className="rounded-md border border-primary/30 bg-primary-tint px-2 py-1 text-[10.5px] font-bold text-primary hover:bg-primary hover:text-white transition cursor-pointer"
                           >
-                            + {v.name} (₹{v.price})
+                            + {v.name} (<span className="font-mono">₹{v.price.toLocaleString()}</span>)
                           </button>
                         ))}
                       </div>
@@ -524,7 +524,7 @@ export function TableOrderEditModal({
                       <button
                         type="button"
                         onClick={() => handleAddItemToCart(item)}
-                        className="flex items-center gap-1 rounded-lg bg-teal-700 px-3 py-1 text-[11px] font-bold text-white hover:bg-teal-800 active:scale-95 transition cursor-pointer shadow-2xs"
+                        className="flex items-center gap-1 rounded-lg bg-primary px-3 py-1 text-[11px] font-bold text-primary-foreground hover:bg-primary-pressed active:scale-95 transition cursor-pointer shadow-e1"
                       >
                         <Plus className="h-3 w-3" />
                         <span>Add Dish</span>
@@ -625,15 +625,15 @@ export function TableOrderEditModal({
               <div className="space-y-1 text-[11.5px]">
                 <div className="flex justify-between text-slate-600">
                   <span>Subtotal</span>
-                  <span className="font-semibold text-slate-800">₹{subtotal.toLocaleString()}</span>
+                  <span className="font-mono font-semibold text-slate-800">₹{subtotal.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between text-slate-600">
                   <span>GST (5%)</span>
-                  <span className="font-semibold text-slate-800">₹{gstTax.toLocaleString()}</span>
+                  <span className="font-mono font-semibold text-slate-800">₹{gstTax.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between text-[13.5px] font-black text-slate-900 pt-1 border-t border-slate-200">
                   <span>Updated Total</span>
-                  <span className="text-teal-800">₹{grandTotal.toLocaleString()}</span>
+                  <span className="font-mono text-[15px] font-bold text-primary">₹{grandTotal.toLocaleString()}</span>
                 </div>
               </div>
 
@@ -641,7 +641,7 @@ export function TableOrderEditModal({
                 <button
                   type="button"
                   onClick={handleSaveAndSendKot}
-                  className="w-full flex items-center justify-center gap-2 rounded-xl bg-teal-700 py-2.5 text-[12.5px] font-bold text-white hover:bg-teal-800 active:scale-98 transition cursor-pointer shadow-xs"
+                  className="w-full flex items-center justify-center gap-2 rounded-xl bg-primary py-2.5 text-[12.5px] font-bold text-primary-foreground hover:bg-primary-pressed active:scale-[0.98] transition cursor-pointer shadow-e1"
                 >
                   <ChefHat className="h-4 w-4" />
                   <span>Update Order & Dispatch KOT</span>
@@ -649,7 +649,7 @@ export function TableOrderEditModal({
                 <button
                   type="button"
                   onClick={onClose}
-                  className="w-full rounded-xl border border-slate-300 bg-white py-2 text-[11.5px] font-bold text-slate-700 hover:bg-slate-100 transition cursor-pointer shadow-2xs"
+                  className="w-full rounded-xl border border-border bg-surface py-2 text-[11.5px] font-bold text-black dark:text-white hover:bg-surface-2 transition cursor-pointer shadow-2xs"
                 >
                   Cancel
                 </button>

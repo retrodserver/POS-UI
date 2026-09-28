@@ -12,14 +12,18 @@ export function PageHeader({
   eyebrow?: string;
 }) {
   return (
-    <div className="flex flex-col items-start justify-between gap-3 border-b border-border bg-surface px-4 py-4 sm:flex-row sm:items-end sm:gap-4 sm:px-6 sm:py-5">
+    <div className="flex flex-col items-start justify-between gap-3 border-b border-primary/20 bg-gradient-to-r from-primary-tint/40 via-primary/5 to-surface px-4 py-3.5 shadow-xs sm:flex-row sm:items-end sm:gap-4 sm:px-6 sm:py-4">
       <div className="min-w-0">
-        {eyebrow && <div className="label-uppercase mb-1.5">{eyebrow}</div>}
-        <h1 className="font-display text-[22px] font-semibold leading-tight text-text-primary sm:text-[26px]">
+        {eyebrow && (
+          <div className="mb-0.5 text-[11px] font-bold uppercase tracking-wider text-primary">
+            {eyebrow}
+          </div>
+        )}
+        <h1 className="font-display text-[20px] font-bold leading-tight text-text-primary sm:text-[22px]">
           {title}
         </h1>
         {description && (
-          <p className="mt-1 max-w-2xl text-[12px] text-text-secondary sm:text-[13px]">
+          <p className="mt-0.5 max-w-2xl text-[12px] text-text-secondary sm:text-[13px]">
             {description}
           </p>
         )}
@@ -63,13 +67,13 @@ export function CardHeader({
 
 type Tone = "success" | "warning" | "error" | "info" | "neutral" | "brand" | "dark";
 const toneClasses: Record<Tone, string> = {
-  success: "bg-primary-tint text-primary-pressed",
-  warning: "bg-warning-tint text-warning",
-  error: "bg-error-tint text-error",
-  info: "bg-info-tint text-info",
-  neutral: "bg-surface-2 text-text-secondary",
-  brand: "bg-primary-tint text-primary-pressed",
-  dark: "bg-foreground/10 text-foreground",
+  success: "bg-success-tint text-success font-medium",
+  warning: "bg-warning-tint text-warning font-medium",
+  error: "bg-error-tint text-error font-medium",
+  info: "bg-info-tint text-info font-medium",
+  neutral: "bg-surface-2 text-text-secondary font-medium",
+  brand: "bg-primary-tint text-primary font-medium",
+  dark: "bg-foreground/10 text-foreground font-medium",
 };
 
 export function StatusBadge({
@@ -123,12 +127,12 @@ export function KpiCard({
   return (
     <div className="relative rounded-lg border border-border bg-surface px-4 py-3.5 shadow-e1 transition hover:shadow-e2 sm:px-5 sm:py-4">
       <div
-        className="absolute left-0 top-3 bottom-3 w-[2px] rounded-r"
+        className="absolute left-0 top-3 bottom-3 w-[3px] rounded-r"
         style={{ background: accentColor }}
       />
       <div className="label-uppercase">{label}</div>
       <div className="mt-1.5 flex items-baseline gap-1">
-        <span className="font-mono text-[22px] font-semibold leading-none tracking-tight text-text-primary sm:text-[26px]">
+        <span className="font-mono text-[24px] font-bold leading-none tracking-tight text-text-primary sm:text-[28px]">
           {value}
         </span>
         {suffix && <span className="text-[12px] text-text-secondary">{suffix}</span>}
@@ -154,18 +158,18 @@ export function Button({
 }) {
   const sz = size === "sm" ? "h-8 px-3 text-[12px]" : "h-9 px-3.5 text-[13px]";
   const styles = {
-    primary: "bg-primary text-primary-foreground hover:bg-primary-pressed shadow-e1",
-    secondary: "bg-accent text-accent-foreground hover:bg-primary-tint",
-    outline: "border border-border bg-surface text-primary hover:bg-surface-2",
-    ghost: "text-text-secondary hover:bg-surface-2 hover:text-text-primary",
-    danger: "bg-error-tint text-error hover:bg-error/10",
+    primary: "bg-primary text-primary-foreground hover:bg-primary-pressed shadow-e1 font-medium",
+    secondary: "bg-accent text-accent-foreground hover:bg-primary-tint font-medium",
+    outline: "border border-border bg-surface text-black dark:text-white font-semibold hover:bg-surface-2 shadow-2xs",
+    ghost: "text-black dark:text-white font-medium hover:bg-surface-2",
+    danger: "bg-error-tint text-error hover:bg-error/10 font-semibold",
   }[variant];
   return (
     <button
       {...rest}
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-md font-medium transition active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30",
-        "justify-center whitespace-nowrap",
+        "inline-flex items-center gap-1.5 rounded-md font-medium transition-all active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30",
+        "justify-center whitespace-nowrap cursor-pointer",
         sz,
         styles,
         className,
@@ -173,5 +177,31 @@ export function Button({
     >
       {children}
     </button>
+  );
+}
+
+export function PriceDisplay({
+  amount,
+  className,
+  prefix = "₹",
+  highlight = false,
+}: {
+  amount: number | string | null | undefined;
+  className?: string;
+  prefix?: string;
+  highlight?: boolean;
+}) {
+  const num = typeof amount === "number" ? amount : Number(amount) || 0;
+  return (
+    <span
+      className={cn(
+        "font-mono tracking-tight",
+        highlight ? "font-bold text-primary" : "text-text-primary",
+        className,
+      )}
+    >
+      {prefix}
+      {num.toLocaleString("en-IN")}
+    </span>
   );
 }

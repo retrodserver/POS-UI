@@ -25,8 +25,8 @@ export function PosStatTile({
 
   return (
     <div className={cn("rounded-lg border px-3 py-3 shadow-e1", toneClass)}>
-      <p className="label-uppercase text-text-secondary">{label}</p>
-      <p className="mt-1 font-display text-xl font-semibold text-text-primary tabular-nums">
+      <p className="label-uppercase">{label}</p>
+      <p className="mt-1 font-mono text-[22px] font-bold text-text-primary sm:text-[24px]">
         {typeof value === "number" ? formatNumber(value) : value}
       </p>
       {hint ? <p className="mt-0.5 text-[11px] text-text-secondary">{hint}</p> : null}
