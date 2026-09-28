@@ -29,7 +29,7 @@ import {
 import { useOutletContext } from "@/context/PosOutletContext";
 import { BulkAvailabilityModal } from "../modals/BulkAvailabilityModal";
 import { toast } from "sonner";
-import { PosDataGrid } from "@/components/ui/data-grid";
+import { PosDataGrid, type PosDataGridColumn } from "@/components/ui/data-grid";
 
 export function MenuOnOffView({ onBack }: { onBack?: () => void }) {
   const { activeOutlet } = useOutletContext();
@@ -194,6 +194,216 @@ export function MenuOnOffView({ onBack }: { onBack?: () => void }) {
     toast.info("Filters reset");
   };
 
+  const columns: PosDataGridColumn<MenuItem>[] = useMemo(
+    () => [
+      {
+        id: "name",
+        header: "Item & Category",
+        accessorKey: "name",
+        enableSorting: true,
+        enableFiltering: true,
+        minWidth: 260,
+        cell: ({ row }: { row: MenuItem }) => {
+          const primaryImg = row.images?.find((i: any) => i.isPrimary) || row.images?.[0];
+          return (
+            <div className="flex items-center gap-3 py-1">
+              <div className="relative h-9 w-9 rounded-lg overflow-hidden bg-slate-100 border border-slate-200 shrink-0">
+                {primaryImg ? (
+                  <img
+                    src={primaryImg.url}
+                    alt={row.name}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center text-slate-400">
+                    <ImageIcon className="h-4 w-4" />
+                  </div>
+                )}
+              </div>
+
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <span
+                    className={`h-2 w-2 rounded-full ${
+                      row.itemType === "Veg"
+                        ? "bg-emerald-500"
+                        : row.itemType === "Non-Veg"
+                          ? "bg-red-500"
+                          : "bg-amber-500"
+                    }`}
+                  />
+                  <span className="font-bold text-slate-900 truncate">{row.name}</span>
+                </div>
+                <div className="flex items-center gap-2 text-[11px] text-slate-500 mt-0.5">
+                  <span className="font-mono bg-slate-100 px-1 rounded">{row.code}</span>
+                  <span>•</span>
+                  <span>{row.category}</span>
+                  <span>•</span>
+                  <span className="font-semibold text-slate-700">₹{row.price}</span>
+                </div>
+              </div>
+            </div>
+          );
+        },
+      },
+      {
+        id: "baseMenu",
+        header: "Base Menu (POS)",
+        align: "center",
+        cell: () => (
+          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-bold text-emerald-700 border border-emerald-200">
+            <Check className="h-3 w-3 stroke-[3]" />
+            Active on Counter
+          </span>
+        ),
+      },
+      {
+        id: "zomato",
+        header: "Zomato",
+        align: "center",
+        enableSorting: true,
+        enableFiltering: true,
+        filterValueAccessor: (row: MenuItem) => (row.zomato ? "Live on Zomato" : "Off"),
+        cell: ({ row }: { row: MenuItem }) => (
+          <div className="inline-flex flex-col items-center gap-0.5 py-1">
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={row.zomato}
+                onChange={() =>
+                  handleTogglePlatform(row.id, "zomato", row.name, row.zomato)
+                }
+                className="sr-only peer"
+              />
+              <div className="w-9 h-5 bg-slate-200 peer-focus:outline-hidden rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-red-600"></div>
+            </label>
+            <span
+              className={`text-[9.5px] font-bold ${
+                row.zomato ? "text-red-700" : "text-slate-400"
+              }`}
+            >
+              {row.zomato ? "Zomato Live" : "Off"}
+            </span>
+          </div>
+        ),
+      },
+      {
+        id: "swiggy",
+        header: "Swiggy",
+        align: "center",
+        enableSorting: true,
+        enableFiltering: true,
+        filterValueAccessor: (row: MenuItem) => (row.swiggy ? "Live on Swiggy" : "Off"),
+        cell: ({ row }: { row: MenuItem }) => (
+          <div className="inline-flex flex-col items-center gap-0.5 py-1">
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={row.swiggy}
+                onChange={() =>
+                  handleTogglePlatform(row.id, "swiggy", row.name, row.swiggy)
+                }
+                className="sr-only peer"
+              />
+              <div className="w-9 h-5 bg-slate-200 peer-focus:outline-hidden rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-orange-500"></div>
+            </label>
+            <span
+              className={`text-[9.5px] font-bold ${
+                row.swiggy ? "text-orange-700" : "text-slate-400"
+              }`}
+            >
+              {row.swiggy ? "Swiggy Live" : "Off"}
+            </span>
+          </div>
+        ),
+      },
+      {
+        id: "direct",
+        header: "Direct QR",
+        align: "center",
+        enableSorting: true,
+        enableFiltering: true,
+        filterValueAccessor: (row: MenuItem) => (row.direct ? "Live on Direct QR" : "Off"),
+        cell: ({ row }: { row: MenuItem }) => (
+          <div className="inline-flex flex-col items-center gap-0.5 py-1">
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={row.direct}
+                onChange={() =>
+                  handleTogglePlatform(row.id, "direct", row.name, row.direct)
+                }
+                className="sr-only peer"
+              />
+              <div className="w-9 h-5 bg-slate-200 peer-focus:outline-hidden rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-teal-600"></div>
+            </label>
+            <span
+              className={`text-[9.5px] font-bold ${
+                row.direct ? "text-teal-700" : "text-slate-400"
+              }`}
+            >
+              {row.direct ? "Direct Live" : "Off"}
+            </span>
+          </div>
+        ),
+      },
+      {
+        id: "status",
+        header: "Overall Online",
+        align: "center",
+        enableSorting: true,
+        enableFiltering: true,
+        filterValueAccessor: (row: MenuItem) => {
+          const isAllOnline = row.zomato && row.swiggy && row.direct;
+          const isNoneOnline = !row.zomato && !row.swiggy && !row.direct;
+          return isAllOnline ? "All Live" : isNoneOnline ? "Turned Off" : "Partially Live";
+        },
+        cell: ({ row }: { row: MenuItem }) => {
+          const isAllOnline = row.zomato && row.swiggy && row.direct;
+          const isNoneOnline = !row.zomato && !row.swiggy && !row.direct;
+          return isAllOnline ? (
+            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-bold text-emerald-700 border border-emerald-200">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+              All Channels Live
+            </span>
+          ) : isNoneOnline ? (
+            <span className="inline-flex items-center gap-1 rounded-full bg-red-50 px-2.5 py-0.5 text-[11px] font-bold text-red-700 border border-red-200">
+              <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
+              Turned Off Online
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-0.5 text-[11px] font-bold text-amber-700 border border-amber-200">
+              <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+              Partially Live
+            </span>
+          );
+        },
+      },
+      {
+        id: "actions",
+        header: "Quick Action",
+        align: "right",
+        cell: ({ row }: { row: MenuItem }) => {
+          const isNoneOnline = !row.zomato && !row.swiggy && !row.direct;
+          return (
+            <button
+              type="button"
+              onClick={() => handleToggleAllOnline(row)}
+              className={`rounded-lg px-2.5 py-1 text-[11px] font-bold transition cursor-pointer border ${
+                isNoneOnline
+                  ? "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100"
+                  : "bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200"
+              }`}
+            >
+              {isNoneOnline ? "Turn ON All" : "Turn OFF All"}
+            </button>
+          );
+        },
+      },
+    ],
+    [handleTogglePlatform, handleToggleAllOnline]
+  );
+
   return (
     <div className="space-y-3">
       {/* Filter & Bulk Action Toolbar */}
@@ -331,212 +541,7 @@ export function MenuOnOffView({ onBack }: { onBack?: () => void }) {
         pageSize={10}
         pageSizeOptions={[10, 25, 50, 100]}
         emptyMessage="No items match current availability filters"
-        columns={[
-          {
-            id: "name",
-            header: "Item & Category",
-            accessorKey: "name",
-            enableSorting: true,
-            enableFiltering: true,
-            minWidth: 260,
-            cell: ({ row }) => {
-              const primaryImg = row.images?.find((i) => i.isPrimary) || row.images?.[0];
-              return (
-                <div className="flex items-center gap-3 py-1">
-                  <div className="relative h-9 w-9 rounded-lg overflow-hidden bg-slate-100 border border-slate-200 shrink-0">
-                    {primaryImg ? (
-                      <img
-                        src={primaryImg.url}
-                        alt={row.name}
-                        className="h-full w-full object-cover"
-                      />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center text-slate-400">
-                        <ImageIcon className="h-4 w-4" />
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-1.5">
-                      <span
-                        className={`h-2 w-2 rounded-full ${
-                          row.itemType === "Veg"
-                            ? "bg-emerald-500"
-                            : row.itemType === "Non-Veg"
-                              ? "bg-red-500"
-                              : "bg-amber-500"
-                        }`}
-                      />
-                      <span className="font-bold text-slate-900 truncate">{row.name}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-[11px] text-slate-500 mt-0.5">
-                      <span className="font-mono bg-slate-100 px-1 rounded">{row.code}</span>
-                      <span>•</span>
-                      <span>{row.category}</span>
-                      <span>•</span>
-                      <span className="font-semibold text-slate-700">₹{row.price}</span>
-                    </div>
-                  </div>
-                </div>
-              );
-            },
-          },
-          {
-            id: "baseMenu",
-            header: "Base Menu (POS)",
-            align: "center",
-            cell: () => (
-              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-bold text-emerald-700 border border-emerald-200">
-                <Check className="h-3 w-3 stroke-[3]" />
-                Active on Counter
-              </span>
-            ),
-          },
-          {
-            id: "zomato",
-            header: "Zomato",
-            align: "center",
-            enableSorting: true,
-            enableFiltering: true,
-            filterValueAccessor: (row) => (row.zomato ? "Live on Zomato" : "Off"),
-            cell: ({ row }) => (
-              <div className="inline-flex flex-col items-center gap-0.5 py-1">
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={row.zomato}
-                    onChange={() =>
-                      handleTogglePlatform(row.id, "zomato", row.name, row.zomato)
-                    }
-                    className="sr-only peer"
-                  />
-                  <div className="w-9 h-5 bg-slate-200 peer-focus:outline-hidden rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-red-600"></div>
-                </label>
-                <span
-                  className={`text-[9.5px] font-bold ${
-                    row.zomato ? "text-red-700" : "text-slate-400"
-                  }`}
-                >
-                  {row.zomato ? "Zomato Live" : "Off"}
-                </span>
-              </div>
-            ),
-          },
-          {
-            id: "swiggy",
-            header: "Swiggy",
-            align: "center",
-            enableSorting: true,
-            enableFiltering: true,
-            filterValueAccessor: (row) => (row.swiggy ? "Live on Swiggy" : "Off"),
-            cell: ({ row }) => (
-              <div className="inline-flex flex-col items-center gap-0.5 py-1">
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={row.swiggy}
-                    onChange={() =>
-                      handleTogglePlatform(row.id, "swiggy", row.name, row.swiggy)
-                    }
-                    className="sr-only peer"
-                  />
-                  <div className="w-9 h-5 bg-slate-200 peer-focus:outline-hidden rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-orange-500"></div>
-                </label>
-                <span
-                  className={`text-[9.5px] font-bold ${
-                    row.swiggy ? "text-orange-700" : "text-slate-400"
-                  }`}
-                >
-                  {row.swiggy ? "Swiggy Live" : "Off"}
-                </span>
-              </div>
-            ),
-          },
-          {
-            id: "direct",
-            header: "Direct QR",
-            align: "center",
-            enableSorting: true,
-            enableFiltering: true,
-            filterValueAccessor: (row) => (row.direct ? "Live on Direct QR" : "Off"),
-            cell: ({ row }) => (
-              <div className="inline-flex flex-col items-center gap-0.5 py-1">
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={row.direct}
-                    onChange={() =>
-                      handleTogglePlatform(row.id, "direct", row.name, row.direct)
-                    }
-                    className="sr-only peer"
-                  />
-                  <div className="w-9 h-5 bg-slate-200 peer-focus:outline-hidden rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-teal-600"></div>
-                </label>
-                <span
-                  className={`text-[9.5px] font-bold ${
-                    row.direct ? "text-teal-700" : "text-slate-400"
-                  }`}
-                >
-                  {row.direct ? "Direct Live" : "Off"}
-                </span>
-              </div>
-            ),
-          },
-          {
-            id: "status",
-            header: "Overall Online",
-            align: "center",
-            enableSorting: true,
-            enableFiltering: true,
-            filterValueAccessor: (row) => {
-              const isAllOnline = row.zomato && row.swiggy && row.direct;
-              const isNoneOnline = !row.zomato && !row.swiggy && !row.direct;
-              return isAllOnline ? "All Live" : isNoneOnline ? "Turned Off" : "Partially Live";
-            },
-            cell: ({ row }) => {
-              const isAllOnline = row.zomato && row.swiggy && row.direct;
-              const isNoneOnline = !row.zomato && !row.swiggy && !row.direct;
-              return isAllOnline ? (
-                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-bold text-emerald-700 border border-emerald-200">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                  All Channels Live
-                </span>
-              ) : isNoneOnline ? (
-                <span className="inline-flex items-center gap-1 rounded-full bg-red-50 px-2.5 py-0.5 text-[11px] font-bold text-red-700 border border-red-200">
-                  <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
-                  Turned Off Online
-                </span>
-              ) : (
-                <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-0.5 text-[11px] font-bold text-amber-700 border border-amber-200">
-                  <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
-                  Partially Live
-                </span>
-              );
-            },
-          },
-          {
-            id: "actions",
-            header: "Quick Action",
-            align: "right",
-            cell: ({ row }) => {
-              const isNoneOnline = !row.zomato && !row.swiggy && !row.direct;
-              return (
-                <button
-                  type="button"
-                  onClick={() => handleToggleAllOnline(row)}
-                  className={`rounded-lg px-2.5 py-1 text-[11px] font-bold transition cursor-pointer border ${
-                    isNoneOnline
-                      ? "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100"
-                      : "bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200"
-                  }`}
-                >
-                  {isNoneOnline ? "Turn ON All" : "Turn OFF All"}
-                </button>
-              );
-            },
-          },
-        ]}
+        columns={columns}
       />
 
       {/* Bulk Availability Modal */}

@@ -18,11 +18,7 @@ import {
   User,
 } from "lucide-react";
 import { toast } from "sonner";
-import {
-  DataTableHeader,
-  DataTableFooter,
-  type DataTableColumn,
-} from "@/components/common";
+import { PosDataGrid, type PosDataGridColumn } from "@/components/ui/data-grid/PosDataGrid";
 
 interface WalletTransaction {
   id: string;
@@ -370,62 +366,95 @@ export function VirtualWalletView() {
   const totalCredits = useMemo(() => records.reduce((acc, r) => acc + r.totalCredited, 0), [records]);
   const totalDebits = useMemo(() => records.reduce((acc, r) => acc + r.totalDebited, 0), [records]);
 
-  const columns: DataTableColumn<WalletRecord>[] = useMemo(
+  const columns: PosDataGridColumn<WalletRecord>[] = useMemo(
     () => [
       {
         id: "customerName",
-        label: "Customer Name",
+        header: "Customer Name",
+        accessorKey: "customerName",
         sortable: true,
         filterable: true,
         defaultWidth: 200,
-        getValue: (r) => r.customerName,
+        render: (_, row) => (
+          <div>
+            <div className="font-semibold text-slate-900">{row.customerName}</div>
+            <div className="text-[11px] text-slate-500">Last activity: {row.lastUsedDate}</div>
+          </div>
+        ),
       },
       {
         id: "mobile",
-        label: "Mobile No.",
+        header: "Mobile No.",
+        accessorKey: "mobile",
         sortable: true,
         filterable: true,
         defaultWidth: 170,
-        getValue: (r) => r.mobile,
+        render: (_, row) => <span className="font-medium text-slate-800 font-mono text-[12.5px]">{row.mobile}</span>,
       },
       {
         id: "amount",
-        label: "Remaining Balance (₹)",
+        header: "Remaining Balance (₹)",
+        accessorKey: "amount",
         sortable: true,
         align: "right",
         defaultWidth: 180,
-        getValue: (r) => `₹${r.amount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}`,
+        render: (_, row) => (
+          <div className="font-mono font-bold text-teal-700">
+            ₹{row.amount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+          </div>
+        ),
       },
       {
         id: "totalCredited",
-        label: "Total Credited (₹)",
+        header: "Total Credited (₹)",
+        accessorKey: "totalCredited",
         sortable: true,
         align: "right",
         defaultWidth: 160,
-        getValue: (r) => `₹${r.totalCredited.toLocaleString("en-IN", { minimumFractionDigits: 2 })}`,
+        render: (_, row) => (
+          <div className="font-mono text-emerald-600">
+            ₹{row.totalCredited.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+          </div>
+        ),
       },
       {
         id: "totalDebited",
-        label: "Total Redeemed (₹)",
+        header: "Total Redeemed (₹)",
+        accessorKey: "totalDebited",
         sortable: true,
         align: "right",
         defaultWidth: 160,
-        getValue: (r) => `₹${r.totalDebited.toLocaleString("en-IN", { minimumFractionDigits: 2 })}`,
+        render: (_, row) => (
+          <div className="font-mono text-slate-600">
+            ₹{row.totalDebited.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+          </div>
+        ),
       },
       {
         id: "created",
-        label: "Registered On",
+        header: "Registered On",
+        accessorKey: "created",
         sortable: true,
         defaultWidth: 180,
-        getValue: (r) => r.created,
+        render: (_, row) => <span className="text-slate-500 font-mono text-[12px]">{row.created}</span>,
       },
       {
         id: "actions",
-        label: "Action",
+        header: "Action",
         sortable: false,
         filterable: false,
         align: "center",
         defaultWidth: 90,
+        render: (_, row) => (
+          <button
+            type="button"
+            onClick={() => setStatementWallet(row)}
+            className="rounded-lg p-1.5 text-slate-400 hover:bg-teal-50 hover:text-teal-600 transition cursor-pointer inline-flex items-center justify-center"
+            title="View Passbook Statement"
+          >
+            <FileText className="h-4 w-4" />
+          </button>
+        ),
       },
     ],
     []
@@ -442,37 +471,6 @@ export function VirtualWalletView() {
     });
   }, [records, mobileFilter]);
 
-  const sortedRecords = useMemo(() => {
-    if (!sortConfig) return filteredRecords;
-    return [...filteredRecords].sort((a, b) => {
-      const field = sortConfig.colId as keyof WalletRecord;
-      const aVal = a[field];
-      const bVal = b[field];
-      if (typeof aVal === "number" && typeof bVal === "number") {
-        return sortConfig.direction === "asc" ? aVal - bVal : bVal - aVal;
-      }
-      return sortConfig.direction === "asc"
-        ? String(aVal).localeCompare(String(bVal))
-        : String(bVal).localeCompare(String(aVal));
-    });
-  }, [filteredRecords, sortConfig]);
-
-  const totalPages = Math.max(1, Math.ceil(sortedRecords.length / pageSize));
-  const validPage = Math.min(currentPage, totalPages);
-  const paginatedRecords = sortedRecords.slice((validPage - 1) * pageSize, validPage * pageSize);
-
-  const toggleSelectAll = () => {
-    if (selectedIds.length === sortedRecords.length && sortedRecords.length > 0) {
-      setSelectedIds([]);
-    } else {
-      setSelectedIds(sortedRecords.map((r) => r.id));
-    }
-  };
-
-  const toggleSelect = (id: string) => {
-    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
-  };
-
   return (
     <div className="w-full space-y-4">
       {/* 1. Header with Add Action */}
@@ -485,14 +483,6 @@ export function VirtualWalletView() {
         </div>
 
         <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => toast.success("Exporting wallet accounts to Excel...")}
-            className="flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3.5 py-1.5 text-[12.5px] font-medium text-slate-700 hover:bg-slate-50 transition cursor-pointer shadow-2xs"
-          >
-            <Download className="h-3.5 w-3.5 text-slate-500" />
-            Export Ledger
-          </button>
           <button
             type="button"
             onClick={handleOpenAddModal}
@@ -626,83 +616,27 @@ export function VirtualWalletView() {
         </div>
       </div>
 
-      {/* 4. Table with Reusable DataTableHeader & DataTableFooter */}
-      <div className="rounded-2xl border border-slate-300 bg-white shadow-xs overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-[13px] border-collapse">
-            <DataTableHeader
-              columns={columns}
-              data={sortedRecords}
-              selectable
-              isAllSelected={selectedIds.length === sortedRecords.length && sortedRecords.length > 0}
-              isSomeSelected={selectedIds.length > 0 && selectedIds.length < sortedRecords.length}
-              onToggleSelectAll={toggleSelectAll}
-              sortConfig={sortConfig}
-              onSortChange={setSortConfig}
-              themeVariant="primary"
-            />
-            <tbody className="divide-y divide-slate-100">
-              {paginatedRecords.length === 0 ? (
-                <tr>
-                  <td colSpan={columns.length + 1} className="py-12 text-center text-slate-400">
-                    No customer wallet accounts found.
-                  </td>
-                </tr>
-              ) : (
-                paginatedRecords.map((r) => (
-                  <tr key={r.id} className="hover:bg-slate-50/70 transition">
-                    <td className="w-12 px-3 py-3.5 text-center">
-                      <input
-                        type="checkbox"
-                        checked={selectedIds.includes(r.id)}
-                        onChange={() => toggleSelect(r.id)}
-                        className="rounded border-slate-300 cursor-pointer text-teal-600 focus:ring-teal-500"
-                      />
-                    </td>
-                    <td className="px-5 py-3.5">
-                      <div className="font-semibold text-slate-900">{r.customerName}</div>
-                      <div className="text-[11px] text-slate-500">Last activity: {r.lastUsedDate}</div>
-                    </td>
-                    <td className="px-5 py-3.5 font-medium text-slate-800 font-mono text-[12.5px]">{r.mobile}</td>
-                    <td className="px-5 py-3.5 font-mono font-bold text-teal-700 text-right">
-                      ₹{r.amount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
-                    </td>
-                    <td className="px-5 py-3.5 font-mono text-emerald-600 text-right">
-                      ₹{r.totalCredited.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
-                    </td>
-                    <td className="px-5 py-3.5 font-mono text-slate-600 text-right">
-                      ₹{r.totalDebited.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
-                    </td>
-                    <td className="px-5 py-3.5 text-slate-500 font-mono text-[12px]">{r.created}</td>
-                    <td className="px-5 py-3.5 text-center">
-                      <button
-                        type="button"
-                        onClick={() => setStatementWallet(r)}
-                        className="rounded-lg p-1.5 text-slate-400 hover:bg-teal-50 hover:text-teal-600 transition cursor-pointer inline-flex items-center justify-center"
-                        title="View Passbook Statement"
-                      >
-                        <FileText className="h-4 w-4" />
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        <DataTableFooter
-          currentPage={validPage}
-          totalCount={sortedRecords.length}
-          pageSize={pageSize}
-          onPageSizeChange={setPageSize}
-          onPageChange={setCurrentPage}
-          selectedCount={selectedIds.length}
-          onClearSelection={() => setSelectedIds([])}
-          itemName="wallet accounts"
-          onExport={(fmt) => toast.success(`Exporting wallet records as ${fmt.toUpperCase()}...`)}
-        />
-      </div>
+      {/* 4. Table with PosDataGrid */}
+      <PosDataGrid
+        data={filteredRecords}
+        columns={columns}
+        keyField="id"
+        selectable
+        selectedRowIds={selectedIds}
+        onSelectionChange={(ids: any) => setSelectedIds(ids as string[])}
+        storageKey="pos-accounting-virtual-wallet"
+        pageSize={pageSize}
+        onPageSizeChange={setPageSize}
+        themeVariant="primary"
+        itemName="wallet accounts"
+        emptyState={
+          <div className="py-12 text-center text-slate-400">
+            <Wallet className="mx-auto h-8 w-8 mb-2 opacity-50 text-slate-300" />
+            <p className="text-sm font-semibold text-slate-600">No customer wallet accounts found</p>
+            <p className="text-xs text-slate-400">Try adjusting your filters or issue a new wallet credit.</p>
+          </div>
+        }
+      />
 
       {/* 5. Issue / Top-Up Wallet Modal Dialog */}
       {isAddModalOpen && (

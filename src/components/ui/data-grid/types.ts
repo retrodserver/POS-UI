@@ -5,8 +5,10 @@ export type SortDirection = "asc" | "desc" | null;
 export interface DataGridColumn<T = any> {
   key?: string;
   id?: string;
-  header: ReactNode | string;
+  header?: ReactNode | string;
+  label?: string;
   width?: string | number;
+  defaultWidth?: string | number;
   minWidth?: number;
   maxWidth?: number;
   align?: "left" | "center" | "right";
@@ -25,6 +27,8 @@ export interface DataGridColumn<T = any> {
   headerRender?: () => ReactNode;
 }
 
+export type PosDataGridColumn<T = any> = DataGridColumn<T>;
+
 export interface ColumnSortState {
   columnKey: string;
   direction: "asc" | "desc";
@@ -38,7 +42,7 @@ export interface ColumnFilterState {
 
 export interface PosDataGridProps<T = any> {
   data: T[];
-  columns: DataGridColumn<T>[];
+  columns: (DataGridColumn<T> | any)[];
   keyField?: keyof T | ((row: T) => string) | string;
   selectable?: boolean;
   enableSelection?: boolean;
@@ -47,9 +51,12 @@ export interface PosDataGridProps<T = any> {
   onSelectionChange?: ((selectedRows: any[]) => void) | ((selectedIds: string[]) => void);
   enablePagination?: boolean;
   pageSize?: number;
+  onPageSizeChange?: (size: number) => void;
   pageSizeOptions?: number[];
   initialSort?: ColumnSortState;
   emptyMessage?: ReactNode;
+  emptyState?: ReactNode;
+  itemName?: string;
   loading?: boolean;
   isLoading?: boolean;
   className?: string;
@@ -57,3 +64,4 @@ export interface PosDataGridProps<T = any> {
   toolbar?: ReactNode;
   dense?: boolean;
 }
+

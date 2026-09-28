@@ -1,11 +1,7 @@
 import { useState, useMemo } from "react";
 import { Plus, ChevronDown, Search, Edit2, Trash2, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
-import {
-  DataTableHeader,
-  DataTableFooter,
-  type DataTableColumn,
-} from "@/components/common";
+import { PosDataGrid, type PosDataGridColumn } from "@/components/ui/data-grid";
 
 interface SubOrderTypeItem {
   id: string;
@@ -21,7 +17,6 @@ export function SubOrderTypeListView() {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [sortConfig, setSortConfig] = useState<{ colId: string; direction: "asc" | "desc" } | null>(null);
 
   // Exact data rows matching Screenshot 2
   const [items, setItems] = useState<SubOrderTypeItem[]>([
@@ -91,7 +86,7 @@ export function SubOrderTypeListView() {
     },
   ]);
 
-  const columns: DataTableColumn<SubOrderTypeItem>[] = useMemo(
+  const columns: PosDataGridColumn<SubOrderTypeItem>[] = useMemo(
     () => [
       {
         id: "name",
@@ -100,6 +95,7 @@ export function SubOrderTypeListView() {
         filterable: true,
         defaultWidth: 180,
         getValue: (r) => r.name,
+        cell: ({ row }) => <span className="font-medium text-slate-900">{row.name}</span>,
       },
       {
         id: "type",
@@ -108,6 +104,7 @@ export function SubOrderTypeListView() {
         filterable: true,
         defaultWidth: 200,
         getValue: (r) => r.type,
+        cell: ({ row }) => <span className="text-slate-600">{row.type}</span>,
       },
       {
         id: "orderType",
@@ -116,6 +113,7 @@ export function SubOrderTypeListView() {
         filterable: true,
         defaultWidth: 170,
         getValue: (r) => r.orderType,
+        cell: ({ row }) => <span className="text-slate-600">{row.orderType}</span>,
       },
       {
         id: "status",
@@ -125,6 +123,11 @@ export function SubOrderTypeListView() {
         align: "center",
         defaultWidth: 120,
         getValue: (r) => r.status,
+        cell: ({ row }) => (
+          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-200">
+            {row.status}
+          </span>
+        ),
       },
       {
         id: "created",
@@ -132,6 +135,7 @@ export function SubOrderTypeListView() {
         sortable: true,
         defaultWidth: 140,
         getValue: (r) => r.created,
+        cell: ({ row }) => <span className="text-slate-500 font-mono text-[12px]">{row.created}</span>,
       },
       {
         id: "actions",
@@ -140,6 +144,29 @@ export function SubOrderTypeListView() {
         filterable: false,
         align: "right",
         defaultWidth: 110,
+        cell: ({ row }) => (
+          <div className="inline-flex items-center gap-1.5 text-slate-400">
+            <button
+              type="button"
+              onClick={() => toast.info(`Editing ${row.name}`)}
+              className="rounded-lg p-1.5 hover:bg-slate-100 hover:text-teal-600 transition cursor-pointer"
+              title="Edit"
+            >
+              <Edit2 className="h-3.5 w-3.5" />
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setItems((prev) => prev.filter((i) => i.id !== row.id));
+                toast.success(`Removed ${row.name}`);
+              }}
+              className="rounded-lg p-1.5 hover:bg-slate-100 hover:text-red-600 transition cursor-pointer"
+              title="Delete"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        ),
       },
     ],
     [],
@@ -150,34 +177,6 @@ export function SubOrderTypeListView() {
       item.name.toLowerCase().includes(searchName.toLowerCase()),
     );
   }, [items, searchName]);
-
-  const sortedItems = useMemo(() => {
-    if (!sortConfig) return filteredItems;
-    return [...filteredItems].sort((a, b) => {
-      const field = sortConfig.colId as keyof SubOrderTypeItem;
-      const aVal = a[field];
-      const bVal = b[field];
-      return sortConfig.direction === "asc"
-        ? String(aVal).localeCompare(String(bVal))
-        : String(bVal).localeCompare(String(aVal));
-    });
-  }, [filteredItems, sortConfig]);
-
-  const totalPages = Math.max(1, Math.ceil(sortedItems.length / pageSize));
-  const validPage = Math.min(currentPage, totalPages);
-  const paginatedItems = sortedItems.slice((validPage - 1) * pageSize, validPage * pageSize);
-
-  const toggleSelectAll = () => {
-    if (selectedIds.length === sortedItems.length) {
-      setSelectedIds([]);
-    } else {
-      setSelectedIds(sortedItems.map((i) => i.id));
-    }
-  };
-
-  const toggleSelect = (id: string) => {
-    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
-  };
 
   return (
     <div className="space-y-4">
@@ -247,81 +246,20 @@ export function SubOrderTypeListView() {
         </div>
       </div>
 
-      {/* 3. Table with DataTableHeader & DataTableFooter */}
-      <div className="rounded-2xl border border-slate-300 bg-white shadow-xs overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-[13px] border-collapse">
-            <DataTableHeader
-              columns={columns}
-              data={sortedItems}
-              selectable
-              isAllSelected={selectedIds.length === sortedItems.length && sortedItems.length > 0}
-              isSomeSelected={selectedIds.length > 0 && selectedIds.length < sortedItems.length}
-              onToggleSelectAll={toggleSelectAll}
-              sortConfig={sortConfig}
-              onSortChange={setSortConfig}
-              themeVariant="primary"
-            />
-            <tbody className="divide-y divide-slate-100">
-              {paginatedItems.map((item) => (
-                <tr key={item.id} className="hover:bg-slate-50/50 transition">
-                  <td className="w-12 px-3 py-3 text-center">
-                    <input
-                      type="checkbox"
-                      checked={selectedIds.includes(item.id)}
-                      onChange={() => toggleSelect(item.id)}
-                      className="rounded border-slate-300 cursor-pointer"
-                    />
-                  </td>
-                  <td className="px-4 py-3 font-medium text-slate-900">{item.name}</td>
-                  <td className="px-4 py-3 text-slate-600">{item.type}</td>
-                  <td className="px-4 py-3 text-slate-600">{item.orderType}</td>
-                  <td className="px-4 py-3 text-center">
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-200">
-                      {item.status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-slate-500 font-mono text-[12px]">{item.created}</td>
-                  <td className="px-4 py-3 text-right">
-                    <div className="inline-flex items-center gap-1.5 text-slate-400">
-                      <button
-                        type="button"
-                        onClick={() => toast.info(`Editing ${item.name}`)}
-                        className="rounded-lg p-1.5 hover:bg-slate-100 hover:text-teal-600 transition cursor-pointer"
-                        title="Edit"
-                      >
-                        <Edit2 className="h-3.5 w-3.5" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setItems((prev) => prev.filter((i) => i.id !== item.id));
-                          toast.success(`Removed ${item.name}`);
-                        }}
-                        className="rounded-lg p-1.5 hover:bg-slate-100 hover:text-red-600 transition cursor-pointer"
-                        title="Delete"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        <DataTableFooter
-          currentPage={validPage}
-          totalCount={sortedItems.length}
-          pageSize={pageSize}
-          onPageSizeChange={setPageSize}
-          onPageChange={setCurrentPage}
-          selectedCount={selectedIds.length}
-          onClearSelection={() => setSelectedIds([])}
-          itemName="sub order types"
-        />
-      </div>
+      {/* 3. Table with PosDataGrid */}
+      <PosDataGrid
+        data={filteredItems}
+        columns={columns}
+        keyField="id"
+        selectable
+        selectedRowIds={selectedIds}
+        onSelectionChange={(ids: any) => setSelectedIds(ids as string[])}
+        storageKey="pos-sub-order-types"
+        pageSize={pageSize}
+        onPageSizeChange={setPageSize}
+        themeVariant="primary"
+        itemName="sub order types"
+      />
     </div>
   );
 }

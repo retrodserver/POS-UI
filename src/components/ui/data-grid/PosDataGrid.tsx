@@ -13,10 +13,13 @@ import {
 } from "@/components/common/DataTableHeader";
 import type {
   DataGridColumn,
+  PosDataGridColumn,
   PosDataGridProps,
   ColumnSortState,
 } from "./types";
 import { cn } from "@/lib/utils";
+
+export type { PosDataGridColumn };
 
 export interface ExtendedPosDataGridProps<T = any> extends PosDataGridProps<T> {
   themeVariant?: ThemeVariant;
@@ -38,9 +41,12 @@ export function PosDataGrid<T>({
   selectedRowIds,
   onSelectionChange,
   pageSize: initialPageSize = 25,
+  onPageSizeChange,
   pageSizeOptions = [10, 25, 50, 100],
   initialSort,
   emptyMessage = "No records found.",
+  emptyState,
+  itemName = "records",
   loading = false,
   isLoading = false,
   className = "",
@@ -70,7 +76,9 @@ export function PosDataGrid<T>({
       const label =
         typeof col.header === "string"
           ? col.header
-          : (col.header as any)?.props?.children || colId;
+          : typeof col.label === "string"
+          ? col.label
+          : (col.header as any)?.props?.children || (col.label as any) || colId;
 
       const getValue =
         col.getValue ||
@@ -88,7 +96,7 @@ export function PosDataGrid<T>({
         id: colId,
         key: colId,
         label,
-        defaultWidth: col.width,
+        defaultWidth: col.width || col.defaultWidth,
         minWidth: col.minWidth,
         maxWidth: col.maxWidth,
         align: col.align || "left",
@@ -99,11 +107,21 @@ export function PosDataGrid<T>({
     });
   }, [rawColumns]);
 
+  // Compute a stable, unique storageKey if not explicitly provided
+  const effectiveStorageKey = useMemo(() => {
+    if (storageKey) return storageKey;
+    if (typeof title === "string" && title.trim()) {
+      return `grid-${title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
+    }
+    const colIds = rawColumns.map((c, i) => c.id || c.key || (c as any).accessorKey || `col-${i}`).join("-");
+    return `grid-${colIds.slice(0, 50)}`;
+  }, [storageKey, title, rawColumns]);
+
   // 1. Column Visibility State
   const [visibleColumns, setVisibleColumns] = useState<Record<string, boolean>>(() => {
     try {
-      if (storageKey) {
-        const saved = localStorage.getItem(`retrod:${storageKey}:visible-columns`);
+      if (effectiveStorageKey) {
+        const saved = localStorage.getItem(`retrod:${effectiveStorageKey}:visible-columns`);
         if (saved) return JSON.parse(saved);
       }
     } catch {}
@@ -118,8 +136,8 @@ export function PosDataGrid<T>({
   const handleVisibleColumnsChange = (updated: Record<string, boolean>) => {
     setVisibleColumns(updated);
     try {
-      if (storageKey) {
-        localStorage.setItem(`retrod:${storageKey}:visible-columns`, JSON.stringify(updated));
+      if (effectiveStorageKey) {
+        localStorage.setItem(`retrod:${effectiveStorageKey}:visible-columns`, JSON.stringify(updated));
       }
     } catch {}
   };
@@ -127,8 +145,8 @@ export function PosDataGrid<T>({
   // 2. Column Pinning State
   const [columnPins, setColumnPins] = useState<Record<string, "left" | "right" | "none">>(() => {
     try {
-      if (storageKey) {
-        const saved = localStorage.getItem(`retrod:${storageKey}:column-pins`);
+      if (effectiveStorageKey) {
+        const saved = localStorage.getItem(`retrod:${effectiveStorageKey}:column-pins`);
         if (saved) return JSON.parse(saved);
       }
     } catch {}
@@ -143,8 +161,8 @@ export function PosDataGrid<T>({
   const handlePinChange = (pins: Record<string, "left" | "right" | "none">) => {
     setColumnPins(pins);
     try {
-      if (storageKey) {
-        localStorage.setItem(`retrod:${storageKey}:column-pins`, JSON.stringify(pins));
+      if (effectiveStorageKey) {
+        localStorage.setItem(`retrod:${effectiveStorageKey}:column-pins`, JSON.stringify(pins));
       }
     } catch {}
   };
@@ -152,8 +170,8 @@ export function PosDataGrid<T>({
   // 3. Column Order State
   const [columnOrder, setColumnOrder] = useState<string[]>(() => {
     try {
-      if (storageKey) {
-        const saved = localStorage.getItem(`retrod:${storageKey}:column-order`);
+      if (effectiveStorageKey) {
+        const saved = localStorage.getItem(`retrod:${effectiveStorageKey}:column-order`);
         if (saved) return JSON.parse(saved);
       }
     } catch {}
@@ -163,8 +181,8 @@ export function PosDataGrid<T>({
   const handleColumnOrderChange = (newOrder: string[]) => {
     setColumnOrder(newOrder);
     try {
-      if (storageKey) {
-        localStorage.setItem(`retrod:${storageKey}:column-order`, JSON.stringify(newOrder));
+      if (effectiveStorageKey) {
+        localStorage.setItem(`retrod:${effectiveStorageKey}:column-order`, JSON.stringify(newOrder));
       }
     } catch {}
   };
@@ -172,8 +190,8 @@ export function PosDataGrid<T>({
   // 4. Column Widths State
   const [columnWidths, setColumnWidths] = useState<Record<string, number>>(() => {
     try {
-      if (storageKey) {
-        const saved = localStorage.getItem(`retrod:${storageKey}:column-widths`);
+      if (effectiveStorageKey) {
+        const saved = localStorage.getItem(`retrod:${effectiveStorageKey}:column-widths`);
         if (saved) return JSON.parse(saved);
       }
     } catch {}
@@ -183,8 +201,8 @@ export function PosDataGrid<T>({
   const handleColumnWidthsChange = (widths: Record<string, number>) => {
     setColumnWidths(widths);
     try {
-      if (storageKey) {
-        localStorage.setItem(`retrod:${storageKey}:column-widths`, JSON.stringify(widths));
+      if (effectiveStorageKey) {
+        localStorage.setItem(`retrod:${effectiveStorageKey}:column-widths`, JSON.stringify(widths));
       }
     } catch {}
   };
@@ -202,8 +220,8 @@ export function PosDataGrid<T>({
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState<number>(() => {
     try {
-      if (storageKey) {
-        const saved = localStorage.getItem(`retrod:${storageKey}:page-size`);
+      if (effectiveStorageKey) {
+        const saved = localStorage.getItem(`retrod:${effectiveStorageKey}:page-size`);
         if (saved) {
           const parsed = parseInt(saved, 10);
           if (!isNaN(parsed) && parsed > 0) return parsed;
@@ -249,6 +267,23 @@ export function PosDataGrid<T>({
     return (row as any)[colId];
   }, [rawColumns]);
 
+  // Compute distinct values for every filterable column to power checkbox search and selection
+  const distinctValues = useMemo(() => {
+    const map: Record<string, string[]> = {};
+    columns.forEach((col) => {
+      if (!col.id || col.id === "actions" || col.filterable === false) return;
+      const set = new Set<string>();
+      data.forEach((row: any) => {
+        const rawVal = getRawCellValue(row, col.id!);
+        if (rawVal !== undefined && rawVal !== null && String(rawVal).trim() !== "") {
+          set.add(String(rawVal).trim());
+        }
+      });
+      map[col.id] = Array.from(set).sort((a, b) => a.localeCompare(b));
+    });
+    return map;
+  }, [columns, data, getRawCellValue]);
+
   // Ordered visible columns
   const orderedColumns = useMemo(() => {
     const map = new Map(columns.map((c) => [c.id || "", c]));
@@ -285,20 +320,24 @@ export function PosDataGrid<T>({
     }
 
     // Apply Column-level Filters
-    const filterKeys = Object.keys(columnFilters).filter(
-      (k) => columnFilters[k] && columnFilters[k].length > 0
-    );
+    // Rule: If 0 items ticked -> show all. If all items ticked -> show all. If subset ticked -> show only matching rows.
+    const activeFilterKeys = Object.keys(columnFilters).filter((colId) => {
+      const allowed = columnFilters[colId];
+      if (!allowed || allowed.length === 0) return false; // 0 checked -> show all
+      const allDistinct = distinctValues[colId] || [];
+      if (allDistinct.length > 0 && allowed.length >= allDistinct.length) {
+        // all checked -> show all
+        return false;
+      }
+      return true; // subset checked -> apply filter
+    });
 
-    if (filterKeys.length > 0) {
+    if (activeFilterKeys.length > 0) {
       result = result.filter((row) => {
-        for (const colId of filterKeys) {
+        for (const colId of activeFilterKeys) {
           const allowed = columnFilters[colId];
-          if (!allowed || allowed.length === 0) continue;
           const rawVal = getRawCellValue(row, colId);
-          const strVal =
-            rawVal !== undefined && rawVal !== null && String(rawVal).trim() !== ""
-              ? String(rawVal).trim()
-              : "(Blanks)";
+          const strVal = rawVal !== undefined && rawVal !== null ? String(rawVal).trim() : "";
           if (!allowed.includes(strVal)) {
             return false;
           }
@@ -308,7 +347,7 @@ export function PosDataGrid<T>({
     }
 
     return result;
-  }, [data, globalSearch, columnFilters, columns, getRawCellValue]);
+  }, [data, globalSearch, columnFilters, columns, getRawCellValue, distinctValues]);
 
   // 9. Sorting Logic
   const sortedData = useMemo(() => {
@@ -401,6 +440,11 @@ export function PosDataGrid<T>({
     }
   };
 
+  const handleClearSelection = () => {
+    if (!onSelectionChange) return;
+    onSelectionChange([] as any);
+  };
+
   const handleExport = () => {
     if (onExport) {
       onExport();
@@ -436,7 +480,7 @@ export function PosDataGrid<T>({
           totalCount={data.length}
           filteredCount={sortedData.length}
           onExport={handleExport}
-          storageKey={storageKey}
+          storageKey={effectiveStorageKey}
         />
       )}
 
@@ -483,6 +527,7 @@ export function PosDataGrid<T>({
           <DataTableHeader
             columns={columns}
             data={data}
+            distinctValues={distinctValues}
             visibleColumns={visibleColumns}
             onVisibleColumnsChange={handleVisibleColumnsChange}
             sortConfig={sortConfig}
@@ -521,22 +566,26 @@ export function PosDataGrid<T>({
                   colSpan={orderedColumns.length + (isSelectable ? 1 : 0)}
                   className="py-12 text-center text-muted-foreground"
                 >
-                  <div className="space-y-1.5">
-                    <p className="text-[13px] font-medium text-foreground">{emptyMessage}</p>
-                    {(Object.keys(columnFilters).length > 0 || globalSearch) && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setColumnFilters({});
-                          setGlobalSearch("");
-                        }}
-                        className="inline-flex items-center gap-1 text-[12px] font-bold text-primary hover:underline cursor-pointer"
-                      >
-                        <RotateCcw className="h-3.5 w-3.5" />
-                        <span>Clear all active filters</span>
-                      </button>
-                    )}
-                  </div>
+                  {emptyState ? (
+                    emptyState
+                  ) : (
+                    <div className="space-y-1.5">
+                      <p className="text-[13px] font-medium text-foreground">{emptyMessage}</p>
+                      {(Object.keys(columnFilters).length > 0 || globalSearch) && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setColumnFilters({});
+                            setGlobalSearch("");
+                          }}
+                          className="inline-flex items-center gap-1 text-[12px] font-bold text-primary hover:underline cursor-pointer"
+                        >
+                          <RotateCcw className="h-3.5 w-3.5" />
+                          <span>Clear all active filters</span>
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </td>
               </tr>
             ) : (
@@ -602,6 +651,21 @@ export function PosDataGrid<T>({
                         isEven,
                       });
 
+                      const renderCell = () => {
+                        if (rawCol?.render) {
+                          return rawCol.render(rawValue, row, index);
+                        }
+                        if (typeof rawCol?.cell === "function") {
+                          const res = (rawCol.cell as any)({ row, value: rawValue, index, getValue: () => rawValue });
+                          if (res !== undefined) return res;
+                          return (rawCol.cell as any)(rawValue, row, index);
+                        }
+                        if (rawValue !== undefined && rawValue !== null && String(rawValue) !== "") {
+                          return String(rawValue);
+                        }
+                        return "--";
+                      };
+
                       return (
                         <td
                           key={colId}
@@ -617,13 +681,7 @@ export function PosDataGrid<T>({
                             pin.className
                           )}
                         >
-                          {rawCol?.render
-                            ? rawCol.render(rawValue, row, index)
-                            : rawCol?.cell
-                            ? rawCol.cell({ row, value: rawValue, index })
-                            : rawValue !== undefined && rawValue !== null && String(rawValue) !== ""
-                            ? String(rawValue)
-                            : "--"}
+                          {renderCell()}
                         </td>
                       );
                     })}
@@ -645,10 +703,14 @@ export function PosDataGrid<T>({
         onPageChange={(p) => setCurrentPage(p)}
         onPageSizeChange={(sz) => {
           setPageSize(sz);
+          onPageSizeChange?.(sz);
           setCurrentPage(1);
         }}
+        selectedCount={selectedKeySet.size}
+        onClearSelection={handleClearSelection}
+        itemName={itemName}
         themeVariant={themeVariant}
-        storageKey={storageKey}
+        storageKey={effectiveStorageKey}
       />
     </div>
   );

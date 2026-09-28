@@ -22,6 +22,7 @@ import {
   DataTableFooter,
   type DataTableColumn,
 } from "@/components/common";
+import { PosDataGrid } from "@/components/ui/data-grid";
 import {
   Dialog,
   DialogContent,
@@ -295,78 +296,148 @@ export function LoanInformationView() {
     setSelectedIds((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
   };
 
-  const columns: DataTableColumn<BusinessLoan>[] = [
-    {
-      id: "loanRef",
-      label: "Loan Ref / Account",
-      sortable: true,
-      defaultWidth: 180,
-      getValue: (r) => r.loanRef,
-    },
-    {
-      id: "lenderName",
-      label: "Lender / Financial Institution",
-      sortable: true,
-      defaultWidth: 230,
-      getValue: (r) => r.lenderName,
-    },
-    {
-      id: "facilityType",
-      label: "Facility Type",
-      sortable: true,
-      filterable: true,
-      defaultWidth: 190,
-      getValue: (r) => r.facilityType,
-    },
-    {
-      id: "sanctionAmount",
-      label: "Sanctioned (₹)",
-      sortable: true,
-      align: "right",
-      defaultWidth: 140,
-      getValue: (r) => `₹${r.sanctionAmount.toLocaleString("en-IN")}`,
-    },
-    {
-      id: "interestRate",
-      label: "Interest (% p.a.)",
-      sortable: true,
-      align: "right",
-      defaultWidth: 130,
-      getValue: (r) => `${r.interestRate}%`,
-    },
-    {
-      id: "monthlyEmiOrSwipeDeduction",
-      label: "Deduction / EMI",
-      sortable: true,
-      defaultWidth: 170,
-      getValue: (r) => r.monthlyEmiOrSwipeDeduction,
-    },
-    {
-      id: "outstandingBalance",
-      label: "Outstanding (₹)",
-      sortable: true,
-      align: "right",
-      defaultWidth: 150,
-      getValue: (r) => `₹${r.outstandingBalance.toLocaleString("en-IN")}`,
-    },
-    {
-      id: "status",
-      label: "Status",
-      sortable: true,
-      filterable: true,
-      align: "center",
-      defaultWidth: 110,
-      getValue: (r) => r.status,
-    },
-    {
-      id: "actions",
-      label: "Action",
-      sortable: false,
-      filterable: false,
-      align: "right",
-      defaultWidth: 100,
-    },
-  ];
+  const columns: any[] = useMemo(
+    () => [
+      {
+        id: "loanRef",
+        header: "Loan Ref / Account",
+        label: "Loan Ref / Account",
+        sortable: true,
+        width: 180,
+        render: (_: any, l: BusinessLoan) => (
+          <span className="font-mono font-bold text-slate-900 bg-slate-50 px-2 py-0.5 rounded border border-slate-200">
+            {l.loanRef}
+          </span>
+        ),
+        getValue: (r: BusinessLoan) => r.loanRef,
+      },
+      {
+        id: "lenderName",
+        header: "Lender / Financial Institution",
+        label: "Lender / Financial Institution",
+        sortable: true,
+        width: 230,
+        render: (_: any, l: BusinessLoan) => (
+          <div>
+            <div className="font-semibold text-slate-900">{l.lenderName}</div>
+            <div className="text-[11px] text-slate-400">Debit via {l.settlementBank}</div>
+          </div>
+        ),
+        getValue: (r: BusinessLoan) => r.lenderName,
+      },
+      {
+        id: "facilityType",
+        header: "Facility Type",
+        label: "Facility Type",
+        sortable: true,
+        filterable: true,
+        width: 190,
+        render: (_: any, l: BusinessLoan) => (
+          <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-700">
+            {l.facilityType}
+          </span>
+        ),
+        getValue: (r: BusinessLoan) => r.facilityType,
+      },
+      {
+        id: "sanctionAmount",
+        header: "Sanctioned (₹)",
+        label: "Sanctioned (₹)",
+        sortable: true,
+        align: "right" as const,
+        width: 140,
+        render: (_: any, l: BusinessLoan) => (
+          <span className="font-mono font-bold text-slate-900">
+            ₹{l.sanctionAmount.toLocaleString("en-IN")}
+          </span>
+        ),
+        getValue: (r: BusinessLoan) => `₹${r.sanctionAmount.toLocaleString("en-IN")}`,
+      },
+      {
+        id: "interestRate",
+        header: "Interest (% p.a.)",
+        label: "Interest (% p.a.)",
+        sortable: true,
+        align: "right" as const,
+        width: 130,
+        render: (_: any, l: BusinessLoan) => (
+          <span className="font-mono text-slate-700">{l.interestRate}%</span>
+        ),
+        getValue: (r: BusinessLoan) => `${r.interestRate}%`,
+      },
+      {
+        id: "monthlyEmiOrSwipeDeduction",
+        header: "Deduction / EMI",
+        label: "Deduction / EMI",
+        sortable: true,
+        width: 170,
+        render: (_: any, l: BusinessLoan) => (
+          <span className="font-medium text-slate-800">{l.monthlyEmiOrSwipeDeduction}</span>
+        ),
+        getValue: (r: BusinessLoan) => r.monthlyEmiOrSwipeDeduction,
+      },
+      {
+        id: "outstandingBalance",
+        header: "Outstanding (₹)",
+        label: "Outstanding (₹)",
+        sortable: true,
+        align: "right" as const,
+        width: 150,
+        render: (_: any, l: BusinessLoan) => (
+          <div className="font-bold font-mono text-amber-700">
+            ₹{l.outstandingBalance.toLocaleString("en-IN")}
+          </div>
+        ),
+        getValue: (r: BusinessLoan) => `₹${r.outstandingBalance.toLocaleString("en-IN")}`,
+      },
+      {
+        id: "status",
+        header: "Status",
+        label: "Status",
+        sortable: true,
+        filterable: true,
+        align: "center" as const,
+        width: 110,
+        render: (_: any, l: BusinessLoan) => (
+          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-bold text-emerald-700 border border-emerald-200">
+            <CheckCircle2 className="h-3 w-3 text-emerald-600" />
+            {l.status}
+          </span>
+        ),
+        getValue: (r: BusinessLoan) => r.status,
+      },
+      {
+        id: "actions",
+        header: "Action",
+        label: "Action",
+        sortable: false,
+        filterable: false,
+        align: "right" as const,
+        width: 100,
+        render: (_: any, l: BusinessLoan) => (
+          <div className="inline-flex items-center gap-1 text-slate-400">
+            <button
+              type="button"
+              onClick={() => openEditModal(l)}
+              className="rounded-lg p-1.5 hover:bg-slate-100 hover:text-teal-600 transition cursor-pointer"
+              title="Edit Facility"
+            >
+              <Edit2 className="h-3.5 w-3.5" />
+            </button>
+            <button
+              type="button"
+              onClick={() => handleDelete(l.id)}
+              className="rounded-lg p-1.5 hover:bg-rose-50 hover:text-rose-600 transition cursor-pointer"
+              title="Delete Record"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        ),
+      },
+    ],
+    []
+  );
 
   return (
     <div className="w-full space-y-5 pb-12">
@@ -500,103 +571,27 @@ export function LoanInformationView() {
         </div>
       </div>
 
-      {/* 4. Full Width Table with DataTableHeader & DataTableFooter */}
-      <div className="rounded-2xl border border-slate-300 bg-white shadow-xs overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-[12.5px] border-collapse">
-            <DataTableHeader
-              columns={columns}
-              data={sortedLoans}
-              selectable
-              isAllSelected={selectedIds.length === sortedLoans.length && sortedLoans.length > 0}
-              isSomeSelected={selectedIds.length > 0 && selectedIds.length < sortedLoans.length}
-              onToggleSelectAll={toggleSelectAll}
-              sortConfig={sortConfig}
-              onSortChange={setSortConfig}
-              themeVariant="primary"
-            />
-            <tbody className="divide-y divide-slate-100">
-              {paginatedLoans.map((l) => (
-                <tr key={l.id} className="hover:bg-slate-50/70 transition">
-                  <td className="w-12 px-3 py-3 text-center">
-                    <input
-                      type="checkbox"
-                      checked={selectedIds.includes(l.id)}
-                      onChange={() => toggleSelect(l.id)}
-                      className="rounded border-slate-300 cursor-pointer text-teal-600 focus:ring-teal-500"
-                    />
-                  </td>
-                  <td className="px-3.5 py-3">
-                    <span className="font-mono font-bold text-slate-900 bg-slate-50 px-2 py-0.5 rounded border border-slate-200">
-                      {l.loanRef}
-                    </span>
-                  </td>
-                  <td className="px-3.5 py-3">
-                    <div className="font-semibold text-slate-900">{l.lenderName}</div>
-                    <div className="text-[11px] text-slate-400">Debit via {l.settlementBank}</div>
-                  </td>
-                  <td className="px-3.5 py-3">
-                    <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-700">
-                      {l.facilityType}
-                    </span>
-                  </td>
-                  <td className="px-3.5 py-3 text-right font-mono font-bold text-slate-900">
-                    ₹{l.sanctionAmount.toLocaleString("en-IN")}
-                  </td>
-                  <td className="px-3.5 py-3 text-right font-mono text-slate-700">{l.interestRate}%</td>
-                  <td className="px-3.5 py-3 font-medium text-slate-800">{l.monthlyEmiOrSwipeDeduction}</td>
-                  <td className="px-3.5 py-3 text-right">
-                    <div className="font-bold font-mono text-amber-700">
-                      ₹{l.outstandingBalance.toLocaleString("en-IN")}
-                    </div>
-                  </td>
-                  <td className="px-3.5 py-3 text-center">
-                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-bold text-emerald-700 border border-emerald-200">
-                      <CheckCircle2 className="h-3 w-3 text-emerald-600" />
-                      {l.status}
-                    </span>
-                  </td>
-                  <td className="px-3.5 py-3 text-right">
-                    <div className="inline-flex items-center gap-1 text-slate-400">
-                      <button
-                        type="button"
-                        onClick={() => openEditModal(l)}
-                        className="rounded-lg p-1.5 hover:bg-slate-100 hover:text-teal-600 transition cursor-pointer"
-                        title="Edit Facility"
-                      >
-                        <Edit2 className="h-3.5 w-3.5" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleDelete(l.id)}
-                        className="rounded-lg p-1.5 hover:bg-rose-50 hover:text-rose-600 transition cursor-pointer"
-                        title="Delete Record"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        <DataTableFooter
-          totalCount={sortedLoans.length}
-          currentPage={validPage}
-          pageSize={pageSize}
-          onPageChange={setCurrentPage}
-          onPageSizeChange={(sz) => {
-            setPageSize(sz);
-            setCurrentPage(1);
-          }}
-          selectedCount={selectedIds.length}
-          onClearSelection={() => setSelectedIds([])}
-          itemName="loan facilities"
-          onExport={(fmt) => toast.success(`Exporting loan schedule as ${fmt.toUpperCase()}...`)}
-        />
-      </div>
+      {/* 4. Full Width Table with PosDataGrid */}
+      <PosDataGrid
+        data={filteredLoans}
+        columns={columns}
+        keyField="id"
+        selectable
+        selectedRowIds={selectedIds}
+        onSelectionChange={(ids: any) => setSelectedIds(ids as string[])}
+        storageKey="pos-accounting-loan-information"
+        pageSize={pageSize}
+        onPageSizeChange={setPageSize}
+        themeVariant="primary"
+        itemName="loan facilities"
+        emptyState={
+          <div className="py-12 text-center text-slate-400">
+            <Landmark className="mx-auto h-8 w-8 mb-2 opacity-50 text-slate-300" />
+            <p className="text-sm font-semibold text-slate-600">No loan facilities found</p>
+            <p className="text-xs text-slate-400">Try adjusting your search criteria or register a new facility.</p>
+          </div>
+        }
+      />
 
       {/* 5. Add / Edit Loan Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>

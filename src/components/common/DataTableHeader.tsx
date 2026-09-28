@@ -1563,41 +1563,20 @@ export function DataTableFooter({
             <span>Print</span>
           </button>
         )}
-        {onExport && (
-          <button
-            type="button"
-            onClick={() => onExport("csv")}
-            className="flex items-center gap-1 px-2.5 py-1 rounded-md border border-border bg-surface text-muted-foreground hover:text-foreground hover:bg-surface-2 transition text-[11.5px] font-medium cursor-pointer shadow-2xs mr-1"
-            title="Export"
-          >
-            <Download className="h-3.5 w-3.5" />
-            <span>Export</span>
-          </button>
-        )}
         {rightContent}
 
-        {effectiveTotalPages > 1 && (
-          <>
-            <button
-              type="button"
-              onClick={() => onPageChange(1)}
-              disabled={disabled || currentPage <= 1}
-              className="h-7 w-7 rounded-md border border-border bg-surface flex items-center justify-center text-muted-foreground hover:bg-surface-2 hover:text-foreground disabled:opacity-30 disabled:pointer-events-none transition cursor-pointer shadow-2xs"
-              title="First page"
-              aria-label="First page"
-            >
-              <ChevronsLeft className="h-3.5 w-3.5" />
-            </button>
-
+        {count > 0 && (
+          <div className="flex items-center gap-1">
             <button
               type="button"
               onClick={() => onPageChange(Math.max(1, currentPage - 1))}
               disabled={disabled || currentPage <= 1}
-              className="h-7 w-7 rounded-md border border-border bg-surface flex items-center justify-center text-muted-foreground hover:bg-surface-2 hover:text-foreground disabled:opacity-30 disabled:pointer-events-none transition cursor-pointer shadow-2xs"
+              className="h-7 px-2.5 rounded-md border border-border bg-surface flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:bg-surface-2 hover:text-foreground disabled:opacity-40 disabled:pointer-events-none transition cursor-pointer shadow-2xs select-none"
               title="Previous page"
               aria-label="Previous page"
             >
               <ChevronLeft className="h-3.5 w-3.5" />
+              <span>Prev</span>
             </button>
 
             {pageNumbers.map((page, idx) =>
@@ -1608,7 +1587,7 @@ export function DataTableFooter({
                   onClick={() => onPageChange(page)}
                   disabled={disabled}
                   className={cn(
-                    "h-7 min-w-[28px] px-1.5 rounded-md font-bold text-xs flex items-center justify-center transition cursor-pointer shadow-2xs",
+                    "h-7 min-w-[28px] px-2 rounded-md font-bold text-xs flex items-center justify-center transition cursor-pointer shadow-2xs select-none",
                     currentPage === page
                       ? "bg-primary text-primary-foreground font-extrabold shadow-xs"
                       : "border border-border bg-surface text-muted-foreground hover:bg-surface-2 hover:text-foreground"
@@ -1630,24 +1609,14 @@ export function DataTableFooter({
               type="button"
               onClick={() => onPageChange(Math.min(effectiveTotalPages, currentPage + 1))}
               disabled={disabled || currentPage >= effectiveTotalPages}
-              className="h-7 w-7 rounded-md border border-border bg-surface flex items-center justify-center text-muted-foreground hover:bg-surface-2 hover:text-foreground disabled:opacity-30 disabled:pointer-events-none transition cursor-pointer shadow-2xs"
+              className="h-7 px-2.5 rounded-md border border-border bg-surface flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:bg-surface-2 hover:text-foreground disabled:opacity-40 disabled:pointer-events-none transition cursor-pointer shadow-2xs select-none"
               title="Next page"
               aria-label="Next page"
             >
+              <span>Next</span>
               <ChevronRight className="h-3.5 w-3.5" />
             </button>
-
-            <button
-              type="button"
-              onClick={() => onPageChange(effectiveTotalPages)}
-              disabled={disabled || currentPage >= effectiveTotalPages}
-              className="h-7 w-7 rounded-md border border-border bg-surface flex items-center justify-center text-muted-foreground hover:bg-surface-2 hover:text-foreground disabled:opacity-30 disabled:pointer-events-none transition cursor-pointer shadow-2xs"
-              title="Last page"
-              aria-label="Last page"
-            >
-              <ChevronsRight className="h-3.5 w-3.5" />
-            </button>
-          </>
+          </div>
         )}
       </div>
     </div>
@@ -1751,10 +1720,11 @@ export function DataTablePagination({
           type="button"
           onClick={() => onPageChange(Math.max(1, currentPage - 1))}
           disabled={disabled || currentPage <= 1}
-          className="h-7 w-7 rounded-md border border-slate-200 dark:border-border flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-30 disabled:pointer-events-none transition cursor-pointer"
+          className="h-7 px-2.5 rounded-md border border-slate-200 dark:border-border flex items-center gap-1 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-30 disabled:pointer-events-none transition cursor-pointer select-none"
           aria-label="Previous page"
         >
           <ChevronLeft className="h-3.5 w-3.5" />
+          <span>Prev</span>
         </button>
         {pageNumbers.map((page, idx) =>
           typeof page === "number" ? (
@@ -1764,7 +1734,7 @@ export function DataTablePagination({
               onClick={() => onPageChange(page)}
               disabled={disabled}
               className={cn(
-                "h-7 w-7 rounded-md font-semibold text-xs flex items-center justify-center transition cursor-pointer",
+                "h-7 min-w-[28px] px-2 rounded-md font-bold text-xs flex items-center justify-center transition cursor-pointer select-none",
                 currentPage === page
                   ? "bg-primary text-primary-foreground shadow-xs"
                   : "border border-slate-200 dark:border-border text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
@@ -1785,9 +1755,10 @@ export function DataTablePagination({
           type="button"
           onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
           disabled={disabled || currentPage >= totalPages}
-          className="h-7 w-7 rounded-md border border-slate-200 dark:border-border flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-30 disabled:pointer-events-none transition cursor-pointer"
+          className="h-7 px-2.5 rounded-md border border-slate-200 dark:border-border flex items-center gap-1 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-30 disabled:pointer-events-none transition cursor-pointer select-none"
           aria-label="Next page"
         >
+          <span>Next</span>
           <ChevronRight className="h-3.5 w-3.5" />
         </button>
       </div>
@@ -2338,15 +2309,50 @@ export function useTableColumnPreferences<T = any>(
     });
   };
 
-  const applyColumnFilters = (dataList: T[]): T[] => {
+  const applyColumnFilters = (dataList: T[], customDistinctValues?: Record<string, string[]>): T[] => {
     if (!dataList || dataList.length === 0) return [];
-    const filterKeys = Object.keys(columnFilters).filter((k) => columnFilters[k] && columnFilters[k].length > 0);
-    if (filterKeys.length === 0) return dataList;
+    
+    // Compute distinct values if not provided
+    const distinctMap: Record<string, Set<string>> = {};
+    defaultColumns.forEach((col) => {
+      const colId = col.id || (col as any).key || "";
+      if (colId) distinctMap[colId] = new Set();
+    });
+    dataList.forEach((item: any) => {
+      defaultColumns.forEach((col) => {
+        const colId = col.id || (col as any).key || "";
+        if (!colId) return;
+        let val = "";
+        if (col.getValue) {
+          val = col.getValue(item);
+        } else if (item && item[colId] !== undefined && item[colId] !== null) {
+          val = String(item[colId]);
+        } else if ((col as any).key && item && item[(col as any).key] !== undefined && item[(col as any).key] !== null) {
+          val = String(item[(col as any).key]);
+        }
+        if (val !== undefined && val !== null && String(val).trim() !== "") {
+          distinctMap[colId].add(String(val).trim());
+        }
+      });
+    });
+
+    const activeFilterKeys = Object.keys(columnFilters).filter((colId) => {
+      const allowed = columnFilters[colId];
+      if (!allowed || allowed.length === 0) return false; // 0 checked -> show all
+      const distinctSet = distinctMap[colId];
+      const distinctCount = customDistinctValues?.[colId]?.length ?? (distinctSet ? distinctSet.size : 0);
+      if (distinctCount > 0 && allowed.length >= distinctCount) {
+        // all checked -> show all
+        return false;
+      }
+      return true;
+    });
+
+    if (activeFilterKeys.length === 0) return dataList;
 
     return dataList.filter((item: any) => {
-      for (const colId of filterKeys) {
+      for (const colId of activeFilterKeys) {
         const allowed = columnFilters[colId];
-        if (!allowed || allowed.length === 0) continue;
         const colDef = defaultColumns.find((c) => (c.id || c.key) === colId);
         let val = "";
         if (colDef?.getValue) {
@@ -2356,7 +2362,8 @@ export function useTableColumnPreferences<T = any>(
         } else if ((colDef as any)?.key && item && item[(colDef as any).key] !== undefined && item[(colDef as any).key] !== null) {
           val = String(item[(colDef as any).key]);
         }
-        if (!allowed.includes(String(val).trim())) {
+        const strVal = val !== undefined && val !== null ? String(val).trim() : "";
+        if (!allowed.includes(strVal)) {
           return false;
         }
       }

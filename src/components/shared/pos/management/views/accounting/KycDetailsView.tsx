@@ -29,6 +29,7 @@ import {
   DataTableFooter,
   type DataTableColumn,
 } from "@/components/common";
+import { PosDataGrid } from "@/components/ui/data-grid";
 import {
   Dialog,
   DialogContent,
@@ -209,70 +210,160 @@ export function KycDetailsView() {
     );
   };
 
-  const columns: DataTableColumn<KycDocument>[] = [
-    {
-      id: "name",
-      label: "Document Name",
-      sortable: true,
-      filterable: true,
-      defaultWidth: 240,
-      getValue: (r) => r.name,
-    },
-    {
-      id: "category",
-      label: "Category",
-      sortable: true,
-      filterable: true,
-      defaultWidth: 150,
-      getValue: (r) => r.category,
-    },
-    {
-      id: "docNumber",
-      label: "License / Document No.",
-      sortable: true,
-      filterable: true,
-      defaultWidth: 190,
-      getValue: (r) => r.docNumber,
-    },
-    {
-      id: "issuingAuthority",
-      label: "Issuing Authority",
-      sortable: true,
-      defaultWidth: 230,
-      getValue: (r) => r.issuingAuthority,
-    },
-    {
-      id: "issuedOn",
-      label: "Issued Date",
-      sortable: true,
-      defaultWidth: 130,
-      getValue: (r) => r.issuedOn,
-    },
-    {
-      id: "validTill",
-      label: "Expiry / Validity",
-      sortable: true,
-      defaultWidth: 140,
-      getValue: (r) => r.validTill,
-    },
-    {
-      id: "status",
-      label: "Status",
-      sortable: true,
-      filterable: true,
-      align: "center",
-      defaultWidth: 130,
-      getValue: (r) => r.status,
-    },
-    {
-      id: "actions",
-      label: "Actions",
-      sortable: false,
-      filterable: false,
-      align: "right",
-      defaultWidth: 100,
-    },
-  ];
+  const columns: any[] = useMemo(
+    () => [
+      {
+        id: "name",
+        header: "Document Name",
+        label: "Document Name",
+        sortable: true,
+        filterable: true,
+        width: 250,
+        render: (_: any, doc: KycDocument) => (
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-teal-700 border border-slate-200">
+              <FileText className="h-4 w-4" />
+            </div>
+            <div>
+              <div className="font-semibold text-slate-900">{doc.name}</div>
+              <div className="text-[11px] text-slate-400 font-mono">
+                {doc.fileName} • {doc.fileSize}
+              </div>
+            </div>
+          </div>
+        ),
+        getValue: (r: KycDocument) => r.name,
+      },
+      {
+        id: "category",
+        header: "Category",
+        label: "Category",
+        sortable: true,
+        filterable: true,
+        width: 150,
+        render: (_: any, doc: KycDocument) => (
+          <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-700">
+            {doc.category}
+          </span>
+        ),
+        getValue: (r: KycDocument) => r.category,
+      },
+      {
+        id: "docNumber",
+        header: "License / Document No.",
+        label: "License / Document No.",
+        sortable: true,
+        filterable: true,
+        width: 190,
+        render: (_: any, doc: KycDocument) => (
+          <div className="flex items-center gap-1.5 font-mono font-bold text-slate-800">
+            <span>{doc.docNumber}</span>
+            <button
+              type="button"
+              onClick={() => handleCopy(doc.docNumber, `tbl-${doc.id}`)}
+              className="p-0.5 text-slate-400 hover:text-teal-600 cursor-pointer"
+              title="Copy License Number"
+            >
+              {copiedField === `tbl-${doc.id}` ? (
+                <Check className="h-3 w-3 text-emerald-600" />
+              ) : (
+                <Copy className="h-3 w-3" />
+              )}
+            </button>
+          </div>
+        ),
+        getValue: (r: KycDocument) => r.docNumber,
+      },
+      {
+        id: "issuingAuthority",
+        header: "Issuing Authority",
+        label: "Issuing Authority",
+        sortable: true,
+        filterable: true,
+        width: 230,
+        render: (_: any, doc: KycDocument) => (
+          <span className="text-slate-600 text-[12px]">{doc.issuingAuthority}</span>
+        ),
+        getValue: (r: KycDocument) => r.issuingAuthority,
+      },
+      {
+        id: "issuedOn",
+        header: "Issued Date",
+        label: "Issued Date",
+        sortable: true,
+        width: 130,
+        render: (_: any, doc: KycDocument) => (
+          <span className="text-slate-500 font-mono text-[11.5px]">{doc.issuedOn}</span>
+        ),
+        getValue: (r: KycDocument) => r.issuedOn,
+      },
+      {
+        id: "validTill",
+        header: "Expiry / Validity",
+        label: "Expiry / Validity",
+        sortable: true,
+        width: 140,
+        render: (_: any, doc: KycDocument) => (
+          <span className="font-semibold text-slate-800">{doc.validTill}</span>
+        ),
+        getValue: (r: KycDocument) => r.validTill,
+      },
+      {
+        id: "status",
+        header: "Status",
+        label: "Status",
+        sortable: true,
+        filterable: true,
+        align: "center",
+        width: 130,
+        render: (_: any, doc: KycDocument) => (
+          <span
+            className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-bold ${
+              doc.status === "Verified"
+                ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                : doc.status === "Expiring Soon"
+                ? "bg-amber-50 text-amber-700 border border-amber-200"
+                : "bg-slate-100 text-slate-700 border border-slate-200"
+            }`}
+          >
+            <CheckCircle2 className="h-3 w-3 text-emerald-600" />
+            {doc.status}
+          </span>
+        ),
+        getValue: (r: KycDocument) => r.status,
+      },
+      {
+        id: "actions",
+        header: "Actions",
+        label: "Actions",
+        sortable: false,
+        filterable: false,
+        align: "right",
+        width: 100,
+        render: (_: any, doc: KycDocument) => (
+          <div className="inline-flex items-center gap-1 text-slate-400">
+            <button
+              type="button"
+              onClick={() => setViewingDoc(doc)}
+              className="rounded-lg p-1.5 hover:bg-slate-100 hover:text-teal-600 transition cursor-pointer"
+              title="Preview Certificate"
+            >
+              <Eye className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => toast.success(`Downloading ${doc.fileName}...`)}
+              className="rounded-lg p-1.5 hover:bg-slate-100 hover:text-slate-800 transition cursor-pointer"
+              title="Download Certificate"
+            >
+              <Download className="h-4 w-4" />
+            </button>
+          </div>
+        ),
+      },
+    ],
+    [copiedField]
+  );
 
   const handleUploadSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -501,123 +592,17 @@ export function KycDetailsView() {
 
       {/* 4. Full Width Table with Attached DataTableHeader & DataTableFooter */}
       <div className="rounded-2xl border border-slate-300 bg-white shadow-xs overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-[12.5px] border-collapse">
-            <DataTableHeader
-              columns={columns}
-              data={sortedDocuments}
-              selectable
-              isAllSelected={selectedIds.length === sortedDocuments.length && sortedDocuments.length > 0}
-              isSomeSelected={selectedIds.length > 0 && selectedIds.length < sortedDocuments.length}
-              onToggleSelectAll={toggleSelectAll}
-              sortConfig={sortConfig}
-              onSortChange={setSortConfig}
-              themeVariant="primary"
-            />
-            <tbody className="divide-y divide-slate-100">
-              {paginatedDocuments.map((doc) => (
-                <tr key={doc.id} className="hover:bg-slate-50/70 transition">
-                  <td className="w-12 px-3 py-3 text-center">
-                    <input
-                      type="checkbox"
-                      checked={selectedIds.includes(doc.id)}
-                      onChange={() => toggleSelect(doc.id)}
-                      className="rounded border-slate-300 cursor-pointer text-teal-600 focus:ring-teal-500"
-                    />
-                  </td>
-                  <td className="px-3.5 py-3">
-                    <div className="flex items-center gap-2.5">
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-teal-700 border border-slate-200">
-                        <FileText className="h-4 w-4" />
-                      </div>
-                      <div>
-                        <div className="font-semibold text-slate-900">{doc.name}</div>
-                        <div className="text-[11px] text-slate-400 font-mono">
-                          {doc.fileName} • {doc.fileSize}
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-3.5 py-3">
-                    <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-700">
-                      {doc.category}
-                    </span>
-                  </td>
-                  <td className="px-3.5 py-3">
-                    <div className="flex items-center gap-1.5 font-mono font-bold text-slate-800">
-                      <span>{doc.docNumber}</span>
-                      <button
-                        type="button"
-                        onClick={() => handleCopy(doc.docNumber, `tbl-${doc.id}`)}
-                        className="p-0.5 text-slate-400 hover:text-teal-600 cursor-pointer"
-                        title="Copy License Number"
-                      >
-                        {copiedField === `tbl-${doc.id}` ? (
-                          <Check className="h-3 w-3 text-emerald-600" />
-                        ) : (
-                          <Copy className="h-3 w-3" />
-                        )}
-                      </button>
-                    </div>
-                  </td>
-                  <td className="px-3.5 py-3 text-slate-600 text-[12px]">{doc.issuingAuthority}</td>
-                  <td className="px-3.5 py-3 text-slate-500 font-mono text-[11.5px]">{doc.issuedOn}</td>
-                  <td className="px-3.5 py-3">
-                    <span className="font-semibold text-slate-800">{doc.validTill}</span>
-                  </td>
-                  <td className="px-3.5 py-3 text-center">
-                    <span
-                      className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-bold ${
-                        doc.status === "Verified"
-                          ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                          : doc.status === "Expiring Soon"
-                          ? "bg-amber-50 text-amber-700 border border-amber-200"
-                          : "bg-slate-100 text-slate-700 border border-slate-200"
-                      }`}
-                    >
-                      <CheckCircle2 className="h-3 w-3 text-emerald-600" />
-                      {doc.status}
-                    </span>
-                  </td>
-                  <td className="px-3.5 py-3 text-right">
-                    <div className="inline-flex items-center gap-1 text-slate-400">
-                      <button
-                        type="button"
-                        onClick={() => setViewingDoc(doc)}
-                        className="rounded-lg p-1.5 hover:bg-slate-100 hover:text-teal-600 transition cursor-pointer"
-                        title="Preview Certificate"
-                      >
-                        <Eye className="h-4 w-4" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => toast.success(`Downloading ${doc.fileName}...`)}
-                        className="rounded-lg p-1.5 hover:bg-slate-100 hover:text-slate-800 transition cursor-pointer"
-                        title="Download Certificate"
-                      >
-                        <Download className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        <DataTableFooter
-          totalCount={sortedDocuments.length}
-          currentPage={validPage}
-          pageSize={pageSize}
-          onPageChange={setCurrentPage}
-          onPageSizeChange={(sz) => {
-            setPageSize(sz);
-            setCurrentPage(1);
-          }}
-          selectedCount={selectedIds.length}
-          onClearSelection={() => setSelectedIds([])}
-          itemName="compliance documents"
-          onExport={(fmt) => toast.success(`Exporting compliance records as ${fmt.toUpperCase()}...`)}
+        <PosDataGrid
+          data={filteredDocuments}
+          columns={columns}
+          keyField="id"
+          selectable
+          selectedRowIds={selectedIds}
+          onSelectionChange={(ids: any) => setSelectedIds(ids as string[])}
+          storageKey="pos-accounting-kyc-details"
+          pageSize={10}
+          themeVariant="primary"
+          emptyMessage="No compliance documents found matching your filter criteria."
         />
       </div>
 

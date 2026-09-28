@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
-import { History, Search, Download, ShieldCheck, Filter, ChevronDown, CheckCircle2, AlertTriangle, XCircle, Eye } from "lucide-react";
+import { History, Search, Download, ShieldCheck, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
-import { DataTableHeader, DataTableFooter, type DataTableColumn } from "@/components/common";
+import { PosDataGrid, type PosDataGridColumn } from "@/components/ui/data-grid/PosDataGrid";
 
 interface AuditLogEntry {
   id: string;
@@ -82,12 +82,7 @@ export function AuditTrailView() {
   const [roleFilter, setRoleFilter] = useState("All");
   const [actionFilter, setActionFilter] = useState("All");
   const [severityFilter, setSeverityFilter] = useState("All");
-  const [logs, setLogs] = useState<AuditLogEntry[]>(INITIAL_AUDIT_LOGS);
-
-  // Pagination & Selection
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [logs] = useState<AuditLogEntry[]>(INITIAL_AUDIT_LOGS);
 
   // Filtering
   const filteredLogs = useMemo(() => {
@@ -108,93 +103,94 @@ export function AuditTrailView() {
     });
   }, [logs, roleFilter, actionFilter, severityFilter, searchQuery]);
 
-  const [sortConfig, setSortConfig] = useState<{ colId: string; direction: "asc" | "desc" } | null>(null);
-
-  const sortedLogs = useMemo(() => {
-    if (!sortConfig) return filteredLogs;
-    return [...filteredLogs].sort((a, b) => {
-      const field = sortConfig.colId as keyof AuditLogEntry;
-      const aVal = a[field] ?? "";
-      const bVal = b[field] ?? "";
-      return sortConfig.direction === "asc"
-        ? String(aVal).localeCompare(String(bVal))
-        : String(bVal).localeCompare(String(aVal));
-    });
-  }, [filteredLogs, sortConfig]);
-
-  const totalPages = Math.max(1, Math.ceil(sortedLogs.length / pageSize));
-  const validPage = Math.min(page, totalPages);
-  const paginatedLogs = useMemo(() => {
-    const start = (validPage - 1) * pageSize;
-    return sortedLogs.slice(start, start + pageSize);
-  }, [sortedLogs, validPage, pageSize]);
-
-  const toggleSelectAll = () => {
-    if (selectedIds.length === sortedLogs.length && sortedLogs.length > 0) {
-      setSelectedIds([]);
-    } else {
-      setSelectedIds(sortedLogs.map((r) => r.id));
-    }
-  };
-
-  const toggleSelect = (id: string) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    );
-  };
-
-  const columns: DataTableColumn<AuditLogEntry>[] = [
+  const columns: PosDataGridColumn<AuditLogEntry>[] = [
     {
       id: "timestamp",
-      label: "Date & Time",
+      header: "Date & Time",
+      accessorKey: "timestamp",
       sortable: true,
       defaultWidth: 150,
-      getValue: (r) => r.timestamp,
+      render: (_, r) => <div className="font-mono text-[12px] text-slate-600">{r.timestamp}</div>,
     },
     {
       id: "user",
-      label: "Operator",
+      header: "Operator",
+      accessorKey: "user",
       sortable: true,
       defaultWidth: 160,
-      getValue: (r) => `${r.user} ${r.role}`,
+      render: (_, r) => (
+        <div>
+          <div className="font-bold text-slate-900 text-[12.5px]">{r.user}</div>
+          <div className="text-[11px] text-teal-700 font-semibold">{r.role}</div>
+        </div>
+      ),
     },
     {
       id: "action",
-      label: "Action Type",
+      header: "Action Type",
+      accessorKey: "action",
       sortable: true,
       filterable: true,
       defaultWidth: 160,
-      getValue: (r) => r.action,
+      render: (_, r) => (
+        <span className="inline-flex items-center rounded-md bg-slate-100 px-2.5 py-0.5 text-[11.5px] font-mono font-bold text-slate-800 border border-slate-200">
+          {r.action}
+        </span>
+      ),
     },
     {
       id: "details",
-      label: "Activity Audit Summary",
+      header: "Activity Audit Summary",
+      accessorKey: "details",
       sortable: true,
       defaultWidth: 280,
-      getValue: (r) => r.details,
+      render: (_, r) => <div className="text-[12px] text-slate-700 max-w-md font-medium">{r.details}</div>,
     },
     {
       id: "severity",
-      label: "Security Level",
+      header: "Security Level",
+      accessorKey: "severity",
       sortable: true,
       filterable: true,
       defaultWidth: 130,
-      getValue: (r) => r.severity,
+      render: (_, r) => {
+        let colorClass = "bg-slate-100 text-slate-700";
+        if (r.severity === "Critical") colorClass = "bg-rose-100 text-rose-800 border border-rose-300 font-black";
+        if (r.severity === "High") colorClass = "bg-orange-50 text-orange-700 border border-orange-200 font-bold";
+        if (r.severity === "Medium") colorClass = "bg-amber-50 text-amber-700 border border-amber-200 font-semibold";
+        if (r.severity === "Low") colorClass = "bg-emerald-50 text-emerald-700 border border-emerald-200";
+        return (
+          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] ${colorClass}`}>
+            {r.severity}
+          </span>
+        );
+      },
     },
     {
       id: "terminalIp",
-      label: "Station / IP",
+      header: "Station / IP",
+      accessorKey: "terminalIp",
       sortable: true,
       defaultWidth: 140,
-      getValue: (r) => r.terminalIp,
+      render: (_, r) => <div className="text-[11.5px] text-slate-500 font-mono">{r.terminalIp}</div>,
     },
     {
       id: "actions",
-      label: "Verify",
+      header: "Verify",
       sortable: false,
       filterable: false,
       align: "center",
       defaultWidth: 80,
+      render: (_, r) => (
+        <button
+          type="button"
+          onClick={() => toast.success(`Audit checksum verified for log #${r.id}`)}
+          title="Verify Cryptographic Signature"
+          className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-teal-600 transition cursor-pointer inline-flex items-center justify-center"
+        >
+          <ShieldCheck className="h-3.5 w-3.5" />
+        </button>
+      ),
     },
   ];
 
@@ -307,7 +303,7 @@ export function AuditTrailView() {
         </div>
       </div>
 
-      {/* Reusable Data Table */}
+      {/* PosDataGrid */}
       {filteredLogs.length === 0 ? (
         <div className="rounded-2xl border border-slate-200 bg-white p-20 text-center shadow-xs space-y-3">
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-slate-50 text-slate-400">
@@ -319,96 +315,14 @@ export function AuditTrailView() {
           </p>
         </div>
       ) : (
-        <div className="rounded-xl border border-slate-300 bg-white shadow-2xs overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-[12.5px] border-collapse">
-              <DataTableHeader
-                columns={columns}
-                data={sortedLogs}
-                selectable
-                isAllSelected={selectedIds.length === sortedLogs.length && sortedLogs.length > 0}
-                isSomeSelected={selectedIds.length > 0 && selectedIds.length < sortedLogs.length}
-                onToggleSelectAll={toggleSelectAll}
-                sortConfig={sortConfig}
-                onSortChange={setSortConfig}
-                themeVariant="primary"
-              />
-              <tbody className="divide-y divide-slate-100">
-                {paginatedLogs.map((r) => (
-                  <tr key={r.id} className="hover:bg-slate-50/70 transition">
-                    <td className="w-12 px-3 py-3 text-center">
-                      <input
-                        type="checkbox"
-                        checked={selectedIds.includes(r.id)}
-                        onChange={() => toggleSelect(r.id)}
-                        className="rounded border-slate-300 cursor-pointer text-teal-600 focus:ring-teal-500"
-                      />
-                    </td>
-                    <td className="px-3.5 py-3">
-                      <div className="font-mono text-[12px] text-slate-600">{r.timestamp}</div>
-                    </td>
-                    <td className="px-3.5 py-3">
-                      <div>
-                        <div className="font-bold text-slate-900 text-[12.5px]">{r.user}</div>
-                        <div className="text-[11px] text-teal-700 font-semibold">{r.role}</div>
-                      </div>
-                    </td>
-                    <td className="px-3.5 py-3">
-                      <span className="inline-flex items-center rounded-md bg-slate-100 px-2.5 py-0.5 text-[11.5px] font-mono font-bold text-slate-800 border border-slate-200">
-                        {r.action}
-                      </span>
-                    </td>
-                    <td className="px-3.5 py-3">
-                      <div className="text-[12px] text-slate-700 max-w-md font-medium">{r.details}</div>
-                    </td>
-                    <td className="px-3.5 py-3">
-                      {(() => {
-                        let colorClass = "bg-slate-100 text-slate-700";
-                        if (r.severity === "Critical") colorClass = "bg-rose-100 text-rose-800 border border-rose-300 font-black";
-                        if (r.severity === "High") colorClass = "bg-orange-50 text-orange-700 border border-orange-200 font-bold";
-                        if (r.severity === "Medium") colorClass = "bg-amber-50 text-amber-700 border border-amber-200 font-semibold";
-                        if (r.severity === "Low") colorClass = "bg-emerald-50 text-emerald-700 border border-emerald-200";
-                        return (
-                          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] ${colorClass}`}>
-                            {r.severity}
-                          </span>
-                        );
-                      })()}
-                    </td>
-                    <td className="px-3.5 py-3">
-                      <div className="text-[11.5px] text-slate-500 font-mono">{r.terminalIp}</div>
-                    </td>
-                    <td className="px-3.5 py-3 text-center">
-                      <button
-                        type="button"
-                        onClick={() => toast.success(`Audit checksum verified for log #${r.id}`)}
-                        title="Verify Cryptographic Signature"
-                        className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-teal-600 transition cursor-pointer inline-flex items-center justify-center"
-                      >
-                        <ShieldCheck className="h-3.5 w-3.5" />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          <DataTableFooter
-            totalCount={sortedLogs.length}
-            currentPage={validPage}
-            pageSize={pageSize}
-            onPageChange={setPage}
-            onPageSizeChange={(sz) => {
-              setPageSize(sz);
-              setPage(1);
-            }}
-            selectedCount={selectedIds.length}
-            onClearSelection={() => setSelectedIds([])}
-            itemName="audit events"
-            onExport={(fmt) => toast.success(`Exporting audit log as ${fmt.toUpperCase()}...`)}
-          />
-        </div>
+        <PosDataGrid
+          data={filteredLogs}
+          columns={columns}
+          storageKey="pos-audit-trail"
+          selectable
+          itemName="audit events"
+          themeVariant="primary"
+        />
       )}
     </div>
   );

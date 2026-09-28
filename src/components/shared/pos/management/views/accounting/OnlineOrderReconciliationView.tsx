@@ -18,7 +18,7 @@ import {
   Check,
 } from "lucide-react";
 import { toast } from "sonner";
-import { DataTableHeader, DataTableFooter, type DataTableColumn } from "@/components/common";
+import { PosDataGrid, type PosDataGridColumn } from "@/components/ui/data-grid/PosDataGrid";
 
 interface ReconcileRecord {
   id: string;
@@ -358,69 +358,130 @@ export function OnlineOrderReconciliationView() {
     );
   };
 
-  const columns: DataTableColumn<ReconcileRecord>[] = [
+  const columns: PosDataGridColumn<ReconcileRecord>[] = [
     {
       id: "aggregatorOrderId",
-      label: "Aggregator Order ID",
+      header: "Aggregator Order ID",
+      accessorKey: "aggregatorOrderId",
       sortable: true,
       defaultWidth: 170,
-      getValue: (r) => `${r.aggregatorOrderId} ${r.orderDate}`,
+      render: (_, row) => (
+        <div>
+          <div className="font-mono text-[12.5px] font-bold text-slate-900">{row.aggregatorOrderId}</div>
+          <div className="text-[11px] text-slate-500">{row.orderDate}</div>
+        </div>
+      ),
     },
     {
       id: "channel",
-      label: "Channel",
+      header: "Channel",
+      accessorKey: "channel",
       sortable: true,
       filterable: true,
       defaultWidth: 130,
-      getValue: (r) => r.channel,
+      render: (_, row) => (
+        <span
+          className={`inline-flex items-center rounded-md px-2.5 py-0.5 text-[11px] font-bold ${
+            row.channel === "Zomato"
+              ? "bg-rose-50 text-rose-700 border border-rose-200"
+              : row.channel === "Swiggy"
+              ? "bg-orange-50 text-orange-700 border border-orange-200"
+              : "bg-purple-50 text-purple-700 border border-purple-200"
+          }`}
+        >
+          {row.channel}
+        </span>
+      ),
     },
     {
       id: "posBillNo",
-      label: "POS Bill Ref",
+      header: "POS Bill Ref",
+      accessorKey: "posBillNo",
       sortable: true,
       defaultWidth: 140,
-      getValue: (r) => r.posBillNo,
+      render: (_, row) => <span className="font-mono text-[12px] text-slate-700 font-medium">{row.posBillNo}</span>,
     },
     {
       id: "aggregatorAmount",
-      label: "Payout Claimed (₹)",
+      header: "Payout Claimed (₹)",
+      accessorKey: "aggregatorAmount",
       align: "right",
       sortable: true,
       defaultWidth: 150,
-      getValue: (r) => `₹${r.aggregatorAmount.toLocaleString()}`,
+      render: (_, row) => <div className="font-mono font-bold text-slate-900">₹{row.aggregatorAmount.toLocaleString()}</div>,
     },
     {
       id: "posAmount",
-      label: "POS Billed (₹)",
+      header: "POS Billed (₹)",
+      accessorKey: "posAmount",
       align: "right",
       sortable: true,
       defaultWidth: 140,
-      getValue: (r) => `₹${r.posAmount.toLocaleString()}`,
+      render: (_, row) => <div className="font-mono text-slate-600">₹{row.posAmount.toLocaleString()}</div>,
     },
     {
       id: "varianceAmount",
-      label: "Variance Diff (₹)",
+      header: "Variance Diff (₹)",
+      accessorKey: "varianceAmount",
       align: "right",
       sortable: true,
       defaultWidth: 150,
-      getValue: (r) => (r.varianceAmount > 0 ? `+₹${r.varianceAmount}` : `₹${r.varianceAmount}`),
+      render: (_, row) => (
+        <div
+          className={`font-mono font-bold ${
+            row.varianceAmount === 0
+              ? "text-slate-400"
+              : row.varianceAmount > 0
+              ? "text-rose-600"
+              : "text-amber-600"
+          }`}
+        >
+          {row.varianceAmount > 0 ? `+₹${row.varianceAmount}` : row.varianceAmount < 0 ? `-₹${Math.abs(row.varianceAmount)}` : "₹0"}
+        </div>
+      ),
     },
     {
       id: "settlementStatus",
-      label: "Reconciliation Status",
+      header: "Reconciliation Status",
+      accessorKey: "settlementStatus",
       sortable: true,
       filterable: true,
       align: "center",
       defaultWidth: 170,
-      getValue: (r) => r.settlementStatus,
+      render: (_, row) => (
+        <span
+          className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-bold ${
+            row.settlementStatus === "Resolved"
+              ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+              : row.settlementStatus === "Pending Review"
+              ? "bg-amber-50 text-amber-700 border border-amber-200"
+              : "bg-rose-50 text-rose-700 border border-rose-200"
+          }`}
+        >
+          {row.settlementStatus === "Resolved" && <CheckCircle2 className="h-3 w-3 text-emerald-600" />}
+          {row.settlementStatus === "Pending Review" && <AlertTriangle className="h-3 w-3 text-amber-600" />}
+          {row.settlementStatus === "Disputed" && <XCircle className="h-3 w-3 text-rose-600" />}
+          {row.settlementStatus}
+        </span>
+      ),
     },
     {
       id: "actions",
-      label: "Action",
+      header: "Action",
       sortable: false,
       filterable: false,
       align: "center",
       defaultWidth: 90,
+      render: (_, row) => (
+        <button
+          type="button"
+          onClick={() => setReviewRecord(row)}
+          title="Review Dispute & Justification"
+          className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-teal-600 transition cursor-pointer inline-flex items-center justify-center"
+        >
+          <Eye className="h-4 w-4" />
+        </button>
+      ),
     },
   ];
 
@@ -438,14 +499,6 @@ export function OnlineOrderReconciliationView() {
         </div>
 
         <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => toast.success("Exporting reconciliation settlement report...")}
-            className="flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3.5 py-1.5 text-[12.5px] font-medium text-slate-700 hover:bg-slate-50 transition cursor-pointer shadow-2xs"
-          >
-            <Download className="h-3.5 w-3.5 text-slate-500" />
-            Export Settlement
-          </button>
           <button
             type="button"
             onClick={() => {
@@ -584,7 +637,7 @@ export function OnlineOrderReconciliationView() {
         </div>
       </div>
 
-      {/* 4. Tab Bar */}
+      {/* 4. Tab Bar & Data Grid */}
       <div className="rounded-xl border border-slate-300 bg-white shadow-2xs overflow-hidden">
         <div className="flex flex-wrap border-b border-slate-200 bg-slate-50/50">
           {tabs.map((tab) => (
@@ -609,134 +662,35 @@ export function OnlineOrderReconciliationView() {
           ))}
         </div>
 
-        {/* Table / Empty State */}
-        {filteredRecords.length === 0 ? (
-          <div className="p-20 text-center space-y-4">
-            <div className="mx-auto relative flex h-20 w-20 items-center justify-center">
-              <div className="absolute h-16 w-16 rounded-full bg-rose-50 -left-2 -top-1" />
-              <div className="absolute h-8 w-8 rounded-full bg-rose-100 right-0 bottom-0" />
-              <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-white border border-slate-200 shadow-sm text-slate-400">
-                <FileSpreadsheet className="h-8 w-8" />
+        <div className="p-0">
+          <PosDataGrid
+            data={filteredRecords}
+            columns={columns}
+            keyField="id"
+            selectable
+            selectedRowIds={selectedIds}
+            onSelectionChange={(ids: any) => setSelectedIds(ids as string[])}
+            storageKey={`pos-accounting-recon-${activeTab}`}
+            pageSize={pageSize}
+            onPageSizeChange={setPageSize}
+            themeVariant="primary"
+            itemName="reconciliation orders"
+            emptyState={
+              <div className="p-16 text-center space-y-4">
+                <div className="mx-auto relative flex h-16 w-16 items-center justify-center">
+                  <div className="absolute h-12 w-12 rounded-full bg-slate-100" />
+                  <div className="relative flex h-12 w-12 items-center justify-center rounded-xl bg-white border border-slate-200 shadow-sm text-slate-400">
+                    <FileSpreadsheet className="h-6 w-6" />
+                  </div>
+                </div>
+                <div className="text-[14px] font-bold text-slate-700">No Records Found</div>
+                <p className="text-[12px] text-slate-400 max-w-sm mx-auto">
+                  Upload aggregator payout reports or manually log a dispute to match discrepancies.
+                </p>
               </div>
-            </div>
-            <div className="text-[15px] font-bold text-slate-700">Records Not Found.</div>
-            <p className="text-[12px] text-slate-400 max-w-sm mx-auto">
-              Upload aggregator payout reports or manually log a dispute to match discrepancies.
-            </p>
-          </div>
-        ) : (
-          <div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-[12.5px] border-collapse">
-                <DataTableHeader
-                  columns={columns}
-                  data={sortedRecords}
-                  selectable
-                  isAllSelected={selectedIds.length === sortedRecords.length && sortedRecords.length > 0}
-                  isSomeSelected={selectedIds.length > 0 && selectedIds.length < sortedRecords.length}
-                  onToggleSelectAll={toggleSelectAll}
-                  sortConfig={sortConfig}
-                  onSortChange={setSortConfig}
-                  themeVariant="primary"
-                />
-                <tbody className="divide-y divide-slate-100">
-                  {paginatedRecords.map((r) => (
-                    <tr key={r.id} className="hover:bg-slate-50/70 transition">
-                      <td className="w-12 px-3 py-3 text-center">
-                        <input
-                          type="checkbox"
-                          checked={selectedIds.includes(r.id)}
-                          onChange={() => toggleSelect(r.id)}
-                          className="rounded border-slate-300 cursor-pointer text-teal-600 focus:ring-teal-500"
-                        />
-                      </td>
-                      <td className="px-3.5 py-3">
-                        <div className="font-mono text-[12.5px] font-bold text-slate-900">{r.aggregatorOrderId}</div>
-                        <div className="text-[11px] text-slate-500">{r.orderDate}</div>
-                      </td>
-                      <td className="px-3.5 py-3">
-                        <span
-                          className={`inline-flex items-center rounded-md px-2.5 py-0.5 text-[11px] font-bold ${
-                            r.channel === "Zomato"
-                              ? "bg-rose-50 text-rose-700 border border-rose-200"
-                              : r.channel === "Swiggy"
-                              ? "bg-orange-50 text-orange-700 border border-orange-200"
-                              : "bg-purple-50 text-purple-700 border border-purple-200"
-                          }`}
-                        >
-                          {r.channel}
-                        </span>
-                      </td>
-                      <td className="px-3.5 py-3">
-                        <span className="font-mono text-[12px] text-slate-700 font-medium">{r.posBillNo}</span>
-                      </td>
-                      <td className="px-3.5 py-3 text-right">
-                        <div className="font-mono font-bold text-slate-900">₹{r.aggregatorAmount.toLocaleString()}</div>
-                      </td>
-                      <td className="px-3.5 py-3 text-right">
-                        <div className="font-mono text-slate-600">₹{r.posAmount.toLocaleString()}</div>
-                      </td>
-                      <td className="px-3.5 py-3 text-right">
-                        <div
-                          className={`font-mono font-bold ${
-                            r.varianceAmount === 0
-                              ? "text-slate-400"
-                              : r.varianceAmount > 0
-                              ? "text-rose-600"
-                              : "text-amber-600"
-                          }`}
-                        >
-                          {r.varianceAmount > 0 ? `+₹${r.varianceAmount}` : r.varianceAmount < 0 ? `-₹${Math.abs(r.varianceAmount)}` : "₹0"}
-                        </div>
-                      </td>
-                      <td className="px-3.5 py-3 text-center">
-                        <span
-                          className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-bold ${
-                            r.settlementStatus === "Resolved"
-                              ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                              : r.settlementStatus === "Pending Review"
-                              ? "bg-amber-50 text-amber-700 border border-amber-200"
-                              : "bg-rose-50 text-rose-700 border border-rose-200"
-                          }`}
-                        >
-                          {r.settlementStatus === "Resolved" && <CheckCircle2 className="h-3 w-3 text-emerald-600" />}
-                          {r.settlementStatus === "Pending Review" && <AlertTriangle className="h-3 w-3 text-amber-600" />}
-                          {r.settlementStatus === "Disputed" && <XCircle className="h-3 w-3 text-rose-600" />}
-                          {r.settlementStatus}
-                        </span>
-                      </td>
-                      <td className="px-3.5 py-3 text-center">
-                        <button
-                          type="button"
-                          onClick={() => setReviewRecord(r)}
-                          title="Review Dispute & Justification"
-                          className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-teal-600 transition cursor-pointer inline-flex items-center justify-center"
-                        >
-                          <Eye className="h-4 w-4" />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            <DataTableFooter
-              totalCount={sortedRecords.length}
-              currentPage={validPage}
-              pageSize={pageSize}
-              onPageChange={setPage}
-              onPageSizeChange={(sz) => {
-                setPageSize(sz);
-                setPage(1);
-              }}
-              selectedCount={selectedIds.length}
-              onClearSelection={() => setSelectedIds([])}
-              itemName="reconciliation orders"
-              onExport={(fmt) => toast.success(`Exporting reconciliation data as ${fmt.toUpperCase()}...`)}
-            />
-          </div>
-        )}
+            }
+          />
+        </div>
       </div>
 
       {/* 5. Upload Payout Sheet Modal */}

@@ -22,11 +22,7 @@ import {
 } from "lucide-react";
 import { useDueBills, useSettleDueBillMutation } from "@/hooks/queries/usePosOrders";
 import { type DueBill } from "@/services/posOrdersService";
-import {
-  DataTableHeader,
-  DataTableFooter,
-  type DataTableColumn,
-} from "@/components/common/DataTableHeader";
+import { PosDataGrid, type PosDataGridColumn } from "@/components/ui/data-grid/PosDataGrid";
 import { toast } from "sonner";
 
 export function PosDueSettlementManager() {
@@ -45,10 +41,6 @@ export function PosDueSettlementManager() {
 
   const { data: dueBills = [] } = useDueBills();
   const settleMutation = useSettleDueBillMutation();
-
-  // Pagination state
-  const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 8;
 
   const totalOpenDues = useMemo(() => {
     return dueBills.reduce((acc, curr) => acc + (curr.status !== "Settled" ? curr.dueAmount : 0), 0);
@@ -79,80 +71,154 @@ export function PosDueSettlementManager() {
     });
   }, [dueBills, agingFilter, statusFilter, searchQuery]);
 
-  const dueColumns: DataTableColumn<DueBill>[] = useMemo(
-    () => [
-      {
-        id: "billNo",
-        label: "Bill No & Location",
-        sortable: true,
-        filterable: true,
-        defaultWidth: 190,
-        getValue: (r) => `${r.billNo} ${r.tableOrRoom} ${r.dueDate}`,
-      },
-      {
-        id: "customer",
-        label: "Guest & Waiter Details",
-        sortable: true,
-        filterable: true,
-        defaultWidth: 210,
-        getValue: (r) => `${r.customerName} ${r.customerPhone} ${r.waiterName || ""}`,
-      },
-      {
-        id: "itemsSummary",
-        label: "Items Summary",
-        sortable: false,
-        filterable: false,
-        defaultWidth: 230,
-        getValue: (r) => r.itemsSummary || "",
-      },
-      {
-        id: "totalAmount",
-        label: "Total Bill",
-        sortable: true,
-        align: "right",
-        defaultWidth: 130,
-        getValue: (r) => `₹${r.totalAmount}`,
-      },
-      {
-        id: "dueAmount",
-        label: "Balance Due",
-        sortable: true,
-        align: "right",
-        defaultWidth: 140,
-        getValue: (r) => `₹${r.dueAmount}`,
-      },
-      {
-        id: "status",
-        label: "Status",
-        sortable: true,
-        filterable: true,
-        align: "center",
-        defaultWidth: 110,
-        getValue: (r) => r.status,
-      },
-      {
-        id: "actions",
-        label: "Action",
-        sortable: false,
-        filterable: false,
-        align: "right",
-        defaultWidth: 130,
-      },
-    ],
-    [],
-  );
-
-  const totalRecords = filteredRecords.length;
-  const totalPages = Math.ceil(totalRecords / pageSize) || 1;
-  const validPage = Math.min(currentPage, totalPages);
-  const startIndex = (validPage - 1) * pageSize;
-  const paginatedRecords = filteredRecords.slice(startIndex, startIndex + pageSize);
-
   const handleOpenSettleModal = (bill: DueBill) => {
     setSelectedBill(bill);
     setSettlementAmount(bill.dueAmount.toString());
     setSettlementMode("UPI");
   };
+
+  const dueColumns: PosDataGridColumn<DueBill>[] = useMemo(
+    () => [
+      {
+        id: "billNo",
+        header: "Bill No & Location",
+        accessorKey: "billNo",
+        sortable: true,
+        filterable: true,
+        defaultWidth: 190,
+        render: (_, bill) => (
+          <div>
+            <div className="font-mono text-[13px] font-black text-slate-900">{bill.billNo}</div>
+            <div className="text-[11.5px] font-bold text-teal-800 mt-0.5">{bill.tableOrRoom}</div>
+            <div className="text-[10.5px] text-slate-400">Date: {bill.dueDate}</div>
+          </div>
+        ),
+      },
+      {
+        id: "customer",
+        header: "Guest & Waiter Details",
+        accessorKey: "customerName",
+        sortable: true,
+        filterable: true,
+        defaultWidth: 210,
+        render: (_, bill) => (
+          <div>
+            <div className="font-bold text-slate-900 text-[12.5px] flex items-center gap-1">
+              <User className="h-3 w-3 text-slate-400" />
+              <span>{bill.customerName}</span>
+            </div>
+            {bill.customerPhone && bill.customerPhone !== "--" && (
+              <div className="text-[11px] text-slate-500 font-mono flex items-center gap-1 mt-0.5">
+                <Phone className="h-2.5 w-2.5 text-slate-400" />
+                <span>{bill.customerPhone}</span>
+              </div>
+            )}
+            <div className="text-[10.5px] text-slate-500 mt-0.5">
+              Waiter: <span className="font-semibold text-slate-700">{bill.waiterName || "Captain"}</span>
+            </div>
+          </div>
+        ),
+      },
+      {
+        id: "itemsSummary",
+        header: "Items Summary",
+        accessorKey: "itemsSummary",
+        sortable: false,
+        filterable: false,
+        defaultWidth: 230,
+        render: (_, bill) => (
+          <div className="font-semibold text-slate-700 max-w-xs text-[11.5px] leading-relaxed">
+            {bill.itemsSummary || "Dishes & Beverages"}
+          </div>
+        ),
+      },
+      {
+        id: "totalAmount",
+        header: "Total Bill",
+        accessorKey: "totalAmount",
+        sortable: true,
+        align: "right",
+        defaultWidth: 130,
+        render: (_, bill) => (
+          <div>
+            <div className="font-bold text-slate-900 text-[12.5px]">
+              ₹ {bill.totalAmount.toLocaleString("en-IN")}.00
+            </div>
+            {bill.paidAmount > 0 && (
+              <div className="text-[10.5px] text-slate-500">
+                Paid: ₹{bill.paidAmount.toLocaleString()}
+              </div>
+            )}
+          </div>
+        ),
+      },
+      {
+        id: "dueAmount",
+        header: "Balance Due",
+        accessorKey: "dueAmount",
+        sortable: true,
+        align: "right",
+        defaultWidth: 140,
+        render: (_, bill) => (
+          <div>
+            <div className="font-black text-[14px] text-teal-800">
+              ₹ {bill.dueAmount.toLocaleString("en-IN")}.00
+            </div>
+            {bill.status === "Settled" && bill.settlementMode && (
+              <div className="text-[10.5px] text-teal-700 font-semibold">
+                Via {bill.settlementMode}
+              </div>
+            )}
+          </div>
+        ),
+      },
+      {
+        id: "status",
+        header: "Status",
+        accessorKey: "status",
+        sortable: true,
+        filterable: true,
+        align: "center",
+        defaultWidth: 110,
+        render: (_, bill) => (
+          <span
+            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10.5px] font-bold border ${
+              bill.status === "Settled"
+                ? "bg-slate-100 text-slate-700 border-slate-300"
+                : "bg-teal-50 text-teal-800 border-teal-300"
+            }`}
+          >
+            {bill.status}
+          </span>
+        ),
+      },
+      {
+        id: "actions",
+        header: "Action",
+        sortable: false,
+        filterable: false,
+        align: "right",
+        defaultWidth: 130,
+        render: (_, bill) =>
+          bill.status !== "Settled" ? (
+            <button
+              type="button"
+              onClick={() => handleOpenSettleModal(bill)}
+              className="flex h-8 items-center gap-1.5 rounded-lg bg-teal-700 px-3.5 text-[11.5px] font-black text-white hover:bg-teal-800 active:scale-98 transition cursor-pointer shadow-xs ml-auto"
+            >
+              <CreditCard className="h-3.5 w-3.5" />
+              <span>Settle & Done</span>
+            </button>
+          ) : (
+            <span className="inline-flex h-7.5 items-center gap-1 rounded-lg bg-slate-100 border border-slate-300 px-2.5 text-[11px] font-bold text-slate-600">
+              <Check className="h-3.5 w-3.5 text-teal-700" />
+              <span>Archived</span>
+            </span>
+          ),
+      },
+    ],
+    [],
+  );
 
   const handleConfirmSettlement = () => {
     if (!selectedBill) return;
@@ -352,10 +418,7 @@ export function PosDueSettlementManager() {
               <button
                 key={tab.key}
                 type="button"
-                onClick={() => {
-                  setAgingFilter(tab.key);
-                  setCurrentPage(1);
-                }}
+                onClick={() => setAgingFilter(tab.key)}
                 className={`rounded-lg px-3 py-1 text-[11.5px] font-bold transition cursor-pointer border ${agingFilter === tab.key
                     ? "bg-teal-700 text-white border-teal-700 shadow-2xs"
                     : "bg-white border-slate-300 text-slate-700 hover:bg-slate-50 shadow-2xs"
@@ -367,7 +430,7 @@ export function PosDueSettlementManager() {
           </div>
 
           <div className="text-[12px] font-semibold text-slate-600">
-            Showing <span className="font-bold text-slate-900">{totalRecords}</span> entries
+            Showing <span className="font-bold text-slate-900">{filteredRecords.length}</span> entries
           </div>
         </div>
 
@@ -379,10 +442,7 @@ export function PosDueSettlementManager() {
               type="text"
               placeholder="Search Bill #, Customer Name, Phone, or Table/Room..."
               value={searchQuery}
-              onChange={(e) => {
-                setSearchQuery(e.target.value);
-                setCurrentPage(1);
-              }}
+              onChange={(e) => setSearchQuery(e.target.value)}
               className="h-8.5 w-full rounded-lg border border-slate-300 bg-white pl-8 pr-3 text-[12px] font-medium text-slate-800 placeholder-slate-400 focus:border-teal-500 focus:outline-hidden shadow-2xs"
             />
           </div>
@@ -390,10 +450,7 @@ export function PosDueSettlementManager() {
           <div className="relative min-w-[150px]">
             <select
               value={statusFilter}
-              onChange={(e) => {
-                setStatusFilter(e.target.value);
-                setCurrentPage(1);
-              }}
+              onChange={(e) => setStatusFilter(e.target.value)}
               className="h-8.5 w-full appearance-none rounded-lg border border-slate-300 bg-white pl-3 pr-8 text-[12px] font-medium text-slate-700 focus:border-teal-500 focus:outline-hidden cursor-pointer shadow-2xs"
             >
               <option value="all">All Status</option>
@@ -411,7 +468,6 @@ export function PosDueSettlementManager() {
                 setSearchQuery("");
                 setStatusFilter("all");
                 setAgingFilter("all");
-                setCurrentPage(1);
               }}
               className="h-8.5 rounded-lg border border-slate-300 bg-slate-50 px-3 text-[11.5px] font-bold text-slate-700 hover:bg-slate-100 cursor-pointer transition shadow-2xs"
             >
@@ -422,130 +478,13 @@ export function PosDueSettlementManager() {
       </div>
 
       {/* 4. STRUCTURED DUE SETTLEMENT TABLE */}
-      <div className="overflow-hidden rounded-xl border border-slate-300 bg-white shadow-2xs">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-[12px] border-collapse">
-            <DataTableHeader
-              columns={dueColumns}
-              data={filteredRecords}
-              themeVariant="primary"
-            />
-            <tbody className="divide-y divide-slate-200">
-              {paginatedRecords.length === 0 ? (
-                <tr>
-                  <td colSpan={dueColumns.length} className="py-10 text-center text-slate-500">
-                    No due payment records found. Kitchen prepared bills will appear here automatically.
-                  </td>
-                </tr>
-              ) : (
-                paginatedRecords.map((bill) => (
-                  <tr key={bill.id} className="hover:bg-slate-50/70 transition">
-                    {/* Bill & Location */}
-                    <td className="py-3 px-3 align-top">
-                      <div className="font-mono text-[13px] font-black text-slate-900">
-                        {bill.billNo}
-                      </div>
-                      <div className="text-[11.5px] font-bold text-teal-800 mt-0.5">
-                        {bill.tableOrRoom}
-                      </div>
-                      <div className="text-[10.5px] text-slate-400">Date: {bill.dueDate}</div>
-                    </td>
-
-                    {/* Customer / Waiter */}
-                    <td className="py-3 px-3 align-top">
-                      <div className="font-bold text-slate-900 text-[12.5px] flex items-center gap-1">
-                        <User className="h-3 w-3 text-slate-400" />
-                        <span>{bill.customerName}</span>
-                      </div>
-                      {bill.customerPhone && bill.customerPhone !== "--" && (
-                        <div className="text-[11px] text-slate-500 font-mono flex items-center gap-1 mt-0.5">
-                          <Phone className="h-2.5 w-2.5 text-slate-400" />
-                          <span>{bill.customerPhone}</span>
-                        </div>
-                      )}
-                      <div className="text-[10.5px] text-slate-500 mt-0.5">
-                        Waiter: <span className="font-semibold text-slate-700">{bill.waiterName || "Captain"}</span>
-                      </div>
-                    </td>
-
-                    {/* Items Summary */}
-                    <td className="py-3 px-3 align-top">
-                      <div className="font-semibold text-slate-700 max-w-xs text-[11.5px] leading-relaxed">
-                        {bill.itemsSummary || "Dishes & Beverages"}
-                      </div>
-                    </td>
-
-                    {/* Total Bill */}
-                    <td className="py-3 px-3 align-top text-right">
-                      <div className="font-bold text-slate-900 text-[12.5px]">
-                        ₹ {bill.totalAmount.toLocaleString("en-IN")}.00
-                      </div>
-                      {bill.paidAmount > 0 && (
-                        <div className="text-[10.5px] text-slate-500">
-                          Paid: ₹{bill.paidAmount.toLocaleString()}
-                        </div>
-                      )}
-                    </td>
-
-                    {/* Balance Due */}
-                    <td className="py-3 px-3 align-top text-right">
-                      <div className="font-black text-[14px] text-teal-800">
-                        ₹ {bill.dueAmount.toLocaleString("en-IN")}.00
-                      </div>
-                      {bill.status === "Settled" && bill.settlementMode && (
-                        <div className="text-[10.5px] text-teal-700 font-semibold">
-                          Via {bill.settlementMode}
-                        </div>
-                      )}
-                    </td>
-
-                    {/* Aging & Status */}
-                    <td className="py-3 px-3 align-top text-center">
-                      <span
-                        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10.5px] font-bold border ${bill.status === "Settled"
-                            ? "bg-slate-100 text-slate-700 border-slate-300"
-                            : "bg-teal-50 text-teal-800 border-teal-300"
-                          }`}
-                      >
-                        {bill.status}
-                      </span>
-                    </td>
-
-                    {/* Actions */}
-                    <td className="py-3 px-3 align-top text-right">
-                      {bill.status !== "Settled" ? (
-                        <button
-                          type="button"
-                          onClick={() => handleOpenSettleModal(bill)}
-                          className="flex h-8 items-center gap-1.5 rounded-lg bg-teal-700 px-3.5 text-[11.5px] font-black text-white hover:bg-teal-800 active:scale-98 transition cursor-pointer shadow-xs ml-auto"
-                        >
-                          <CreditCard className="h-3.5 w-3.5" />
-                          <span>Settle & Done</span>
-                        </button>
-                      ) : (
-                        <span className="inline-flex h-7.5 items-center gap-1 rounded-lg bg-slate-100 border border-slate-300 px-2.5 text-[11px] font-bold text-slate-600">
-                          <Check className="h-3.5 w-3.5 text-teal-700" />
-                          <span>Archived</span>
-                        </span>
-                      )}
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Standardized DataTableFooter */}
-        <DataTableFooter
-          currentPage={validPage}
-          totalPages={totalPages}
-          totalCount={totalRecords}
-          pageSize={pageSize}
-          onPageChange={(p) => setCurrentPage(p)}
-          itemName="bills"
-        />
-      </div>
+      <PosDataGrid
+        data={filteredRecords}
+        columns={dueColumns}
+        storageKey="pos-due-settlement"
+        itemName="bills"
+        themeVariant="primary"
+      />
 
       {/* QUICK SETTLEMENT MODAL */}
       {selectedBill && (

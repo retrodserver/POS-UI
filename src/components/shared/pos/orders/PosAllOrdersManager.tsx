@@ -15,7 +15,7 @@ import {
 import { AreaChart, Area, XAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { useAllOrders } from "@/hooks/queries/usePosOrders";
 import type { AllOrderItem } from "@/types/posOrders";
-import { PosDataGrid } from "@/components/ui/data-grid";
+import { PosDataGrid, type PosDataGridColumn } from "@/components/ui/data-grid";
 
 const EXTENDED_MOCK_RECORDS: (AllOrderItem & { tableNo?: string; customerPhone?: string })[] = [
   {
@@ -406,6 +406,185 @@ export function PosAllOrdersManager() {
     "Last 15 Days Orders",
     "This Month",
   ];
+
+  type OrderRowType = AllOrderItem & { tableNo?: string; customerPhone?: string };
+
+  const columns: PosDataGridColumn<OrderRowType>[] = useMemo(
+    () => [
+      {
+        id: "orderNo",
+        header: "Order No.",
+        accessorKey: "orderNo",
+        enableSorting: true,
+        enableFiltering: true,
+        minWidth: 100,
+        cell: ({ row }: { row: OrderRowType }) => (
+          <span className="font-bold text-slate-900">{row.orderNo}</span>
+        ),
+      },
+      {
+        id: "orderTypeDisplay",
+        header: "Order Type",
+        accessorKey: "orderTypeDisplay",
+        enableSorting: true,
+        enableFiltering: true,
+        minWidth: 150,
+        cell: ({ row }: { row: OrderRowType }) => (
+          <span className="font-semibold text-slate-800">{row.orderTypeDisplay}</span>
+        ),
+      },
+      {
+        id: "customerName",
+        header: "Customer Name",
+        accessorKey: "customerName",
+        enableSorting: true,
+        enableFiltering: true,
+        minWidth: 140,
+        cell: ({ row }: { row: OrderRowType }) => <span>{row.customerName}</span>,
+      },
+      {
+        id: "assignTo",
+        header: "Assign To",
+        accessorKey: "assignTo",
+        enableSorting: true,
+        enableFiltering: true,
+        minWidth: 120,
+        cell: ({ row }: { row: OrderRowType }) => <span className="text-slate-600">{row.assignTo}</span>,
+      },
+      {
+        id: "itemsSummary",
+        header: "Items",
+        accessorKey: "itemsSummary",
+        minWidth: 200,
+        cell: ({ row }: { row: OrderRowType }) => (
+          <span className="text-slate-600 font-normal leading-relaxed text-[12px]">
+            {row.itemsSummary}
+          </span>
+        ),
+      },
+      {
+        id: "myAmountFormatted",
+        header: "My Amount (₹)",
+        accessorKey: "myAmountFormatted",
+        align: "right",
+        enableSorting: true,
+        cell: ({ row }: { row: OrderRowType }) => (
+          <span className="font-medium">{row.myAmountFormatted}</span>
+        ),
+      },
+      {
+        id: "taxAmountFormatted",
+        header: "Tax (₹)",
+        accessorKey: "taxAmountFormatted",
+        align: "right",
+        enableSorting: true,
+        cell: ({ row }: { row: OrderRowType }) => (
+          <span className="text-slate-500">{row.taxAmountFormatted}</span>
+        ),
+      },
+      {
+        id: "discountAmountFormatted",
+        header: "Discount (₹)",
+        accessorKey: "discountAmountFormatted",
+        align: "right",
+        enableSorting: true,
+        cell: ({ row }: { row: OrderRowType }) => (
+          <span className="text-slate-500">{row.discountAmountFormatted}</span>
+        ),
+      },
+      {
+        id: "grandTotalFormatted",
+        header: "Grand Total (₹)",
+        accessorKey: "grandTotalFormatted",
+        align: "right",
+        enableSorting: true,
+        cell: ({ row }: { row: OrderRowType }) => (
+          <span className="font-bold text-slate-900">{row.grandTotalFormatted}</span>
+        ),
+      },
+      {
+        id: "paymentMode",
+        header: "Payment",
+        accessorKey: "paymentMode",
+        enableSorting: true,
+        enableFiltering: true,
+        cell: ({ row }: { row: OrderRowType }) => <span className="font-medium">{row.paymentMode}</span>,
+      },
+      {
+        id: "status",
+        header: "Status",
+        accessorKey: "status",
+        enableSorting: true,
+        enableFiltering: true,
+        cell: ({ row }: { row: OrderRowType }) => (
+          <span
+            className={`inline-flex rounded-md border px-2 py-0.5 text-[11px] font-semibold ${
+              row.status === "Printed"
+                ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                : row.status === "Settled"
+                  ? "bg-teal-50 text-teal-700 border-teal-200"
+                  : "bg-slate-100 text-slate-700 border-slate-200"
+            }`}
+          >
+            {row.status}
+          </span>
+        ),
+      },
+      {
+        id: "createdAt",
+        header: "Created",
+        accessorKey: "createdAt",
+        enableSorting: true,
+        cell: ({ row }: { row: OrderRowType }) => (
+          <span className="text-slate-500 text-[11.5px] whitespace-nowrap">
+            {row.createdAt}
+          </span>
+        ),
+      },
+      {
+        id: "actions",
+        header: "Actions",
+        align: "center",
+        cell: ({ row: r }: { row: OrderRowType }) => (
+          <div className="flex items-center justify-center gap-1.5 text-slate-500 py-1">
+            <button
+              type="button"
+              onClick={() => setViewingOrder(r)}
+              title="View Details"
+              className="rounded-lg border border-slate-200 bg-white p-1 hover:text-sky-600 hover:border-sky-300 transition cursor-pointer shadow-2xs"
+            >
+              <Eye className="h-3.5 w-3.5" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setPrintingOrder(r)}
+              title="Print Invoice"
+              className="rounded-lg border border-slate-200 bg-white p-1 hover:text-emerald-600 hover:border-emerald-300 transition cursor-pointer shadow-2xs"
+            >
+              <Printer className="h-3.5 w-3.5" />
+            </button>
+            <button
+              type="button"
+              onClick={() => alert(`Edit Order #${r.orderNo}`)}
+              title="Edit Order"
+              className="rounded-lg border border-slate-200 bg-white p-1 hover:text-amber-600 hover:border-amber-300 transition cursor-pointer shadow-2xs"
+            >
+              <Edit className="h-3.5 w-3.5" />
+            </button>
+            <button
+              type="button"
+              onClick={() => alert(`Reorder items from #${r.orderNo}`)}
+              title="Reorder"
+              className="rounded-lg border border-slate-200 bg-white p-1 hover:text-purple-600 hover:border-purple-300 transition cursor-pointer shadow-2xs"
+            >
+              <RotateCcw className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        ),
+      },
+    ],
+    []
+  );
 
   return (
     <div className="space-y-2.5 pb-8">
@@ -835,179 +1014,7 @@ export function PosAllOrdersManager() {
         pageSize={10}
         pageSizeOptions={[10, 25, 50, 100]}
         emptyMessage="No matching orders found. Try adjusting your search or filters."
-        columns={[
-          {
-            id: "orderNo",
-            header: "Order No.",
-            accessorKey: "orderNo",
-            enableSorting: true,
-            enableFiltering: true,
-            minWidth: 100,
-            cell: ({ row }) => (
-              <span className="font-bold text-slate-900">{row.orderNo}</span>
-            ),
-          },
-          {
-            id: "orderTypeDisplay",
-            header: "Order Type",
-            accessorKey: "orderTypeDisplay",
-            enableSorting: true,
-            enableFiltering: true,
-            minWidth: 150,
-            cell: ({ row }) => (
-              <span className="font-semibold text-slate-800">{row.orderTypeDisplay}</span>
-            ),
-          },
-          {
-            id: "customerName",
-            header: "Customer Name",
-            accessorKey: "customerName",
-            enableSorting: true,
-            enableFiltering: true,
-            minWidth: 140,
-            cell: ({ row }) => <span>{row.customerName}</span>,
-          },
-          {
-            id: "assignTo",
-            header: "Assign To",
-            accessorKey: "assignTo",
-            enableSorting: true,
-            enableFiltering: true,
-            minWidth: 120,
-            cell: ({ row }) => <span className="text-slate-600">{row.assignTo}</span>,
-          },
-          {
-            id: "itemsSummary",
-            header: "Items",
-            accessorKey: "itemsSummary",
-            minWidth: 200,
-            cell: ({ row }) => (
-              <span className="text-slate-600 font-normal leading-relaxed text-[12px]">
-                {row.itemsSummary}
-              </span>
-            ),
-          },
-          {
-            id: "myAmountFormatted",
-            header: "My Amount (₹)",
-            accessorKey: "myAmountFormatted",
-            align: "right",
-            enableSorting: true,
-            cell: ({ row }) => (
-              <span className="font-medium">{row.myAmountFormatted}</span>
-            ),
-          },
-          {
-            id: "taxAmountFormatted",
-            header: "Tax (₹)",
-            accessorKey: "taxAmountFormatted",
-            align: "right",
-            enableSorting: true,
-            cell: ({ row }) => (
-              <span className="text-slate-500">{row.taxAmountFormatted}</span>
-            ),
-          },
-          {
-            id: "discountAmountFormatted",
-            header: "Discount (₹)",
-            accessorKey: "discountAmountFormatted",
-            align: "right",
-            enableSorting: true,
-            cell: ({ row }) => (
-              <span className="text-slate-500">{row.discountAmountFormatted}</span>
-            ),
-          },
-          {
-            id: "grandTotalFormatted",
-            header: "Grand Total (₹)",
-            accessorKey: "grandTotalFormatted",
-            align: "right",
-            enableSorting: true,
-            cell: ({ row }) => (
-              <span className="font-bold text-slate-900">{row.grandTotalFormatted}</span>
-            ),
-          },
-          {
-            id: "paymentMode",
-            header: "Payment",
-            accessorKey: "paymentMode",
-            enableSorting: true,
-            enableFiltering: true,
-            cell: ({ row }) => <span className="font-medium">{row.paymentMode}</span>,
-          },
-          {
-            id: "status",
-            header: "Status",
-            accessorKey: "status",
-            enableSorting: true,
-            enableFiltering: true,
-            cell: ({ row }) => (
-              <span
-                className={`inline-flex rounded-md border px-2 py-0.5 text-[11px] font-semibold ${
-                  row.status === "Printed"
-                    ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                    : row.status === "Settled"
-                      ? "bg-teal-50 text-teal-700 border-teal-200"
-                      : "bg-slate-100 text-slate-700 border-slate-200"
-                }`}
-              >
-                {row.status}
-              </span>
-            ),
-          },
-          {
-            id: "createdAt",
-            header: "Created",
-            accessorKey: "createdAt",
-            enableSorting: true,
-            cell: ({ row }) => (
-              <span className="text-slate-500 text-[11.5px] whitespace-nowrap">
-                {row.createdAt}
-              </span>
-            ),
-          },
-          {
-            id: "actions",
-            header: "Actions",
-            align: "center",
-            cell: ({ row: r }) => (
-              <div className="flex items-center justify-center gap-1.5 text-slate-500 py-1">
-                <button
-                  type="button"
-                  onClick={() => setViewingOrder(r)}
-                  title="View Details"
-                  className="rounded-lg border border-slate-200 bg-white p-1 hover:text-sky-600 hover:border-sky-300 transition cursor-pointer shadow-2xs"
-                >
-                  <Eye className="h-3.5 w-3.5" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setPrintingOrder(r)}
-                  title="Print Invoice"
-                  className="rounded-lg border border-slate-200 bg-white p-1 hover:text-emerald-600 hover:border-emerald-300 transition cursor-pointer shadow-2xs"
-                >
-                  <Printer className="h-3.5 w-3.5" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => alert(`Edit Order #${r.orderNo}`)}
-                  title="Edit Order"
-                  className="rounded-lg border border-slate-200 bg-white p-1 hover:text-amber-600 hover:border-amber-300 transition cursor-pointer shadow-2xs"
-                >
-                  <Edit className="h-3.5 w-3.5" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => alert(`Reorder items from #${r.orderNo}`)}
-                  title="Reorder"
-                  className="rounded-lg border border-slate-200 bg-white p-1 hover:text-purple-600 hover:border-purple-300 transition cursor-pointer shadow-2xs"
-                >
-                  <RotateCcw className="h-3.5 w-3.5" />
-                </button>
-              </div>
-            ),
-          },
-        ]}
+        columns={columns}
       />
 
       {/* VIEW ORDER DETAILS MODAL */}

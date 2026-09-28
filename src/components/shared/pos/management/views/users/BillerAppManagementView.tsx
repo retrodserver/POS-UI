@@ -1,11 +1,7 @@
 import { useState, useMemo } from "react";
 import { Plus, RefreshCw, Eye, Edit2, Copy, Trash2, CheckCircle2, Download } from "lucide-react";
 import { toast } from "sonner";
-import {
-  DataTableHeader,
-  DataTableFooter,
-  type DataTableColumn,
-} from "@/components/common";
+import { PosDataGrid, type PosDataGridColumn } from "@/components/ui/data-grid";
 
 interface StaffUser {
   id: string;
@@ -90,7 +86,7 @@ export function BillerAppManagementView() {
             ? "Waiter"
             : "Order Acceptance App";
 
-  const columns: DataTableColumn<StaffUser>[] = useMemo(
+  const columns: PosDataGridColumn<StaffUser>[] = useMemo(
     () => [
       {
         id: "name",
@@ -99,6 +95,7 @@ export function BillerAppManagementView() {
         filterable: true,
         defaultWidth: 200,
         getValue: (r) => r.name,
+        cell: ({ row }) => <span className="font-medium text-slate-800">{row.name}</span>,
       },
       {
         id: "username",
@@ -107,6 +104,7 @@ export function BillerAppManagementView() {
         filterable: true,
         defaultWidth: 180,
         getValue: (r) => r.username,
+        cell: ({ row }) => <span className="font-mono text-[12.5px] text-slate-600">{row.username}</span>,
       },
       {
         id: "userCode",
@@ -115,6 +113,7 @@ export function BillerAppManagementView() {
         filterable: true,
         defaultWidth: 140,
         getValue: (r) => r.userCode,
+        cell: ({ row }) => <span className="font-mono text-[12.5px] text-slate-700">{row.userCode}</span>,
       },
       {
         id: "status",
@@ -124,6 +123,21 @@ export function BillerAppManagementView() {
         align: "center",
         defaultWidth: 130,
         getValue: (r) => (r.status ? "Active" : "Inactive"),
+        cell: ({ row }) => (
+          <button
+            type="button"
+            onClick={() => toggleStatus(row.id)}
+            className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+              row.status ? "bg-teal-600" : "bg-slate-300"
+            }`}
+          >
+            <span
+              className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                row.status ? "translate-x-4" : "translate-x-0"
+              }`}
+            />
+          </button>
+        ),
       },
       {
         id: "actions",
@@ -132,41 +146,46 @@ export function BillerAppManagementView() {
         filterable: false,
         align: "right",
         defaultWidth: 150,
+        cell: ({ row }) => (
+          <div className="flex items-center justify-end gap-1">
+            <button
+              type="button"
+              onClick={() => toast.info(`View details for ${row.name}`)}
+              className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-teal-600 transition cursor-pointer"
+              title="View"
+            >
+              <Eye className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => toast.info(`Edit credentials for ${row.name}`)}
+              className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-teal-600 transition cursor-pointer"
+              title="Edit"
+            >
+              <Edit2 className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => toast.success(`Copied login credentials for ${row.name}`)}
+              className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-teal-600 transition cursor-pointer"
+              title="Copy Credentials"
+            >
+              <Copy className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => toast.error(`Deleted user ${row.name}`)}
+              className="rounded-lg p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition cursor-pointer"
+              title="Delete"
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+          </div>
+        ),
       },
     ],
     [titleText],
   );
-
-  const sortedList = useMemo(() => {
-    if (!sortConfig) return currentList;
-    return [...currentList].sort((a, b) => {
-      const field = sortConfig.colId as keyof StaffUser;
-      const aVal = a[field];
-      const bVal = b[field];
-      if (typeof aVal === "boolean" && typeof bVal === "boolean") {
-        return sortConfig.direction === "asc" ? (aVal === bVal ? 0 : aVal ? 1 : -1) : (aVal === bVal ? 0 : aVal ? -1 : 1);
-      }
-      return sortConfig.direction === "asc"
-        ? String(aVal).localeCompare(String(bVal))
-        : String(bVal).localeCompare(String(aVal));
-    });
-  }, [currentList, sortConfig]);
-
-  const totalPages = Math.max(1, Math.ceil(sortedList.length / pageSize));
-  const validPage = Math.min(currentPage, totalPages);
-  const paginatedList = sortedList.slice((validPage - 1) * pageSize, validPage * pageSize);
-
-  const toggleSelectAll = () => {
-    if (selectedIds.length === sortedList.length) {
-      setSelectedIds([]);
-    } else {
-      setSelectedIds(sortedList.map((u) => u.id));
-    }
-  };
-
-  const toggleSelect = (id: string) => {
-    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
-  };
 
   const toggleStatus = (id: string) => {
     const updater = (list: StaffUser[]) =>
@@ -248,108 +267,20 @@ export function BillerAppManagementView() {
         ))}
       </div>
 
-      {/* 3. Data Table with DataTableHeader & DataTableFooter */}
-      <div className="rounded-2xl border border-slate-300 bg-white shadow-xs overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-[13px] border-collapse">
-            <DataTableHeader
-              columns={columns}
-              data={sortedList}
-              selectable
-              isAllSelected={selectedIds.length === sortedList.length && sortedList.length > 0}
-              isSomeSelected={selectedIds.length > 0 && selectedIds.length < sortedList.length}
-              onToggleSelectAll={toggleSelectAll}
-              sortConfig={sortConfig}
-              onSortChange={setSortConfig}
-              themeVariant="primary"
-            />
-            <tbody className="divide-y divide-slate-100">
-              {paginatedList.map((user) => (
-                <tr key={user.id} className="hover:bg-slate-50/50 transition">
-                  <td className="w-12 px-3 py-3.5 text-center">
-                    <input
-                      type="checkbox"
-                      checked={selectedIds.includes(user.id)}
-                      onChange={() => toggleSelect(user.id)}
-                      className="rounded border-slate-300 cursor-pointer"
-                    />
-                  </td>
-                  <td className="px-5 py-3.5 font-medium text-slate-800">{user.name}</td>
-                  <td className="px-5 py-3.5 font-mono text-[12.5px] text-slate-600">
-                    {user.username}
-                  </td>
-                  <td className="px-5 py-3.5 font-mono text-[12.5px] text-slate-700">
-                    {user.userCode}
-                  </td>
-                  <td className="px-5 py-3.5 text-center">
-                    {/* Blue switch toggle */}
-                    <button
-                      type="button"
-                      onClick={() => toggleStatus(user.id)}
-                      className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                        user.status ? "bg-teal-600" : "bg-slate-300"
-                      }`}
-                    >
-                      <span
-                        className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                          user.status ? "translate-x-4" : "translate-x-0"
-                        }`}
-                      />
-                    </button>
-                  </td>
-                  <td className="px-5 py-3.5 text-right">
-                    <div className="flex items-center justify-end gap-1">
-                      <button
-                        type="button"
-                        onClick={() => toast.info(`View details for ${user.name}`)}
-                        className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-teal-600 transition cursor-pointer"
-                        title="View"
-                      >
-                        <Eye className="h-4 w-4" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => toast.info(`Edit credentials for ${user.name}`)}
-                        className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-teal-600 transition cursor-pointer"
-                        title="Edit"
-                      >
-                        <Edit2 className="h-4 w-4" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => toast.success(`Copied login credentials for ${user.name}`)}
-                        className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-teal-600 transition cursor-pointer"
-                        title="Copy Credentials"
-                      >
-                        <Copy className="h-4 w-4" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => toast.error(`Deleted user ${user.name}`)}
-                        className="rounded-lg p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition cursor-pointer"
-                        title="Delete"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        <DataTableFooter
-          currentPage={validPage}
-          totalCount={sortedList.length}
-          pageSize={pageSize}
-          onPageSizeChange={setPageSize}
-          onPageChange={setCurrentPage}
-          selectedCount={selectedIds.length}
-          onClearSelection={() => setSelectedIds([])}
-          itemName="users"
-        />
-      </div>
+      {/* 3. Data Table with PosDataGrid */}
+      <PosDataGrid
+        data={currentList}
+        columns={columns}
+        keyField="id"
+        selectable
+        selectedRowIds={selectedIds}
+        onSelectionChange={(ids: any) => setSelectedIds(ids as string[])}
+        storageKey={`pos-users-${activeTab}`}
+        pageSize={pageSize}
+        onPageSizeChange={setPageSize}
+        themeVariant="primary"
+        itemName="users"
+      />
     </div>
   );
 }

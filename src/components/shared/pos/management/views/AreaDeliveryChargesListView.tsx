@@ -1,11 +1,7 @@
 import { useState, useMemo } from "react";
-import { Plus, ChevronDown, Search, Edit2, Trash2 } from "lucide-react";
+import { Plus, ChevronDown, Edit2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import {
-  DataTableHeader,
-  DataTableFooter,
-  type DataTableColumn,
-} from "@/components/common";
+import { PosDataGrid, type PosDataGridColumn } from "@/components/ui/data-grid/PosDataGrid";
 
 interface AreaDeliveryCharge {
   id: string;
@@ -21,10 +17,6 @@ interface AreaDeliveryCharge {
 export function AreaDeliveryChargesListView() {
   const [statusFilter, setStatusFilter] = useState("All");
   const [searchArea, setSearchArea] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [sortConfig, setSortConfig] = useState<{ colId: string; direction: "asc" | "desc" } | null>(null);
 
   const [records, setRecords] = useState<AreaDeliveryCharge[]>([
     {
@@ -79,65 +71,109 @@ export function AreaDeliveryChargesListView() {
     },
   ]);
 
-  const columns: DataTableColumn<AreaDeliveryCharge>[] = useMemo(
+  const columns: PosDataGridColumn<AreaDeliveryCharge>[] = useMemo(
     () => [
       {
         id: "areaName",
-        label: "Area / Locality Name",
+        header: "Area / Locality Name",
+        accessorKey: "areaName",
         sortable: true,
         filterable: true,
         defaultWidth: 220,
-        getValue: (r) => `${r.areaName} ${r.city} ${r.pincode}`,
+        render: (_, r) => (
+          <div>
+            <div className="font-semibold text-slate-900">{r.areaName}</div>
+            <div className="text-[11.5px] text-slate-500">{r.city}</div>
+          </div>
+        ),
       },
       {
         id: "pincode",
-        label: "Pincode",
+        header: "Pincode",
+        accessorKey: "pincode",
         sortable: true,
         filterable: true,
         defaultWidth: 120,
-        getValue: (r) => r.pincode,
+        render: (_, r) => <span className="font-mono text-slate-700 font-medium">{r.pincode}</span>,
       },
       {
         id: "deliveryCharge",
-        label: "Delivery Fee (₹)",
+        header: "Delivery Fee (₹)",
+        accessorKey: "deliveryCharge",
         sortable: true,
         filterable: true,
         align: "right",
         defaultWidth: 140,
-        getValue: (r) => `₹${r.deliveryCharge}`,
+        render: (_, r) => <span className="font-mono font-bold text-slate-900">₹{r.deliveryCharge}</span>,
       },
       {
         id: "minOrder",
-        label: "Min Order (₹)",
+        header: "Min Order (₹)",
+        accessorKey: "minOrder",
         sortable: true,
         filterable: true,
         align: "right",
         defaultWidth: 140,
-        getValue: (r) => `₹${r.minOrder}`,
+        render: (_, r) => <span className="font-mono text-slate-600">₹{r.minOrder}</span>,
       },
       {
         id: "estimatedTime",
-        label: "Est. Time",
+        header: "Est. Time",
+        accessorKey: "estimatedTime",
         sortable: true,
         defaultWidth: 140,
-        getValue: (r) => r.estimatedTime,
+        render: (_, r) => <span className="text-slate-600">{r.estimatedTime}</span>,
       },
       {
         id: "status",
-        label: "Status",
+        header: "Status",
+        accessorKey: "status",
         sortable: true,
         filterable: true,
         align: "center",
         defaultWidth: 120,
-        getValue: (r) => r.status,
+        render: (_, r) => (
+          <span
+            className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold ${
+              r.status === "Active"
+                ? "bg-emerald-50 text-emerald-600 border border-emerald-200"
+                : "bg-slate-100 text-slate-500 border border-slate-200"
+            }`}
+          >
+            {r.status}
+          </span>
+        ),
       },
       {
         id: "actions",
-        label: "Actions",
+        header: "Actions",
         sortable: false,
         filterable: false,
         align: "right",
         defaultWidth: 110,
+        render: (_, r) => (
+          <div className="inline-flex items-center gap-1.5 text-slate-400">
+            <button
+              type="button"
+              onClick={() => toast.info(`Editing ${r.areaName}`)}
+              className="rounded-lg p-1.5 hover:bg-slate-100 hover:text-teal-600 transition cursor-pointer"
+              title="Edit"
+            >
+              <Edit2 className="h-3.5 w-3.5" />
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setRecords((prev) => prev.filter((item) => item.id !== r.id));
+                toast.success(`Removed ${r.areaName}`);
+              }}
+              className="rounded-lg p-1.5 hover:bg-slate-100 hover:text-red-600 transition cursor-pointer"
+              title="Delete"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        ),
       },
     ],
     [],
@@ -156,40 +192,9 @@ export function AreaDeliveryChargesListView() {
     });
   }, [records, statusFilter, searchArea]);
 
-  const sortedRecords = useMemo(() => {
-    if (!sortConfig) return filteredRecords;
-    return [...filteredRecords].sort((a, b) => {
-      const field = sortConfig.colId as keyof AreaDeliveryCharge;
-      const aVal = a[field];
-      const bVal = b[field];
-      if (typeof aVal === "number" && typeof bVal === "number") {
-        return sortConfig.direction === "asc" ? aVal - bVal : bVal - aVal;
-      }
-      return sortConfig.direction === "asc"
-        ? String(aVal).localeCompare(String(bVal))
-        : String(bVal).localeCompare(String(aVal));
-    });
-  }, [filteredRecords, sortConfig]);
-
-  const totalPages = Math.max(1, Math.ceil(sortedRecords.length / pageSize));
-  const validPage = Math.min(currentPage, totalPages);
-  const paginatedRecords = sortedRecords.slice((validPage - 1) * pageSize, validPage * pageSize);
-
-  const toggleSelectAll = () => {
-    if (selectedIds.length === sortedRecords.length) {
-      setSelectedIds([]);
-    } else {
-      setSelectedIds(sortedRecords.map((r) => r.id));
-    }
-  };
-
-  const toggleSelect = (id: string) => {
-    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
-  };
-
   return (
     <div className="space-y-4">
-      {/* 1. Header Bar matching Screenshot 3 */}
+      {/* 1. Header Bar */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-[18px] font-bold text-slate-900 tracking-tight">
           Area/Locality Wise Delivery Charges
@@ -205,7 +210,7 @@ export function AreaDeliveryChargesListView() {
         </button>
       </div>
 
-      {/* 2. Filter Bar matching Screenshot 3 */}
+      {/* 2. Filter Bar */}
       <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs">
         <div className="flex flex-wrap items-end gap-3">
           <div className="space-y-1 min-w-[180px]">
@@ -213,10 +218,7 @@ export function AreaDeliveryChargesListView() {
             <div className="relative">
               <select
                 value={statusFilter}
-                onChange={(e) => {
-                  setStatusFilter(e.target.value);
-                  setCurrentPage(1);
-                }}
+                onChange={(e) => setStatusFilter(e.target.value)}
                 className="w-full appearance-none rounded-lg border border-slate-300 bg-white pl-3 pr-8 py-1.5 text-[12.5px] font-medium text-slate-800 shadow-2xs focus:border-teal-500 focus:outline-none cursor-pointer"
               >
                 <option value="All">All</option>
@@ -233,10 +235,7 @@ export function AreaDeliveryChargesListView() {
               type="text"
               placeholder="Search area name or pin..."
               value={searchArea}
-              onChange={(e) => {
-                setSearchArea(e.target.value);
-                setCurrentPage(1);
-              }}
+              onChange={(e) => setSearchArea(e.target.value)}
               className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-[12.5px] text-slate-800 shadow-2xs focus:border-teal-500 focus:outline-none"
             />
           </div>
@@ -254,7 +253,6 @@ export function AreaDeliveryChargesListView() {
               onClick={() => {
                 setStatusFilter("All");
                 setSearchArea("");
-                setCurrentPage(1);
                 toast.info("Showing all delivery charges");
               }}
               className="rounded-lg border border-slate-300 bg-white px-4 py-1.5 text-[12.5px] font-medium text-slate-700 shadow-2xs hover:bg-slate-50 transition cursor-pointer"
@@ -265,101 +263,15 @@ export function AreaDeliveryChargesListView() {
         </div>
       </div>
 
-      {/* 3. Table with DataTableHeader & DataTableFooter */}
-      <div className="rounded-2xl border border-slate-300 bg-white shadow-xs overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-[13px] border-collapse">
-            <DataTableHeader
-              columns={columns}
-              data={sortedRecords}
-              selectable
-              isAllSelected={selectedIds.length === sortedRecords.length && sortedRecords.length > 0}
-              isSomeSelected={selectedIds.length > 0 && selectedIds.length < sortedRecords.length}
-              onToggleSelectAll={toggleSelectAll}
-              sortConfig={sortConfig}
-              onSortChange={setSortConfig}
-              themeVariant="primary"
-            />
-            <tbody className="divide-y divide-slate-100">
-              {paginatedRecords.length === 0 ? (
-                <tr>
-                  <td colSpan={columns.length + 1} className="py-12 text-center text-slate-400">
-                    No matching area delivery charges found.
-                  </td>
-                </tr>
-              ) : (
-                paginatedRecords.map((r) => (
-                  <tr key={r.id} className="hover:bg-slate-50/50 transition">
-                    <td className="w-12 px-3 py-3 text-center">
-                      <input
-                        type="checkbox"
-                        checked={selectedIds.includes(r.id)}
-                        onChange={() => toggleSelect(r.id)}
-                        className="rounded border-slate-300 cursor-pointer"
-                      />
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="font-semibold text-slate-900">{r.areaName}</div>
-                      <div className="text-[11.5px] text-slate-500">{r.city}</div>
-                    </td>
-                    <td className="px-4 py-3 font-mono text-slate-700 font-medium">{r.pincode}</td>
-                    <td className="px-4 py-3 font-mono font-bold text-slate-900 text-right">
-                      ₹{r.deliveryCharge}
-                    </td>
-                    <td className="px-4 py-3 font-mono text-slate-600 text-right">₹{r.minOrder}</td>
-                    <td className="px-4 py-3 text-slate-600">{r.estimatedTime}</td>
-                    <td className="px-4 py-3 text-center">
-                      <span
-                        className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold ${
-                          r.status === "Active"
-                            ? "bg-emerald-50 text-emerald-600 border border-emerald-200"
-                            : "bg-slate-100 text-slate-500 border border-slate-200"
-                        }`}
-                      >
-                        {r.status}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <div className="inline-flex items-center gap-1.5 text-slate-400">
-                        <button
-                          type="button"
-                          onClick={() => toast.info(`Editing ${r.areaName}`)}
-                          className="rounded-lg p-1.5 hover:bg-slate-100 hover:text-teal-600 transition cursor-pointer"
-                          title="Edit"
-                        >
-                          <Edit2 className="h-3.5 w-3.5" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setRecords((prev) => prev.filter((item) => item.id !== r.id));
-                            toast.success(`Removed ${r.areaName}`);
-                          }}
-                          className="rounded-lg p-1.5 hover:bg-slate-100 hover:text-red-600 transition cursor-pointer"
-                          title="Delete"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        <DataTableFooter
-          currentPage={validPage}
-          totalCount={sortedRecords.length}
-          pageSize={pageSize}
-          onPageSizeChange={setPageSize}
-          onPageChange={setCurrentPage}
-          selectedCount={selectedIds.length}
-          onClearSelection={() => setSelectedIds([])}
-          itemName="localities"
-        />
-      </div>
+      {/* 3. PosDataGrid */}
+      <PosDataGrid
+        data={filteredRecords}
+        columns={columns}
+        storageKey="pos-area-delivery-charges"
+        selectable
+        itemName="localities"
+        themeVariant="primary"
+      />
     </div>
   );
 }

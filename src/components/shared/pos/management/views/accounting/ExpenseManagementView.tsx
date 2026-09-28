@@ -20,6 +20,7 @@ import {
   DataTableFooter,
   type DataTableColumn,
 } from "@/components/common";
+import { PosDataGrid } from "@/components/ui/data-grid";
 import {
   Dialog,
   DialogContent,
@@ -375,87 +376,183 @@ export function ExpenseManagementView() {
     toast.success("Master category removed");
   };
 
-  const listingColumns: DataTableColumn<ListingItem>[] = [
-    {
-      id: "title",
-      label: "Title / Description",
-      sortable: true,
-      defaultWidth: 240,
-      getValue: (r) => r.title,
-    },
-    {
-      id: "paidTo",
-      label: "Beneficiary / Paid To",
-      sortable: true,
-      defaultWidth: 180,
-      getValue: (r) => r.paidTo || "—",
-    },
-    {
-      id: "paymentMode",
-      label: "Payment Mode",
-      sortable: true,
-      filterable: true,
-      defaultWidth: 160,
-      getValue: (r) => r.paymentMode,
-    },
-    {
-      id: "date",
-      label: "Date",
-      sortable: true,
-      defaultWidth: 120,
-      getValue: (r) => r.date,
-    },
-    {
-      id: "totalReported",
-      label: "Amount (₹)",
-      sortable: true,
-      align: "right",
-      defaultWidth: 140,
-      getValue: (r) => `₹${r.totalReported.toLocaleString("en-IN")}`,
-    },
-    {
-      id: "actions",
-      label: "Action",
-      sortable: false,
-      filterable: false,
-      align: "right",
-      defaultWidth: 100,
-    },
-  ];
+  const listingColumns: any[] = useMemo(
+    () => [
+      {
+        id: "title",
+        header: "Title / Description",
+        label: "Title / Description",
+        sortable: true,
+        width: 240,
+        render: (_: any, item: ListingItem) => (
+          <div>
+            <div className="font-semibold text-slate-900">{item.title}</div>
+            {item.refNo && <div className="text-[11px] text-slate-400 font-mono">Ref: {item.refNo}</div>}
+          </div>
+        ),
+        getValue: (r: ListingItem) => r.title,
+      },
+      {
+        id: "paidTo",
+        header: "Beneficiary / Paid To",
+        label: "Beneficiary / Paid To",
+        sortable: true,
+        width: 180,
+        render: (_: any, item: ListingItem) => (
+          <span className="text-slate-800 font-medium">{item.paidTo || "—"}</span>
+        ),
+        getValue: (r: ListingItem) => r.paidTo || "—",
+      },
+      {
+        id: "paymentMode",
+        header: "Payment Mode",
+        label: "Payment Mode",
+        sortable: true,
+        filterable: true,
+        width: 160,
+        render: (_: any, item: ListingItem) => (
+          <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-700">
+            {item.paymentMode}
+          </span>
+        ),
+        getValue: (r: ListingItem) => r.paymentMode,
+      },
+      {
+        id: "date",
+        header: "Date",
+        label: "Date",
+        sortable: true,
+        width: 120,
+        render: (_: any, item: ListingItem) => (
+          <span className="font-mono text-[12px] text-slate-600">{item.date}</span>
+        ),
+        getValue: (r: ListingItem) => r.date,
+      },
+      {
+        id: "totalReported",
+        header: "Amount (₹)",
+        label: "Amount (₹)",
+        sortable: true,
+        align: "right" as const,
+        width: 140,
+        render: (_: any, item: ListingItem) => (
+          <div className="font-bold font-mono text-slate-900">
+            ₹{item.totalReported.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+          </div>
+        ),
+        getValue: (r: ListingItem) => `₹${r.totalReported.toLocaleString("en-IN")}`,
+      },
+      {
+        id: "actions",
+        header: "Action",
+        label: "Action",
+        sortable: false,
+        filterable: false,
+        align: "right" as const,
+        width: 100,
+        render: (_: any, item: ListingItem) => (
+          <div className="inline-flex items-center gap-1 text-slate-400">
+            <button
+              type="button"
+              onClick={() => openEditEntryModal(item)}
+              className="rounded-lg p-1.5 hover:bg-slate-100 hover:text-teal-600 transition cursor-pointer"
+              title="Edit Entry"
+            >
+              <Edit2 className="h-3.5 w-3.5" />
+            </button>
+            <button
+              type="button"
+              onClick={() => handleDeleteListing(item.id)}
+              className="rounded-lg p-1.5 hover:bg-rose-50 hover:text-rose-600 transition cursor-pointer"
+              title="Delete Entry"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        ),
+      },
+    ],
+    [currentCategoryType]
+  );
 
-  const masterColumns: DataTableColumn<MasterItem>[] = [
-    {
-      id: "title",
-      label: "Master Category Title",
-      sortable: true,
-      defaultWidth: 300,
-      getValue: (r) => r.title,
-    },
-    {
-      id: "status",
-      label: "Status",
-      sortable: true,
-      filterable: true,
-      align: "center",
-      defaultWidth: 130,
-      getValue: (r) => (r.status ? "Active" : "Inactive"),
-    },
-    {
-      id: "createdDate",
-      label: "Created Date",
-      sortable: true,
-      defaultWidth: 160,
-      getValue: (r) => r.createdDate,
-    },
-    {
-      id: "actions",
-      label: "Actions",
-      sortable: false,
-      filterable: false,
-      align: "right",
-      defaultWidth: 110,
-    },
-  ];
+  const masterColumns: any[] = useMemo(
+    () => [
+      {
+        id: "title",
+        header: "Master Category Title",
+        label: "Master Category Title",
+        sortable: true,
+        width: 300,
+        render: (_: any, m: MasterItem) => (
+          <span className="font-semibold text-slate-900">{m.title}</span>
+        ),
+        getValue: (r: MasterItem) => r.title,
+      },
+      {
+        id: "status",
+        header: "Status",
+        label: "Status",
+        sortable: true,
+        filterable: true,
+        align: "center" as const,
+        width: 130,
+        render: (_: any, m: MasterItem) => (
+          <span
+            className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-bold ${
+              m.status
+                ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                : "bg-slate-100 text-slate-600 border border-slate-200"
+            }`}
+          >
+            {m.status && <CheckCircle2 className="h-3 w-3 text-emerald-600" />}
+            {m.status ? "Active" : "Inactive"}
+          </span>
+        ),
+        getValue: (r: MasterItem) => (r.status ? "Active" : "Inactive"),
+      },
+      {
+        id: "createdDate",
+        header: "Created Date",
+        label: "Created Date",
+        sortable: true,
+        width: 160,
+        render: (_: any, m: MasterItem) => (
+          <span className="text-slate-500 font-mono text-[11.5px]">{m.createdDate}</span>
+        ),
+        getValue: (r: MasterItem) => r.createdDate,
+      },
+      {
+        id: "actions",
+        header: "Actions",
+        label: "Actions",
+        sortable: false,
+        filterable: false,
+        align: "right" as const,
+        width: 110,
+        render: (_: any, m: MasterItem) => (
+          <div className="inline-flex items-center gap-1 text-slate-400">
+            <button
+              type="button"
+              onClick={() => openEditMasterModal(m)}
+              className="rounded-lg p-1.5 hover:bg-slate-100 hover:text-teal-600 transition cursor-pointer"
+              title="Edit Master"
+            >
+              <Edit2 className="h-3.5 w-3.5" />
+            </button>
+            <button
+              type="button"
+              onClick={() => handleDeleteMaster(m.id)}
+              className="rounded-lg p-1.5 hover:bg-rose-50 hover:text-rose-600 transition cursor-pointer"
+              title="Delete Master"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        ),
+      },
+    ],
+    []
+  );
 
   const tabs = [
     { id: "expense_listing", label: "Expense Listing" },
@@ -612,152 +709,35 @@ export function ExpenseManagementView() {
         </div>
       </div>
 
-      {/* 5. Full Table with DataTableHeader & DataTableFooter */}
+      {/* 5. Full Table with PosDataGrid */}
       <div className="rounded-2xl border border-slate-300 bg-white shadow-xs overflow-hidden">
-        <div className="overflow-x-auto">
-          {isMasterTab ? (
-            <table className="w-full text-left text-[12.5px] border-collapse">
-              <DataTableHeader
-                columns={masterColumns}
-                data={sortedMasters}
-                selectable
-                isAllSelected={selectedIds.length === sortedMasters.length && sortedMasters.length > 0}
-                isSomeSelected={selectedIds.length > 0 && selectedIds.length < sortedMasters.length}
-                onToggleSelectAll={toggleSelectAll}
-                sortConfig={sortConfig}
-                onSortChange={setSortConfig}
-                themeVariant="primary"
-              />
-              <tbody className="divide-y divide-slate-100">
-                {paginatedMasters.map((m) => (
-                  <tr key={m.id} className="hover:bg-slate-50/70 transition">
-                    <td className="w-12 px-3 py-3 text-center">
-                      <input
-                        type="checkbox"
-                        checked={selectedIds.includes(m.id)}
-                        onChange={() => toggleSelect(m.id)}
-                        className="rounded border-slate-300 cursor-pointer text-teal-600 focus:ring-teal-500"
-                      />
-                    </td>
-                    <td className="px-3.5 py-3 font-semibold text-slate-900">{m.title}</td>
-                    <td className="px-3.5 py-3 text-center">
-                      <span
-                        className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-bold ${
-                          m.status
-                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                            : "bg-slate-100 text-slate-600 border border-slate-200"
-                        }`}
-                      >
-                        {m.status && <CheckCircle2 className="h-3 w-3 text-emerald-600" />}
-                        {m.status ? "Active" : "Inactive"}
-                      </span>
-                    </td>
-                    <td className="px-3.5 py-3 text-slate-500 font-mono text-[11.5px]">{m.createdDate}</td>
-                    <td className="px-3.5 py-3 text-right">
-                      <div className="inline-flex items-center gap-1 text-slate-400">
-                        <button
-                          type="button"
-                          onClick={() => openEditMasterModal(m)}
-                          className="rounded-lg p-1.5 hover:bg-slate-100 hover:text-teal-600 transition cursor-pointer"
-                          title="Edit Master"
-                        >
-                          <Edit2 className="h-3.5 w-3.5" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleDeleteMaster(m.id)}
-                          className="rounded-lg p-1.5 hover:bg-rose-50 hover:text-rose-600 transition cursor-pointer"
-                          title="Delete Master"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          ) : (
-            <table className="w-full text-left text-[12.5px] border-collapse">
-              <DataTableHeader
-                columns={listingColumns}
-                data={sortedListings}
-                selectable
-                isAllSelected={selectedIds.length === sortedListings.length && sortedListings.length > 0}
-                isSomeSelected={selectedIds.length > 0 && selectedIds.length < sortedListings.length}
-                onToggleSelectAll={toggleSelectAll}
-                sortConfig={sortConfig}
-                onSortChange={setSortConfig}
-                themeVariant="primary"
-              />
-              <tbody className="divide-y divide-slate-100">
-                {paginatedListings.map((item) => (
-                  <tr key={item.id} className="hover:bg-slate-50/70 transition">
-                    <td className="w-12 px-3 py-3 text-center">
-                      <input
-                        type="checkbox"
-                        checked={selectedIds.includes(item.id)}
-                        onChange={() => toggleSelect(item.id)}
-                        className="rounded border-slate-300 cursor-pointer text-teal-600 focus:ring-teal-500"
-                      />
-                    </td>
-                    <td className="px-3.5 py-3">
-                      <div className="font-semibold text-slate-900">{item.title}</div>
-                      {item.refNo && <div className="text-[11px] text-slate-400 font-mono">Ref: {item.refNo}</div>}
-                    </td>
-                    <td className="px-3.5 py-3 text-slate-800 font-medium">{item.paidTo || "—"}</td>
-                    <td className="px-3.5 py-3">
-                      <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-700">
-                        {item.paymentMode}
-                      </span>
-                    </td>
-                    <td className="px-3.5 py-3 font-mono text-[12px] text-slate-600">{item.date}</td>
-                    <td className="px-3.5 py-3 text-right">
-                      <div className="font-bold font-mono text-slate-900">
-                        ₹{item.totalReported.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
-                      </div>
-                    </td>
-                    <td className="px-3.5 py-3 text-right">
-                      <div className="inline-flex items-center gap-1 text-slate-400">
-                        <button
-                          type="button"
-                          onClick={() => openEditEntryModal(item)}
-                          className="rounded-lg p-1.5 hover:bg-slate-100 hover:text-teal-600 transition cursor-pointer"
-                          title="Edit Entry"
-                        >
-                          <Edit2 className="h-3.5 w-3.5" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleDeleteListing(item.id)}
-                          className="rounded-lg p-1.5 hover:bg-rose-50 hover:text-rose-600 transition cursor-pointer"
-                          title="Delete Entry"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </div>
-
-        <DataTableFooter
-          totalCount={totalCount}
-          currentPage={validPage}
-          pageSize={pageSize}
-          onPageChange={setCurrentPage}
-          onPageSizeChange={(sz) => {
-            setPageSize(sz);
-            setCurrentPage(1);
-          }}
-          selectedCount={selectedIds.length}
-          onClearSelection={() => setSelectedIds([])}
-          itemName={isMasterTab ? "categories" : "entries"}
-          onExport={(fmt) => toast.success(`Exporting ${activeTab} as ${fmt.toUpperCase()}...`)}
-        />
+        {isMasterTab ? (
+          <PosDataGrid
+            data={filteredMasters}
+            columns={masterColumns}
+            keyField="id"
+            selectable
+            selectedRowIds={selectedIds}
+            onSelectionChange={(ids: any) => setSelectedIds(ids as string[])}
+            storageKey={`pos-accounting-expense-master-${currentCategoryType.toLowerCase()}`}
+            pageSize={10}
+            themeVariant="primary"
+            emptyMessage="No master categories found."
+          />
+        ) : (
+          <PosDataGrid
+            data={filteredListings}
+            columns={listingColumns}
+            keyField="id"
+            selectable
+            selectedRowIds={selectedIds}
+            onSelectionChange={(ids: any) => setSelectedIds(ids as string[])}
+            storageKey={`pos-accounting-expense-listing-${currentCategoryType.toLowerCase()}`}
+            pageSize={10}
+            themeVariant="primary"
+            emptyMessage={`No ${currentCategoryType.toLowerCase()} records found.`}
+          />
+        )}
       </div>
 
       {/* 6. Add / Edit Listing Entry Modal */}

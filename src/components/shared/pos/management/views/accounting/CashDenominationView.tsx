@@ -21,6 +21,7 @@ import {
   DataTableFooter,
   type DataTableColumn,
 } from "@/components/common";
+import { PosDataGrid } from "@/components/ui/data-grid";
 import {
   Dialog,
   DialogContent,
@@ -201,71 +202,132 @@ export function CashDenominationView() {
     setSelectedIds((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
   };
 
-  const columns: DataTableColumn<ShiftCashLog>[] = [
-    {
-      id: "countedDate",
-      label: "Counted Date & Time",
-      sortable: true,
-      defaultWidth: 170,
-      getValue: (r) => r.countedDate,
-    },
-    {
-      id: "shiftName",
-      label: "Shift",
-      sortable: true,
-      filterable: true,
-      defaultWidth: 180,
-      getValue: (r) => r.shiftName,
-    },
-    {
-      id: "cashierName",
-      label: "Cashier / Operator",
-      sortable: true,
-      defaultWidth: 200,
-      getValue: (r) => r.cashierName,
-    },
-    {
-      id: "openingFloat",
-      label: "Opening Float (₹)",
-      sortable: true,
-      align: "right",
-      defaultWidth: 140,
-      getValue: (r) => `₹${r.openingFloat.toLocaleString("en-IN")}`,
-    },
-    {
-      id: "expectedSystemCash",
-      label: "System Cash (₹)",
-      sortable: true,
-      align: "right",
-      defaultWidth: 140,
-      getValue: (r) => `₹${r.expectedSystemCash.toLocaleString("en-IN")}`,
-    },
-    {
-      id: "physicalCountedCash",
-      label: "Physical Cash (₹)",
-      sortable: true,
-      align: "right",
-      defaultWidth: 150,
-      getValue: (r) => `₹${r.physicalCountedCash.toLocaleString("en-IN")}`,
-    },
-    {
-      id: "variance",
-      label: "Variance (₹)",
-      sortable: true,
-      align: "right",
-      defaultWidth: 130,
-      getValue: (r) => (r.variance === 0 ? "₹0.00" : `₹${r.variance.toLocaleString("en-IN")}`),
-    },
-    {
-      id: "status",
-      label: "Reconciliation Status",
-      sortable: true,
-      filterable: true,
-      align: "center",
-      defaultWidth: 160,
-      getValue: (r) => r.status,
-    },
-  ];
+  const columns: any[] = useMemo(
+    () => [
+      {
+        id: "countedDate",
+        header: "Counted Date & Time",
+        label: "Counted Date & Time",
+        sortable: true,
+        width: 170,
+        render: (_: any, r: ShiftCashLog) => (
+          <span className="font-mono text-slate-700">{r.countedDate}</span>
+        ),
+        getValue: (r: ShiftCashLog) => r.countedDate,
+      },
+      {
+        id: "shiftName",
+        header: "Shift",
+        label: "Shift",
+        sortable: true,
+        filterable: true,
+        width: 180,
+        render: (_: any, r: ShiftCashLog) => (
+          <span className="font-medium text-slate-900">{r.shiftName}</span>
+        ),
+        getValue: (r: ShiftCashLog) => r.shiftName,
+      },
+      {
+        id: "cashierName",
+        header: "Cashier / Operator",
+        label: "Cashier / Operator",
+        sortable: true,
+        width: 200,
+        render: (_: any, r: ShiftCashLog) => (
+          <div>
+            <div className="font-medium text-slate-800">{r.cashierName}</div>
+            {r.notes && <div className="text-[11px] text-slate-400">{r.notes}</div>}
+          </div>
+        ),
+        getValue: (r: ShiftCashLog) => r.cashierName,
+      },
+      {
+        id: "openingFloat",
+        header: "Opening Float (₹)",
+        label: "Opening Float (₹)",
+        sortable: true,
+        align: "right" as const,
+        width: 140,
+        render: (_: any, r: ShiftCashLog) => (
+          <span className="font-mono text-slate-600">₹{r.openingFloat.toLocaleString("en-IN")}</span>
+        ),
+        getValue: (r: ShiftCashLog) => `₹${r.openingFloat.toLocaleString("en-IN")}`,
+      },
+      {
+        id: "expectedSystemCash",
+        header: "System Cash (₹)",
+        label: "System Cash (₹)",
+        sortable: true,
+        align: "right" as const,
+        width: 140,
+        render: (_: any, r: ShiftCashLog) => (
+          <span className="font-mono text-slate-700 font-medium">₹{r.expectedSystemCash.toLocaleString("en-IN")}</span>
+        ),
+        getValue: (r: ShiftCashLog) => `₹${r.expectedSystemCash.toLocaleString("en-IN")}`,
+      },
+      {
+        id: "physicalCountedCash",
+        header: "Physical Cash (₹)",
+        label: "Physical Cash (₹)",
+        sortable: true,
+        align: "right" as const,
+        width: 150,
+        render: (_: any, r: ShiftCashLog) => (
+          <span className="font-mono font-bold text-slate-900">₹{r.physicalCountedCash.toLocaleString("en-IN")}</span>
+        ),
+        getValue: (r: ShiftCashLog) => `₹${r.physicalCountedCash.toLocaleString("en-IN")}`,
+      },
+      {
+        id: "variance",
+        header: "Variance (₹)",
+        label: "Variance (₹)",
+        sortable: true,
+        align: "right" as const,
+        width: 130,
+        render: (_: any, r: ShiftCashLog) => (
+          <span
+            className={
+              r.variance === 0
+                ? "font-mono font-semibold text-emerald-600"
+                : r.variance > 0
+                ? "font-mono font-semibold text-blue-600"
+                : "font-mono font-semibold text-rose-600"
+            }
+          >
+            {r.variance === 0 ? "₹0.00" : `₹${r.variance.toLocaleString("en-IN")}`}
+          </span>
+        ),
+        getValue: (r: ShiftCashLog) => (r.variance === 0 ? "₹0.00" : `₹${r.variance.toLocaleString("en-IN")}`),
+      },
+      {
+        id: "status",
+        header: "Reconciliation Status",
+        label: "Reconciliation Status",
+        sortable: true,
+        filterable: true,
+        align: "center" as const,
+        width: 160,
+        render: (_: any, r: ShiftCashLog) => (
+          <span
+            className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-bold ${
+              r.status === "Balanced"
+                ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                : r.status === "Surplus"
+                ? "bg-blue-50 text-blue-700 border border-blue-200"
+                : "bg-rose-50 text-rose-700 border border-rose-200"
+            }`}
+          >
+            {r.status === "Balanced" && <CheckCircle2 className="h-3 w-3 text-emerald-600" />}
+            {r.status === "Surplus" && <TrendingUp className="h-3 w-3 text-blue-600" />}
+            {r.status === "Shortage" && <TrendingDown className="h-3 w-3 text-rose-600" />}
+            {r.status}
+          </span>
+        ),
+        getValue: (r: ShiftCashLog) => r.status,
+      },
+    ],
+    []
+  );
 
   return (
     <div className="w-full space-y-6 pb-12">
@@ -532,93 +594,17 @@ export function CashDenominationView() {
 
         {/* Full Table */}
         <div className="rounded-2xl border border-slate-300 bg-white shadow-xs overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-[12.5px] border-collapse">
-              <DataTableHeader
-                columns={columns}
-                data={sortedLogs}
-                selectable
-                isAllSelected={selectedIds.length === sortedLogs.length && sortedLogs.length > 0}
-                isSomeSelected={selectedIds.length > 0 && selectedIds.length < sortedLogs.length}
-                onToggleSelectAll={toggleSelectAll}
-                sortConfig={sortConfig}
-                onSortChange={setSortConfig}
-                themeVariant="primary"
-              />
-              <tbody className="divide-y divide-slate-100">
-                {paginatedLogs.map((l) => (
-                  <tr key={l.id} className="hover:bg-slate-50/70 transition">
-                    <td className="w-12 px-3 py-3 text-center">
-                      <input
-                        type="checkbox"
-                        checked={selectedIds.includes(l.id)}
-                        onChange={() => toggleSelect(l.id)}
-                        className="rounded border-slate-300 cursor-pointer text-teal-600 focus:ring-teal-500"
-                      />
-                    </td>
-                    <td className="px-3.5 py-3 font-mono text-slate-700">{l.countedDate}</td>
-                    <td className="px-3.5 py-3 font-medium text-slate-900">{l.shiftName}</td>
-                    <td className="px-3.5 py-3">
-                      <div className="font-medium text-slate-800">{l.cashierName}</div>
-                      {l.notes && <div className="text-[11px] text-slate-400">{l.notes}</div>}
-                    </td>
-                    <td className="px-3.5 py-3 text-right font-mono text-slate-600">
-                      ₹{l.openingFloat.toLocaleString("en-IN")}
-                    </td>
-                    <td className="px-3.5 py-3 text-right font-mono text-slate-700 font-medium">
-                      ₹{l.expectedSystemCash.toLocaleString("en-IN")}
-                    </td>
-                    <td className="px-3.5 py-3 text-right font-mono font-bold text-slate-900">
-                      ₹{l.physicalCountedCash.toLocaleString("en-IN")}
-                    </td>
-                    <td className="px-3.5 py-3 text-right font-mono font-semibold">
-                      <span
-                        className={
-                          l.variance === 0
-                            ? "text-emerald-600"
-                            : l.variance > 0
-                            ? "text-blue-600"
-                            : "text-rose-600"
-                        }
-                      >
-                        {l.variance === 0 ? "₹0.00" : `₹${l.variance.toLocaleString("en-IN")}`}
-                      </span>
-                    </td>
-                    <td className="px-3.5 py-3 text-center">
-                      <span
-                        className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-bold ${
-                          l.status === "Balanced"
-                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                            : l.status === "Surplus"
-                            ? "bg-blue-50 text-blue-700 border border-blue-200"
-                            : "bg-rose-50 text-rose-700 border border-rose-200"
-                        }`}
-                      >
-                        {l.status === "Balanced" && <CheckCircle2 className="h-3 w-3 text-emerald-600" />}
-                        {l.status === "Surplus" && <TrendingUp className="h-3 w-3 text-blue-600" />}
-                        {l.status === "Shortage" && <TrendingDown className="h-3 w-3 text-rose-600" />}
-                        {l.status}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          <DataTableFooter
-            totalCount={sortedLogs.length}
-            currentPage={validPage}
-            pageSize={pageSize}
-            onPageChange={setCurrentPage}
-            onPageSizeChange={(sz) => {
-              setPageSize(sz);
-              setCurrentPage(1);
-            }}
-            selectedCount={selectedIds.length}
-            onClearSelection={() => setSelectedIds([])}
-            itemName="reconciliation logs"
-            onExport={(fmt) => toast.success(`Exporting cash drawer logs as ${fmt.toUpperCase()}...`)}
+          <PosDataGrid
+            data={filteredLogs}
+            columns={columns}
+            keyField="id"
+            selectable
+            selectedRowIds={selectedIds}
+            onSelectionChange={(ids: any) => setSelectedIds(ids as string[])}
+            storageKey="pos-accounting-cash-denomination"
+            pageSize={10}
+            themeVariant="primary"
+            emptyMessage="No shift cash reconciliation logs found matching your criteria."
           />
         </div>
       </div>

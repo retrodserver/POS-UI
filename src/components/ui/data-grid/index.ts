@@ -23,6 +23,7 @@ export type {
 } from "@/components/common/DataTableHeader";
 export type {
   DataGridColumn,
+  PosDataGridColumn,
   PosDataGridProps,
   ColumnSortState,
   ColumnFilterState,

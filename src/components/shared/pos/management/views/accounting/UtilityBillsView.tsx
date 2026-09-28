@@ -20,11 +20,7 @@ import {
   Check,
 } from "lucide-react";
 import { toast } from "sonner";
-import {
-  DataTableHeader,
-  DataTableFooter,
-  type DataTableColumn,
-} from "@/components/common";
+import { PosDataGrid, type PosDataGridColumn } from "@/components/ui/data-grid/PosDataGrid";
 import {
   Dialog,
   DialogContent,
@@ -324,70 +320,6 @@ export function UtilityBillsView() {
     setSelectedIds((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
   };
 
-  const columns: DataTableColumn<UtilityBill>[] = [
-    {
-      id: "billType",
-      label: "Utility Category",
-      sortable: true,
-      filterable: true,
-      defaultWidth: 190,
-      getValue: (r) => r.billType,
-    },
-    {
-      id: "providerName",
-      label: "Biller / Provider",
-      sortable: true,
-      defaultWidth: 240,
-      getValue: (r) => r.providerName,
-    },
-    {
-      id: "consumerNumber",
-      label: "Account / Consumer No.",
-      sortable: true,
-      defaultWidth: 180,
-      getValue: (r) => r.consumerNumber,
-    },
-    {
-      id: "billingPeriod",
-      label: "Bill Month",
-      sortable: true,
-      defaultWidth: 120,
-      getValue: (r) => r.billingPeriod,
-    },
-    {
-      id: "amount",
-      label: "Amount (₹)",
-      sortable: true,
-      align: "right",
-      defaultWidth: 130,
-      getValue: (r) => `₹${r.amount.toLocaleString("en-IN")}`,
-    },
-    {
-      id: "dueDate",
-      label: "Due Date",
-      sortable: true,
-      defaultWidth: 130,
-      getValue: (r) => r.dueDate,
-    },
-    {
-      id: "status",
-      label: "Payment Status",
-      sortable: true,
-      filterable: true,
-      align: "center",
-      defaultWidth: 130,
-      getValue: (r) => r.status,
-    },
-    {
-      id: "actions",
-      label: "Actions",
-      sortable: false,
-      filterable: false,
-      align: "right",
-      defaultWidth: 110,
-    },
-  ];
-
   const getIcon = (type: string) => {
     switch (type) {
       case "Electricity":
@@ -403,6 +335,134 @@ export function UtilityBillsView() {
     }
   };
 
+  const columns: PosDataGridColumn<UtilityBill>[] = [
+    {
+      id: "billType",
+      header: "Utility Category",
+      accessorKey: "billType",
+      sortable: true,
+      filterable: true,
+      defaultWidth: 190,
+      render: (_, row) => (
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-100 border border-slate-200">
+            {getIcon(row.billType)}
+          </div>
+          <span className="font-semibold text-slate-900">{row.billType}</span>
+        </div>
+      ),
+    },
+    {
+      id: "providerName",
+      header: "Biller / Provider",
+      accessorKey: "providerName",
+      sortable: true,
+      defaultWidth: 240,
+      render: (_, row) => (
+        <div>
+          <div className="font-medium text-slate-800">{row.providerName}</div>
+          {row.notes && <div className="text-[11px] text-slate-400 truncate max-w-xs">{row.notes}</div>}
+        </div>
+      ),
+    },
+    {
+      id: "consumerNumber",
+      header: "Account / Consumer No.",
+      accessorKey: "consumerNumber",
+      sortable: true,
+      defaultWidth: 180,
+      render: (_, row) => (
+        <span className="font-mono text-[11.5px] text-slate-700 bg-slate-50 px-2 py-0.5 rounded border border-slate-200">
+          {row.consumerNumber}
+        </span>
+      ),
+    },
+    {
+      id: "billingPeriod",
+      header: "Bill Month",
+      accessorKey: "billingPeriod",
+      sortable: true,
+      defaultWidth: 120,
+      render: (_, row) => <span className="text-slate-600 font-medium">{row.billingPeriod}</span>,
+    },
+    {
+      id: "amount",
+      header: "Amount (₹)",
+      accessorKey: "amount",
+      sortable: true,
+      align: "right",
+      defaultWidth: 130,
+      render: (_, row) => (
+        <div className="font-bold text-slate-900 font-mono">
+          ₹{row.amount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+        </div>
+      ),
+    },
+    {
+      id: "dueDate",
+      header: "Due Date",
+      accessorKey: "dueDate",
+      sortable: true,
+      defaultWidth: 130,
+      render: (_, row) => <span className="font-mono text-[12px] text-slate-600">{row.dueDate}</span>,
+    },
+    {
+      id: "status",
+      header: "Payment Status",
+      accessorKey: "status",
+      sortable: true,
+      filterable: true,
+      align: "center",
+      defaultWidth: 130,
+      render: (_, row) => (
+        <span
+          className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-bold ${
+            row.status === "Paid"
+              ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+              : row.status === "Pending"
+              ? "bg-amber-50 text-amber-700 border border-amber-200"
+              : "bg-rose-50 text-rose-700 border border-rose-200"
+          }`}
+        >
+          {row.status === "Paid" ? (
+            <CheckCircle2 className="h-3 w-3 text-emerald-600" />
+          ) : (
+            <Clock className="h-3 w-3 text-amber-600" />
+          )}
+          {row.status}
+        </span>
+      ),
+    },
+    {
+      id: "actions",
+      header: "Actions",
+      sortable: false,
+      filterable: false,
+      align: "right",
+      defaultWidth: 110,
+      render: (_, row) => (
+        <div className="inline-flex items-center gap-1 text-slate-400">
+          <button
+            type="button"
+            onClick={() => openEditModal(row)}
+            className="rounded-lg p-1.5 hover:bg-slate-100 hover:text-teal-600 transition cursor-pointer"
+            title="Edit Utility Bill"
+          >
+            <Edit2 className="h-3.5 w-3.5" />
+          </button>
+          <button
+            type="button"
+            onClick={() => handleDelete(row.id)}
+            className="rounded-lg p-1.5 hover:bg-rose-50 hover:text-rose-600 transition cursor-pointer"
+            title="Delete Bill"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      ),
+    },
+  ];
+
   return (
     <div className="w-full space-y-5 pb-12">
       {/* 1. Header */}
@@ -415,14 +475,6 @@ export function UtilityBillsView() {
         </div>
 
         <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => toast.success("Exporting utility bills ledger to Excel...")}
-            className="flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-[12.5px] font-medium text-slate-700 hover:bg-slate-50 transition cursor-pointer shadow-2xs"
-          >
-            <Download className="h-3.5 w-3.5 text-slate-500" /> Export Ledger
-          </button>
-
           <button
             type="button"
             onClick={openAddModal}
@@ -557,115 +609,27 @@ export function UtilityBillsView() {
         </div>
       </div>
 
-      {/* 4. Full Width Table with DataTableHeader & DataTableFooter */}
-      <div className="rounded-2xl border border-slate-300 bg-white shadow-xs overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-[12.5px] border-collapse">
-            <DataTableHeader
-              columns={columns}
-              data={sortedBills}
-              selectable
-              isAllSelected={selectedIds.length === sortedBills.length && sortedBills.length > 0}
-              isSomeSelected={selectedIds.length > 0 && selectedIds.length < sortedBills.length}
-              onToggleSelectAll={toggleSelectAll}
-              sortConfig={sortConfig}
-              onSortChange={setSortConfig}
-              themeVariant="primary"
-            />
-            <tbody className="divide-y divide-slate-100">
-              {paginatedBills.map((b) => (
-                <tr key={b.id} className="hover:bg-slate-50/70 transition">
-                  <td className="w-12 px-3 py-3 text-center">
-                    <input
-                      type="checkbox"
-                      checked={selectedIds.includes(b.id)}
-                      onChange={() => toggleSelect(b.id)}
-                      className="rounded border-slate-300 cursor-pointer text-teal-600 focus:ring-teal-500"
-                    />
-                  </td>
-                  <td className="px-3.5 py-3">
-                    <div className="flex items-center gap-2.5">
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-100 border border-slate-200">
-                        {getIcon(b.billType)}
-                      </div>
-                      <span className="font-semibold text-slate-900">{b.billType}</span>
-                    </div>
-                  </td>
-                  <td className="px-3.5 py-3">
-                    <div className="font-medium text-slate-800">{b.providerName}</div>
-                    {b.notes && <div className="text-[11px] text-slate-400 truncate max-w-xs">{b.notes}</div>}
-                  </td>
-                  <td className="px-3.5 py-3">
-                    <span className="font-mono text-[11.5px] text-slate-700 bg-slate-50 px-2 py-0.5 rounded border border-slate-200">
-                      {b.consumerNumber}
-                    </span>
-                  </td>
-                  <td className="px-3.5 py-3 text-slate-600 font-medium">{b.billingPeriod}</td>
-                  <td className="px-3.5 py-3 text-right">
-                    <div className="font-bold text-slate-900 font-mono">
-                      ₹{b.amount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
-                    </div>
-                  </td>
-                  <td className="px-3.5 py-3 font-mono text-[12px] text-slate-600">{b.dueDate}</td>
-                  <td className="px-3.5 py-3 text-center">
-                    <span
-                      className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-bold ${
-                        b.status === "Paid"
-                          ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                          : b.status === "Pending"
-                          ? "bg-amber-50 text-amber-700 border border-amber-200"
-                          : "bg-rose-50 text-rose-700 border border-rose-200"
-                      }`}
-                    >
-                      {b.status === "Paid" ? (
-                        <CheckCircle2 className="h-3 w-3 text-emerald-600" />
-                      ) : (
-                        <Clock className="h-3 w-3 text-amber-600" />
-                      )}
-                      {b.status}
-                    </span>
-                  </td>
-                  <td className="px-3.5 py-3 text-right">
-                    <div className="inline-flex items-center gap-1 text-slate-400">
-                      <button
-                        type="button"
-                        onClick={() => openEditModal(b)}
-                        className="rounded-lg p-1.5 hover:bg-slate-100 hover:text-teal-600 transition cursor-pointer"
-                        title="Edit Utility Bill"
-                      >
-                        <Edit2 className="h-3.5 w-3.5" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleDelete(b.id)}
-                        className="rounded-lg p-1.5 hover:bg-rose-50 hover:text-rose-600 transition cursor-pointer"
-                        title="Delete Bill"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        <DataTableFooter
-          totalCount={sortedBills.length}
-          currentPage={validPage}
-          pageSize={pageSize}
-          onPageChange={setCurrentPage}
-          onPageSizeChange={(sz) => {
-            setPageSize(sz);
-            setCurrentPage(1);
-          }}
-          selectedCount={selectedIds.length}
-          onClearSelection={() => setSelectedIds([])}
-          itemName="utility bills"
-          onExport={(fmt) => toast.success(`Exporting utility records as ${fmt.toUpperCase()}...`)}
-        />
-      </div>
+      {/* 4. Full Width Table with PosDataGrid */}
+      <PosDataGrid
+        data={filteredBills}
+        columns={columns}
+        keyField="id"
+        selectable
+        selectedRowIds={selectedIds}
+        onSelectionChange={(ids: any) => setSelectedIds(ids as string[])}
+        storageKey="pos-accounting-utility-bills"
+        pageSize={pageSize}
+        onPageSizeChange={setPageSize}
+        themeVariant="primary"
+        itemName="utility bills"
+        emptyState={
+          <div className="py-12 text-center text-slate-400">
+            <Zap className="mx-auto h-8 w-8 mb-2 opacity-50 text-slate-300" />
+            <p className="text-sm font-semibold text-slate-600">No utility bills found</p>
+            <p className="text-xs text-slate-400">Try adjusting your filters or log a new utility invoice.</p>
+          </div>
+        }
+      />
 
       {/* 5. Add / Edit Utility Bill Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>

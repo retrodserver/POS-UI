@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { DataTableHeader, DataTableFooter, type DataTableColumn } from "@/components/common";
+import { PosDataGrid } from "@/components/ui/data-grid";
 
 interface TaxSlabRecord {
   id: string;
@@ -177,77 +178,84 @@ export function GstInformationView() {
   };
 
   // Tax Slabs Table
-  const [slabPage, setSlabPage] = useState(1);
-  const [slabPageSize, setSlabPageSize] = useState(5);
   const [selectedSlabIds, setSelectedSlabIds] = useState<string[]>([]);
-  const [sortConfig, setSortConfig] = useState<{ colId: string; direction: "asc" | "desc" } | null>(null);
 
-  const slabColumns: DataTableColumn<TaxSlabRecord>[] = [
-    {
-      id: "category",
-      label: "Tax Category / Service Supply",
-      sortable: true,
-      defaultWidth: 220,
-      getValue: (r) => r.category,
-    },
-    {
-      id: "hsnSac",
-      label: "HSN / SAC",
-      sortable: true,
-      defaultWidth: 100,
-      getValue: (r) => r.hsnSac,
-    },
-    {
-      id: "cgstRate",
-      label: "CGST",
-      align: "right",
-      sortable: true,
-      defaultWidth: 70,
-      getValue: (r) => `${r.cgstRate}%`,
-    },
-    {
-      id: "sgstRate",
-      label: "SGST",
-      align: "right",
-      sortable: true,
-      defaultWidth: 70,
-      getValue: (r) => `${r.sgstRate}%`,
-    },
-    {
-      id: "totalGst",
-      label: "GST Rate",
-      align: "right",
-      sortable: true,
-      defaultWidth: 85,
-      getValue: (r) => `${r.totalGst}%`,
-    },
-    {
-      id: "description",
-      label: "Applicability Rules",
-      sortable: false,
-      defaultWidth: 200,
-      getValue: (r) => r.description,
-    },
-  ];
-
-  const sortedSlabs = useMemo(() => {
-    if (!sortConfig) return TAX_SLABS;
-    return [...TAX_SLABS].sort((a, b) => {
-      const field = sortConfig.colId as keyof TaxSlabRecord;
-      const aVal = a[field] ?? "";
-      const bVal = b[field] ?? "";
-      if (typeof aVal === "number" && typeof bVal === "number") {
-        return sortConfig.direction === "asc" ? aVal - bVal : bVal - aVal;
-      }
-      return sortConfig.direction === "asc"
-        ? String(aVal).localeCompare(String(bVal))
-        : String(bVal).localeCompare(String(aVal));
-    });
-  }, [sortConfig]);
-
-  const totalPages = Math.max(1, Math.ceil(sortedSlabs.length / slabPageSize));
-  const validPage = Math.min(slabPage, totalPages);
-  const paginatedSlabs = sortedSlabs.slice((validPage - 1) * slabPageSize, validPage * slabPageSize);
+  const slabColumns = useMemo(
+    () => [
+      {
+        id: "category",
+        header: "Tax Category / Service Supply",
+        label: "Tax Category / Service Supply",
+        sortable: true,
+        filterable: true,
+        width: 220,
+        render: (_: any, r: TaxSlabRecord) => (
+          <span className="font-semibold text-slate-900">{r.category}</span>
+        ),
+        getValue: (r: TaxSlabRecord) => r.category,
+      },
+      {
+        id: "hsnSac",
+        header: "HSN / SAC",
+        label: "HSN / SAC",
+        sortable: true,
+        filterable: true,
+        width: 100,
+        render: (_: any, r: TaxSlabRecord) => (
+          <span className="font-mono text-slate-600 font-bold">{r.hsnSac}</span>
+        ),
+        getValue: (r: TaxSlabRecord) => r.hsnSac,
+      },
+      {
+        id: "cgstRate",
+        header: "CGST",
+        label: "CGST",
+        align: "right" as const,
+        sortable: true,
+        width: 70,
+        render: (_: any, r: TaxSlabRecord) => (
+          <span className="font-mono text-slate-800">{r.cgstRate}%</span>
+        ),
+        getValue: (r: TaxSlabRecord) => `${r.cgstRate}%`,
+      },
+      {
+        id: "sgstRate",
+        header: "SGST",
+        label: "SGST",
+        align: "right" as const,
+        sortable: true,
+        width: 70,
+        render: (_: any, r: TaxSlabRecord) => (
+          <span className="font-mono text-slate-800">{r.sgstRate}%</span>
+        ),
+        getValue: (r: TaxSlabRecord) => `${r.sgstRate}%`,
+      },
+      {
+        id: "totalGst",
+        header: "GST Rate",
+        label: "GST Rate",
+        align: "right" as const,
+        sortable: true,
+        width: 85,
+        render: (_: any, r: TaxSlabRecord) => (
+          <span className="font-mono font-bold text-teal-700">{r.totalGst}%</span>
+        ),
+        getValue: (r: TaxSlabRecord) => `${r.totalGst}%`,
+      },
+      {
+        id: "description",
+        header: "Applicability Rules",
+        label: "Applicability Rules",
+        sortable: false,
+        width: 200,
+        render: (_: any, r: TaxSlabRecord) => (
+          <span className="text-slate-500 text-[11.5px]">{r.description}</span>
+        ),
+        getValue: (r: TaxSlabRecord) => r.description,
+      },
+    ],
+    []
+  );
 
   return (
     <div className="w-full space-y-4">
@@ -589,41 +597,18 @@ export function GstInformationView() {
               </button>
             </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-[12px] border-collapse">
-                <DataTableHeader
-                  columns={slabColumns}
-                  data={sortedSlabs}
-                  selectable={false}
-                  sortConfig={sortConfig}
-                  onSortChange={setSortConfig}
-                  themeVariant="primary"
-                />
-                <tbody className="divide-y divide-slate-100">
-                  {paginatedSlabs.map((r) => (
-                    <tr key={r.id} className="hover:bg-slate-50/70 transition">
-                      <td className="px-4 py-3 font-semibold text-slate-900">{r.category}</td>
-                      <td className="px-3 py-3 font-mono text-slate-600 font-bold">{r.hsnSac}</td>
-                      <td className="px-3 py-3 text-right font-mono text-slate-800">{r.cgstRate}%</td>
-                      <td className="px-3 py-3 text-right font-mono text-slate-800">{r.sgstRate}%</td>
-                      <td className="px-3 py-3 text-right font-mono font-bold text-teal-700">{r.totalGst}%</td>
-                      <td className="px-3 py-3 text-slate-500 text-[11.5px]">{r.description}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="overflow-hidden rounded-xl border border-slate-200">
+              <PosDataGrid
+                data={TAX_SLABS}
+                columns={slabColumns}
+                keyField="id"
+                selectable={false}
+                storageKey="pos-accounting-gst-slabs"
+                pageSize={5}
+                themeVariant="primary"
+                emptyMessage="No tax slabs registered."
+              />
             </div>
-
-            <DataTableFooter
-              totalCount={sortedSlabs.length}
-              currentPage={validPage}
-              pageSize={slabPageSize}
-              onPageChange={setSlabPage}
-              onPageSizeChange={setSlabPageSize}
-              selectedCount={selectedSlabIds.length}
-              onClearSelection={() => setSelectedSlabIds([])}
-              itemName="tax slabs"
-            />
           </div>
         </div>
       </div>

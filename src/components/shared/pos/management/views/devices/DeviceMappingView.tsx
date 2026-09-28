@@ -1,11 +1,7 @@
 import { useState, useMemo } from "react";
-import { Monitor, Smartphone, Tablet, Tv, Plus, CheckCircle2, Trash2, Edit2, RefreshCw } from "lucide-react";
+import { Monitor, Tablet, Tv, Plus, Trash2, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
-import {
-  DataTableHeader,
-  DataTableFooter,
-  type DataTableColumn,
-} from "@/components/common";
+import { PosDataGrid, type PosDataGridColumn } from "@/components/ui/data-grid";
 
 interface DeviceItem {
   id: string;
@@ -60,12 +56,10 @@ export function DeviceMappingView() {
     },
   ]);
 
-  const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [sortConfig, setSortConfig] = useState<{ colId: string; direction: "asc" | "desc" } | null>(null);
 
-  const columns: DataTableColumn<DeviceItem>[] = useMemo(
+  const columns: PosDataGridColumn<DeviceItem>[] = useMemo(
     () => [
       {
         id: "name",
@@ -74,6 +68,20 @@ export function DeviceMappingView() {
         filterable: true,
         defaultWidth: 260,
         getValue: (r) => r.name,
+        cell: ({ row }) => (
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-teal-50 text-teal-700 border border-teal-200 shrink-0">
+              {row.type === "Desktop" ? (
+                <Monitor className="h-4 w-4" />
+              ) : row.type === "Tablet" ? (
+                <Tablet className="h-4 w-4" />
+              ) : (
+                <Tv className="h-4 w-4" />
+              )}
+            </div>
+            <div className="font-bold text-[13.5px] text-slate-900">{row.name}</div>
+          </div>
+        ),
       },
       {
         id: "type",
@@ -82,6 +90,7 @@ export function DeviceMappingView() {
         filterable: true,
         defaultWidth: 140,
         getValue: (r) => r.type,
+        cell: ({ row }) => <span className="font-semibold text-slate-700">{row.type}</span>,
       },
       {
         id: "ip",
@@ -90,6 +99,7 @@ export function DeviceMappingView() {
         filterable: true,
         defaultWidth: 160,
         getValue: (r) => r.ip,
+        cell: ({ row }) => <span className="font-mono text-[12.5px] text-slate-600">{row.ip}</span>,
       },
       {
         id: "status",
@@ -99,6 +109,11 @@ export function DeviceMappingView() {
         align: "center",
         defaultWidth: 130,
         getValue: (r) => r.status,
+        cell: ({ row }) => (
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-200">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> {row.status}
+          </span>
+        ),
       },
       {
         id: "pairedDate",
@@ -106,6 +121,7 @@ export function DeviceMappingView() {
         sortable: true,
         defaultWidth: 140,
         getValue: (r) => r.pairedDate,
+        cell: ({ row }) => <span className="text-slate-500 font-mono text-[12px]">{row.pairedDate}</span>,
       },
       {
         id: "actions",
@@ -114,38 +130,33 @@ export function DeviceMappingView() {
         filterable: false,
         align: "right",
         defaultWidth: 120,
+        cell: ({ row }) => (
+          <div className="inline-flex items-center gap-1.5 text-slate-400">
+            <button
+              type="button"
+              onClick={() => toast.success(`Pinging device at ${row.ip}...`)}
+              className="p-1.5 rounded-lg hover:text-teal-600 hover:bg-slate-100 transition cursor-pointer"
+              title="Ping Device"
+            >
+              <RefreshCw className="h-3.5 w-3.5" />
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setDevices((prev) => prev.filter((d) => d.id !== row.id));
+                toast.success(`Unpaired device ${row.name}`);
+              }}
+              className="p-1.5 rounded-lg hover:text-red-600 hover:bg-slate-100 transition cursor-pointer"
+              title="Unpair Device"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        ),
       },
     ],
     [],
   );
-
-  const sortedDevices = useMemo(() => {
-    if (!sortConfig) return devices;
-    return [...devices].sort((a, b) => {
-      const field = sortConfig.colId as keyof DeviceItem;
-      const aVal = a[field];
-      const bVal = b[field];
-      return sortConfig.direction === "asc"
-        ? String(aVal).localeCompare(String(bVal))
-        : String(bVal).localeCompare(String(aVal));
-    });
-  }, [devices, sortConfig]);
-
-  const totalPages = Math.max(1, Math.ceil(sortedDevices.length / pageSize));
-  const validPage = Math.min(currentPage, totalPages);
-  const paginatedDevices = sortedDevices.slice((validPage - 1) * pageSize, validPage * pageSize);
-
-  const toggleSelectAll = () => {
-    if (selectedIds.length === sortedDevices.length) {
-      setSelectedIds([]);
-    } else {
-      setSelectedIds(sortedDevices.map((d) => d.id));
-    }
-  };
-
-  const toggleSelect = (id: string) => {
-    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
-  };
 
   return (
     <div className="space-y-4 max-w-5xl">
@@ -167,93 +178,19 @@ export function DeviceMappingView() {
         </button>
       </div>
 
-      <div className="rounded-2xl border border-slate-300 bg-white shadow-xs overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-[13px] border-collapse">
-            <DataTableHeader
-              columns={columns}
-              data={sortedDevices}
-              selectable
-              isAllSelected={selectedIds.length === sortedDevices.length && sortedDevices.length > 0}
-              isSomeSelected={selectedIds.length > 0 && selectedIds.length < sortedDevices.length}
-              onToggleSelectAll={toggleSelectAll}
-              sortConfig={sortConfig}
-              onSortChange={setSortConfig}
-              themeVariant="primary"
-            />
-            <tbody className="divide-y divide-slate-100">
-              {paginatedDevices.map((dev) => (
-                <tr key={dev.id} className="hover:bg-slate-50/50 transition">
-                  <td className="w-12 px-3 py-3 text-center">
-                    <input
-                      type="checkbox"
-                      checked={selectedIds.includes(dev.id)}
-                      onChange={() => toggleSelect(dev.id)}
-                      className="rounded border-slate-300 cursor-pointer"
-                    />
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-teal-50 text-teal-700 border border-teal-200 shrink-0">
-                        {dev.type === "Desktop" ? (
-                          <Monitor className="h-4 w-4" />
-                        ) : dev.type === "Tablet" ? (
-                          <Tablet className="h-4 w-4" />
-                        ) : (
-                          <Tv className="h-4 w-4" />
-                        )}
-                      </div>
-                      <div className="font-bold text-[13.5px] text-slate-900">{dev.name}</div>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 font-semibold text-slate-700">{dev.type}</td>
-                  <td className="px-4 py-3 font-mono text-[12.5px] text-slate-600">{dev.ip}</td>
-                  <td className="px-4 py-3 text-center">
-                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-200">
-                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> {dev.status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-slate-500 font-mono text-[12px]">{dev.pairedDate}</td>
-                  <td className="px-4 py-3 text-right">
-                    <div className="inline-flex items-center gap-1.5 text-slate-400">
-                      <button
-                        type="button"
-                        onClick={() => toast.success(`Pinging device at ${dev.ip}...`)}
-                        className="p-1.5 rounded-lg hover:text-teal-600 hover:bg-slate-100 transition cursor-pointer"
-                        title="Ping Device"
-                      >
-                        <RefreshCw className="h-3.5 w-3.5" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setDevices((prev) => prev.filter((d) => d.id !== dev.id));
-                          toast.success(`Unpaired device ${dev.name}`);
-                        }}
-                        className="p-1.5 rounded-lg hover:text-red-600 hover:bg-slate-100 transition cursor-pointer"
-                        title="Unpair Device"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        <DataTableFooter
-          currentPage={validPage}
-          totalCount={sortedDevices.length}
-          pageSize={pageSize}
-          onPageSizeChange={setPageSize}
-          onPageChange={setCurrentPage}
-          selectedCount={selectedIds.length}
-          onClearSelection={() => setSelectedIds([])}
-          itemName="paired devices"
-        />
-      </div>
+      <PosDataGrid
+        data={devices}
+        columns={columns}
+        keyField="id"
+        selectable
+        selectedRowIds={selectedIds}
+        onSelectionChange={(ids: any) => setSelectedIds(ids as string[])}
+        storageKey="pos-device-mapping"
+        pageSize={pageSize}
+        onPageSizeChange={setPageSize}
+        themeVariant="primary"
+        itemName="paired devices"
+      />
     </div>
   );
 }

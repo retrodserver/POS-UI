@@ -28,7 +28,7 @@ import {
 } from "@/hooks/queries/usePosOrders";
 import { dispatchNewOnlineOrder } from "@/services/posOrdersService";
 import type { OnlineOrderItem } from "@/types/posOrders";
-import { PosDataGrid } from "@/components/ui/data-grid";
+import { PosDataGrid, type PosDataGridColumn } from "@/components/ui/data-grid";
 
 export function PosOnlineOrdersManager() {
   const [platformTab, setPlatformTab] = useState<"all" | "zomato" | "swiggy" | "direct_web">("all");
@@ -246,6 +246,194 @@ export function PosOnlineOrdersManager() {
     direct_web: orders.filter((o) => o.platform === "direct_web").length,
   };
 
+  const columns: PosDataGridColumn<OnlineOrderItem>[] = useMemo(
+    () => [
+      {
+        id: "orderNo",
+        header: "Order & Platform",
+        accessorKey: "orderNo",
+        enableSorting: true,
+        enableFiltering: true,
+        filterValueAccessor: (row: OnlineOrderItem) => `${row.orderNo} ${row.platform} ${row.outletName}`,
+        minWidth: 160,
+        cell: ({ row }: { row: OnlineOrderItem }) => (
+          <div className="py-1">
+            <div className="flex items-center gap-2">
+              <span className="font-mono text-[13px] font-extrabold text-slate-900">
+                #{row.orderNo}
+              </span>
+              <span className="rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider border border-slate-300 bg-slate-100 text-slate-800">
+                {row.platform === "direct_web" ? "Direct Web" : row.platform}
+              </span>
+            </div>
+            <div className="mt-0.5 text-[11px] text-slate-500 font-medium">
+              {row.outletName}
+            </div>
+            <div className="text-[10.5px] text-slate-400">{row.dateTime}</div>
+          </div>
+        ),
+      },
+      {
+        id: "customerName",
+        header: "Customer & Rider",
+        accessorKey: "customerName",
+        enableSorting: true,
+        enableFiltering: true,
+        filterValueAccessor: (row: OnlineOrderItem) => `${row.customerName} ${row.customerPhone} ${row.riderDetails}`,
+        minWidth: 180,
+        cell: ({ row }: { row: OnlineOrderItem }) => (
+          <div className="py-1">
+            <div className="font-bold text-slate-900 text-[12.5px]">{row.customerName}</div>
+            <div className="text-[11px] text-slate-600 font-mono">Ph: {row.customerPhone}</div>
+            <div className="mt-1 flex items-center gap-2 text-[10.5px] text-slate-500">
+              <span className="rounded bg-slate-100 px-1.5 py-0.2 font-mono font-bold text-slate-700 border border-slate-300">
+                OTP: {row.otp}
+              </span>
+              <span>·</span>
+              <span className="truncate max-w-[130px] text-slate-600 font-medium">
+                {row.riderDetails}
+              </span>
+            </div>
+          </div>
+        ),
+      },
+      {
+        id: "itemsText",
+        header: "Items Summary",
+        accessorKey: "itemsText",
+        minWidth: 200,
+        cell: ({ row }: { row: OnlineOrderItem }) => (
+          <div className="py-1">
+            <div className="font-semibold text-slate-800 max-w-xs text-[11.5px] leading-relaxed">
+              {row.itemsText}
+            </div>
+            <div className="mt-0.5 text-[10.5px] text-slate-500 font-medium">
+              {row.itemCount} items
+            </div>
+          </div>
+        ),
+      },
+      {
+        id: "totalAmountFormatted",
+        header: "Amount",
+        align: "right",
+        enableSorting: true,
+        accessorKey: "totalAmountFormatted",
+        cell: ({ row }: { row: OnlineOrderItem }) => (
+          <div className="py-1 text-right">
+            <div className="font-black text-[13.5px] text-slate-900">
+              {row.totalAmountFormatted}
+            </div>
+            <div className="text-[10.5px] text-teal-700 font-semibold">Prepaid Online</div>
+          </div>
+        ),
+      },
+      {
+        id: "statusDisplay",
+        header: "Lifecycle Status",
+        align: "center",
+        enableSorting: true,
+        enableFiltering: true,
+        filterValueAccessor: (row: OnlineOrderItem) => row.statusDisplay,
+        cell: ({ row }: { row: OnlineOrderItem }) => (
+          <span
+            className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-bold border ${
+              row.status === "delivered"
+                ? "bg-slate-100 text-slate-700 border-slate-300"
+                : "bg-teal-50 text-teal-800 border-teal-300"
+            }`}
+          >
+            <span
+              className={`h-1.5 w-1.5 rounded-full ${
+                row.status === "delivered" ? "bg-slate-500" : "bg-teal-600 animate-pulse"
+              }`}
+            />
+            {row.statusDisplay}
+          </span>
+        ),
+      },
+      {
+        id: "actions",
+        header: "Actions",
+        align: "right",
+        sortable: false,
+        filterable: false,
+        headerRender: () => (
+          <div className="flex items-center justify-end gap-1.5 w-full">
+            <span>Actions</span>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowSymbolGuide(true);
+              }}
+              className="flex h-5.5 w-5.5 items-center justify-center rounded-md border border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100 shadow-2xs transition cursor-pointer"
+              title="Online Order Symbols Guide (Notepad)"
+            >
+              <FileText className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        ),
+        cell: ({ row: ord }: { row: OnlineOrderItem }) => (
+          <div className="flex items-center justify-end gap-1.5 py-1">
+            {ord.status === "placed" ? (
+              <>
+                <button
+                  type="button"
+                  onClick={() => handleAcceptToKitchen(ord.id)}
+                  className="flex h-7 w-7 items-center justify-center rounded-lg bg-teal-700 hover:bg-teal-800 text-white shadow-2xs transition cursor-pointer active:scale-95"
+                  title="Pass to Kitchen KOT"
+                >
+                  <Check className="h-3.5 w-3.5 stroke-[2.5]" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleCancelOrder(ord.id)}
+                  className="flex h-7 w-7 items-center justify-center rounded-lg border border-rose-300 bg-rose-50 text-rose-700 hover:bg-rose-100 shadow-2xs transition cursor-pointer active:scale-95"
+                  title="Cancel & Reject Order"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </>
+            ) : ord.status === "in_kitchen" ? (
+              <button
+                type="button"
+                onClick={() =>
+                  handleUpdateStatus(
+                    ord.id,
+                    "food_ready",
+                    "Ready for Delivery Partner",
+                  )
+                }
+                className="flex h-7 w-7 items-center justify-center rounded-lg bg-teal-700 hover:bg-teal-800 text-white shadow-2xs transition cursor-pointer active:scale-95"
+                title="Ready for Delivery Partner"
+              >
+                <ChefHat className="h-3.5 w-3.5" />
+              </button>
+            ) : (
+              <div
+                title="Partner Managed (In Transit)"
+                className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 border border-slate-200 text-slate-600 shadow-2xs"
+              >
+                <Bike className="h-3.5 w-3.5" />
+              </div>
+            )}
+
+            <button
+              type="button"
+              onClick={() => setViewingOrder(ord)}
+              title="View Full Order Details"
+              className="flex h-7 w-7 items-center justify-center rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 shadow-2xs transition cursor-pointer"
+            >
+              <Eye className="h-3.5 w-3.5 text-slate-500" />
+            </button>
+          </div>
+        ),
+      },
+    ],
+    [handleAcceptToKitchen, handleCancelOrder, handleUpdateStatus, setViewingOrder, setShowSymbolGuide]
+  );
+
   return (
     <div className="space-y-2.5 pb-8">
       {/* 1. TOP HEADER */}
@@ -451,190 +639,7 @@ export function PosOnlineOrdersManager() {
         pageSize={10}
         pageSizeOptions={[10, 25, 50, 100]}
         emptyMessage="No online orders found matching current filters."
-        columns={[
-          {
-            id: "orderNo",
-            header: "Order & Platform",
-            accessorKey: "orderNo",
-            enableSorting: true,
-            enableFiltering: true,
-            filterValueAccessor: (row) => `${row.orderNo} ${row.platform} ${row.outletName}`,
-            minWidth: 160,
-            cell: ({ row }) => (
-              <div className="py-1">
-                <div className="flex items-center gap-2">
-                  <span className="font-mono text-[13px] font-extrabold text-slate-900">
-                    #{row.orderNo}
-                  </span>
-                  <span className="rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider border border-slate-300 bg-slate-100 text-slate-800">
-                    {row.platform === "direct_web" ? "Direct Web" : row.platform}
-                  </span>
-                </div>
-                <div className="mt-0.5 text-[11px] text-slate-500 font-medium">
-                  {row.outletName}
-                </div>
-                <div className="text-[10.5px] text-slate-400">{row.dateTime}</div>
-              </div>
-            ),
-          },
-          {
-            id: "customerName",
-            header: "Customer & Rider",
-            accessorKey: "customerName",
-            enableSorting: true,
-            enableFiltering: true,
-            filterValueAccessor: (row) => `${row.customerName} ${row.customerPhone} ${row.riderDetails}`,
-            minWidth: 180,
-            cell: ({ row }) => (
-              <div className="py-1">
-                <div className="font-bold text-slate-900 text-[12.5px]">{row.customerName}</div>
-                <div className="text-[11px] text-slate-600 font-mono">Ph: {row.customerPhone}</div>
-                <div className="mt-1 flex items-center gap-2 text-[10.5px] text-slate-500">
-                  <span className="rounded bg-slate-100 px-1.5 py-0.2 font-mono font-bold text-slate-700 border border-slate-300">
-                    OTP: {row.otp}
-                  </span>
-                  <span>·</span>
-                  <span className="truncate max-w-[130px] text-slate-600 font-medium">
-                    {row.riderDetails}
-                  </span>
-                </div>
-              </div>
-            ),
-          },
-          {
-            id: "itemsText",
-            header: "Items Summary",
-            accessorKey: "itemsText",
-            minWidth: 200,
-            cell: ({ row }) => (
-              <div className="py-1">
-                <div className="font-semibold text-slate-800 max-w-xs text-[11.5px] leading-relaxed">
-                  {row.itemsText}
-                </div>
-                <div className="mt-0.5 text-[10.5px] text-slate-500 font-medium">
-                  {row.itemCount} items
-                </div>
-              </div>
-            ),
-          },
-          {
-            id: "totalAmountFormatted",
-            header: "Amount",
-            align: "right",
-            enableSorting: true,
-            accessorKey: "totalAmountFormatted",
-            cell: ({ row }) => (
-              <div className="py-1 text-right">
-                <div className="font-black text-[13.5px] text-slate-900">
-                  {row.totalAmountFormatted}
-                </div>
-                <div className="text-[10.5px] text-teal-700 font-semibold">Prepaid Online</div>
-              </div>
-            ),
-          },
-          {
-            id: "statusDisplay",
-            header: "Lifecycle Status",
-            align: "center",
-            enableSorting: true,
-            enableFiltering: true,
-            filterValueAccessor: (row) => row.statusDisplay,
-            cell: ({ row }) => (
-              <span
-                className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-bold border ${
-                  row.status === "delivered"
-                    ? "bg-slate-100 text-slate-700 border-slate-300"
-                    : "bg-teal-50 text-teal-800 border-teal-300"
-                }`}
-              >
-                <span
-                  className={`h-1.5 w-1.5 rounded-full ${
-                    row.status === "delivered" ? "bg-slate-500" : "bg-teal-600 animate-pulse"
-                  }`}
-                />
-                {row.statusDisplay}
-              </span>
-            ),
-          },
-          {
-            id: "actions",
-            header: "Actions",
-            align: "right",
-            sortable: false,
-            filterable: false,
-            headerRender: () => (
-              <div className="flex items-center justify-end gap-1.5 w-full">
-                <span>Actions</span>
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setShowSymbolGuide(true);
-                  }}
-                  className="flex h-5.5 w-5.5 items-center justify-center rounded-md border border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100 shadow-2xs transition cursor-pointer"
-                  title="Online Order Symbols Guide (Notepad)"
-                >
-                  <FileText className="h-3.5 w-3.5" />
-                </button>
-              </div>
-            ),
-            cell: ({ row: ord }) => (
-              <div className="flex items-center justify-end gap-1.5 py-1">
-                {ord.status === "placed" ? (
-                  <>
-                    <button
-                      type="button"
-                      onClick={() => handleAcceptToKitchen(ord.id)}
-                      className="flex h-7 w-7 items-center justify-center rounded-lg bg-teal-700 hover:bg-teal-800 text-white shadow-2xs transition cursor-pointer active:scale-95"
-                      title="Pass to Kitchen KOT"
-                    >
-                      <Check className="h-3.5 w-3.5 stroke-[2.5]" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleCancelOrder(ord.id)}
-                      className="flex h-7 w-7 items-center justify-center rounded-lg border border-rose-300 bg-rose-50 text-rose-700 hover:bg-rose-100 shadow-2xs transition cursor-pointer active:scale-95"
-                      title="Cancel & Reject Order"
-                    >
-                      <X className="h-3.5 w-3.5" />
-                    </button>
-                  </>
-                ) : ord.status === "in_kitchen" ? (
-                  <button
-                    type="button"
-                    onClick={() =>
-                      handleUpdateStatus(
-                        ord.id,
-                        "food_ready",
-                        "Ready for Delivery Partner",
-                      )
-                    }
-                    className="flex h-7 w-7 items-center justify-center rounded-lg bg-teal-700 hover:bg-teal-800 text-white shadow-2xs transition cursor-pointer active:scale-95"
-                    title="Ready for Delivery Partner"
-                  >
-                    <ChefHat className="h-3.5 w-3.5" />
-                  </button>
-                ) : (
-                  <div
-                    title="Partner Managed (In Transit)"
-                    className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 border border-slate-200 text-slate-600 shadow-2xs"
-                  >
-                    <Bike className="h-3.5 w-3.5" />
-                  </div>
-                )}
-
-                <button
-                  type="button"
-                  onClick={() => setViewingOrder(ord)}
-                  title="View Full Order Details"
-                  className="flex h-7 w-7 items-center justify-center rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 shadow-2xs transition cursor-pointer"
-                >
-                  <Eye className="h-3.5 w-3.5 text-slate-500" />
-                </button>
-              </div>
-            ),
-          },
-        ]}
+        columns={columns}
       />
 
       {/* ONLINE ORDERS SYMBOLS NOTEPAD MODAL */}

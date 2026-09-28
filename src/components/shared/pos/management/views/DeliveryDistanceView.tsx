@@ -1,11 +1,7 @@
 import { useState, useMemo } from "react";
-import { Plus, Search, MapPin, Navigation, Edit2, Trash2 } from "lucide-react";
+import { Plus, Edit2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import {
-  DataTableHeader,
-  DataTableFooter,
-  type DataTableColumn,
-} from "@/components/common";
+import { PosDataGrid, type PosDataGridColumn } from "@/components/ui/data-grid/PosDataGrid";
 
 interface DistanceTier {
   id: string;
@@ -24,90 +20,87 @@ export function DeliveryDistanceView() {
     { id: "4", fromKm: 12, toKm: 18, charge: 95, minOrder: 600, status: "Active" },
   ]);
 
-  const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [sortConfig, setSortConfig] = useState<{ colId: string; direction: "asc" | "desc" } | null>(null);
 
-  const columns: DataTableColumn<DistanceTier>[] = useMemo(
+  const columns: PosDataGridColumn<DistanceTier>[] = useMemo(
     () => [
       {
         id: "range",
-        label: "Distance Range",
+        header: "Distance Range",
         sortable: true,
         filterable: true,
         defaultWidth: 180,
-        getValue: (r) => `${r.fromKm} km - ${r.toKm} km`,
+        render: (_, row) => <span className="font-medium text-slate-800">{row.fromKm} km - {row.toKm} km</span>,
       },
       {
         id: "charge",
-        label: "Delivery Charge (₹)",
+        header: "Delivery Charge (₹)",
+        accessorKey: "charge",
         sortable: true,
         filterable: true,
         align: "right",
         defaultWidth: 170,
-        getValue: (r) => `₹${r.charge}`,
+        render: (_, row) => <span className="font-mono font-bold text-slate-900">₹{row.charge}</span>,
       },
       {
         id: "minOrder",
-        label: "Min Order Amount (₹)",
+        header: "Min Order Amount (₹)",
+        accessorKey: "minOrder",
         sortable: true,
         filterable: true,
         align: "right",
         defaultWidth: 180,
-        getValue: (r) => `₹${r.minOrder}`,
+        render: (_, row) => <span className="font-mono text-slate-600">₹{row.minOrder}</span>,
       },
       {
         id: "status",
-        label: "Status",
+        header: "Status",
+        accessorKey: "status",
         sortable: true,
         filterable: true,
         align: "center",
         defaultWidth: 120,
-        getValue: (r) => r.status,
+        render: (_, row) => (
+          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-200">
+            {row.status}
+          </span>
+        ),
       },
       {
         id: "actions",
-        label: "Actions",
+        header: "Actions",
         sortable: false,
         filterable: false,
         align: "right",
         defaultWidth: 110,
+        render: (_, row) => (
+          <div className="inline-flex items-center gap-1.5 text-slate-400">
+            <button
+              type="button"
+              onClick={() => toast.info(`Editing tier ${row.fromKm}-${row.toKm} km`)}
+              className="rounded-lg p-1.5 hover:bg-slate-100 hover:text-teal-600 transition cursor-pointer"
+              title="Edit"
+            >
+              <Edit2 className="h-3.5 w-3.5" />
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setDistanceTiers((prev) => prev.filter((i) => i.id !== row.id));
+                toast.success(`Removed tier`);
+              }}
+              className="rounded-lg p-1.5 hover:bg-slate-100 hover:text-red-600 transition cursor-pointer"
+              title="Delete"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        ),
       },
     ],
     [],
   );
-
-  const sortedTiers = useMemo(() => {
-    if (!sortConfig) return distanceTiers;
-    return [...distanceTiers].sort((a, b) => {
-      const field = sortConfig.colId as keyof DistanceTier;
-      const aVal = a[field];
-      const bVal = b[field];
-      if (typeof aVal === "number" && typeof bVal === "number") {
-        return sortConfig.direction === "asc" ? aVal - bVal : bVal - aVal;
-      }
-      return sortConfig.direction === "asc"
-        ? String(aVal).localeCompare(String(bVal))
-        : String(bVal).localeCompare(String(aVal));
-    });
-  }, [distanceTiers, sortConfig]);
-
-  const totalPages = Math.max(1, Math.ceil(sortedTiers.length / pageSize));
-  const validPage = Math.min(currentPage, totalPages);
-  const paginatedTiers = sortedTiers.slice((validPage - 1) * pageSize, validPage * pageSize);
-
-  const toggleSelectAll = () => {
-    if (selectedIds.length === sortedTiers.length) {
-      setSelectedIds([]);
-    } else {
-      setSelectedIds(sortedTiers.map((t) => t.id));
-    }
-  };
-
-  const toggleSelect = (id: string) => {
-    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
-  };
 
   return (
     <div className="space-y-4">
@@ -130,81 +123,19 @@ export function DeliveryDistanceView() {
         </button>
       </div>
 
-      <div className="rounded-2xl border border-slate-300 bg-white shadow-xs overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-[13px] border-collapse">
-            <DataTableHeader
-              columns={columns}
-              data={sortedTiers}
-              selectable
-              isAllSelected={selectedIds.length === sortedTiers.length && sortedTiers.length > 0}
-              isSomeSelected={selectedIds.length > 0 && selectedIds.length < sortedTiers.length}
-              onToggleSelectAll={toggleSelectAll}
-              sortConfig={sortConfig}
-              onSortChange={setSortConfig}
-              themeVariant="primary"
-            />
-            <tbody className="divide-y divide-slate-100">
-              {paginatedTiers.map((tier) => (
-                <tr key={tier.id} className="hover:bg-slate-50/50 transition">
-                  <td className="w-12 px-3 py-3 text-center">
-                    <input
-                      type="checkbox"
-                      checked={selectedIds.includes(tier.id)}
-                      onChange={() => toggleSelect(tier.id)}
-                      className="rounded border-slate-300 cursor-pointer"
-                    />
-                  </td>
-                  <td className="px-4 py-3 font-medium text-slate-800">
-                    {tier.fromKm} km - {tier.toKm} km
-                  </td>
-                  <td className="px-4 py-3 font-mono font-bold text-slate-900 text-right">₹{tier.charge}</td>
-                  <td className="px-4 py-3 font-mono text-slate-600 text-right">₹{tier.minOrder}</td>
-                  <td className="px-4 py-3 text-center">
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-200">
-                      {tier.status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <div className="inline-flex items-center gap-1.5 text-slate-400">
-                      <button
-                        type="button"
-                        onClick={() => toast.info(`Editing tier ${tier.fromKm}-${tier.toKm} km`)}
-                        className="rounded-lg p-1.5 hover:bg-slate-100 hover:text-teal-600 transition cursor-pointer"
-                        title="Edit"
-                      >
-                        <Edit2 className="h-3.5 w-3.5" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setDistanceTiers((prev) => prev.filter((i) => i.id !== tier.id));
-                          toast.success(`Removed tier`);
-                        }}
-                        className="rounded-lg p-1.5 hover:bg-slate-100 hover:text-red-600 transition cursor-pointer"
-                        title="Delete"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        <DataTableFooter
-          currentPage={validPage}
-          totalCount={sortedTiers.length}
-          pageSize={pageSize}
-          onPageSizeChange={setPageSize}
-          onPageChange={setCurrentPage}
-          selectedCount={selectedIds.length}
-          onClearSelection={() => setSelectedIds([])}
-          itemName="distance tiers"
-        />
-      </div>
+      <PosDataGrid
+        data={distanceTiers}
+        columns={columns}
+        keyField="id"
+        selectable
+        selectedRowIds={selectedIds}
+        onSelectionChange={(ids: any) => setSelectedIds(ids as string[])}
+        storageKey="pos-delivery-distance-tiers"
+        pageSize={pageSize}
+        onPageSizeChange={setPageSize}
+        themeVariant="primary"
+        itemName="distance tiers"
+      />
     </div>
   );
 }

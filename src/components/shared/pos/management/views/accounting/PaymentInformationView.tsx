@@ -18,7 +18,7 @@ import {
   Calendar,
 } from "lucide-react";
 import { toast } from "sonner";
-import { DataTableHeader, DataTableFooter, type DataTableColumn } from "@/components/common";
+import { PosDataGrid, type PosDataGridColumn } from "@/components/ui/data-grid/PosDataGrid";
 
 interface PaymentTransaction {
   id: string;
@@ -304,83 +304,130 @@ export function PaymentInformationView() {
     );
   };
 
-  const columns: DataTableColumn<PaymentTransaction>[] = [
+  const columns: PosDataGridColumn<PaymentTransaction>[] = [
     {
       id: "orderId",
-      label: "Order / Bill No",
+      header: "Order / Bill No",
+      accessorKey: "orderId",
       sortable: true,
       defaultWidth: 160,
-      getValue: (r) => `${r.orderId} ${r.billNo}`,
+      render: (_, row) => (
+        <div>
+          <div className="font-mono text-[12.5px] font-bold text-slate-900">{row.orderId}</div>
+          <div className="text-[11px] text-slate-500 font-mono">{row.billNo}</div>
+        </div>
+      ),
     },
     {
       id: "customerName",
-      label: "Customer",
+      header: "Customer",
+      accessorKey: "customerName",
       sortable: true,
       defaultWidth: 160,
-      getValue: (r) => r.customerName,
+      render: (_, row) => <div className="font-medium text-slate-800">{row.customerName}</div>,
     },
     {
       id: "provider",
-      label: "Payment Gateway",
+      header: "Payment Gateway",
+      accessorKey: "provider",
       sortable: true,
       filterable: true,
       defaultWidth: 140,
-      getValue: (r) => r.provider,
+      render: (_, row) => (
+        <span className="inline-flex items-center gap-1.5 rounded-md bg-slate-100 px-2.5 py-1 text-[11.5px] font-bold text-slate-700">
+          {row.provider}
+        </span>
+      ),
     },
     {
       id: "txnRef",
-      label: "Reference / UTR",
+      header: "Reference / UTR",
+      accessorKey: "txnRef",
       sortable: true,
       defaultWidth: 180,
-      getValue: (r) => r.txnRef,
+      render: (_, row) => (
+        <span className="font-mono text-[11.5px] text-slate-600 select-all bg-slate-50 px-2 py-0.5 rounded border border-slate-200">
+          {row.txnRef}
+        </span>
+      ),
     },
     {
       id: "amount",
-      label: "Gross Amount (₹)",
+      header: "Gross Amount (₹)",
+      accessorKey: "amount",
       align: "right",
       sortable: true,
       defaultWidth: 140,
-      getValue: (r) => `₹${r.amount.toLocaleString("en-IN")}`,
+      render: (_, row) => <div className="font-bold text-slate-900 font-mono">₹{row.amount.toLocaleString("en-IN")}</div>,
     },
     {
       id: "fee",
-      label: "MDR Fee (₹)",
+      header: "MDR Fee (₹)",
+      accessorKey: "fee",
       align: "right",
       sortable: true,
       defaultWidth: 120,
-      getValue: (r) => `₹${r.fee.toFixed(2)}`,
+      render: (_, row) => <div className="text-slate-500 font-mono">₹{row.fee.toFixed(2)}</div>,
     },
     {
       id: "netAmount",
-      label: "Net Settled (₹)",
+      header: "Net Settled (₹)",
+      accessorKey: "netAmount",
       align: "right",
       sortable: true,
       defaultWidth: 140,
-      getValue: (r) => `₹${r.netAmount.toLocaleString("en-IN")}`,
+      render: (_, row) => <div className="font-bold text-teal-700 font-mono">₹{row.netAmount.toLocaleString("en-IN")}</div>,
     },
     {
       id: "status",
-      label: "Status",
+      header: "Status",
+      accessorKey: "status",
       sortable: true,
       filterable: true,
       align: "center",
       defaultWidth: 120,
-      getValue: (r) => r.status,
+      render: (_, row) => (
+        <span
+          className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-bold ${
+            row.status === "Success"
+              ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+              : row.status === "Pending"
+              ? "bg-amber-50 text-amber-700 border border-amber-200"
+              : "bg-rose-50 text-rose-700 border border-rose-200"
+          }`}
+        >
+          {row.status === "Success" && <CheckCircle2 className="h-3 w-3 text-emerald-600" />}
+          {row.status === "Pending" && <Clock className="h-3 w-3 text-amber-600" />}
+          {row.status === "Failed" && <XCircle className="h-3 w-3 text-rose-600" />}
+          {row.status}
+        </span>
+      ),
     },
     {
       id: "timestamp",
-      label: "Timestamp",
+      header: "Timestamp",
+      accessorKey: "timestamp",
       sortable: true,
       defaultWidth: 160,
-      getValue: (r) => r.timestamp,
+      render: (_, row) => <div className="text-[11.5px] text-slate-500 font-mono">{row.timestamp}</div>,
     },
     {
       id: "actions",
-      label: "Actions",
+      header: "Actions",
       sortable: false,
       filterable: false,
       align: "center",
       defaultWidth: 80,
+      render: (_, row) => (
+        <button
+          type="button"
+          onClick={() => toast.info(`Re-verifying gateway settlement for ${row.txnRef}`)}
+          title="Re-verify Status"
+          className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-teal-600 transition cursor-pointer inline-flex items-center justify-center"
+        >
+          <RefreshCw className="h-3.5 w-3.5" />
+        </button>
+      ),
     },
   ];
 
@@ -396,14 +443,6 @@ export function PaymentInformationView() {
         </div>
 
         <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => toast.success("Exporting payment transactions to Excel...")}
-            className="flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3.5 py-1.5 text-[12.5px] font-medium text-slate-700 hover:bg-slate-50 transition cursor-pointer shadow-2xs"
-          >
-            <Download className="h-3.5 w-3.5 text-slate-500" />
-            Export Excel
-          </button>
           <button
             type="button"
             onClick={handleOpenAddModal}
@@ -565,116 +604,27 @@ export function PaymentInformationView() {
         </div>
       </div>
 
-      {/* 4. Table with Reusable DataTableHeader and DataTableFooter */}
-      <div className="rounded-2xl border border-slate-300 bg-white shadow-xs overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-[12.5px] border-collapse">
-            <DataTableHeader
-              columns={columns}
-              data={sortedRecords}
-              selectable
-              isAllSelected={selectedIds.length === sortedRecords.length && sortedRecords.length > 0}
-              isSomeSelected={selectedIds.length > 0 && selectedIds.length < sortedRecords.length}
-              onToggleSelectAll={toggleSelectAll}
-              sortConfig={sortConfig}
-              onSortChange={setSortConfig}
-              themeVariant="primary"
-            />
-            <tbody className="divide-y divide-slate-100">
-              {paginatedRecords.length === 0 ? (
-                <tr>
-                  <td colSpan={columns.length + 1} className="py-12 text-center text-slate-400">
-                    No payment transaction records found.
-                  </td>
-                </tr>
-              ) : (
-                paginatedRecords.map((r) => (
-                  <tr key={r.id} className="hover:bg-slate-50/70 transition">
-                    <td className="w-12 px-3 py-3 text-center">
-                      <input
-                        type="checkbox"
-                        checked={selectedIds.includes(r.id)}
-                        onChange={() => toggleSelect(r.id)}
-                        className="rounded border-slate-300 cursor-pointer text-teal-600 focus:ring-teal-500"
-                      />
-                    </td>
-                    <td className="px-3.5 py-3">
-                      <div className="font-mono text-[12.5px] font-bold text-slate-900">{r.orderId}</div>
-                      <div className="text-[11px] text-slate-500 font-mono">{r.billNo}</div>
-                    </td>
-                    <td className="px-3.5 py-3">
-                      <div className="font-medium text-slate-800">{r.customerName}</div>
-                    </td>
-                    <td className="px-3.5 py-3">
-                      <span className="inline-flex items-center gap-1.5 rounded-md bg-slate-100 px-2.5 py-1 text-[11.5px] font-bold text-slate-700">
-                        {r.provider}
-                      </span>
-                    </td>
-                    <td className="px-3.5 py-3">
-                      <span className="font-mono text-[11.5px] text-slate-600 select-all bg-slate-50 px-2 py-0.5 rounded border border-slate-200">
-                        {r.txnRef}
-                      </span>
-                    </td>
-                    <td className="px-3.5 py-3 text-right">
-                      <div className="font-bold text-slate-900 font-mono">₹{r.amount.toLocaleString("en-IN")}</div>
-                    </td>
-                    <td className="px-3.5 py-3 text-right">
-                      <div className="text-slate-500 font-mono">₹{r.fee.toFixed(2)}</div>
-                    </td>
-                    <td className="px-3.5 py-3 text-right">
-                      <div className="font-bold text-teal-700 font-mono">₹{r.netAmount.toLocaleString("en-IN")}</div>
-                    </td>
-                    <td className="px-3.5 py-3 text-center">
-                      <span
-                        className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-bold ${
-                          r.status === "Success"
-                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                            : r.status === "Pending"
-                            ? "bg-amber-50 text-amber-700 border border-amber-200"
-                            : "bg-rose-50 text-rose-700 border border-rose-200"
-                        }`}
-                      >
-                        {r.status === "Success" && <CheckCircle2 className="h-3 w-3 text-emerald-600" />}
-                        {r.status === "Pending" && <Clock className="h-3 w-3 text-amber-600" />}
-                        {r.status === "Failed" && <XCircle className="h-3 w-3 text-rose-600" />}
-                        {r.status}
-                      </span>
-                    </td>
-                    <td className="px-3.5 py-3">
-                      <div className="text-[11.5px] text-slate-500 font-mono">{r.timestamp}</div>
-                    </td>
-                    <td className="px-3.5 py-3 text-center">
-                      <button
-                        type="button"
-                        onClick={() => toast.info(`Re-verifying gateway settlement for ${r.txnRef}`)}
-                        title="Re-verify Status"
-                        className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-teal-600 transition cursor-pointer inline-flex items-center justify-center"
-                      >
-                        <RefreshCw className="h-3.5 w-3.5" />
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        <DataTableFooter
-          totalCount={sortedRecords.length}
-          currentPage={validPage}
-          pageSize={pageSize}
-          onPageChange={setPage}
-          onPageSizeChange={(sz) => {
-            setPageSize(sz);
-            setPage(1);
-          }}
-          selectedCount={selectedIds.length}
-          onClearSelection={() => setSelectedIds([])}
-          itemName="transactions"
-          onExport={(fmt) => toast.success(`Exporting payment records as ${fmt.toUpperCase()}...`)}
-        />
-      </div>
+      {/* 4. Table with PosDataGrid */}
+      <PosDataGrid
+        data={filteredRecords}
+        columns={columns}
+        keyField="id"
+        selectable
+        selectedRowIds={selectedIds}
+        onSelectionChange={(ids: any) => setSelectedIds(ids as string[])}
+        storageKey="pos-accounting-payment-information"
+        pageSize={pageSize}
+        onPageSizeChange={setPageSize}
+        themeVariant="primary"
+        itemName="transactions"
+        emptyState={
+          <div className="py-12 text-center text-slate-400">
+            <CreditCard className="mx-auto h-8 w-8 mb-2 opacity-50 text-slate-300" />
+            <p className="text-sm font-semibold text-slate-600">No payment transaction records found</p>
+            <p className="text-xs text-slate-400">Try adjusting your filters or record a new payment entry.</p>
+          </div>
+        }
+      />
 
       {/* 5. Add / Record Manual Transaction Entry Modal */}
       {isAddModalOpen && (

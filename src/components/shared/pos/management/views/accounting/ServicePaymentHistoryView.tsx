@@ -16,11 +16,7 @@ import {
   Zap,
 } from "lucide-react";
 import { toast } from "sonner";
-import {
-  DataTableHeader,
-  DataTableFooter,
-  type DataTableColumn,
-} from "@/components/common";
+import { PosDataGrid, type PosDataGridColumn } from "@/components/ui/data-grid/PosDataGrid";
 import {
   Dialog,
   DialogContent,
@@ -268,83 +264,124 @@ export function ServicePaymentHistoryView() {
     setSelectedIds((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
   };
 
-  const columns: DataTableColumn<ServicePaymentRecord>[] = [
+  const columns: PosDataGridColumn<ServicePaymentRecord>[] = [
     {
       id: "invoiceNo",
-      label: "Invoice No.",
+      header: "Invoice No.",
+      accessorKey: "invoiceNo",
       sortable: true,
       defaultWidth: 170,
-      getValue: (r) => r.invoiceNo,
+      render: (_, row) => (
+        <span className="font-mono font-bold text-slate-900 bg-slate-50 px-2 py-0.5 rounded border border-slate-200">
+          {row.invoiceNo}
+        </span>
+      ),
     },
     {
       id: "serviceName",
-      label: "Service / Module",
+      header: "Service / Module",
+      accessorKey: "serviceName",
       sortable: true,
       defaultWidth: 260,
-      getValue: (r) => r.serviceName,
+      render: (_, row) => (
+        <div>
+          <div className="font-semibold text-slate-900">{row.serviceName}</div>
+          <div className="text-[11px] text-slate-400 font-mono">Ref: {row.txnRef}</div>
+        </div>
+      ),
     },
     {
       id: "category",
-      label: "Category",
+      header: "Category",
+      accessorKey: "category",
       sortable: true,
       filterable: true,
       defaultWidth: 160,
-      getValue: (r) => r.category,
+      render: (_, row) => (
+        <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-700">
+          {row.category}
+        </span>
+      ),
     },
     {
       id: "invoiceDate",
-      label: "Invoice Date",
+      header: "Invoice Date",
+      accessorKey: "invoiceDate",
       sortable: true,
       defaultWidth: 120,
-      getValue: (r) => r.invoiceDate,
+      render: (_, row) => <span className="font-mono text-[12px] text-slate-600">{row.invoiceDate}</span>,
     },
     {
       id: "amount",
-      label: "Net (₹)",
+      header: "Net (₹)",
+      accessorKey: "amount",
       sortable: true,
       align: "right",
       defaultWidth: 110,
-      getValue: (r) => `₹${r.amount.toLocaleString("en-IN")}`,
+      render: (_, row) => <span className="font-mono text-slate-700">₹{row.amount.toLocaleString("en-IN")}</span>,
     },
     {
       id: "taxAmount",
-      label: "GST (18%)",
+      header: "GST (18%)",
+      accessorKey: "taxAmount",
       sortable: true,
       align: "right",
       defaultWidth: 110,
-      getValue: (r) => `₹${r.taxAmount.toLocaleString("en-IN")}`,
+      render: (_, row) => <span className="font-mono text-slate-500">₹{row.taxAmount.toLocaleString("en-IN")}</span>,
     },
     {
       id: "totalPaid",
-      label: "Total Paid (₹)",
+      header: "Total Paid (₹)",
+      accessorKey: "totalPaid",
       sortable: true,
       align: "right",
       defaultWidth: 130,
-      getValue: (r) => `₹${r.totalPaid.toLocaleString("en-IN")}`,
+      render: (_, row) => (
+        <div className="font-bold font-mono text-teal-700">
+          ₹{row.totalPaid.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+        </div>
+      ),
     },
     {
       id: "paymentMethod",
-      label: "Payment Mode",
+      header: "Payment Mode",
+      accessorKey: "paymentMethod",
       sortable: true,
       defaultWidth: 130,
-      getValue: (r) => r.paymentMethod,
+      render: (_, row) => <span className="text-slate-700 font-medium">{row.paymentMethod}</span>,
     },
     {
       id: "status",
-      label: "Status",
+      header: "Status",
+      accessorKey: "status",
       sortable: true,
       filterable: true,
       align: "center",
       defaultWidth: 110,
-      getValue: (r) => r.status,
+      render: (_, row) => (
+        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-bold text-emerald-700 border border-emerald-200">
+          <CheckCircle2 className="h-3 w-3 text-emerald-600" />
+          {row.status}
+        </span>
+      ),
     },
     {
       id: "actions",
-      label: "Action",
+      header: "Action",
       sortable: false,
       filterable: false,
       align: "right",
       defaultWidth: 100,
+      render: (_, row) => (
+        <button
+          type="button"
+          onClick={() => toast.success(`Downloading tax invoice ${row.invoiceNo}.pdf...`)}
+          className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-teal-600 transition cursor-pointer inline-flex items-center gap-1 text-[12px]"
+          title="Download PDF"
+        >
+          <Download className="h-4 w-4" />
+        </button>
+      ),
     },
   ];
 
@@ -360,14 +397,6 @@ export function ServicePaymentHistoryView() {
         </div>
 
         <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => toast.success("Exporting service invoice statement...")}
-            className="flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-[12.5px] font-medium text-slate-700 hover:bg-slate-50 transition cursor-pointer shadow-2xs"
-          >
-            <Download className="h-3.5 w-3.5 text-slate-500" /> Export Statement
-          </button>
-
           <button
             type="button"
             onClick={openAddModal}
@@ -474,92 +503,27 @@ export function ServicePaymentHistoryView() {
         </div>
       </div>
 
-      {/* 4. Full Width Table with DataTableHeader & DataTableFooter */}
-      <div className="rounded-2xl border border-slate-300 bg-white shadow-xs overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-[12.5px] border-collapse">
-            <DataTableHeader
-              columns={columns}
-              data={sortedPayments}
-              selectable
-              isAllSelected={selectedIds.length === sortedPayments.length && sortedPayments.length > 0}
-              isSomeSelected={selectedIds.length > 0 && selectedIds.length < sortedPayments.length}
-              onToggleSelectAll={toggleSelectAll}
-              sortConfig={sortConfig}
-              onSortChange={setSortConfig}
-              themeVariant="primary"
-            />
-            <tbody className="divide-y divide-slate-100">
-              {paginatedPayments.map((p) => (
-                <tr key={p.id} className="hover:bg-slate-50/70 transition">
-                  <td className="w-12 px-3 py-3 text-center">
-                    <input
-                      type="checkbox"
-                      checked={selectedIds.includes(p.id)}
-                      onChange={() => toggleSelect(p.id)}
-                      className="rounded border-slate-300 cursor-pointer text-teal-600 focus:ring-teal-500"
-                    />
-                  </td>
-                  <td className="px-3.5 py-3">
-                    <span className="font-mono font-bold text-slate-900 bg-slate-50 px-2 py-0.5 rounded border border-slate-200">
-                      {p.invoiceNo}
-                    </span>
-                  </td>
-                  <td className="px-3.5 py-3">
-                    <div className="font-semibold text-slate-900">{p.serviceName}</div>
-                    <div className="text-[11px] text-slate-400 font-mono">Ref: {p.txnRef}</div>
-                  </td>
-                  <td className="px-3.5 py-3">
-                    <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-700">
-                      {p.category}
-                    </span>
-                  </td>
-                  <td className="px-3.5 py-3 font-mono text-[12px] text-slate-600">{p.invoiceDate}</td>
-                  <td className="px-3.5 py-3 text-right font-mono text-slate-700">₹{p.amount.toLocaleString("en-IN")}</td>
-                  <td className="px-3.5 py-3 text-right font-mono text-slate-500">₹{p.taxAmount.toLocaleString("en-IN")}</td>
-                  <td className="px-3.5 py-3 text-right">
-                    <div className="font-bold font-mono text-teal-700">
-                      ₹{p.totalPaid.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
-                    </div>
-                  </td>
-                  <td className="px-3.5 py-3 text-slate-700 font-medium">{p.paymentMethod}</td>
-                  <td className="px-3.5 py-3 text-center">
-                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-bold text-emerald-700 border border-emerald-200">
-                      <CheckCircle2 className="h-3 w-3 text-emerald-600" />
-                      {p.status}
-                    </span>
-                  </td>
-                  <td className="px-3.5 py-3 text-right">
-                    <button
-                      type="button"
-                      onClick={() => toast.success(`Downloading tax invoice ${p.invoiceNo}.pdf...`)}
-                      className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-teal-600 transition cursor-pointer inline-flex items-center gap-1 text-[12px]"
-                      title="Download PDF"
-                    >
-                      <Download className="h-4 w-4" />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        <DataTableFooter
-          totalCount={sortedPayments.length}
-          currentPage={validPage}
-          pageSize={pageSize}
-          onPageChange={setCurrentPage}
-          onPageSizeChange={(sz) => {
-            setPageSize(sz);
-            setCurrentPage(1);
-          }}
-          selectedCount={selectedIds.length}
-          onClearSelection={() => setSelectedIds([])}
-          itemName="service invoices"
-          onExport={(fmt) => toast.success(`Exporting service invoices as ${fmt.toUpperCase()}...`)}
-        />
-      </div>
+      {/* 4. Full Width Table with PosDataGrid */}
+      <PosDataGrid
+        data={filteredPayments}
+        columns={columns}
+        keyField="id"
+        selectable
+        selectedRowIds={selectedIds}
+        onSelectionChange={(ids: any) => setSelectedIds(ids as string[])}
+        storageKey="pos-accounting-service-payments"
+        pageSize={pageSize}
+        onPageSizeChange={setPageSize}
+        themeVariant="primary"
+        itemName="service invoices"
+        emptyState={
+          <div className="py-12 text-center text-slate-400">
+            <Receipt className="mx-auto h-8 w-8 mb-2 opacity-50 text-slate-300" />
+            <p className="text-sm font-semibold text-slate-600">No service invoices found</p>
+            <p className="text-xs text-slate-400">Try adjusting your filters or record a new invoice.</p>
+          </div>
+        }
+      />
 
       {/* 5. Log Service Invoice Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
