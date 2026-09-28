@@ -11,6 +11,7 @@ import {
   ArrowRightLeft,
   Sparkles,
   Landmark,
+  AlertCircle,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -84,7 +85,7 @@ export function BankDetailsView() {
   const [editingAccountId, setEditingAccountId] = useState<string | null>(null);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
-  // Form State - start completely empty for clean user entry
+  // Form State - blank for fresh entry
   const [formBankName, setFormBankName] = useState("");
   const [formCustomBank, setFormCustomBank] = useState("");
   const [formAccountHolder, setFormAccountHolder] = useState("");
@@ -96,6 +97,16 @@ export function BankDetailsView() {
   const [formIsPrimary, setFormIsPrimary] = useState(false);
   const [formUpiVpa, setFormUpiVpa] = useState("");
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+
+  const clearFieldError = (field: string) => {
+    if (formErrors[field]) {
+      setFormErrors((prev) => {
+        const next = { ...prev };
+        delete next[field];
+        return next;
+      });
+    }
+  };
 
   const openAddModal = () => {
     setEditingAccountId(null);
@@ -168,6 +179,7 @@ export function BankDetailsView() {
   const handleIfscLookup = (code: string) => {
     const clean = code.toUpperCase().trim();
     setFormIfscCode(clean);
+    clearFieldError("ifscCode");
     if (clean.length === 11 && !formBranchName) {
       if (clean.startsWith("HDFC")) {
         setFormBranchName("HDFC Indiranagar Branch, Bengaluru");
@@ -186,39 +198,45 @@ export function BankDetailsView() {
     const finalBank = formBankName === "Other" ? formCustomBank.trim() : formBankName;
 
     if (!formAccountHolder.trim()) {
-      errors.accountHolder = "Account holder name is required";
+      errors.accountHolder = "Account holder name is required.";
+    } else if (formAccountHolder.trim().length < 3) {
+      errors.accountHolder = "Name must be at least 3 characters.";
     }
 
     if (!finalBank) {
-      errors.bankName = "Please select or specify a bank name";
+      errors.bankName = "Please select or specify a bank name.";
     }
 
     if (!formAccountType) {
-      errors.accountType = "Please select an account type";
+      errors.accountType = "Please select an account type.";
     }
 
     if (!formAccountNumber.trim()) {
-      errors.accountNumber = "Account number is required";
+      errors.accountNumber = "Account number is required.";
     } else if (!/^\d{8,18}$/.test(formAccountNumber.trim())) {
-      errors.accountNumber = "Account number must be 8-18 digits";
+      errors.accountNumber = "Account number must contain 8 to 18 digits.";
     }
 
-    if (!editingAccountId) {
-      if (!formConfirmAccountNumber.trim()) {
-        errors.confirmAccountNumber = "Please confirm account number";
-      } else if (formAccountNumber.trim() !== formConfirmAccountNumber.trim()) {
-        errors.confirmAccountNumber = "Account numbers do not match";
-      }
+    if (!formConfirmAccountNumber.trim()) {
+      errors.confirmAccountNumber = "Please re-enter account number to confirm.";
+    } else if (formAccountNumber.trim() !== formConfirmAccountNumber.trim()) {
+      errors.confirmAccountNumber = "Account numbers do not match.";
     }
 
     if (!formIfscCode.trim()) {
-      errors.ifscCode = "IFSC code is required";
+      errors.ifscCode = "IFSC code is required.";
     } else if (!/^[A-Z]{4}0[A-Z0-9]{6}$/.test(formIfscCode.trim().toUpperCase())) {
-      errors.ifscCode = "Invalid IFSC format (e.g. HDFC0001248)";
+      errors.ifscCode = "Invalid IFSC code format (e.g. HDFC0001248).";
     }
 
     setFormErrors(errors);
-    return Object.keys(errors).length === 0;
+
+    if (Object.keys(errors).length > 0) {
+      toast.error("Please fill all mandatory fields marked with red star (*)");
+      return false;
+    }
+
+    return true;
   };
 
   const handleSaveAccount = (e: React.FormEvent) => {
@@ -531,35 +549,48 @@ export function BankDetailsView() {
             {/* Account Holder Name */}
             <div className="space-y-1.5">
               <label className="text-[12px] font-semibold text-slate-700 flex items-center justify-between">
-                <span>Account Holder Legal Name *</span>
+                <span>
+                  Account Holder Legal Name <span className="text-rose-500 font-bold ml-0.5">*</span>
+                </span>
                 <span className="text-[11px] font-normal text-slate-400">As per bank records</span>
               </label>
               <input
                 type="text"
                 placeholder="Enter legal name (e.g. Retrod Hospitality Pvt Ltd)"
                 value={formAccountHolder}
-                onChange={(e) => setFormAccountHolder(e.target.value)}
+                onChange={(e) => {
+                  setFormAccountHolder(e.target.value);
+                  clearFieldError("accountHolder");
+                }}
                 className={`w-full rounded-xl border px-3.5 py-2 text-[13px] text-slate-800 focus:outline-none transition shadow-2xs ${
                   formErrors.accountHolder
-                    ? "border-rose-400 bg-rose-50/20 focus:border-rose-500"
+                    ? "border-rose-400 bg-rose-50/20 focus:border-rose-500 focus:ring-1 focus:ring-rose-500"
                     : "border-slate-300 bg-white focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
                 }`}
               />
               {formErrors.accountHolder && (
-                <p className="text-[11px] font-medium text-rose-500">{formErrors.accountHolder}</p>
+                <div className="flex items-center gap-1 text-[11.5px] font-medium text-rose-600">
+                  <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                  <span>{formErrors.accountHolder}</span>
+                </div>
               )}
             </div>
 
             {/* Bank Name Selection & Account Type */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <label className="text-[12px] font-semibold text-slate-700">Bank Name *</label>
+                <label className="text-[12px] font-semibold text-slate-700">
+                  Bank Name <span className="text-rose-500 font-bold ml-0.5">*</span>
+                </label>
                 <select
                   value={formBankName}
-                  onChange={(e) => setFormBankName(e.target.value)}
+                  onChange={(e) => {
+                    setFormBankName(e.target.value);
+                    clearFieldError("bankName");
+                  }}
                   className={`w-full rounded-xl border bg-white px-3 py-2 text-[13px] text-slate-800 focus:outline-none cursor-pointer shadow-2xs ${
                     formErrors.bankName
-                      ? "border-rose-400 bg-rose-50/20 focus:border-rose-500"
+                      ? "border-rose-400 bg-rose-50/20 focus:border-rose-500 focus:ring-1 focus:ring-rose-500"
                       : "border-slate-300 focus:border-teal-500"
                   }`}
                 >
@@ -573,18 +604,26 @@ export function BankDetailsView() {
                   ))}
                 </select>
                 {formErrors.bankName && (
-                  <p className="text-[11px] font-medium text-rose-500">{formErrors.bankName}</p>
+                  <div className="flex items-center gap-1 text-[11.5px] font-medium text-rose-600">
+                    <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                    <span>{formErrors.bankName}</span>
+                  </div>
                 )}
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[12px] font-semibold text-slate-700">Account Type *</label>
+                <label className="text-[12px] font-semibold text-slate-700">
+                  Account Type <span className="text-rose-500 font-bold ml-0.5">*</span>
+                </label>
                 <select
                   value={formAccountType}
-                  onChange={(e) => setFormAccountType(e.target.value)}
+                  onChange={(e) => {
+                    setFormAccountType(e.target.value);
+                    clearFieldError("accountType");
+                  }}
                   className={`w-full rounded-xl border bg-white px-3 py-2 text-[13px] text-slate-800 focus:outline-none cursor-pointer shadow-2xs ${
                     formErrors.accountType
-                      ? "border-rose-400 bg-rose-50/20 focus:border-rose-500"
+                      ? "border-rose-400 bg-rose-50/20 focus:border-rose-500 focus:ring-1 focus:ring-rose-500"
                       : "border-slate-300 focus:border-teal-500"
                   }`}
                 >
@@ -598,22 +637,30 @@ export function BankDetailsView() {
                   ))}
                 </select>
                 {formErrors.accountType && (
-                  <p className="text-[11px] font-medium text-rose-500">{formErrors.accountType}</p>
+                  <div className="flex items-center gap-1 text-[11.5px] font-medium text-rose-600">
+                    <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                    <span>{formErrors.accountType}</span>
+                  </div>
                 )}
               </div>
             </div>
 
             {formBankName === "Other" && (
               <div className="space-y-1.5">
-                <label className="text-[12px] font-semibold text-slate-700">Specify Bank Name *</label>
+                <label className="text-[12px] font-semibold text-slate-700">
+                  Specify Bank Name <span className="text-rose-500 font-bold ml-0.5">*</span>
+                </label>
                 <input
                   type="text"
                   placeholder="Enter full bank name"
                   value={formCustomBank}
-                  onChange={(e) => setFormCustomBank(e.target.value)}
+                  onChange={(e) => {
+                    setFormCustomBank(e.target.value);
+                    clearFieldError("bankName");
+                  }}
                   className={`w-full rounded-xl border px-3.5 py-2 text-[13px] text-slate-800 focus:outline-none transition shadow-2xs ${
                     formErrors.bankName
-                      ? "border-rose-400 bg-rose-50/20"
+                      ? "border-rose-400 bg-rose-50/20 focus:border-rose-500 focus:ring-1 focus:ring-rose-500"
                       : "border-slate-300 bg-white focus:border-teal-500"
                   }`}
                 />
@@ -623,42 +670,55 @@ export function BankDetailsView() {
             {/* Account Number & Confirm Account Number */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <label className="text-[12px] font-semibold text-slate-700">Account Number *</label>
+                <label className="text-[12px] font-semibold text-slate-700">
+                  Account Number <span className="text-rose-500 font-bold ml-0.5">*</span>
+                </label>
                 <input
                   type="password"
                   placeholder="Enter 8-18 digit account number"
                   value={formAccountNumber}
-                  onChange={(e) => setFormAccountNumber(e.target.value)}
+                  onChange={(e) => {
+                    setFormAccountNumber(e.target.value);
+                    clearFieldError("accountNumber");
+                  }}
                   className={`w-full font-mono rounded-xl border px-3.5 py-2 text-[13px] text-slate-800 focus:outline-none transition shadow-2xs ${
                     formErrors.accountNumber
-                      ? "border-rose-400 bg-rose-50/20 focus:border-rose-500"
+                      ? "border-rose-400 bg-rose-50/20 focus:border-rose-500 focus:ring-1 focus:ring-rose-500"
                       : "border-slate-300 bg-white focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
                   }`}
                 />
                 {formErrors.accountNumber && (
-                  <p className="text-[11px] font-medium text-rose-500">{formErrors.accountNumber}</p>
+                  <div className="flex items-center gap-1 text-[11.5px] font-medium text-rose-600">
+                    <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                    <span>{formErrors.accountNumber}</span>
+                  </div>
                 )}
               </div>
 
               <div className="space-y-1.5">
                 <label className="text-[12px] font-semibold text-slate-700">
-                  {editingAccountId ? "Confirm Account No." : "Re-enter Account Number *"}
+                  {editingAccountId ? "Confirm Account No." : "Re-enter Account Number"}{" "}
+                  <span className="text-rose-500 font-bold ml-0.5">*</span>
                 </label>
                 <input
                   type="text"
                   placeholder="Confirm account digits"
                   value={formConfirmAccountNumber}
-                  onChange={(e) => setFormConfirmAccountNumber(e.target.value)}
+                  onChange={(e) => {
+                    setFormConfirmAccountNumber(e.target.value);
+                    clearFieldError("confirmAccountNumber");
+                  }}
                   className={`w-full font-mono rounded-xl border px-3.5 py-2 text-[13px] text-slate-800 focus:outline-none transition shadow-2xs ${
                     formErrors.confirmAccountNumber
-                      ? "border-rose-400 bg-rose-50/20 focus:border-rose-500"
+                      ? "border-rose-400 bg-rose-50/20 focus:border-rose-500 focus:ring-1 focus:ring-rose-500"
                       : "border-slate-300 bg-white focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
                   }`}
                 />
                 {formErrors.confirmAccountNumber && (
-                  <p className="text-[11px] font-medium text-rose-500">
-                    {formErrors.confirmAccountNumber}
-                  </p>
+                  <div className="flex items-center gap-1 text-[11.5px] font-medium text-rose-600">
+                    <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                    <span>{formErrors.confirmAccountNumber}</span>
+                  </div>
                 )}
               </div>
             </div>
@@ -667,7 +727,9 @@ export function BankDetailsView() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <label className="text-[12px] font-semibold text-slate-700 flex items-center justify-between">
-                  <span>IFSC Code *</span>
+                  <span>
+                    IFSC Code <span className="text-rose-500 font-bold ml-0.5">*</span>
+                  </span>
                   <span className="text-[11px] font-normal text-slate-400">11 characters</span>
                 </label>
                 <input
@@ -678,12 +740,15 @@ export function BankDetailsView() {
                   onChange={(e) => handleIfscLookup(e.target.value)}
                   className={`w-full font-mono uppercase rounded-xl border px-3.5 py-2 text-[13px] text-slate-800 focus:outline-none transition shadow-2xs ${
                     formErrors.ifscCode
-                      ? "border-rose-400 bg-rose-50/20 focus:border-rose-500"
+                      ? "border-rose-400 bg-rose-50/20 focus:border-rose-500 focus:ring-1 focus:ring-rose-500"
                       : "border-slate-300 bg-white focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
                   }`}
                 />
                 {formErrors.ifscCode && (
-                  <p className="text-[11px] font-medium text-rose-500">{formErrors.ifscCode}</p>
+                  <div className="flex items-center gap-1 text-[11.5px] font-medium text-rose-600">
+                    <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                    <span>{formErrors.ifscCode}</span>
+                  </div>
                 )}
               </div>
 
