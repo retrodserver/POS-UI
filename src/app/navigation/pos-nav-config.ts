@@ -7,7 +7,6 @@ import {
   BedDouble,
   UtensilsCrossed,
   Package,
-  Megaphone,
   PieChart,
   Settings2,
   Users,
@@ -181,7 +180,6 @@ export const POS_NAV_ITEMS: PosNavItem[] = [
       { id: "inv-settings", label: "Stock Settings", to: "/pos/inventory/settings" },
     ],
   },
-  { id: "marketing", label: "Marketing", to: "/pos/marketing", icon: Megaphone },
   {
     id: "reports",
     label: "Reports",

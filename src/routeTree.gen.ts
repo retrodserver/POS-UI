@@ -20,7 +20,6 @@ import { Route as PosRoomServiceRouteImport } from './routes/pos.room-service'
 import { Route as PosReportsRouteImport } from './routes/pos.reports'
 import { Route as PosOrdersRouteImport } from './routes/pos.orders'
 import { Route as PosMenuRouteImport } from './routes/pos.menu'
-import { Route as PosMarketingRouteImport } from './routes/pos.marketing'
 import { Route as PosManagementRouteImport } from './routes/pos.management'
 import { Route as PosKotRouteImport } from './routes/pos.kot'
 import { Route as PosInventoryRouteImport } from './routes/pos.inventory'
@@ -149,11 +148,6 @@ const PosOrdersRoute = PosOrdersRouteImport.update({
 const PosMenuRoute = PosMenuRouteImport.update({
   id: '/menu',
   path: '/menu',
-  getParentRoute: () => PosRoute,
-} as any)
-const PosMarketingRoute = PosMarketingRouteImport.update({
-  id: '/marketing',
-  path: '/marketing',
   getParentRoute: () => PosRoute,
 } as any)
 const PosManagementRoute = PosManagementRouteImport.update({
@@ -580,7 +574,6 @@ export interface FileRoutesByFullPath {
   '/pos/inventory': typeof PosInventoryRouteWithChildren
   '/pos/kot': typeof PosKotRoute
   '/pos/management': typeof PosManagementRouteWithChildren
-  '/pos/marketing': typeof PosMarketingRoute
   '/pos/menu': typeof PosMenuRouteWithChildren
   '/pos/orders': typeof PosOrdersRouteWithChildren
   '/pos/reports': typeof PosReportsRouteWithChildren
@@ -668,7 +661,6 @@ export interface FileRoutesByTo {
   '/pos/inventory': typeof PosInventoryRouteWithChildren
   '/pos/kot': typeof PosKotRoute
   '/pos/management': typeof PosManagementRouteWithChildren
-  '/pos/marketing': typeof PosMarketingRoute
   '/pos/menu': typeof PosMenuRouteWithChildren
   '/pos/orders': typeof PosOrdersRouteWithChildren
   '/pos/reports': typeof PosReportsRouteWithChildren
@@ -757,7 +749,6 @@ export interface FileRoutesById {
   '/pos/inventory': typeof PosInventoryRouteWithChildren
   '/pos/kot': typeof PosKotRoute
   '/pos/management': typeof PosManagementRouteWithChildren
-  '/pos/marketing': typeof PosMarketingRoute
   '/pos/menu': typeof PosMenuRouteWithChildren
   '/pos/orders': typeof PosOrdersRouteWithChildren
   '/pos/reports': typeof PosReportsRouteWithChildren
@@ -847,7 +838,6 @@ export interface FileRouteTypes {
     | '/pos/inventory'
     | '/pos/kot'
     | '/pos/management'
-    | '/pos/marketing'
     | '/pos/menu'
     | '/pos/orders'
     | '/pos/reports'
@@ -935,7 +925,6 @@ export interface FileRouteTypes {
     | '/pos/inventory'
     | '/pos/kot'
     | '/pos/management'
-    | '/pos/marketing'
     | '/pos/menu'
     | '/pos/orders'
     | '/pos/reports'
@@ -1023,7 +1012,6 @@ export interface FileRouteTypes {
     | '/pos/inventory'
     | '/pos/kot'
     | '/pos/management'
-    | '/pos/marketing'
     | '/pos/menu'
     | '/pos/orders'
     | '/pos/reports'
@@ -1184,13 +1172,6 @@ declare module '@tanstack/react-router' {
       path: '/menu'
       fullPath: '/pos/menu'
       preLoaderRoute: typeof PosMenuRouteImport
-      parentRoute: typeof PosRoute
-    }
-    '/pos/marketing': {
-      id: '/pos/marketing'
-      path: '/marketing'
-      fullPath: '/pos/marketing'
-      preLoaderRoute: typeof PosMarketingRouteImport
       parentRoute: typeof PosRoute
     }
     '/pos/management': {
@@ -1951,7 +1932,6 @@ interface PosRouteChildren {
   PosInventoryRoute: typeof PosInventoryRouteWithChildren
   PosKotRoute: typeof PosKotRoute
   PosManagementRoute: typeof PosManagementRouteWithChildren
-  PosMarketingRoute: typeof PosMarketingRoute
   PosMenuRoute: typeof PosMenuRouteWithChildren
   PosOrdersRoute: typeof PosOrdersRouteWithChildren
   PosReportsRoute: typeof PosReportsRouteWithChildren
@@ -1970,7 +1950,6 @@ const PosRouteChildren: PosRouteChildren = {
   PosInventoryRoute: PosInventoryRouteWithChildren,
   PosKotRoute: PosKotRoute,
   PosManagementRoute: PosManagementRouteWithChildren,
-  PosMarketingRoute: PosMarketingRoute,
   PosMenuRoute: PosMenuRouteWithChildren,
   PosOrdersRoute: PosOrdersRouteWithChildren,
   PosReportsRoute: PosReportsRouteWithChildren,

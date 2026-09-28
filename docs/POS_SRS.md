@@ -45,9 +45,7 @@ Canonical module map for this SPA. Routes live under `/pos`. Login lands on the 
 | 4.2 | Purchase Order (Purchase Order List) | `/pos/inventory/order`  |
 | 4.3 | Purchase Return (Debit Note List)    | `/pos/inventory/return` |
 
-## 5. Marketing Automation — `/pos/marketing`
-
-## 6. Reports — `/pos/reports`
+## 5. Reports — `/pos/reports`
 
 ## 7. Management — `/pos/management`
 
