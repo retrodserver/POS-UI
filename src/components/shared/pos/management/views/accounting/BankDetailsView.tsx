@@ -10,10 +10,7 @@ import {
   ShieldCheck,
   ArrowRightLeft,
   Sparkles,
-  Info,
-  CreditCard,
   Landmark,
-  ExternalLink,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -31,7 +28,7 @@ export interface BankAccount {
   accountHolderName: string;
   accountNumber: string;
   ifscCode: string;
-  accountType: "Current A/C" | "Savings A/C" | "OD / CC A/C";
+  accountType: "Current A/C" | "Savings A/C" | "OD / CC A/C" | string;
   branchName: string;
   isPrimary: boolean;
   status: "Verified" | "Pending Verification";
@@ -53,19 +50,6 @@ const INITIAL_ACCOUNTS: BankAccount[] = [
     upiVpa: "retrodhospitality@hdfcbank",
     addedAt: "12 Jan 2026",
   },
-  {
-    id: "bank-2",
-    bankName: "ICICI Bank",
-    accountHolderName: "Retrod Hospitality Pvt Ltd",
-    accountNumber: "000205019382",
-    ifscCode: "ICIC0000002",
-    accountType: "Current A/C",
-    branchName: "MG Road Branch, Bengaluru",
-    isPrimary: false,
-    status: "Verified",
-    upiVpa: "retrodpos@icici",
-    addedAt: "18 Feb 2026",
-  },
 ];
 
 const POPULAR_BANKS = [
@@ -82,7 +66,7 @@ const POPULAR_BANKS = [
   "Other",
 ];
 
-const ACCOUNT_TYPES: ("Current A/C" | "Savings A/C" | "OD / CC A/C")[] = [
+const ACCOUNT_TYPES = [
   "Current A/C",
   "Savings A/C",
   "OD / CC A/C",
@@ -100,14 +84,14 @@ export function BankDetailsView() {
   const [editingAccountId, setEditingAccountId] = useState<string | null>(null);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
-  // Form State
-  const [formBankName, setFormBankName] = useState("HDFC Bank");
+  // Form State - start completely empty for clean user entry
+  const [formBankName, setFormBankName] = useState("");
   const [formCustomBank, setFormCustomBank] = useState("");
   const [formAccountHolder, setFormAccountHolder] = useState("");
   const [formAccountNumber, setFormAccountNumber] = useState("");
   const [formConfirmAccountNumber, setFormConfirmAccountNumber] = useState("");
   const [formIfscCode, setFormIfscCode] = useState("");
-  const [formAccountType, setFormAccountType] = useState<"Current A/C" | "Savings A/C" | "OD / CC A/C">("Current A/C");
+  const [formAccountType, setFormAccountType] = useState("");
   const [formBranchName, setFormBranchName] = useState("");
   const [formIsPrimary, setFormIsPrimary] = useState(false);
   const [formUpiVpa, setFormUpiVpa] = useState("");
@@ -115,13 +99,13 @@ export function BankDetailsView() {
 
   const openAddModal = () => {
     setEditingAccountId(null);
-    setFormBankName("HDFC Bank");
+    setFormBankName("");
     setFormCustomBank("");
-    setFormAccountHolder("Retrod Hospitality Pvt Ltd");
+    setFormAccountHolder("");
     setFormAccountNumber("");
     setFormConfirmAccountNumber("");
     setFormIfscCode("");
-    setFormAccountType("Current A/C");
+    setFormAccountType("");
     setFormBranchName("");
     setFormIsPrimary(accounts.length === 0);
     setFormUpiVpa("");
@@ -184,7 +168,7 @@ export function BankDetailsView() {
   const handleIfscLookup = (code: string) => {
     const clean = code.toUpperCase().trim();
     setFormIfscCode(clean);
-    if (clean.length === 11) {
+    if (clean.length === 11 && !formBranchName) {
       if (clean.startsWith("HDFC")) {
         setFormBranchName("HDFC Indiranagar Branch, Bengaluru");
       } else if (clean.startsWith("ICIC")) {
@@ -193,8 +177,6 @@ export function BankDetailsView() {
         setFormBranchName("SBI Koramangala Branch, Bengaluru");
       } else if (clean.startsWith("UTIB")) {
         setFormBranchName("Axis Bank Electronic City Branch, Bengaluru");
-      } else {
-        setFormBranchName("Central Business District Branch");
       }
     }
   };
@@ -203,8 +185,17 @@ export function BankDetailsView() {
     const errors: Record<string, string> = {};
     const finalBank = formBankName === "Other" ? formCustomBank.trim() : formBankName;
 
-    if (!finalBank) errors.bankName = "Bank name is required";
-    if (!formAccountHolder.trim()) errors.accountHolder = "Account holder name is required";
+    if (!formAccountHolder.trim()) {
+      errors.accountHolder = "Account holder name is required";
+    }
+
+    if (!finalBank) {
+      errors.bankName = "Please select or specify a bank name";
+    }
+
+    if (!formAccountType) {
+      errors.accountType = "Please select an account type";
+    }
 
     if (!formAccountNumber.trim()) {
       errors.accountNumber = "Account number is required";
@@ -516,19 +507,20 @@ export function BankDetailsView() {
         )}
       </div>
 
-      {/* 4. Add / Edit Bank Account Card Modal */}
+      {/* 4. Add / Edit Bank Account Card Modal - Clean, Professional Style */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="max-w-lg p-0 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
-          <div className="bg-gradient-to-r from-teal-700 to-slate-800 p-6 text-white">
+        <DialogContent className="max-w-lg p-0 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl">
+          {/* Simple Professional Header */}
+          <div className="border-b border-slate-200 bg-slate-50/70 px-6 py-5">
             <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/10 backdrop-blur-xs border border-white/20 text-white shadow-inner">
-                <Landmark className="h-6 w-6" />
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white border border-slate-200 text-slate-700 shadow-2xs">
+                <Landmark className="h-5 w-5 text-teal-700" />
               </div>
               <div>
-                <DialogTitle className="text-[17px] font-bold tracking-tight text-white">
+                <DialogTitle className="text-[16px] font-bold tracking-tight text-slate-900">
                   {editingAccountId ? "Edit Settlement Bank Account" : "Register Settlement Bank Account"}
                 </DialogTitle>
-                <DialogDescription className="text-[12.5px] text-teal-100/90 mt-0.5">
+                <DialogDescription className="text-[12px] text-slate-500 mt-0.5">
                   Enter authentic bank credentials for direct settlement gateway routing.
                 </DialogDescription>
               </div>
@@ -544,7 +536,7 @@ export function BankDetailsView() {
               </label>
               <input
                 type="text"
-                placeholder="e.g. Retrod Hospitality Private Limited"
+                placeholder="Enter legal name (e.g. Retrod Hospitality Pvt Ltd)"
                 value={formAccountHolder}
                 onChange={(e) => setFormAccountHolder(e.target.value)}
                 className={`w-full rounded-xl border px-3.5 py-2 text-[13px] text-slate-800 focus:outline-none transition shadow-2xs ${
@@ -565,33 +557,49 @@ export function BankDetailsView() {
                 <select
                   value={formBankName}
                   onChange={(e) => setFormBankName(e.target.value)}
-                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-[13px] text-slate-800 focus:border-teal-500 focus:outline-none cursor-pointer shadow-2xs"
+                  className={`w-full rounded-xl border bg-white px-3 py-2 text-[13px] text-slate-800 focus:outline-none cursor-pointer shadow-2xs ${
+                    formErrors.bankName
+                      ? "border-rose-400 bg-rose-50/20 focus:border-rose-500"
+                      : "border-slate-300 focus:border-teal-500"
+                  }`}
                 >
+                  <option value="" disabled>
+                    Select Bank
+                  </option>
                   {POPULAR_BANKS.map((b) => (
                     <option key={b} value={b}>
                       {b}
                     </option>
                   ))}
                 </select>
+                {formErrors.bankName && (
+                  <p className="text-[11px] font-medium text-rose-500">{formErrors.bankName}</p>
+                )}
               </div>
 
               <div className="space-y-1.5">
                 <label className="text-[12px] font-semibold text-slate-700">Account Type *</label>
                 <select
                   value={formAccountType}
-                  onChange={(e) =>
-                    setFormAccountType(
-                      e.target.value as "Current A/C" | "Savings A/C" | "OD / CC A/C"
-                    )
-                  }
-                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-[13px] text-slate-800 focus:border-teal-500 focus:outline-none cursor-pointer shadow-2xs"
+                  onChange={(e) => setFormAccountType(e.target.value)}
+                  className={`w-full rounded-xl border bg-white px-3 py-2 text-[13px] text-slate-800 focus:outline-none cursor-pointer shadow-2xs ${
+                    formErrors.accountType
+                      ? "border-rose-400 bg-rose-50/20 focus:border-rose-500"
+                      : "border-slate-300 focus:border-teal-500"
+                  }`}
                 >
+                  <option value="" disabled>
+                    Select Account Type
+                  </option>
                   {ACCOUNT_TYPES.map((t) => (
                     <option key={t} value={t}>
                       {t}
                     </option>
                   ))}
                 </select>
+                {formErrors.accountType && (
+                  <p className="text-[11px] font-medium text-rose-500">{formErrors.accountType}</p>
+                )}
               </div>
             </div>
 
@@ -618,7 +626,7 @@ export function BankDetailsView() {
                 <label className="text-[12px] font-semibold text-slate-700">Account Number *</label>
                 <input
                   type="password"
-                  placeholder="Enter 9-18 digits"
+                  placeholder="Enter 8-18 digit account number"
                   value={formAccountNumber}
                   onChange={(e) => setFormAccountNumber(e.target.value)}
                   className={`w-full font-mono rounded-xl border px-3.5 py-2 text-[13px] text-slate-800 focus:outline-none transition shadow-2xs ${
@@ -683,7 +691,7 @@ export function BankDetailsView() {
                 <label className="text-[12px] font-semibold text-slate-700">Branch & City</label>
                 <input
                   type="text"
-                  placeholder="Branch location"
+                  placeholder="e.g. Indiranagar, Bengaluru"
                   value={formBranchName}
                   onChange={(e) => setFormBranchName(e.target.value)}
                   className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2 text-[13px] text-slate-800 focus:border-teal-500 focus:outline-none shadow-2xs"
@@ -707,10 +715,10 @@ export function BankDetailsView() {
             </div>
 
             {/* Primary Settlement Toggle Card */}
-            <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4 transition">
+            <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-4 transition">
               <div className="flex items-center justify-between gap-3">
                 <div className="space-y-0.5">
-                  <div className="text-[13px] font-bold text-slate-900 flex items-center gap-1.5">
+                  <div className="text-[13px] font-semibold text-slate-900 flex items-center gap-1.5">
                     <CheckCircle2 className="h-4 w-4 text-teal-600" />
                     Set as Primary Settlement Account
                   </div>
