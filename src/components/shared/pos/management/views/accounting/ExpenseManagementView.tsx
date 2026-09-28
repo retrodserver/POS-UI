@@ -1,18 +1,38 @@
 import { useState, useMemo } from "react";
 import {
   Plus,
-  ArrowUpDown,
-  TrendingDown,
+  Search,
+  ChevronDown,
+  Download,
   Edit2,
   Trash2,
+  CheckCircle2,
+  Clock,
+  AlertCircle,
+  Receipt,
+  TrendingDown,
+  TrendingUp,
+  Wallet,
 } from "lucide-react";
 import { toast } from "sonner";
-import { PosDataGrid } from "@/components/ui/data-grid";
-import type { DataGridColumn } from "@/components/ui/data-grid/types";
+import {
+  DataTableHeader,
+  DataTableFooter,
+  type DataTableColumn,
+} from "@/components/common";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 interface MasterItem {
   id: string;
   title: string;
+  category: "Expense" | "Withdrawal" | "Cash Top-Up";
   status: boolean;
   createdDate: string;
 }
@@ -20,8 +40,52 @@ interface MasterItem {
 interface ListingItem {
   id: string;
   title: string;
+  type: "Expense" | "Withdrawal" | "Cash Top-Up";
   totalReported: number;
+  paidTo?: string;
+  paymentMode: "Cash Drawer Float" | "UPI" | "Bank Transfer" | "Credit Card";
+  date: string;
+  refNo?: string;
+  notes?: string;
 }
+
+const INITIAL_EXPENSES: ListingItem[] = [
+  { id: "e-1", title: "Advance Salary to Kitchen Staff", type: "Expense", totalReported: 15000.0, paidTo: "Chef Ramesh", paymentMode: "Bank Transfer", date: "24 Sep 2026", refNo: "SAL-98210" },
+  { id: "e-2", title: "Advertisement & Social Media Campaign", type: "Expense", totalReported: 4500.0, paidTo: "Meta Ads", paymentMode: "Credit Card", date: "25 Sep 2026", refNo: "TXN-89201" },
+  { id: "e-3", title: "Delivery Rider Fuel Allowance", type: "Expense", totalReported: 2400.0, paidTo: "Rider Fleet (4 riders)", paymentMode: "Cash Drawer Float", date: "26 Sep 2026" },
+  { id: "e-4", title: "Electricity & Utility Surcharge", type: "Expense", totalReported: 18200.0, paidTo: "TPCODL", paymentMode: "Bank Transfer", date: "20 Sep 2026", refNo: "EL-89410" },
+  { id: "e-5", title: "Commercial LPG Gas Cylinders", type: "Expense", totalReported: 8900.0, paidTo: "Indane Gas Agency", paymentMode: "UPI", date: "22 Sep 2026", refNo: "UPI/260922/ind" },
+  { id: "e-6", title: "Daily Fresh Vegetables & Groceries", type: "Expense", totalReported: 32400.0, paidTo: "Local Mandi Supply", paymentMode: "Cash Drawer Float", date: "27 Sep 2026" },
+  { id: "e-7", title: "High-Speed Internet & POS Line", type: "Expense", totalReported: 1899.0, paidTo: "Airtel Fiber", paymentMode: "UPI", date: "15 Sep 2026" },
+  { id: "e-8", title: "Kitchen Hood Maintenance & Filter Wash", type: "Expense", totalReported: 3500.0, paidTo: "CoolVent Services", paymentMode: "Cash Drawer Float", date: "18 Sep 2026" },
+];
+
+const INITIAL_WITHDRAWALS: ListingItem[] = [
+  { id: "w-1", title: "Cash Deposited in Bank", type: "Withdrawal", totalReported: 85000.0, paidTo: "HDFC Current Account", paymentMode: "Bank Transfer", date: "25 Sep 2026", refNo: "DEP-98210" },
+  { id: "w-2", title: "Drawings by Owner", type: "Withdrawal", totalReported: 20000.0, paidTo: "Ayush Mishra", paymentMode: "Bank Transfer", date: "22 Sep 2026", refNo: "OWN-49210" },
+  { id: "w-3", title: "Direct Settlement to Seafood Supplier", type: "Withdrawal", totalReported: 12500.0, paidTo: "Puri Coastal Fisheries", paymentMode: "UPI", date: "26 Sep 2026", refNo: "UPI/260926/fish" },
+];
+
+const INITIAL_TOPUPS: ListingItem[] = [
+  { id: "ct-1", title: "Float From Store Manager", type: "Cash Top-Up", totalReported: 10000.0, paidTo: "Desk 1 Float", paymentMode: "Cash Drawer Float", date: "24 Sep 2026" },
+  { id: "ct-2", title: "Emergency Cash Infusion from Owner", type: "Cash Top-Up", totalReported: 25000.0, paidTo: "Main Safe Float", paymentMode: "Cash Drawer Float", date: "20 Sep 2026" },
+];
+
+const INITIAL_MASTERS: MasterItem[] = [
+  { id: "em-1", title: "Advance Salary", category: "Expense", status: true, createdDate: "24 May 2026" },
+  { id: "em-2", title: "Advertisement & Promotions", category: "Expense", status: true, createdDate: "24 May 2026" },
+  { id: "em-3", title: "Kitchen Maintenance & Repairs", category: "Expense", status: true, createdDate: "24 May 2026" },
+  { id: "em-4", title: "Mineral Water Can Supplies", category: "Expense", status: true, createdDate: "24 May 2026" },
+  { id: "em-5", title: "Daily Mandi Groceries", category: "Expense", status: true, createdDate: "24 May 2026" },
+  { id: "em-6", title: "Commercial LPG Gas", category: "Expense", status: true, createdDate: "24 May 2026" },
+  { id: "wm-1", title: "Cash Deposited in Bank", category: "Withdrawal", status: true, createdDate: "24 May 2026" },
+  { id: "wm-2", title: "To Owner / Drawings", category: "Withdrawal", status: true, createdDate: "24 May 2026" },
+  { id: "wm-3", title: "To Supplier", category: "Withdrawal", status: true, createdDate: "24 May 2026" },
+  { id: "cm-1", title: "Float From Manager", category: "Cash Top-Up", status: true, createdDate: "24 May 2026" },
+  { id: "cm-2", title: "From Owner Infusion", category: "Cash Top-Up", status: true, createdDate: "24 May 2026" },
+];
+
+const PAYMENT_MODES = ["Cash Drawer Float", "UPI", "Bank Transfer", "Credit Card"];
 
 export function ExpenseManagementView() {
   const [activeTab, setActiveTab] = useState<
@@ -33,8 +97,365 @@ export function ExpenseManagementView() {
     | "cash_topup_master"
   >("expense_listing");
 
-  const [startDate, setStartDate] = useState("2026-08-01");
-  const [endDate, setEndDate] = useState("2026-09-02");
+  const [expenses, setExpenses] = useState<ListingItem[]>(INITIAL_EXPENSES);
+  const [withdrawals, setWithdrawals] = useState<ListingItem[]>(INITIAL_WITHDRAWALS);
+  const [topups, setTopups] = useState<ListingItem[]>(INITIAL_TOPUPS);
+  const [masters, setMasters] = useState<MasterItem[]>(INITIAL_MASTERS);
+
+  // Table Controls
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [sortConfig, setSortConfig] = useState<{ colId: string; direction: "asc" | "desc" } | null>(null);
+
+  // Add / Edit Listing Entry Modal
+  const [isEntryModalOpen, setIsEntryModalOpen] = useState(false);
+  const [editingEntryId, setEditingEntryId] = useState<string | null>(null);
+  const [formTitle, setFormTitle] = useState("");
+  const [formAmount, setFormAmount] = useState("");
+  const [formPaidTo, setFormPaidTo] = useState("");
+  const [formPaymentMode, setFormPaymentMode] = useState<any>("Cash Drawer Float");
+  const [formDate, setFormDate] = useState("");
+  const [formRefNo, setFormRefNo] = useState("");
+  const [formNotes, setFormNotes] = useState("");
+  const [entryTouched, setEntryTouched] = useState<Record<string, boolean>>({});
+
+  // Add / Edit Master Category Modal
+  const [isMasterModalOpen, setIsMasterModalOpen] = useState(false);
+  const [editingMasterId, setEditingMasterId] = useState<string | null>(null);
+  const [formMasterTitle, setFormMasterTitle] = useState("");
+  const [formMasterCategory, setFormMasterCategory] = useState<"Expense" | "Withdrawal" | "Cash Top-Up">("Expense");
+  const [formMasterStatus, setFormMasterStatus] = useState(true);
+  const [masterTouched, setMasterTouched] = useState<Record<string, boolean>>({});
+
+  const markEntryTouched = (f: string) => setEntryTouched((p) => ({ ...p, [f]: true }));
+  const markMasterTouched = (f: string) => setMasterTouched((p) => ({ ...p, [f]: true }));
+
+  // Entry Errors
+  const entryErrors = useMemo(() => {
+    const errs: Record<string, string> = {};
+    if (!formTitle.trim()) errs.title = "Title / Reason is required.";
+    if (!formAmount.trim() || isNaN(Number(formAmount)) || Number(formAmount) <= 0) {
+      errs.amount = "Valid amount is required.";
+    }
+    if (!formPaidTo.trim()) errs.paidTo = "Beneficiary / Paid To is required.";
+    if (!formDate.trim()) errs.date = "Date is required.";
+    if (!formPaymentMode) errs.paymentMode = "Please select a payment mode.";
+    return errs;
+  }, [formTitle, formAmount, formPaidTo, formDate, formPaymentMode]);
+
+  const isEntryFormValid = Object.keys(entryErrors).length === 0;
+
+  // Master Errors
+  const masterErrors = useMemo(() => {
+    const errs: Record<string, string> = {};
+    if (!formMasterTitle.trim()) errs.title = "Category title is required.";
+    return errs;
+  }, [formMasterTitle]);
+
+  const isMasterFormValid = Object.keys(masterErrors).length === 0;
+
+  // Current active data set
+  const isMasterTab = activeTab.endsWith("_master");
+  const currentCategoryType =
+    activeTab.startsWith("expense")
+      ? "Expense"
+      : activeTab.startsWith("withdrawal")
+      ? "Withdrawal"
+      : "Cash Top-Up";
+
+  const currentListings = useMemo(() => {
+    if (activeTab === "expense_listing") return expenses;
+    if (activeTab === "withdrawal_listing") return withdrawals;
+    return topups;
+  }, [activeTab, expenses, withdrawals, topups]);
+
+  const currentMasters = useMemo(() => {
+    return masters.filter((m) => m.category === currentCategoryType);
+  }, [masters, currentCategoryType]);
+
+  // Filtered & Sorted
+  const filteredListings = useMemo(() => {
+    return currentListings.filter((i) => {
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase();
+        const match =
+          i.title.toLowerCase().includes(q) ||
+          (i.paidTo && i.paidTo.toLowerCase().includes(q)) ||
+          i.paymentMode.toLowerCase().includes(q) ||
+          (i.refNo && i.refNo.toLowerCase().includes(q));
+        if (!match) return false;
+      }
+      return true;
+    });
+  }, [currentListings, searchQuery]);
+
+  const filteredMasters = useMemo(() => {
+    return currentMasters.filter((m) => {
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase();
+        if (!m.title.toLowerCase().includes(q)) return false;
+      }
+      return true;
+    });
+  }, [currentMasters, searchQuery]);
+
+  const sortedListings = useMemo(() => {
+    if (!sortConfig) return filteredListings;
+    return [...filteredListings].sort((a, b) => {
+      const field = sortConfig.colId as keyof ListingItem;
+      const aVal = a[field] ?? "";
+      const bVal = b[field] ?? "";
+      if (typeof aVal === "number" && typeof bVal === "number") {
+        return sortConfig.direction === "asc" ? aVal - bVal : bVal - aVal;
+      }
+      return sortConfig.direction === "asc"
+        ? String(aVal).localeCompare(String(bVal))
+        : String(bVal).localeCompare(String(aVal));
+    });
+  }, [filteredListings, sortConfig]);
+
+  const sortedMasters = useMemo(() => {
+    if (!sortConfig) return filteredMasters;
+    return [...filteredMasters].sort((a, b) => {
+      const field = sortConfig.colId as keyof MasterItem;
+      const aVal = a[field] ?? "";
+      const bVal = b[field] ?? "";
+      return sortConfig.direction === "asc"
+        ? String(aVal).localeCompare(String(bVal))
+        : String(bVal).localeCompare(String(aVal));
+    });
+  }, [filteredMasters, sortConfig]);
+
+  // Pagination
+  const totalCount = isMasterTab ? sortedMasters.length : sortedListings.length;
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+  const validPage = Math.min(currentPage, totalPages);
+
+  const paginatedListings = useMemo(() => {
+    const start = (validPage - 1) * pageSize;
+    return sortedListings.slice(start, start + pageSize);
+  }, [sortedListings, validPage, pageSize]);
+
+  const paginatedMasters = useMemo(() => {
+    const start = (validPage - 1) * pageSize;
+    return sortedMasters.slice(start, start + pageSize);
+  }, [sortedMasters, validPage, pageSize]);
+
+  const toggleSelectAll = () => {
+    const currentDataset = isMasterTab ? sortedMasters : sortedListings;
+    if (selectedIds.length === currentDataset.length && currentDataset.length > 0) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(currentDataset.map((i) => i.id));
+    }
+  };
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
+  };
+
+  // Open Modals
+  const openAddEntryModal = () => {
+    setEditingEntryId(null);
+    setFormTitle("");
+    setFormAmount("");
+    setFormPaidTo("");
+    setFormPaymentMode("Cash Drawer Float");
+    setFormDate(new Date().toISOString().split("T")[0]);
+    setFormRefNo("");
+    setFormNotes("");
+    setEntryTouched({});
+    setIsEntryModalOpen(true);
+  };
+
+  const openEditEntryModal = (item: ListingItem) => {
+    setEditingEntryId(item.id);
+    setFormTitle(item.title);
+    setFormAmount(String(item.totalReported));
+    setFormPaidTo(item.paidTo || "");
+    setFormPaymentMode(item.paymentMode);
+    setFormDate(item.date);
+    setFormRefNo(item.refNo || "");
+    setFormNotes(item.notes || "");
+    setEntryTouched({ title: true, amount: true, paidTo: true, date: true });
+    setIsEntryModalOpen(true);
+  };
+
+  const openAddMasterModal = () => {
+    setEditingMasterId(null);
+    setFormMasterTitle("");
+    setFormMasterCategory(currentCategoryType);
+    setFormMasterStatus(true);
+    setMasterTouched({});
+    setIsMasterModalOpen(true);
+  };
+
+  const openEditMasterModal = (m: MasterItem) => {
+    setEditingMasterId(m.id);
+    setFormMasterTitle(m.title);
+    setFormMasterCategory(m.category);
+    setFormMasterStatus(m.status);
+    setMasterTouched({ title: true });
+    setIsMasterModalOpen(true);
+  };
+
+  const handleSaveEntry = (e: React.FormEvent) => {
+    e.preventDefault();
+    setEntryTouched({ title: true, amount: true, paidTo: true, date: true, paymentMode: true });
+    if (!isEntryFormValid) {
+      toast.error("Please fill all mandatory fields marked with red star (*)");
+      return;
+    }
+
+    const payload: ListingItem = {
+      id: editingEntryId || `item-${Date.now()}`,
+      title: formTitle.trim(),
+      type: currentCategoryType,
+      totalReported: parseFloat(formAmount),
+      paidTo: formPaidTo.trim(),
+      paymentMode: formPaymentMode,
+      date: formDate.trim(),
+      refNo: formRefNo.trim() || undefined,
+      notes: formNotes.trim() || undefined,
+    };
+
+    if (currentCategoryType === "Expense") {
+      setExpenses((prev) =>
+        editingEntryId ? prev.map((i) => (i.id === editingEntryId ? payload : i)) : [payload, ...prev]
+      );
+    } else if (currentCategoryType === "Withdrawal") {
+      setWithdrawals((prev) =>
+        editingEntryId ? prev.map((i) => (i.id === editingEntryId ? payload : i)) : [payload, ...prev]
+      );
+    } else {
+      setTopups((prev) =>
+        editingEntryId ? prev.map((i) => (i.id === editingEntryId ? payload : i)) : [payload, ...prev]
+      );
+    }
+
+    toast.success(`${currentCategoryType} record saved successfully`);
+    setIsEntryModalOpen(false);
+  };
+
+  const handleSaveMaster = (e: React.FormEvent) => {
+    e.preventDefault();
+    setMasterTouched({ title: true });
+    if (!isMasterFormValid) {
+      toast.error("Please enter category title");
+      return;
+    }
+
+    const payload: MasterItem = {
+      id: editingMasterId || `m-${Date.now()}`,
+      title: formMasterTitle.trim(),
+      category: formMasterCategory,
+      status: formMasterStatus,
+      createdDate: new Date().toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }),
+    };
+
+    setMasters((prev) =>
+      editingMasterId ? prev.map((m) => (m.id === editingMasterId ? payload : m)) : [payload, ...prev]
+    );
+
+    toast.success(`Master category ${editingMasterId ? "updated" : "created"}`);
+    setIsMasterModalOpen(false);
+  };
+
+  const handleDeleteListing = (id: string) => {
+    if (currentCategoryType === "Expense") setExpenses((p) => p.filter((i) => i.id !== id));
+    else if (currentCategoryType === "Withdrawal") setWithdrawals((p) => p.filter((i) => i.id !== id));
+    else setTopups((p) => p.filter((i) => i.id !== id));
+    toast.success("Entry removed");
+  };
+
+  const handleDeleteMaster = (id: string) => {
+    setMasters((p) => p.filter((m) => m.id !== id));
+    toast.success("Master category removed");
+  };
+
+  const listingColumns: DataTableColumn<ListingItem>[] = [
+    {
+      id: "title",
+      label: "Title / Description",
+      sortable: true,
+      defaultWidth: 240,
+      getValue: (r) => r.title,
+    },
+    {
+      id: "paidTo",
+      label: "Beneficiary / Paid To",
+      sortable: true,
+      defaultWidth: 180,
+      getValue: (r) => r.paidTo || "—",
+    },
+    {
+      id: "paymentMode",
+      label: "Payment Mode",
+      sortable: true,
+      filterable: true,
+      defaultWidth: 160,
+      getValue: (r) => r.paymentMode,
+    },
+    {
+      id: "date",
+      label: "Date",
+      sortable: true,
+      defaultWidth: 120,
+      getValue: (r) => r.date,
+    },
+    {
+      id: "totalReported",
+      label: "Amount (₹)",
+      sortable: true,
+      align: "right",
+      defaultWidth: 140,
+      getValue: (r) => `₹${r.totalReported.toLocaleString("en-IN")}`,
+    },
+    {
+      id: "actions",
+      label: "Action",
+      sortable: false,
+      filterable: false,
+      align: "right",
+      defaultWidth: 100,
+    },
+  ];
+
+  const masterColumns: DataTableColumn<MasterItem>[] = [
+    {
+      id: "title",
+      label: "Master Category Title",
+      sortable: true,
+      defaultWidth: 300,
+      getValue: (r) => r.title,
+    },
+    {
+      id: "status",
+      label: "Status",
+      sortable: true,
+      filterable: true,
+      align: "center",
+      defaultWidth: 130,
+      getValue: (r) => (r.status ? "Active" : "Inactive"),
+    },
+    {
+      id: "createdDate",
+      label: "Created Date",
+      sortable: true,
+      defaultWidth: 160,
+      getValue: (r) => r.createdDate,
+    },
+    {
+      id: "actions",
+      label: "Actions",
+      sortable: false,
+      filterable: false,
+      align: "right",
+      defaultWidth: 110,
+    },
+  ];
 
   const tabs = [
     { id: "expense_listing", label: "Expense Listing" },
@@ -45,196 +466,100 @@ export function ExpenseManagementView() {
     { id: "cash_topup_master", label: "Cash Top-Up Master" },
   ] as const;
 
-  // 1. Expense Listing Data
-  const [expenseListing] = useState<ListingItem[]>([
-    { id: "1", title: "Advance Salary", totalReported: 15000.0 },
-    { id: "2", title: "Advertisement & Social Media", totalReported: 4500.0 },
-    { id: "3", title: "Delivery Boy Fuel Allowance", totalReported: 2400.0 },
-    { id: "4", title: "Electricity & Utility", totalReported: 18200.0 },
-    { id: "5", title: "Commercial LPG Gas Cylinders", totalReported: 8900.0 },
-    { id: "6", title: "Daily Groceries & Vegetables", totalReported: 32400.0 },
-    { id: "7", title: "High-Speed Internet & POS Wi-Fi", totalReported: 1899.0 },
-    { id: "8", title: "Kitchen Hood Maintenance", totalReported: 3500.0 },
-    { id: "9", title: "Daily Dairy & Milk Procurement", totalReported: 14200.0 },
-    { id: "10", title: "Eco-friendly Packaging Boxes", totalReported: 6800.0 },
-  ]);
-
-  // 2. Expense Master Data
-  const [expenseMaster, setExpenseMaster] = useState<MasterItem[]>([
-    { id: "em-1", title: "Petty Cash Settlement", status: true, createdDate: "24 May 2026" },
-    { id: "em-2", title: "Other Miscellaneous Expenses", status: true, createdDate: "24 May 2026" },
-    { id: "em-3", title: "Advertisement & Promotions", status: true, createdDate: "24 May 2026" },
-    { id: "em-4", title: "Kitchen Maintenance & Repairs", status: true, createdDate: "24 May 2026" },
-    { id: "em-5", title: "Mineral Water Can Supplies", status: true, createdDate: "24 May 2026" },
-    { id: "em-6", title: "Broadband Internet", status: true, createdDate: "24 May 2026" },
-    { id: "em-7", title: "Premises Rent", status: true, createdDate: "24 May 2026" },
-    { id: "em-8", title: "Commercial Gas", status: true, createdDate: "24 May 2026" },
-  ]);
-
-  // 3. Withdrawal Listing Data
-  const [withdrawalListing] = useState<ListingItem[]>([
-    { id: "w-1", title: "Vendor Cheque Clearance", totalReported: 45000.0 },
-    { id: "w-2", title: "Cash Deposited in Bank", totalReported: 85000.0 },
-    { id: "w-3", title: "Drawings by Owner", totalReported: 20000.0 },
-    { id: "w-4", title: "Direct Settlement to Supplier", totalReported: 12500.0 },
-  ]);
-
-  // 4. Withdrawal Master Data
-  const [withdrawalMaster, setWithdrawalMaster] = useState<MasterItem[]>([
-    { id: "wm-1", title: "To Supplier", status: true, createdDate: "24 May 2026" },
-    { id: "wm-2", title: "To Owner", status: true, createdDate: "24 May 2026" },
-    { id: "wm-3", title: "Cheque Given", status: true, createdDate: "24 May 2026" },
-    { id: "wm-4", title: "In Bank", status: true, createdDate: "24 May 2026" },
-  ]);
-
-  // 5. Cash Top-Up Listing Data
-  const [cashTopupListing] = useState<ListingItem[]>([
-    { id: "ct-1", title: "Float From Store Manager", totalReported: 10000.0 },
-    { id: "ct-2", title: "Emergency Cash Infusion from Owner", totalReported: 25000.0 },
-  ]);
-
-  // 6. Cash Top-Up Master Data
-  const [cashTopupMaster, setCashTopupMaster] = useState<MasterItem[]>([
-    { id: "cm-1", title: "From Owner", status: true, createdDate: "24 May 2026" },
-    { id: "cm-2", title: "From Manager", status: true, createdDate: "24 May 2026" },
-  ]);
-
-  // Columns for Listing Views
-  const listingColumns: DataGridColumn<ListingItem>[] = [
-    {
-      id: "title",
-      header: "Expense / Category Title",
-      sortable: true,
-      filterable: true,
-      width: 280,
-      render: (val: any) => <span className="font-semibold text-foreground">{val}</span>,
-    },
-    {
-      id: "totalReported",
-      header: "Total Reported Amount (₹)",
-      sortable: true,
-      align: "right",
-      width: 200,
-      render: (val: any) => (
-        <span className="font-mono font-bold text-foreground">₹{Number(val || 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
-      ),
-    },
-    {
-      id: "actions",
-      header: "Action",
-      align: "right",
-      width: 140,
-      render: (_: any, row: ListingItem) => (
-        <button
-          type="button"
-          onClick={() => toast.info(`Viewing transactions for ${row.title}`)}
-          className="text-xs font-bold text-primary hover:underline cursor-pointer"
-        >
-          View Ledger
-        </button>
-      ),
-    },
-  ];
-
-  // Columns for Master Views
-  const masterColumns: DataGridColumn<MasterItem>[] = [
-    {
-      id: "title",
-      header: "Master Category Title",
-      sortable: true,
-      filterable: true,
-      width: 280,
-      render: (val: any) => <span className="font-semibold text-foreground">{val}</span>,
-    },
-    {
-      id: "status",
-      header: "Status",
-      sortable: true,
-      filterable: true,
-      align: "center",
-      width: 130,
-      getValue: (r: MasterItem) => (r.status ? "Active" : "Inactive"),
-      render: (val: any) => (
-        <span
-          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
-            val
-              ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400"
-              : "bg-slate-100 text-muted-foreground dark:bg-surface-2"
-          }`}
-        >
-          {val ? "Active" : "Inactive"}
-        </span>
-      ),
-    },
-    {
-      id: "createdDate",
-      header: "Created Date",
-      sortable: true,
-      width: 160,
-      render: (val: any) => <span className="text-muted-foreground text-xs">{val}</span>,
-    },
-    {
-      id: "actions",
-      header: "Actions",
-      align: "right",
-      width: 120,
-      render: (_: any, row: MasterItem) => (
-        <div className="flex items-center justify-end gap-1 text-muted-foreground">
-          <button
-            type="button"
-            onClick={() => toast.info(`Editing ${row.title}`)}
-            className="p-1 hover:text-primary hover:bg-surface-2 rounded transition cursor-pointer"
-            title="Edit Master"
-          >
-            <Edit2 className="h-4 w-4" />
-          </button>
-          <button
-            type="button"
-            onClick={() => toast.success(`Deleted ${row.title}`)}
-            className="p-1 hover:text-red-500 hover:bg-surface-2 rounded transition cursor-pointer"
-            title="Delete Master"
-          >
-            <Trash2 className="h-4 w-4" />
-          </button>
-        </div>
-      ),
-    },
-  ];
+  const totalExpenseSum = expenses.reduce((acc, e) => acc + e.totalReported, 0);
+  const totalWithdrawalSum = withdrawals.reduce((acc, w) => acc + w.totalReported, 0);
+  const totalTopupSum = topups.reduce((acc, t) => acc + t.totalReported, 0);
 
   return (
-    <div className="space-y-4">
-      {/* 1. Header Bar */}
+    <div className="w-full space-y-5 pb-12">
+      {/* 1. Top Header */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-lg font-bold text-foreground tracking-tight">
-            Petty Cash & Expense Management
+          <h2 className="text-[18px] font-bold text-slate-900 tracking-tight">
+            Petty Cash, Expenses & Withdrawals
           </h2>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            Track daily operating expenses, owner withdrawals, cash top-ups, and petty float registers.
+          <p className="text-[12.5px] text-slate-500 mt-0.5">
+            Manage daily kitchen procurement, staff advances, owner drawings, and cash drawer float top-ups.
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={() => toast.info("Create new entry modal")}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3.5 py-2 text-xs font-bold text-primary-foreground hover:opacity-90 shadow-xs transition cursor-pointer"
-        >
-          <Plus className="h-4 w-4" />
-          <span>Add Expense Entry</span>
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => toast.success("Exporting expense ledger...")}
+            className="flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-[12.5px] font-medium text-slate-700 hover:bg-slate-50 transition cursor-pointer shadow-2xs"
+          >
+            <Download className="h-3.5 w-3.5 text-slate-500" /> Export Excel
+          </button>
+
+          {isMasterTab ? (
+            <button
+              type="button"
+              onClick={openAddMasterModal}
+              className="flex items-center gap-1.5 rounded-lg bg-teal-600 px-4 py-2 text-[12.5px] font-semibold text-white hover:bg-teal-700 active:scale-[0.98] transition cursor-pointer shadow-xs"
+            >
+              <Plus className="h-4 w-4" /> Add Master Category
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={openAddEntryModal}
+              className="flex items-center gap-1.5 rounded-lg bg-teal-600 px-4 py-2 text-[12.5px] font-semibold text-white hover:bg-teal-700 active:scale-[0.98] transition cursor-pointer shadow-xs"
+            >
+              <Plus className="h-4 w-4" /> Add {currentCategoryType} Entry
+            </button>
+          )}
+        </div>
       </div>
 
-      {/* 2. Tab Navigation Bar */}
-      <div className="border-b border-border flex flex-wrap gap-1">
+      {/* 2. Top Summary KPI Banner */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="rounded-2xl border border-slate-200 bg-white p-4.5 shadow-2xs">
+          <span className="text-[11.5px] font-medium text-slate-500 block">Total Expenses Logged</span>
+          <div className="mt-1 flex items-baseline justify-between">
+            <span className="text-[20px] font-bold font-mono text-slate-900">
+              ₹{totalExpenseSum.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+            </span>
+            <span className="text-[11.5px] text-slate-400 font-medium">{expenses.length} entries</span>
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-slate-200 bg-white p-4.5 shadow-2xs">
+          <span className="text-[11.5px] font-medium text-slate-500 block">Total Withdrawals & Drawings</span>
+          <div className="mt-1 flex items-baseline justify-between">
+            <span className="text-[20px] font-bold font-mono text-slate-900">
+              ₹{totalWithdrawalSum.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+            </span>
+            <span className="text-[11.5px] text-slate-400 font-medium">{withdrawals.length} entries</span>
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-slate-200 bg-white p-4.5 shadow-2xs">
+          <span className="text-[11.5px] font-medium text-slate-500 block">Total Cash Top-Ups</span>
+          <div className="mt-1 flex items-baseline justify-between">
+            <span className="text-[20px] font-bold font-mono text-teal-700">
+              ₹{totalTopupSum.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+            </span>
+            <span className="text-[11.5px] text-teal-600 font-bold">{topups.length} entries</span>
+          </div>
+        </div>
+      </div>
+
+      {/* 3. Tab Navigation */}
+      <div className="border-b border-slate-200 flex flex-wrap gap-1">
         {tabs.map((tab) => (
           <button
             key={tab.id}
             type="button"
-            onClick={() => setActiveTab(tab.id)}
-            className={`px-4 py-2.5 text-xs font-semibold transition cursor-pointer border-b-2 ${
+            onClick={() => {
+              setActiveTab(tab.id);
+              setCurrentPage(1);
+              setSelectedIds([]);
+            }}
+            className={`px-4 py-2.5 text-[12.5px] font-semibold transition cursor-pointer border-b-2 ${
               activeTab === tab.id
-                ? "border-primary text-primary font-bold"
-                : "border-transparent text-muted-foreground hover:text-foreground"
+                ? "border-teal-600 text-teal-700 font-bold"
+                : "border-transparent text-slate-500 hover:text-slate-800"
             }`}
           >
             {tab.label}
@@ -242,137 +567,490 @@ export function ExpenseManagementView() {
         ))}
       </div>
 
-      {/* 3. Date Filter Bar for Listing Tabs */}
-      {(activeTab === "expense_listing" ||
-        activeTab === "withdrawal_listing" ||
-        activeTab === "cash_topup_listing") && (
-        <div className="rounded-xl border border-border bg-surface p-3.5 shadow-xs">
-          <div className="flex flex-wrap items-end gap-3">
-            <div className="w-36">
-              <label className="block text-[11.5px] font-semibold text-muted-foreground mb-1">
-                Start Date
-              </label>
+      {/* 4. Filter Bar */}
+      <div className="rounded-2xl border border-slate-300 bg-white p-4 shadow-xs">
+        <div className="flex flex-wrap items-end gap-3">
+          <div className="space-y-1 flex-1 min-w-[220px]">
+            <label className="text-[11.5px] font-semibold text-slate-600">
+              Search {isMasterTab ? "Master Category" : "Entry / Beneficiary"}
+            </label>
+            <div className="relative">
               <input
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                className="w-full rounded-lg border border-border bg-surface px-2.5 py-1.5 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                type="text"
+                placeholder={`Search ${activeTab.replace("_", " ")}...`}
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="w-full rounded-lg border border-slate-300 bg-white pl-9 pr-3 py-1.5 text-[12.5px] text-slate-800 shadow-2xs focus:border-teal-500 focus:outline-none"
               />
+              <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
             </div>
+          </div>
 
-            <div className="w-36">
-              <label className="block text-[11.5px] font-semibold text-muted-foreground mb-1">
-                End Date
-              </label>
-              <input
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                className="w-full rounded-lg border border-border bg-surface px-2.5 py-1.5 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-              />
-            </div>
-
+          <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={() => toast.info("Filter applied")}
-              className="rounded-lg border border-border bg-surface px-3.5 py-1.5 text-xs font-semibold text-foreground hover:bg-surface-2 transition cursor-pointer"
+              onClick={() => toast.info(`Found ${totalCount} matching records`)}
+              className="rounded-lg bg-teal-600 px-5 py-1.5 text-[12.5px] font-semibold text-white shadow-xs hover:bg-teal-700 transition cursor-pointer"
             >
-              Apply Filter
+              Search
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setSearchQuery("");
+                setCurrentPage(1);
+                toast.info("Showing all records");
+              }}
+              className="rounded-lg border border-slate-300 bg-white px-4 py-1.5 text-[12.5px] font-medium text-slate-700 shadow-2xs hover:bg-slate-50 transition cursor-pointer"
+            >
+              Show All
             </button>
           </div>
         </div>
-      )}
+      </div>
 
-      {/* 4. Tab Table View with PosDataGrid */}
-      {activeTab === "expense_listing" && (
-        <PosDataGrid
-          data={expenseListing}
-          columns={listingColumns}
-          keyField="id"
-          title="Expense Categories Summary"
-          subtitle="Aggregated petty cash & invoice expense logs"
-          showToolbar
-          selectable
-          storageKey="pos-accounting-expense-listing"
-          themeVariant="primary"
-          pageSize={10}
-        />
-      )}
+      {/* 5. Full Table with DataTableHeader & DataTableFooter */}
+      <div className="rounded-2xl border border-slate-300 bg-white shadow-xs overflow-hidden">
+        <div className="overflow-x-auto">
+          {isMasterTab ? (
+            <table className="w-full text-left text-[12.5px] border-collapse">
+              <DataTableHeader
+                columns={masterColumns}
+                data={sortedMasters}
+                selectable
+                isAllSelected={selectedIds.length === sortedMasters.length && sortedMasters.length > 0}
+                isSomeSelected={selectedIds.length > 0 && selectedIds.length < sortedMasters.length}
+                onToggleSelectAll={toggleSelectAll}
+                sortConfig={sortConfig}
+                onSortChange={setSortConfig}
+                themeVariant="primary"
+              />
+              <tbody className="divide-y divide-slate-100">
+                {paginatedMasters.map((m) => (
+                  <tr key={m.id} className="hover:bg-slate-50/70 transition">
+                    <td className="w-12 px-3 py-3 text-center">
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.includes(m.id)}
+                        onChange={() => toggleSelect(m.id)}
+                        className="rounded border-slate-300 cursor-pointer text-teal-600 focus:ring-teal-500"
+                      />
+                    </td>
+                    <td className="px-3.5 py-3 font-semibold text-slate-900">{m.title}</td>
+                    <td className="px-3.5 py-3 text-center">
+                      <span
+                        className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-bold ${
+                          m.status
+                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                            : "bg-slate-100 text-slate-600 border border-slate-200"
+                        }`}
+                      >
+                        {m.status && <CheckCircle2 className="h-3 w-3 text-emerald-600" />}
+                        {m.status ? "Active" : "Inactive"}
+                      </span>
+                    </td>
+                    <td className="px-3.5 py-3 text-slate-500 font-mono text-[11.5px]">{m.createdDate}</td>
+                    <td className="px-3.5 py-3 text-right">
+                      <div className="inline-flex items-center gap-1 text-slate-400">
+                        <button
+                          type="button"
+                          onClick={() => openEditMasterModal(m)}
+                          className="rounded-lg p-1.5 hover:bg-slate-100 hover:text-teal-600 transition cursor-pointer"
+                          title="Edit Master"
+                        >
+                          <Edit2 className="h-3.5 w-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteMaster(m.id)}
+                          className="rounded-lg p-1.5 hover:bg-rose-50 hover:text-rose-600 transition cursor-pointer"
+                          title="Delete Master"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <table className="w-full text-left text-[12.5px] border-collapse">
+              <DataTableHeader
+                columns={listingColumns}
+                data={sortedListings}
+                selectable
+                isAllSelected={selectedIds.length === sortedListings.length && sortedListings.length > 0}
+                isSomeSelected={selectedIds.length > 0 && selectedIds.length < sortedListings.length}
+                onToggleSelectAll={toggleSelectAll}
+                sortConfig={sortConfig}
+                onSortChange={setSortConfig}
+                themeVariant="primary"
+              />
+              <tbody className="divide-y divide-slate-100">
+                {paginatedListings.map((item) => (
+                  <tr key={item.id} className="hover:bg-slate-50/70 transition">
+                    <td className="w-12 px-3 py-3 text-center">
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.includes(item.id)}
+                        onChange={() => toggleSelect(item.id)}
+                        className="rounded border-slate-300 cursor-pointer text-teal-600 focus:ring-teal-500"
+                      />
+                    </td>
+                    <td className="px-3.5 py-3">
+                      <div className="font-semibold text-slate-900">{item.title}</div>
+                      {item.refNo && <div className="text-[11px] text-slate-400 font-mono">Ref: {item.refNo}</div>}
+                    </td>
+                    <td className="px-3.5 py-3 text-slate-800 font-medium">{item.paidTo || "—"}</td>
+                    <td className="px-3.5 py-3">
+                      <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-700">
+                        {item.paymentMode}
+                      </span>
+                    </td>
+                    <td className="px-3.5 py-3 font-mono text-[12px] text-slate-600">{item.date}</td>
+                    <td className="px-3.5 py-3 text-right">
+                      <div className="font-bold font-mono text-slate-900">
+                        ₹{item.totalReported.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                      </div>
+                    </td>
+                    <td className="px-3.5 py-3 text-right">
+                      <div className="inline-flex items-center gap-1 text-slate-400">
+                        <button
+                          type="button"
+                          onClick={() => openEditEntryModal(item)}
+                          className="rounded-lg p-1.5 hover:bg-slate-100 hover:text-teal-600 transition cursor-pointer"
+                          title="Edit Entry"
+                        >
+                          <Edit2 className="h-3.5 w-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteListing(item.id)}
+                          className="rounded-lg p-1.5 hover:bg-rose-50 hover:text-rose-600 transition cursor-pointer"
+                          title="Delete Entry"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
 
-      {activeTab === "expense_master" && (
-        <PosDataGrid
-          data={expenseMaster}
-          columns={masterColumns}
-          keyField="id"
-          title="Expense Category Masters"
-          subtitle="Configure allowed expense category labels and active flags"
-          showToolbar
-          selectable
-          storageKey="pos-accounting-expense-master"
-          themeVariant="primary"
-          pageSize={10}
+        <DataTableFooter
+          totalCount={totalCount}
+          currentPage={validPage}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          onPageSizeChange={(sz) => {
+            setPageSize(sz);
+            setCurrentPage(1);
+          }}
+          selectedCount={selectedIds.length}
+          onClearSelection={() => setSelectedIds([])}
+          itemName={isMasterTab ? "categories" : "entries"}
+          onExport={(fmt) => toast.success(`Exporting ${activeTab} as ${fmt.toUpperCase()}...`)}
         />
-      )}
+      </div>
 
-      {activeTab === "withdrawal_listing" && (
-        <PosDataGrid
-          data={withdrawalListing}
-          columns={listingColumns}
-          keyField="id"
-          title="Withdrawal Summary"
-          subtitle="Summary of cash withdrawals to owner, bank, and suppliers"
-          showToolbar
-          selectable
-          storageKey="pos-accounting-withdrawal-listing"
-          themeVariant="primary"
-          pageSize={10}
-        />
-      )}
+      {/* 6. Add / Edit Listing Entry Modal */}
+      <Dialog open={isEntryModalOpen} onOpenChange={setIsEntryModalOpen}>
+        <DialogContent className="max-w-lg p-0 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl">
+          <div className="border-b border-slate-200 bg-slate-50/70 px-6 py-5">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white border border-slate-200 text-teal-700 shadow-2xs">
+                <Receipt className="h-5 w-5" />
+              </div>
+              <div>
+                <DialogTitle className="text-[16px] font-bold tracking-tight text-slate-900">
+                  {editingEntryId ? `Edit ${currentCategoryType} Entry` : `Record New ${currentCategoryType}`}
+                </DialogTitle>
+                <DialogDescription className="text-[12px] text-slate-500 mt-0.5">
+                  Enter authentic payment amount, vendor, and cash register details.
+                </DialogDescription>
+              </div>
+            </div>
+          </div>
 
-      {activeTab === "withdrawal_master" && (
-        <PosDataGrid
-          data={withdrawalMaster}
-          columns={masterColumns}
-          keyField="id"
-          title="Withdrawal Category Masters"
-          subtitle="Manage withdrawal types"
-          showToolbar
-          selectable
-          storageKey="pos-accounting-withdrawal-master"
-          themeVariant="primary"
-          pageSize={10}
-        />
-      )}
+          <form onSubmit={handleSaveEntry} className="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+            {/* Title / Description */}
+            <div className="space-y-1.5">
+              <label className="text-[12px] font-semibold text-slate-700">
+                Title / Expense Description <span className="text-rose-500 font-bold ml-0.5">*</span>
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. Daily Groceries & Vegetables Mandi"
+                value={formTitle}
+                onBlur={() => markEntryTouched("title")}
+                onChange={(e) => {
+                  setFormTitle(e.target.value);
+                  markEntryTouched("title");
+                }}
+                className={`w-full rounded-xl border px-3.5 py-2 text-[13px] text-slate-800 focus:outline-none transition shadow-2xs ${
+                  entryTouched.title && entryErrors.title ? "border-rose-400 bg-rose-50/20" : "border-slate-300 focus:border-teal-500"
+                }`}
+              />
+              {entryTouched.title && entryErrors.title && (
+                <div className="flex items-center gap-1 text-[11.5px] font-medium text-rose-600">
+                  <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                  <span>{entryErrors.title}</span>
+                </div>
+              )}
+            </div>
 
-      {activeTab === "cash_topup_listing" && (
-        <PosDataGrid
-          data={cashTopupListing}
-          columns={listingColumns}
-          keyField="id"
-          title="Cash Top-Up Summary"
-          subtitle="Summary of cash float replenishments"
-          showToolbar
-          selectable
-          storageKey="pos-accounting-cash-topup-listing"
-          themeVariant="primary"
-          pageSize={10}
-        />
-      )}
+            {/* Amount & Beneficiary */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <label className="text-[12px] font-semibold text-slate-700">
+                  Amount (₹) <span className="text-rose-500 font-bold ml-0.5">*</span>
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  placeholder="0.00"
+                  value={formAmount}
+                  onBlur={() => markEntryTouched("amount")}
+                  onChange={(e) => {
+                    setFormAmount(e.target.value);
+                    markEntryTouched("amount");
+                  }}
+                  className={`w-full font-mono rounded-xl border px-3.5 py-2 text-[13px] text-slate-800 focus:outline-none transition shadow-2xs ${
+                    entryTouched.amount && entryErrors.amount ? "border-rose-400 bg-rose-50/20" : "border-slate-300 focus:border-teal-500"
+                  }`}
+                />
+                {entryTouched.amount && entryErrors.amount && (
+                  <div className="flex items-center gap-1 text-[11.5px] font-medium text-rose-600">
+                    <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                    <span>{entryErrors.amount}</span>
+                  </div>
+                )}
+              </div>
 
-      {activeTab === "cash_topup_master" && (
-        <PosDataGrid
-          data={cashTopupMaster}
-          columns={masterColumns}
-          keyField="id"
-          title="Cash Top-Up Masters"
-          subtitle="Manage float sources and top-up category rules"
-          showToolbar
-          selectable
-          storageKey="pos-accounting-cash-topup-master"
-          themeVariant="primary"
-          pageSize={10}
-        />
-      )}
+              <div className="space-y-1.5">
+                <label className="text-[12px] font-semibold text-slate-700">
+                  Paid To / Beneficiary <span className="text-rose-500 font-bold ml-0.5">*</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Local Mandi Vendor / Chef Ramesh"
+                  value={formPaidTo}
+                  onBlur={() => markEntryTouched("paidTo")}
+                  onChange={(e) => {
+                    setFormPaidTo(e.target.value);
+                    markEntryTouched("paidTo");
+                  }}
+                  className={`w-full rounded-xl border px-3.5 py-2 text-[13px] text-slate-800 focus:outline-none transition shadow-2xs ${
+                    entryTouched.paidTo && entryErrors.paidTo ? "border-rose-400 bg-rose-50/20" : "border-slate-300 focus:border-teal-500"
+                  }`}
+                />
+                {entryTouched.paidTo && entryErrors.paidTo && (
+                  <div className="flex items-center gap-1 text-[11.5px] font-medium text-rose-600">
+                    <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                    <span>{entryErrors.paidTo}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Payment Mode & Date */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <label className="text-[12px] font-semibold text-slate-700">
+                  Payment Mode <span className="text-rose-500 font-bold ml-0.5">*</span>
+                </label>
+                <select
+                  value={formPaymentMode}
+                  onBlur={() => markEntryTouched("paymentMode")}
+                  onChange={(e) => {
+                    setFormPaymentMode(e.target.value);
+                    markEntryTouched("paymentMode");
+                  }}
+                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-[13px] text-slate-800 focus:border-teal-500 focus:outline-none cursor-pointer shadow-2xs"
+                >
+                  {PAYMENT_MODES.map((m) => (
+                    <option key={m} value={m}>
+                      {m}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[12px] font-semibold text-slate-700">
+                  Entry Date <span className="text-rose-500 font-bold ml-0.5">*</span>
+                </label>
+                <input
+                  type="date"
+                  value={formDate}
+                  onBlur={() => markEntryTouched("date")}
+                  onChange={(e) => {
+                    setFormDate(e.target.value);
+                    markEntryTouched("date");
+                  }}
+                  className={`w-full rounded-xl border px-3.5 py-2 text-[13px] text-slate-800 focus:outline-none transition shadow-2xs ${
+                    entryTouched.date && entryErrors.date ? "border-rose-400 bg-rose-50/20" : "border-slate-300 focus:border-teal-500"
+                  }`}
+                />
+                {entryTouched.date && entryErrors.date && (
+                  <div className="flex items-center gap-1 text-[11.5px] font-medium text-rose-600">
+                    <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                    <span>{entryErrors.date}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Ref No & Notes */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <label className="text-[12px] font-semibold text-slate-700">Receipt / Voucher Ref No.</label>
+                <input
+                  type="text"
+                  placeholder="e.g. VCH-98210"
+                  value={formRefNo}
+                  onChange={(e) => setFormRefNo(e.target.value)}
+                  className="w-full font-mono rounded-xl border border-slate-300 bg-white px-3.5 py-2 text-[13px] text-slate-800 focus:border-teal-500 focus:outline-none shadow-2xs"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[12px] font-semibold text-slate-700">Remarks / Purpose</label>
+                <input
+                  type="text"
+                  placeholder="Optional details..."
+                  value={formNotes}
+                  onChange={(e) => setFormNotes(e.target.value)}
+                  className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2 text-[13px] text-slate-800 focus:border-teal-500 focus:outline-none shadow-2xs"
+                />
+              </div>
+            </div>
+
+            <DialogFooter className="pt-3 gap-2 sm:gap-0 border-t border-slate-100 flex items-center justify-between">
+              <div className="text-[11.5px] text-slate-400">
+                {!isEntryFormValid ? (
+                  <span className="text-amber-600 font-medium">Fill mandatory fields (*) to enable</span>
+                ) : (
+                  <span className="text-emerald-600 font-medium">Ready to save</span>
+                )}
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsEntryModalOpen(false)}
+                  className="rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-[13px] font-semibold text-slate-700 hover:bg-slate-50 transition cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={!isEntryFormValid}
+                  className={`rounded-xl px-5 py-2.5 text-[13px] font-semibold transition ${
+                    isEntryFormValid
+                      ? "bg-teal-600 text-white hover:bg-teal-700 active:scale-[0.98] cursor-pointer shadow-sm shadow-teal-600/20"
+                      : "bg-slate-200 text-slate-400 cursor-not-allowed border border-slate-200 shadow-none"
+                  }`}
+                >
+                  {editingEntryId ? "Save Changes" : `Save ${currentCategoryType}`}
+                </button>
+              </div>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* 7. Add / Edit Master Category Modal */}
+      <Dialog open={isMasterModalOpen} onOpenChange={setIsMasterModalOpen}>
+        <DialogContent className="max-w-md p-0 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl">
+          <div className="border-b border-slate-200 bg-slate-50/70 px-6 py-5">
+            <DialogTitle className="text-[16px] font-bold tracking-tight text-slate-900">
+              {editingMasterId ? "Edit Master Category" : "Add Master Category"}
+            </DialogTitle>
+            <DialogDescription className="text-[12px] text-slate-500 mt-0.5">
+              Register predefined expense or withdrawal categories for billing classification.
+            </DialogDescription>
+          </div>
+
+          <form onSubmit={handleSaveMaster} className="p-6 space-y-4">
+            <div className="space-y-1.5">
+              <label className="text-[12px] font-semibold text-slate-700">
+                Category Title <span className="text-rose-500 font-bold ml-0.5">*</span>
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. Dairy & Milk Supplies"
+                value={formMasterTitle}
+                onBlur={() => markMasterTouched("title")}
+                onChange={(e) => {
+                  setFormMasterTitle(e.target.value);
+                  markMasterTouched("title");
+                }}
+                className={`w-full rounded-xl border px-3.5 py-2 text-[13px] text-slate-800 focus:outline-none transition shadow-2xs ${
+                  masterTouched.title && masterErrors.title
+                    ? "border-rose-400 bg-rose-50/20"
+                    : "border-slate-300 focus:border-teal-500"
+                }`}
+              />
+              {masterTouched.title && masterErrors.title && (
+                <div className="flex items-center gap-1 text-[11.5px] font-medium text-rose-600">
+                  <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                  <span>{masterErrors.title}</span>
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-[12px] font-semibold text-slate-700">Master Type</label>
+              <select
+                value={formMasterCategory}
+                onChange={(e) => setFormMasterCategory(e.target.value as any)}
+                className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-[13px] text-slate-800 focus:border-teal-500 focus:outline-none cursor-pointer shadow-2xs"
+              >
+                <option value="Expense">Expense Master</option>
+                <option value="Withdrawal">Withdrawal Master</option>
+                <option value="Cash Top-Up">Cash Top-Up Master</option>
+              </select>
+            </div>
+
+            <div className="flex items-center gap-2 pt-1">
+              <input
+                type="checkbox"
+                id="masterStatus"
+                checked={formMasterStatus}
+                onChange={(e) => setFormMasterStatus(e.target.checked)}
+                className="rounded border-slate-300 text-teal-600 cursor-pointer"
+              />
+              <label htmlFor="masterStatus" className="text-[12.5px] font-medium text-slate-700 cursor-pointer">
+                Active Category
+              </label>
+            </div>
+
+            <DialogFooter className="pt-3 gap-2 sm:gap-0 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => setIsMasterModalOpen(false)}
+                className="rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-[13px] font-semibold text-slate-700 hover:bg-slate-50 transition cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={!isMasterFormValid}
+                className="rounded-xl bg-teal-600 px-5 py-2.5 text-[13px] font-semibold text-white hover:bg-teal-700 active:scale-[0.98] transition cursor-pointer shadow-sm shadow-teal-600/20"
+              >
+                Save Category
+              </button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -1,5 +1,22 @@
 import { useState, useMemo } from "react";
-import { Download, ChevronDown, Search, FileText } from "lucide-react";
+import {
+  Download,
+  Search,
+  FileText,
+  Plus,
+  Wallet,
+  ArrowUpRight,
+  ArrowDownLeft,
+  Users,
+  IndianRupee,
+  X,
+  AlertCircle,
+  CheckCircle2,
+  Calendar,
+  CreditCard,
+  Phone,
+  User,
+} from "lucide-react";
 import { toast } from "sonner";
 import {
   DataTableHeader,
@@ -7,12 +24,186 @@ import {
   type DataTableColumn,
 } from "@/components/common";
 
+interface WalletTransaction {
+  id: string;
+  type: "credit" | "debit";
+  amount: number;
+  balanceAfter: number;
+  reason: string;
+  orderRef?: string;
+  date: string;
+  mode: string;
+}
+
 interface WalletRecord {
   id: string;
+  customerName: string;
   mobile: string;
   amount: number;
+  totalCredited: number;
+  totalDebited: number;
+  lastUsedDate: string;
   created: string;
+  transactions: WalletTransaction[];
 }
+
+const INITIAL_WALLETS: WalletRecord[] = [
+  {
+    id: "w-1",
+    customerName: "Rahul Sharma",
+    mobile: "+91 98765 43210",
+    amount: 17100.0,
+    totalCredited: 25000.0,
+    totalDebited: 7900.0,
+    lastUsedDate: "2026-09-02 14:15",
+    created: "9 Sep 2023 23:05:22",
+    transactions: [
+      {
+        id: "tx-w1-1",
+        type: "credit",
+        amount: 25000,
+        balanceAfter: 25000,
+        reason: "VIP Prepaid Deposit",
+        date: "9 Sep 2023 23:05:22",
+        mode: "UPI",
+      },
+      {
+        id: "tx-w1-2",
+        type: "debit",
+        amount: 4500,
+        balanceAfter: 20500,
+        reason: "Dining Bill Payment",
+        orderRef: "RET-2026-0710",
+        date: "14 Aug 2026 21:30",
+        mode: "Wallet Redeem",
+      },
+      {
+        id: "tx-w1-3",
+        type: "debit",
+        amount: 3400,
+        balanceAfter: 17100,
+        reason: "Bar Order Payment",
+        orderRef: "RET-2026-0812",
+        date: "2026-09-02 14:15",
+        mode: "Wallet Redeem",
+      },
+    ],
+  },
+  {
+    id: "w-2",
+    customerName: "Pooja Verma",
+    mobile: "+91 98234 56789",
+    amount: 17000.0,
+    totalCredited: 20000.0,
+    totalDebited: 3000.0,
+    lastUsedDate: "2026-08-30 19:40",
+    created: "9 Sep 2023 22:25:23",
+    transactions: [
+      {
+        id: "tx-w2-1",
+        type: "credit",
+        amount: 20000,
+        balanceAfter: 20000,
+        reason: "Advance Banquet Booking Deposit",
+        date: "9 Sep 2023 22:25:23",
+        mode: "Credit Card",
+      },
+      {
+        id: "tx-w2-2",
+        type: "debit",
+        amount: 3000,
+        balanceAfter: 17000,
+        reason: "Beverage Top-Up",
+        orderRef: "RET-2026-0680",
+        date: "2026-08-30 19:40",
+        mode: "Wallet Redeem",
+      },
+    ],
+  },
+  {
+    id: "w-3",
+    customerName: "Anand Gupta",
+    mobile: "+91 97123 45678",
+    amount: 5000.0,
+    totalCredited: 10000.0,
+    totalDebited: 5000.0,
+    lastUsedDate: "2026-08-25 12:10",
+    created: "1 Jan 2023 01:56:13",
+    transactions: [
+      {
+        id: "tx-w3-1",
+        type: "credit",
+        amount: 10000,
+        balanceAfter: 10000,
+        reason: "Corporate Prepaid Allowance",
+        date: "1 Jan 2023 01:56:13",
+        mode: "NEFT / Bank Transfer",
+      },
+      {
+        id: "tx-w3-2",
+        type: "debit",
+        amount: 5000,
+        balanceAfter: 5000,
+        reason: "Team Lunch Settled",
+        orderRef: "RET-2026-0590",
+        date: "2026-08-25 12:10",
+        mode: "Wallet Redeem",
+      },
+    ],
+  },
+  {
+    id: "w-4",
+    customerName: "Vikas Malhotra",
+    mobile: "+91 94371 88410",
+    amount: 8400.0,
+    totalCredited: 15000.0,
+    totalDebited: 6600.0,
+    lastUsedDate: "2026-09-01 20:05",
+    created: "14 Feb 2024 18:30:10",
+    transactions: [
+      {
+        id: "tx-w4-1",
+        type: "credit",
+        amount: 15000,
+        balanceAfter: 15000,
+        reason: "Regular Dining Credit Top-Up",
+        date: "14 Feb 2024 18:30:10",
+        mode: "UPI",
+      },
+      {
+        id: "tx-w4-2",
+        type: "debit",
+        amount: 6600,
+        balanceAfter: 8400,
+        reason: "Dinner Settled",
+        orderRef: "RET-2026-0801",
+        date: "2026-09-01 20:05",
+        mode: "Wallet Redeem",
+      },
+    ],
+  },
+  {
+    id: "w-5",
+    customerName: "Deepak Mehta",
+    mobile: "+91 99370 12845",
+    amount: 12200.0,
+    totalCredited: 12200.0,
+    totalDebited: 0.0,
+    lastUsedDate: "2024-03-22 14:15",
+    created: "22 Mar 2024 14:15:00",
+    transactions: [
+      {
+        id: "tx-w5-1",
+        type: "credit",
+        amount: 12200,
+        balanceAfter: 12200,
+        reason: "Promotional Cash-Back Reward",
+        date: "22 Mar 2024 14:15:00",
+        mode: "Cash",
+      },
+    ],
+  },
+];
 
 export function VirtualWalletView() {
   const [mobileFilter, setMobileFilter] = useState("");
@@ -23,40 +214,209 @@ export function VirtualWalletView() {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [sortConfig, setSortConfig] = useState<{ colId: string; direction: "asc" | "desc" } | null>(null);
 
-  const [records] = useState<WalletRecord[]>([
-    { id: "1", mobile: "+91 98765 43210", amount: 17100.0, created: "9 Sep 2023 23:05:22" },
-    { id: "2", mobile: "+91 98234 56789", amount: 17000.0, created: "9 Sep 2023 22:25:23" },
-    { id: "3", mobile: "+91 97123 45678", amount: 5000.0, created: "1 Jan 2023 01:56:13" },
-    { id: "4", mobile: "+91 94371 88410", amount: 8400.0, created: "14 Feb 2024 18:30:10" },
-    { id: "5", mobile: "+91 99370 12845", amount: 12200.0, created: "22 Mar 2024 14:15:00" },
-  ]);
+  const [records, setRecords] = useState<WalletRecord[]>(INITIAL_WALLETS);
 
-  const totalBalance = records.reduce((acc, r) => acc + r.amount, 0);
+  // Modal States
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [statementWallet, setStatementWallet] = useState<WalletRecord | null>(null);
+
+  // Form State
+  const [formData, setFormData] = useState({
+    mobile: "",
+    customerName: "",
+    amount: "",
+    mode: "UPI" as "Cash" | "UPI" | "Card" | "Bank Transfer" | "Promotional Credit",
+    reason: "",
+  });
+
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+
+  // Form Validation
+  const errors = useMemo(() => {
+    const errs: Record<string, string> = {};
+
+    const cleanMobile = formData.mobile.replace(/\D/g, "");
+    if (!formData.mobile.trim()) {
+      errs.mobile = "Customer mobile number is required.";
+    } else if (cleanMobile.length < 10 || cleanMobile.length > 12) {
+      errs.mobile = "Enter a valid 10-digit mobile number.";
+    }
+
+    if (!formData.customerName.trim()) {
+      errs.customerName = "Customer full name is required.";
+    } else if (formData.customerName.trim().length < 3) {
+      errs.customerName = "Customer name must be at least 3 characters.";
+    }
+
+    const amt = parseFloat(formData.amount);
+    if (!formData.amount.trim()) {
+      errs.amount = "Top-up amount is required.";
+    } else if (isNaN(amt) || amt <= 0) {
+      errs.amount = "Enter a valid amount greater than ₹0.";
+    }
+
+    if (!formData.reason.trim()) {
+      errs.reason = "Deposit reason or purpose is required.";
+    }
+
+    return errs;
+  }, [formData]);
+
+  const isFormValid = Object.keys(errors).length === 0;
+
+  const handleBlur = (field: string) => {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+  };
+
+  const handleOpenAddModal = () => {
+    setFormData({
+      mobile: "",
+      customerName: "",
+      amount: "",
+      mode: "UPI",
+      reason: "",
+    });
+    setTouched({});
+    setIsAddModalOpen(true);
+  };
+
+  const handleSubmitTopUp = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!isFormValid) {
+      setTouched({
+        mobile: true,
+        customerName: true,
+        amount: true,
+        reason: true,
+      });
+      toast.error("Please fill all required mandatory fields correctly.");
+      return;
+    }
+
+    const amt = parseFloat(formData.amount);
+    const formattedMobile = formData.mobile.startsWith("+91")
+      ? formData.mobile
+      : `+91 ${formData.mobile.replace(/\D/g, "").slice(-10)}`;
+
+    const now = new Date();
+    const dateStr = now.toLocaleString("en-IN", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    });
+
+    // Check if wallet exists
+    const existingIndex = records.findIndex(
+      (r) => r.mobile.replace(/\s+/g, "") === formattedMobile.replace(/\s+/g, "")
+    );
+
+    if (existingIndex >= 0) {
+      const existing = records[existingIndex];
+      const newTx: WalletTransaction = {
+        id: `tx-w-${Date.now()}`,
+        type: "credit",
+        amount: amt,
+        balanceAfter: existing.amount + amt,
+        reason: formData.reason,
+        date: dateStr,
+        mode: formData.mode,
+      };
+
+      const updated = [...records];
+      updated[existingIndex] = {
+        ...existing,
+        customerName: formData.customerName,
+        amount: existing.amount + amt,
+        totalCredited: existing.totalCredited + amt,
+        lastUsedDate: dateStr,
+        transactions: [newTx, ...existing.transactions],
+      };
+      setRecords(updated);
+      toast.success(`Successfully added ₹${amt.toLocaleString("en-IN")} to ${formData.customerName}'s wallet!`);
+    } else {
+      const newTx: WalletTransaction = {
+        id: `tx-w-${Date.now()}`,
+        type: "credit",
+        amount: amt,
+        balanceAfter: amt,
+        reason: formData.reason,
+        date: dateStr,
+        mode: formData.mode,
+      };
+
+      const newWallet: WalletRecord = {
+        id: `w-${Date.now()}`,
+        customerName: formData.customerName,
+        mobile: formattedMobile,
+        amount: amt,
+        totalCredited: amt,
+        totalDebited: 0,
+        lastUsedDate: dateStr,
+        created: dateStr,
+        transactions: [newTx],
+      };
+      setRecords([newWallet, ...records]);
+      toast.success(`New wallet created & credited with ₹${amt.toLocaleString("en-IN")} for ${formData.customerName}!`);
+    }
+
+    setIsAddModalOpen(false);
+  };
+
+  // KPIs
+  const totalBalance = useMemo(() => records.reduce((acc, r) => acc + r.amount, 0), [records]);
+  const totalCredits = useMemo(() => records.reduce((acc, r) => acc + r.totalCredited, 0), [records]);
+  const totalDebits = useMemo(() => records.reduce((acc, r) => acc + r.totalDebited, 0), [records]);
 
   const columns: DataTableColumn<WalletRecord>[] = useMemo(
     () => [
+      {
+        id: "customerName",
+        label: "Customer Name",
+        sortable: true,
+        filterable: true,
+        defaultWidth: 200,
+        getValue: (r) => r.customerName,
+      },
       {
         id: "mobile",
         label: "Mobile No.",
         sortable: true,
         filterable: true,
-        defaultWidth: 180,
+        defaultWidth: 170,
         getValue: (r) => r.mobile,
       },
       {
         id: "amount",
-        label: `Remaining Amount (₹) — (₹${totalBalance.toLocaleString("en-IN", { minimumFractionDigits: 2 })})`,
+        label: "Remaining Balance (₹)",
         sortable: true,
-        filterable: true,
         align: "right",
-        defaultWidth: 260,
+        defaultWidth: 180,
         getValue: (r) => `₹${r.amount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}`,
       },
       {
-        id: "created",
-        label: "Created Date",
+        id: "totalCredited",
+        label: "Total Credited (₹)",
         sortable: true,
-        defaultWidth: 200,
+        align: "right",
+        defaultWidth: 160,
+        getValue: (r) => `₹${r.totalCredited.toLocaleString("en-IN", { minimumFractionDigits: 2 })}`,
+      },
+      {
+        id: "totalDebited",
+        label: "Total Redeemed (₹)",
+        sortable: true,
+        align: "right",
+        defaultWidth: 160,
+        getValue: (r) => `₹${r.totalDebited.toLocaleString("en-IN", { minimumFractionDigits: 2 })}`,
+      },
+      {
+        id: "created",
+        label: "Registered On",
+        sortable: true,
+        defaultWidth: 180,
         getValue: (r) => r.created,
       },
       {
@@ -64,18 +424,19 @@ export function VirtualWalletView() {
         label: "Action",
         sortable: false,
         filterable: false,
-        align: "right",
-        defaultWidth: 100,
+        align: "center",
+        defaultWidth: 90,
       },
     ],
-    [totalBalance],
+    []
   );
 
   const filteredRecords = useMemo(() => {
     return records.filter((r) => {
       if (mobileFilter.trim()) {
         const q = mobileFilter.toLowerCase();
-        if (!r.mobile.toLowerCase().includes(q)) return false;
+        const match = r.mobile.toLowerCase().includes(q) || r.customerName.toLowerCase().includes(q);
+        if (!match) return false;
       }
       return true;
     });
@@ -101,7 +462,7 @@ export function VirtualWalletView() {
   const paginatedRecords = sortedRecords.slice((validPage - 1) * pageSize, validPage * pageSize);
 
   const toggleSelectAll = () => {
-    if (selectedIds.length === sortedRecords.length) {
+    if (selectedIds.length === sortedRecords.length && sortedRecords.length > 0) {
       setSelectedIds([]);
     } else {
       setSelectedIds(sortedRecords.map((r) => r.id));
@@ -113,42 +474,115 @@ export function VirtualWalletView() {
   };
 
   return (
-    <div className="space-y-4">
-      {/* 1. Header matching Screenshot 2 */}
+    <div className="w-full space-y-4">
+      {/* 1. Header with Add Action */}
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-[18px] font-bold text-slate-900 tracking-tight">Virtual Wallet</h2>
+        <div>
+          <h2 className="text-[18px] font-bold text-slate-900 tracking-tight">Customer Virtual Wallet</h2>
+          <p className="text-[12px] text-slate-500 mt-0.5">
+            Manage prepaid customer deposits, loyalty store credits, and real-time passbook ledger settlements.
+          </p>
+        </div>
 
-        <button
-          type="button"
-          onClick={() => toast.success("Exporting wallet ledger to Excel...")}
-          className="flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3.5 py-1.5 text-[12.5px] font-medium text-slate-700 hover:bg-slate-50 transition cursor-pointer shadow-2xs"
-        >
-          <Download className="h-3.5 w-3.5 text-slate-500" />
-          Export <ChevronDown className="h-3 w-3 text-slate-400" />
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => toast.success("Exporting wallet accounts to Excel...")}
+            className="flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3.5 py-1.5 text-[12.5px] font-medium text-slate-700 hover:bg-slate-50 transition cursor-pointer shadow-2xs"
+          >
+            <Download className="h-3.5 w-3.5 text-slate-500" />
+            Export Ledger
+          </button>
+          <button
+            type="button"
+            onClick={handleOpenAddModal}
+            className="flex items-center gap-1.5 rounded-lg bg-teal-600 px-4 py-1.5 text-[12.5px] font-bold text-white hover:bg-teal-700 transition cursor-pointer shadow-xs"
+          >
+            <Plus className="h-4 w-4" />
+            Issue / Top-Up Wallet
+          </button>
+        </div>
       </div>
 
-      {/* 2. Filter Bar matching Screenshot 2 */}
+      {/* 2. Top Metric KPI Summary Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs flex items-center justify-between">
+          <div>
+            <p className="text-[11.5px] font-semibold text-slate-500 uppercase tracking-wider">Total Active Float</p>
+            <h3 className="text-xl font-bold font-mono text-slate-900 mt-1">
+              ₹{totalBalance.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+            </h3>
+            <p className="text-[11px] text-slate-400 mt-0.5">Customer balance payable</p>
+          </div>
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-teal-50 text-teal-600">
+            <Wallet className="h-5 w-5" />
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs flex items-center justify-between">
+          <div>
+            <p className="text-[11.5px] font-semibold text-slate-500 uppercase tracking-wider">Total Credited</p>
+            <h3 className="text-xl font-bold font-mono text-emerald-700 mt-1">
+              ₹{totalCredits.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+            </h3>
+            <p className="text-[11px] text-emerald-600 mt-0.5 flex items-center gap-0.5">
+              <ArrowUpRight className="h-3 w-3" /> Cumulative top-ups
+            </p>
+          </div>
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+            <IndianRupee className="h-5 w-5" />
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs flex items-center justify-between">
+          <div>
+            <p className="text-[11.5px] font-semibold text-slate-500 uppercase tracking-wider">Total Redeemed</p>
+            <h3 className="text-xl font-bold font-mono text-amber-700 mt-1">
+              ₹{totalDebits.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+            </h3>
+            <p className="text-[11px] text-amber-600 mt-0.5 flex items-center gap-0.5">
+              <ArrowDownLeft className="h-3 w-3" /> Settled against bills
+            </p>
+          </div>
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-50 text-amber-600">
+            <CreditCard className="h-5 w-5" />
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs flex items-center justify-between">
+          <div>
+            <p className="text-[11.5px] font-semibold text-slate-500 uppercase tracking-wider">Active Wallets</p>
+            <h3 className="text-xl font-bold font-mono text-slate-900 mt-1">{records.length}</h3>
+            <p className="text-[11px] text-slate-400 mt-0.5">Registered members</p>
+          </div>
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-100 text-slate-600">
+            <Users className="h-5 w-5" />
+          </div>
+        </div>
+      </div>
+
+      {/* 3. Search & Filter Bar */}
       <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs">
-        <div className="flex flex-wrap items-end gap-3 max-w-3xl">
-          <div className="space-y-1 min-w-[180px]">
-            <label className="text-[11.5px] font-semibold text-slate-600">
-              Customer Mobile No.
-            </label>
-            <input
-              type="text"
-              placeholder="Search Mobile No"
-              value={mobileFilter}
-              onChange={(e) => {
-                setMobileFilter(e.target.value);
-                setCurrentPage(1);
-              }}
-              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-[12.5px] text-slate-800 shadow-2xs focus:border-teal-500 focus:outline-none"
-            />
+        <div className="flex flex-wrap items-end gap-3">
+          <div className="space-y-1 min-w-[240px] flex-1">
+            <label className="text-[11.5px] font-semibold text-slate-600">Search Customer / Mobile</label>
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Search by customer name or phone..."
+                value={mobileFilter}
+                onChange={(e) => {
+                  setMobileFilter(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="w-full rounded-lg border border-slate-300 bg-white pl-9 pr-3 py-1.5 text-[12.5px] text-slate-800 shadow-2xs focus:border-teal-500 focus:outline-none"
+              />
+              <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
+            </div>
           </div>
 
           <div className="space-y-1">
-            <label className="text-[11.5px] font-semibold text-slate-600">Start Date</label>
+            <label className="text-[11.5px] font-semibold text-slate-600">Registered From</label>
             <input
               type="date"
               value={startDate}
@@ -158,7 +592,7 @@ export function VirtualWalletView() {
           </div>
 
           <div className="space-y-1">
-            <label className="text-[11.5px] font-semibold text-slate-600">End Date</label>
+            <label className="text-[11.5px] font-semibold text-slate-600">Registered To</label>
             <input
               type="date"
               value={endDate}
@@ -173,7 +607,7 @@ export function VirtualWalletView() {
               onClick={() => toast.info(`Found ${filteredRecords.length} wallet accounts`)}
               className="rounded-lg bg-teal-600 px-5 py-1.5 text-[12.5px] font-semibold text-white shadow-xs hover:bg-teal-700 transition cursor-pointer"
             >
-              Search
+              Filter
             </button>
             <button
               type="button"
@@ -186,13 +620,13 @@ export function VirtualWalletView() {
               }}
               className="rounded-lg border border-slate-300 bg-white px-4 py-1.5 text-[12.5px] font-medium text-slate-700 shadow-2xs hover:bg-slate-50 transition cursor-pointer"
             >
-              Show All
+              Reset
             </button>
           </div>
         </div>
       </div>
 
-      {/* 3. Table with DataTableHeader & DataTableFooter */}
+      {/* 4. Table with Reusable DataTableHeader & DataTableFooter */}
       <div className="rounded-2xl border border-slate-300 bg-white shadow-xs overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-[13px] border-collapse">
@@ -208,33 +642,51 @@ export function VirtualWalletView() {
               themeVariant="primary"
             />
             <tbody className="divide-y divide-slate-100">
-              {paginatedRecords.map((r) => (
-                <tr key={r.id} className="hover:bg-slate-50/50 transition">
-                  <td className="w-12 px-3 py-3.5 text-center">
-                    <input
-                      type="checkbox"
-                      checked={selectedIds.includes(r.id)}
-                      onChange={() => toggleSelect(r.id)}
-                      className="rounded border-slate-300 cursor-pointer"
-                    />
-                  </td>
-                  <td className="px-5 py-3.5 font-medium text-slate-800">{r.mobile}</td>
-                  <td className="px-5 py-3.5 font-mono font-bold text-slate-900 text-right">
-                    ₹{r.amount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
-                  </td>
-                  <td className="px-5 py-3.5 text-slate-500 font-mono text-[12px]">{r.created}</td>
-                  <td className="px-5 py-3.5 text-right">
-                    <button
-                      type="button"
-                      onClick={() => toast.info(`Viewing statement for ${r.mobile}`)}
-                      className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-teal-600 transition cursor-pointer"
-                      title="View Passbook Statement"
-                    >
-                      <FileText className="h-4 w-4" />
-                    </button>
+              {paginatedRecords.length === 0 ? (
+                <tr>
+                  <td colSpan={columns.length + 1} className="py-12 text-center text-slate-400">
+                    No customer wallet accounts found.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                paginatedRecords.map((r) => (
+                  <tr key={r.id} className="hover:bg-slate-50/70 transition">
+                    <td className="w-12 px-3 py-3.5 text-center">
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.includes(r.id)}
+                        onChange={() => toggleSelect(r.id)}
+                        className="rounded border-slate-300 cursor-pointer text-teal-600 focus:ring-teal-500"
+                      />
+                    </td>
+                    <td className="px-5 py-3.5">
+                      <div className="font-semibold text-slate-900">{r.customerName}</div>
+                      <div className="text-[11px] text-slate-500">Last activity: {r.lastUsedDate}</div>
+                    </td>
+                    <td className="px-5 py-3.5 font-medium text-slate-800 font-mono text-[12.5px]">{r.mobile}</td>
+                    <td className="px-5 py-3.5 font-mono font-bold text-teal-700 text-right">
+                      ₹{r.amount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                    </td>
+                    <td className="px-5 py-3.5 font-mono text-emerald-600 text-right">
+                      ₹{r.totalCredited.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                    </td>
+                    <td className="px-5 py-3.5 font-mono text-slate-600 text-right">
+                      ₹{r.totalDebited.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                    </td>
+                    <td className="px-5 py-3.5 text-slate-500 font-mono text-[12px]">{r.created}</td>
+                    <td className="px-5 py-3.5 text-center">
+                      <button
+                        type="button"
+                        onClick={() => setStatementWallet(r)}
+                        className="rounded-lg p-1.5 text-slate-400 hover:bg-teal-50 hover:text-teal-600 transition cursor-pointer inline-flex items-center justify-center"
+                        title="View Passbook Statement"
+                      >
+                        <FileText className="h-4 w-4" />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
@@ -248,8 +700,280 @@ export function VirtualWalletView() {
           selectedCount={selectedIds.length}
           onClearSelection={() => setSelectedIds([])}
           itemName="wallet accounts"
+          onExport={(fmt) => toast.success(`Exporting wallet records as ${fmt.toUpperCase()}...`)}
         />
       </div>
+
+      {/* 5. Issue / Top-Up Wallet Modal Dialog */}
+      {isAddModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
+          <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            {/* Simple Professional Header */}
+            <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50/70 px-6 py-4">
+              <div>
+                <h3 className="text-[16px] font-bold text-slate-900">Issue / Top-Up Customer Wallet</h3>
+                <p className="text-[12px] text-slate-500 mt-0.5">
+                  Credit prepaid balance or customer loyalty float.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsAddModalOpen(false)}
+                className="rounded-lg p-1 text-slate-400 hover:bg-slate-200 hover:text-slate-600 transition cursor-pointer"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Form */}
+            <form onSubmit={handleSubmitTopUp} className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+              {/* Customer Mobile */}
+              <div className="space-y-1.5">
+                <label className="text-[12.5px] font-semibold text-slate-800">
+                  Customer Mobile Number <span className="text-rose-500 font-bold ml-0.5">*</span>
+                </label>
+                <div className="relative">
+                  <input
+                    type="tel"
+                    placeholder="e.g. 9876543210"
+                    maxLength={10}
+                    value={formData.mobile}
+                    onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
+                    onBlur={() => handleBlur("mobile")}
+                    className={`w-full rounded-lg border bg-white px-3 py-2 text-[13px] text-slate-900 shadow-2xs focus:outline-none ${
+                      touched.mobile && errors.mobile
+                        ? "border-rose-400 focus:border-rose-500"
+                        : "border-slate-300 focus:border-teal-500"
+                    }`}
+                  />
+                  <Phone className="absolute right-3 top-2.5 h-4 w-4 text-slate-400 pointer-events-none" />
+                </div>
+                {touched.mobile && errors.mobile && (
+                  <div className="flex items-center gap-1 text-[11.5px] font-medium text-rose-600">
+                    <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                    <span>{errors.mobile}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Customer Name */}
+              <div className="space-y-1.5">
+                <label className="text-[12.5px] font-semibold text-slate-800">
+                  Customer Full Name <span className="text-rose-500 font-bold ml-0.5">*</span>
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="e.g. Rajesh Kumar"
+                    value={formData.customerName}
+                    onChange={(e) => setFormData({ ...formData, customerName: e.target.value })}
+                    onBlur={() => handleBlur("customerName")}
+                    className={`w-full rounded-lg border bg-white px-3 py-2 text-[13px] text-slate-900 shadow-2xs focus:outline-none ${
+                      touched.customerName && errors.customerName
+                        ? "border-rose-400 focus:border-rose-500"
+                        : "border-slate-300 focus:border-teal-500"
+                    }`}
+                  />
+                  <User className="absolute right-3 top-2.5 h-4 w-4 text-slate-400 pointer-events-none" />
+                </div>
+                {touched.customerName && errors.customerName && (
+                  <div className="flex items-center gap-1 text-[11.5px] font-medium text-rose-600">
+                    <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                    <span>{errors.customerName}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Amount & Payment Mode */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-[12.5px] font-semibold text-slate-800">
+                    Deposit Amount (₹) <span className="text-rose-500 font-bold ml-0.5">*</span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      step="any"
+                      placeholder="0.00"
+                      value={formData.amount}
+                      onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+                      onBlur={() => handleBlur("amount")}
+                      className={`w-full rounded-lg border bg-white px-3 py-2 text-[13px] font-mono text-slate-900 shadow-2xs focus:outline-none ${
+                        touched.amount && errors.amount
+                          ? "border-rose-400 focus:border-rose-500"
+                          : "border-slate-300 focus:border-teal-500"
+                      }`}
+                    />
+                    <IndianRupee className="absolute right-3 top-2.5 h-4 w-4 text-slate-400 pointer-events-none" />
+                  </div>
+                  {touched.amount && errors.amount && (
+                    <div className="flex items-center gap-1 text-[11.5px] font-medium text-rose-600">
+                      <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                      <span>{errors.amount}</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[12.5px] font-semibold text-slate-800">Payment Mode</label>
+                  <select
+                    value={formData.mode}
+                    onChange={(e) => setFormData({ ...formData, mode: e.target.value as any })}
+                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-[13px] text-slate-900 shadow-2xs focus:border-teal-500 focus:outline-none cursor-pointer"
+                  >
+                    <option value="UPI">UPI / QR</option>
+                    <option value="Cash">Cash Deposit</option>
+                    <option value="Card">Debit / Credit Card</option>
+                    <option value="Bank Transfer">Bank Transfer / NEFT</option>
+                    <option value="Promotional Credit">Complimentary / Reward Credit</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Deposit Purpose / Reason */}
+              <div className="space-y-1.5">
+                <label className="text-[12.5px] font-semibold text-slate-800">
+                  Purpose / Deposit Reason <span className="text-rose-500 font-bold ml-0.5">*</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. VIP Advance Dining Deposit, Banquet advance..."
+                  value={formData.reason}
+                  onChange={(e) => setFormData({ ...formData, reason: e.target.value })}
+                  onBlur={() => handleBlur("reason")}
+                  className={`w-full rounded-lg border bg-white px-3 py-2 text-[13px] text-slate-900 shadow-2xs focus:outline-none ${
+                    touched.reason && errors.reason
+                      ? "border-rose-400 focus:border-rose-500"
+                      : "border-slate-300 focus:border-teal-500"
+                  }`}
+                />
+                {touched.reason && errors.reason && (
+                  <div className="flex items-center gap-1 text-[11.5px] font-medium text-rose-600">
+                    <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                    <span>{errors.reason}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Modal Buttons */}
+              <div className="flex items-center justify-end gap-3 border-t border-slate-100 pt-4 mt-6">
+                <button
+                  type="button"
+                  onClick={() => setIsAddModalOpen(false)}
+                  className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-[12.5px] font-medium text-slate-700 hover:bg-slate-50 transition cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={!isFormValid}
+                  className={`rounded-lg px-5 py-2 text-[12.5px] font-bold transition shadow-xs ${
+                    isFormValid
+                      ? "bg-teal-600 text-white hover:bg-teal-700 cursor-pointer"
+                      : "bg-slate-200 text-slate-400 cursor-not-allowed"
+                  }`}
+                >
+                  Save & Issue Credit
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* 6. Passbook Statement Modal Dialog */}
+      {statementWallet && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
+          <div className="w-full max-w-2xl rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50/70 px-6 py-4">
+              <div>
+                <h3 className="text-[16px] font-bold text-slate-900">
+                  Wallet Passbook Statement — {statementWallet.customerName}
+                </h3>
+                <p className="text-[12px] text-slate-500 font-mono mt-0.5">
+                  Mobile: {statementWallet.mobile} • Available Balance: ₹
+                  {statementWallet.amount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setStatementWallet(null)}
+                className="rounded-lg p-1 text-slate-400 hover:bg-slate-200 hover:text-slate-600 transition cursor-pointer"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="p-6 max-h-[70vh] overflow-y-auto space-y-4">
+              <div className="rounded-xl border border-slate-200 overflow-hidden">
+                <table className="w-full text-left text-[12.5px]">
+                  <thead className="bg-slate-50 text-slate-700 font-semibold border-b border-slate-200">
+                    <tr>
+                      <th className="px-4 py-2.5">Date & Time</th>
+                      <th className="px-4 py-2.5">Type / Mode</th>
+                      <th className="px-4 py-2.5">Description & Reference</th>
+                      <th className="px-4 py-2.5 text-right">Amount (₹)</th>
+                      <th className="px-4 py-2.5 text-right">Balance (₹)</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {statementWallet.transactions.map((tx) => (
+                      <tr key={tx.id} className="hover:bg-slate-50/50">
+                        <td className="px-4 py-3 text-slate-500 font-mono text-[11.5px]">{tx.date}</td>
+                        <td className="px-4 py-3">
+                          <span
+                            className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-bold ${
+                              tx.type === "credit"
+                                ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                                : "bg-amber-50 text-amber-700 border border-amber-200"
+                            }`}
+                          >
+                            {tx.type === "credit" ? "+" : "-"} {tx.mode}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="font-medium text-slate-800">{tx.reason}</div>
+                          {tx.orderRef && (
+                            <div className="text-[11px] font-mono text-slate-400">Order: {tx.orderRef}</div>
+                          )}
+                        </td>
+                        <td
+                          className={`px-4 py-3 text-right font-mono font-bold ${
+                            tx.type === "credit" ? "text-emerald-600" : "text-amber-600"
+                          }`}
+                        >
+                          {tx.type === "credit" ? "+" : "-"}₹{tx.amount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                        </td>
+                        <td className="px-4 py-3 text-right font-mono font-bold text-slate-900">
+                          ₹{tx.balanceAfter.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div className="border-t border-slate-100 px-6 py-3.5 bg-slate-50/50 flex justify-between items-center">
+              <button
+                type="button"
+                onClick={() => toast.success(`Statement for ${statementWallet.customerName} downloaded.`)}
+                className="flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-[12px] font-medium text-slate-700 hover:bg-slate-50 transition cursor-pointer"
+              >
+                <Download className="h-3.5 w-3.5 text-slate-500" />
+                Download Statement PDF
+              </button>
+              <button
+                type="button"
+                onClick={() => setStatementWallet(null)}
+                className="rounded-lg bg-teal-600 px-4 py-1.5 text-[12.5px] font-bold text-white hover:bg-teal-700 transition cursor-pointer"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

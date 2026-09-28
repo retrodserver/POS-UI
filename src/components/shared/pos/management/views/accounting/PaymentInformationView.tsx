@@ -1,5 +1,22 @@
 import { useState, useMemo } from "react";
-import { Download, ChevronDown, Search, ArrowUpDown, CheckCircle2, Clock, XCircle, RefreshCw, ExternalLink } from "lucide-react";
+import {
+  Download,
+  Search,
+  CheckCircle2,
+  Clock,
+  XCircle,
+  RefreshCw,
+  Plus,
+  CreditCard,
+  IndianRupee,
+  Building2,
+  Percent,
+  X,
+  AlertCircle,
+  Hash,
+  User,
+  Calendar,
+} from "lucide-react";
 import { toast } from "sonner";
 import { DataTableHeader, DataTableFooter, type DataTableColumn } from "@/components/common";
 
@@ -8,13 +25,14 @@ interface PaymentTransaction {
   orderId: string;
   billNo: string;
   customerName: string;
-  provider: "Razorpay" | "Pine Labs" | "Paytm" | "UPI" | "Cash";
+  provider: "Razorpay" | "Pine Labs" | "Paytm" | "UPI" | "Cash" | "EDC Card Swipe" | "Bank NEFT";
   txnRef: string;
   amount: number;
   fee: number;
   netAmount: number;
   status: "Success" | "Pending" | "Failed";
   timestamp: string;
+  notes?: string;
 }
 
 const INITIAL_RECORDS: PaymentTransaction[] = [
@@ -99,8 +117,8 @@ const INITIAL_RECORDS: PaymentTransaction[] = [
 ];
 
 export function PaymentInformationView() {
-  const [fromDate, setFromDate] = useState("2026-09-02T01:30");
-  const [toDate, setToDate] = useState("2026-09-03T01:30");
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
   const [status, setStatus] = useState("All");
   const [provider, setProvider] = useState("All");
   const [orderId, setOrderId] = useState("");
@@ -110,6 +128,127 @@ export function PaymentInformationView() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [sortConfig, setSortConfig] = useState<{ colId: string; direction: "asc" | "desc" } | null>(null);
+
+  // Add / Adjustment Modal
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    orderId: "",
+    billNo: "",
+    customerName: "",
+    provider: "UPI" as "Razorpay" | "Pine Labs" | "Paytm" | "UPI" | "Cash" | "EDC Card Swipe" | "Bank NEFT",
+    txnRef: "",
+    amount: "",
+    fee: "0",
+    status: "Success" as "Success" | "Pending" | "Failed",
+    notes: "",
+  });
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+
+  // Validation
+  const errors = useMemo(() => {
+    const errs: Record<string, string> = {};
+
+    if (!formData.orderId.trim()) {
+      errs.orderId = "Order ID is required.";
+    }
+
+    if (!formData.billNo.trim()) {
+      errs.billNo = "POS Bill Reference is required.";
+    }
+
+    if (!formData.customerName.trim()) {
+      errs.customerName = "Customer name is required.";
+    }
+
+    if (!formData.txnRef.trim()) {
+      errs.txnRef = "Transaction Reference / UTR Number is required.";
+    }
+
+    const amt = parseFloat(formData.amount);
+    if (!formData.amount.trim()) {
+      errs.amount = "Gross transaction amount is required.";
+    } else if (isNaN(amt) || amt <= 0) {
+      errs.amount = "Enter a valid amount greater than ₹0.";
+    }
+
+    const feeAmt = parseFloat(formData.fee);
+    if (isNaN(feeAmt) || feeAmt < 0) {
+      errs.fee = "MDR fee cannot be negative.";
+    }
+
+    return errs;
+  }, [formData]);
+
+  const isFormValid = Object.keys(errors).length === 0;
+
+  const handleBlur = (field: string) => {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+  };
+
+  const handleOpenAddModal = () => {
+    setFormData({
+      orderId: `ORD-${Math.floor(1000 + Math.random() * 9000)}`,
+      billNo: `RET-2026-${Math.floor(1000 + Math.random() * 9000)}`,
+      customerName: "",
+      provider: "UPI",
+      txnRef: "",
+      amount: "",
+      fee: "0",
+      status: "Success",
+      notes: "",
+    });
+    setTouched({});
+    setIsAddModalOpen(true);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!isFormValid) {
+      setTouched({
+        orderId: true,
+        billNo: true,
+        customerName: true,
+        txnRef: true,
+        amount: true,
+        fee: true,
+      });
+      toast.error("Please fill all required mandatory fields correctly.");
+      return;
+    }
+
+    const amt = parseFloat(formData.amount);
+    const feeAmt = parseFloat(formData.fee) || 0;
+    const net = formData.status === "Failed" ? 0 : Math.max(0, amt - feeAmt);
+
+    const now = new Date();
+    const ts = now.toISOString().replace("T", " ").substring(0, 19);
+
+    const newTx: PaymentTransaction = {
+      id: `tx-${Date.now()}`,
+      orderId: formData.orderId,
+      billNo: formData.billNo,
+      customerName: formData.customerName,
+      provider: formData.provider,
+      txnRef: formData.txnRef,
+      amount: amt,
+      fee: feeAmt,
+      netAmount: net,
+      status: formData.status,
+      timestamp: ts,
+      notes: formData.notes,
+    };
+
+    setRecords([newTx, ...records]);
+    toast.success(`Payment transaction ${newTx.txnRef} recorded successfully!`);
+    setIsAddModalOpen(false);
+  };
+
+  // KPIs
+  const totalGross = useMemo(() => records.reduce((acc, r) => acc + r.amount, 0), [records]);
+  const totalNet = useMemo(() => records.reduce((acc, r) => acc + r.netAmount, 0), [records]);
+  const totalFees = useMemo(() => records.reduce((acc, r) => acc + r.fee, 0), [records]);
+  const successCount = useMemo(() => records.filter((r) => r.status === "Success").length, [records]);
 
   // Filtering
   const filteredRecords = useMemo(() => {
@@ -128,8 +267,6 @@ export function PaymentInformationView() {
       return true;
     });
   }, [records, status, provider, orderId]);
-
-  const [sortConfig, setSortConfig] = useState<{ colId: string; direction: "asc" | "desc" } | null>(null);
 
   const sortedRecords = useMemo(() => {
     if (!sortConfig) return filteredRecords;
@@ -203,7 +340,7 @@ export function PaymentInformationView() {
       align: "right",
       sortable: true,
       defaultWidth: 140,
-      getValue: (r) => `₹${r.amount}`,
+      getValue: (r) => `₹${r.amount.toLocaleString("en-IN")}`,
     },
     {
       id: "fee",
@@ -211,7 +348,7 @@ export function PaymentInformationView() {
       align: "right",
       sortable: true,
       defaultWidth: 120,
-      getValue: (r) => `₹${r.fee}`,
+      getValue: (r) => `₹${r.fee.toFixed(2)}`,
     },
     {
       id: "netAmount",
@@ -219,7 +356,7 @@ export function PaymentInformationView() {
       align: "right",
       sortable: true,
       defaultWidth: 140,
-      getValue: (r) => `₹${r.netAmount}`,
+      getValue: (r) => `₹${r.netAmount.toLocaleString("en-IN")}`,
     },
     {
       id: "status",
@@ -234,7 +371,7 @@ export function PaymentInformationView() {
       id: "timestamp",
       label: "Timestamp",
       sortable: true,
-      defaultWidth: 150,
+      defaultWidth: 160,
       getValue: (r) => r.timestamp,
     },
     {
@@ -248,103 +385,167 @@ export function PaymentInformationView() {
   ];
 
   return (
-    <div className="space-y-4">
-      {/* 1. Header matching Screenshot 1 */}
+    <div className="w-full space-y-4">
+      {/* 1. Header with Add Button */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="text-[18px] font-bold text-slate-900 tracking-tight">Payment Information</h2>
           <p className="text-[12px] text-slate-500 mt-0.5">
-            Real-time digital payment settlements, MDR charges, and provider reconciliation.
+            Real-time digital payment settlements, MDR charges, and multi-gateway provider reconciliation.
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={() => toast.success("Exporting payment transactions to Excel...")}
-          className="flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3.5 py-1.5 text-[12.5px] font-medium text-slate-700 hover:bg-slate-50 transition cursor-pointer shadow-2xs"
-        >
-          <Download className="h-3.5 w-3.5 text-slate-500" />
-          Export Excel <ChevronDown className="h-3 w-3 text-slate-400" />
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => toast.success("Exporting payment transactions to Excel...")}
+            className="flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3.5 py-1.5 text-[12.5px] font-medium text-slate-700 hover:bg-slate-50 transition cursor-pointer shadow-2xs"
+          >
+            <Download className="h-3.5 w-3.5 text-slate-500" />
+            Export Excel
+          </button>
+          <button
+            type="button"
+            onClick={handleOpenAddModal}
+            className="flex items-center gap-1.5 rounded-lg bg-teal-600 px-4 py-1.5 text-[12.5px] font-bold text-white hover:bg-teal-700 transition cursor-pointer shadow-xs"
+          >
+            <Plus className="h-4 w-4" />
+            Record Payment Entry
+          </button>
+        </div>
       </div>
 
-      {/* 2. Filter Bar matching Screenshot 1 */}
+      {/* 2. Top Metric KPI Summary Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs flex items-center justify-between">
+          <div>
+            <p className="text-[11.5px] font-semibold text-slate-500 uppercase tracking-wider">Gross Collections</p>
+            <h3 className="text-xl font-bold font-mono text-slate-900 mt-1">
+              ₹{totalGross.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+            </h3>
+            <p className="text-[11px] text-slate-400 mt-0.5">Total processed amount</p>
+          </div>
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-100 text-slate-700">
+            <IndianRupee className="h-5 w-5" />
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs flex items-center justify-between">
+          <div>
+            <p className="text-[11.5px] font-semibold text-slate-500 uppercase tracking-wider">Net Bank Disbursed</p>
+            <h3 className="text-xl font-bold font-mono text-teal-700 mt-1">
+              ₹{totalNet.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+            </h3>
+            <p className="text-[11px] text-emerald-600 mt-0.5">Disbursed to primary A/C</p>
+          </div>
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-teal-50 text-teal-600">
+            <Building2 className="h-5 w-5" />
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs flex items-center justify-between">
+          <div>
+            <p className="text-[11.5px] font-semibold text-slate-500 uppercase tracking-wider">Gateway MDR Fees</p>
+            <h3 className="text-xl font-bold font-mono text-amber-700 mt-1">
+              ₹{totalFees.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+            </h3>
+            <p className="text-[11px] text-amber-600 mt-0.5">Total provider commissions</p>
+          </div>
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-50 text-amber-600">
+            <Percent className="h-5 w-5" />
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs flex items-center justify-between">
+          <div>
+            <p className="text-[11.5px] font-semibold text-slate-500 uppercase tracking-wider">Success Rate</p>
+            <h3 className="text-xl font-bold font-mono text-emerald-700 mt-1">
+              {records.length > 0 ? ((successCount / records.length) * 100).toFixed(0) : 0}%
+            </h3>
+            <p className="text-[11px] text-slate-400 mt-0.5">{successCount} of {records.length} successful</p>
+          </div>
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+            <CheckCircle2 className="h-5 w-5" />
+          </div>
+        </div>
+      </div>
+
+      {/* 3. Filter Bar */}
       <div className="rounded-2xl border border-slate-300 bg-white p-4 shadow-xs">
         <div className="flex flex-wrap items-end gap-3">
           <div className="space-y-1">
             <label className="text-[11.5px] font-semibold text-slate-600">From Date</label>
             <input
-              type="datetime-local"
+              type="date"
               value={fromDate}
               onChange={(e) => setFromDate(e.target.value)}
-              className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-[12.5px] font-medium text-slate-800 shadow-2xs focus:border-teal-500 focus:outline-none"
+              className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-[12.5px] font-medium text-slate-800 shadow-2xs focus:border-teal-500 focus:outline-none cursor-pointer"
             />
           </div>
 
           <div className="space-y-1">
             <label className="text-[11.5px] font-semibold text-slate-600">To Date</label>
             <input
-              type="datetime-local"
+              type="date"
               value={toDate}
               onChange={(e) => setToDate(e.target.value)}
-              className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-[12.5px] font-medium text-slate-800 shadow-2xs focus:border-teal-500 focus:outline-none"
+              className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-[12.5px] font-medium text-slate-800 shadow-2xs focus:border-teal-500 focus:outline-none cursor-pointer"
             />
           </div>
 
           <div className="space-y-1 min-w-[120px]">
-            <label className="text-[11.5px] font-semibold text-slate-600">Select Status</label>
-            <div className="relative">
-              <select
-                value={status}
-                onChange={(e) => setStatus(e.target.value)}
-                className="w-full appearance-none rounded-lg border border-slate-300 bg-white pl-3 pr-8 py-1.5 text-[12.5px] text-slate-800 shadow-2xs focus:border-teal-500 focus:outline-none cursor-pointer"
-              >
-                <option value="All">All</option>
-                <option value="Success">Success</option>
-                <option value="Pending">Pending</option>
-                <option value="Failed">Failed</option>
-              </select>
-              <ChevronDown className="absolute right-2.5 top-2.5 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
-            </div>
+            <label className="text-[11.5px] font-semibold text-slate-600">Status</label>
+            <select
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-[12.5px] text-slate-800 shadow-2xs focus:border-teal-500 focus:outline-none cursor-pointer"
+            >
+              <option value="All">All Statuses</option>
+              <option value="Success">Success</option>
+              <option value="Pending">Pending</option>
+              <option value="Failed">Failed</option>
+            </select>
           </div>
 
-          <div className="space-y-1 min-w-[120px]">
-            <label className="text-[11.5px] font-semibold text-slate-600">Select Provider</label>
-            <div className="relative">
-              <select
-                value={provider}
-                onChange={(e) => setProvider(e.target.value)}
-                className="w-full appearance-none rounded-lg border border-slate-300 bg-white pl-3 pr-8 py-1.5 text-[12.5px] text-slate-800 shadow-2xs focus:border-teal-500 focus:outline-none cursor-pointer"
-              >
-                <option value="All">All</option>
-                <option value="Razorpay">Razorpay</option>
-                <option value="Pine Labs">Pine Labs</option>
-                <option value="Paytm">Paytm</option>
-                <option value="UPI">UPI</option>
-                <option value="Cash">Cash</option>
-              </select>
-              <ChevronDown className="absolute right-2.5 top-2.5 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
-            </div>
+          <div className="space-y-1 min-w-[140px]">
+            <label className="text-[11.5px] font-semibold text-slate-600">Provider</label>
+            <select
+              value={provider}
+              onChange={(e) => setProvider(e.target.value)}
+              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-[12.5px] text-slate-800 shadow-2xs focus:border-teal-500 focus:outline-none cursor-pointer"
+            >
+              <option value="All">All Providers</option>
+              <option value="Razorpay">Razorpay</option>
+              <option value="Pine Labs">Pine Labs</option>
+              <option value="Paytm">Paytm</option>
+              <option value="UPI">UPI / QR</option>
+              <option value="Cash">Cash</option>
+              <option value="EDC Card Swipe">EDC Card Swipe</option>
+              <option value="Bank NEFT">Bank NEFT</option>
+            </select>
           </div>
 
-          <div className="space-y-1">
-            <label className="text-[11.5px] font-semibold text-slate-600">Order ID</label>
-            <input
-              type="text"
-              placeholder="Search Order ID / UTR"
-              value={orderId}
-              onChange={(e) => setOrderId(e.target.value)}
-              className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-[12.5px] text-slate-800 shadow-2xs focus:border-teal-500 focus:outline-none"
-            />
+          <div className="space-y-1 min-w-[200px] flex-1">
+            <label className="text-[11.5px] font-semibold text-slate-600">Search Order / Bill / UTR</label>
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Search reference, order or customer..."
+                value={orderId}
+                onChange={(e) => setOrderId(e.target.value)}
+                className="w-full rounded-lg border border-slate-300 bg-white pl-8 pr-3 py-1.5 text-[12.5px] text-slate-800 shadow-2xs focus:border-teal-500 focus:outline-none"
+              />
+              <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
+            </div>
           </div>
 
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={() => toast.info("Filter applied")}
-              className="rounded-lg border border-teal-500 bg-white px-5 py-1.5 text-[12.5px] font-semibold text-teal-600 shadow-2xs hover:bg-teal-50 transition cursor-pointer"
+              onClick={() => toast.info(`Found ${filteredRecords.length} transactions`)}
+              className="rounded-lg bg-teal-600 px-5 py-1.5 text-[12.5px] font-semibold text-white shadow-xs hover:bg-teal-700 transition cursor-pointer"
             >
-              Search
+              Filter
             </button>
             <button
               type="button"
@@ -352,44 +553,42 @@ export function PaymentInformationView() {
                 setStatus("All");
                 setProvider("All");
                 setOrderId("");
+                setFromDate("");
+                setToDate("");
                 toast.info("Showing all payment records");
               }}
               className="rounded-lg border border-slate-300 bg-white px-4 py-1.5 text-[12.5px] font-medium text-slate-700 shadow-2xs hover:bg-slate-50 transition cursor-pointer"
             >
-              Show All
+              Reset
             </button>
           </div>
         </div>
       </div>
 
-      {/* 3. Reusable Table with DataTableHeader and DataTableFooter */}
-      {filteredRecords.length === 0 ? (
-        <div className="rounded-2xl border border-slate-200 bg-white p-20 text-center shadow-xs space-y-3">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-slate-50 text-slate-300">
-            <Search className="h-8 w-8" />
-          </div>
-          <div className="text-[14.5px] font-bold text-slate-700">No Results Found.</div>
-          <p className="text-[12.5px] text-slate-400 max-w-sm mx-auto">
-            We couldn't find any payment transaction records matching your search.
-          </p>
-        </div>
-      ) : (
-        <div className="rounded-xl border border-slate-300 bg-white shadow-2xs overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-[12.5px] border-collapse">
-              <DataTableHeader
-                columns={columns}
-                data={sortedRecords}
-                selectable
-                isAllSelected={selectedIds.length === sortedRecords.length && sortedRecords.length > 0}
-                isSomeSelected={selectedIds.length > 0 && selectedIds.length < sortedRecords.length}
-                onToggleSelectAll={toggleSelectAll}
-                sortConfig={sortConfig}
-                onSortChange={setSortConfig}
-                themeVariant="primary"
-              />
-              <tbody className="divide-y divide-slate-100">
-                {paginatedRecords.map((r) => (
+      {/* 4. Table with Reusable DataTableHeader and DataTableFooter */}
+      <div className="rounded-2xl border border-slate-300 bg-white shadow-xs overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-[12.5px] border-collapse">
+            <DataTableHeader
+              columns={columns}
+              data={sortedRecords}
+              selectable
+              isAllSelected={selectedIds.length === sortedRecords.length && sortedRecords.length > 0}
+              isSomeSelected={selectedIds.length > 0 && selectedIds.length < sortedRecords.length}
+              onToggleSelectAll={toggleSelectAll}
+              sortConfig={sortConfig}
+              onSortChange={setSortConfig}
+              themeVariant="primary"
+            />
+            <tbody className="divide-y divide-slate-100">
+              {paginatedRecords.length === 0 ? (
+                <tr>
+                  <td colSpan={columns.length + 1} className="py-12 text-center text-slate-400">
+                    No payment transaction records found.
+                  </td>
+                </tr>
+              ) : (
+                paginatedRecords.map((r) => (
                   <tr key={r.id} className="hover:bg-slate-50/70 transition">
                     <td className="w-12 px-3 py-3 text-center">
                       <input
@@ -417,13 +616,13 @@ export function PaymentInformationView() {
                       </span>
                     </td>
                     <td className="px-3.5 py-3 text-right">
-                      <div className="font-bold text-slate-900 font-mono">₹{r.amount.toLocaleString()}</div>
+                      <div className="font-bold text-slate-900 font-mono">₹{r.amount.toLocaleString("en-IN")}</div>
                     </td>
                     <td className="px-3.5 py-3 text-right">
                       <div className="text-slate-500 font-mono">₹{r.fee.toFixed(2)}</div>
                     </td>
                     <td className="px-3.5 py-3 text-right">
-                      <div className="font-bold text-teal-700 font-mono">₹{r.netAmount.toLocaleString()}</div>
+                      <div className="font-bold text-teal-700 font-mono">₹{r.netAmount.toLocaleString("en-IN")}</div>
                     </td>
                     <td className="px-3.5 py-3 text-center">
                       <span
@@ -455,28 +654,252 @@ export function PaymentInformationView() {
                       </button>
                     </td>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
 
-          <DataTableFooter
-            totalCount={sortedRecords.length}
-            currentPage={validPage}
-            pageSize={pageSize}
-            onPageChange={setPage}
-            onPageSizeChange={(sz) => {
-              setPageSize(sz);
-              setPage(1);
-            }}
-            selectedCount={selectedIds.length}
-            onClearSelection={() => setSelectedIds([])}
-            itemName="transactions"
-            onExport={(fmt) => toast.success(`Exporting payment records as ${fmt.toUpperCase()}...`)}
-          />
+        <DataTableFooter
+          totalCount={sortedRecords.length}
+          currentPage={validPage}
+          pageSize={pageSize}
+          onPageChange={setPage}
+          onPageSizeChange={(sz) => {
+            setPageSize(sz);
+            setPage(1);
+          }}
+          selectedCount={selectedIds.length}
+          onClearSelection={() => setSelectedIds([])}
+          itemName="transactions"
+          onExport={(fmt) => toast.success(`Exporting payment records as ${fmt.toUpperCase()}...`)}
+        />
+      </div>
+
+      {/* 5. Add / Record Manual Transaction Entry Modal */}
+      {isAddModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
+          <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50/70 px-6 py-4">
+              <div>
+                <h3 className="text-[16px] font-bold text-slate-900">Record Payment / Transaction Entry</h3>
+                <p className="text-[12px] text-slate-500 mt-0.5">Manually log or adjust digital payment gateway records.</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsAddModalOpen(false)}
+                className="rounded-lg p-1 text-slate-400 hover:bg-slate-200 hover:text-slate-600 transition cursor-pointer"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-[12.5px] font-semibold text-slate-800">
+                    Order ID <span className="text-rose-500 font-bold ml-0.5">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. ORD-9850"
+                    value={formData.orderId}
+                    onChange={(e) => setFormData({ ...formData, orderId: e.target.value })}
+                    onBlur={() => handleBlur("orderId")}
+                    className={`w-full rounded-lg border bg-white px-3 py-2 text-[13px] font-mono text-slate-900 focus:outline-none ${
+                      touched.orderId && errors.orderId
+                        ? "border-rose-400 focus:border-rose-500"
+                        : "border-slate-300 focus:border-teal-500"
+                    }`}
+                  />
+                  {touched.orderId && errors.orderId && (
+                    <div className="flex items-center gap-1 text-[11.5px] font-medium text-rose-600">
+                      <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                      <span>{errors.orderId}</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[12.5px] font-semibold text-slate-800">
+                    POS Bill Number <span className="text-rose-500 font-bold ml-0.5">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. RET-2026-0820"
+                    value={formData.billNo}
+                    onChange={(e) => setFormData({ ...formData, billNo: e.target.value })}
+                    onBlur={() => handleBlur("billNo")}
+                    className={`w-full rounded-lg border bg-white px-3 py-2 text-[13px] font-mono text-slate-900 focus:outline-none ${
+                      touched.billNo && errors.billNo
+                        ? "border-rose-400 focus:border-rose-500"
+                        : "border-slate-300 focus:border-teal-500"
+                    }`}
+                  />
+                  {touched.billNo && errors.billNo && (
+                    <div className="flex items-center gap-1 text-[11.5px] font-medium text-rose-600">
+                      <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                      <span>{errors.billNo}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-[12.5px] font-semibold text-slate-800">
+                    Customer Name <span className="text-rose-500 font-bold ml-0.5">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Sanjay Das"
+                    value={formData.customerName}
+                    onChange={(e) => setFormData({ ...formData, customerName: e.target.value })}
+                    onBlur={() => handleBlur("customerName")}
+                    className={`w-full rounded-lg border bg-white px-3 py-2 text-[13px] text-slate-900 focus:outline-none ${
+                      touched.customerName && errors.customerName
+                        ? "border-rose-400 focus:border-rose-500"
+                        : "border-slate-300 focus:border-teal-500"
+                    }`}
+                  />
+                  {touched.customerName && errors.customerName && (
+                    <div className="flex items-center gap-1 text-[11.5px] font-medium text-rose-600">
+                      <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                      <span>{errors.customerName}</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[12.5px] font-semibold text-slate-800">Payment Gateway</label>
+                  <select
+                    value={formData.provider}
+                    onChange={(e) => setFormData({ ...formData, provider: e.target.value as any })}
+                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-[13px] text-slate-900 focus:border-teal-500 focus:outline-none cursor-pointer"
+                  >
+                    <option value="UPI">UPI / QR</option>
+                    <option value="Razorpay">Razorpay</option>
+                    <option value="Pine Labs">Pine Labs</option>
+                    <option value="Paytm">Paytm</option>
+                    <option value="Cash">Cash</option>
+                    <option value="EDC Card Swipe">EDC Card Swipe</option>
+                    <option value="Bank NEFT">Bank NEFT</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[12.5px] font-semibold text-slate-800">
+                  Transaction Reference / UTR Number <span className="text-rose-500 font-bold ml-0.5">*</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. UPI/26090299/paytm or PL-POS-8921"
+                  value={formData.txnRef}
+                  onChange={(e) => setFormData({ ...formData, txnRef: e.target.value })}
+                  onBlur={() => handleBlur("txnRef")}
+                  className={`w-full rounded-lg border bg-white px-3 py-2 text-[13px] font-mono text-slate-900 focus:outline-none ${
+                    touched.txnRef && errors.txnRef
+                      ? "border-rose-400 focus:border-rose-500"
+                      : "border-slate-300 focus:border-teal-500"
+                  }`}
+                />
+                {touched.txnRef && errors.txnRef && (
+                  <div className="flex items-center gap-1 text-[11.5px] font-medium text-rose-600">
+                    <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                    <span>{errors.txnRef}</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="space-y-1.5">
+                  <label className="text-[12.5px] font-semibold text-slate-800">
+                    Gross (₹) <span className="text-rose-500 font-bold ml-0.5">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    step="any"
+                    placeholder="0.00"
+                    value={formData.amount}
+                    onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+                    onBlur={() => handleBlur("amount")}
+                    className={`w-full rounded-lg border bg-white px-3 py-2 text-[13px] font-mono text-slate-900 focus:outline-none ${
+                      touched.amount && errors.amount
+                        ? "border-rose-400 focus:border-rose-500"
+                        : "border-slate-300 focus:border-teal-500"
+                    }`}
+                  />
+                  {touched.amount && errors.amount && (
+                    <div className="flex items-center gap-1 text-[11.5px] font-medium text-rose-600">
+                      <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                      <span>{errors.amount}</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[12.5px] font-semibold text-slate-800">MDR Fee (₹)</label>
+                  <input
+                    type="number"
+                    step="any"
+                    placeholder="0.00"
+                    value={formData.fee}
+                    onChange={(e) => setFormData({ ...formData, fee: e.target.value })}
+                    onBlur={() => handleBlur("fee")}
+                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-[13px] font-mono text-slate-900 focus:border-teal-500 focus:outline-none"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[12.5px] font-semibold text-slate-800">Status</label>
+                  <select
+                    value={formData.status}
+                    onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
+                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-[13px] text-slate-900 focus:border-teal-500 focus:outline-none cursor-pointer"
+                  >
+                    <option value="Success">Success</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Failed">Failed</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[12.5px] font-semibold text-slate-800">Adjustment Note / Remarks</label>
+                <input
+                  type="text"
+                  placeholder="Optional notes..."
+                  value={formData.notes}
+                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-[13px] text-slate-900 focus:border-teal-500 focus:outline-none"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-3 border-t border-slate-100 pt-4 mt-6">
+                <button
+                  type="button"
+                  onClick={() => setIsAddModalOpen(false)}
+                  className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-[12.5px] font-medium text-slate-700 hover:bg-slate-50 transition cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={!isFormValid}
+                  className={`rounded-lg px-5 py-2 text-[12.5px] font-bold transition shadow-xs ${
+                    isFormValid
+                      ? "bg-teal-600 text-white hover:bg-teal-700 cursor-pointer"
+                      : "bg-slate-200 text-slate-400 cursor-not-allowed"
+                  }`}
+                >
+                  Record Payment
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
     </div>
   );
 }
-

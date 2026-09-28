@@ -335,7 +335,7 @@ export function BankDetailsView() {
   const primaryAccount = accounts.find((a) => a.isPrimary) || accounts[0];
 
   return (
-    <div className="space-y-6 max-w-4xl pb-10">
+    <div className="w-full space-y-5 pb-10">
       {/* 1. Header Section */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
@@ -359,29 +359,7 @@ export function BankDetailsView() {
         </button>
       </div>
 
-      {/* 2. Highlight Banner / Settlement Info */}
-      <div className="rounded-2xl border border-teal-100 bg-gradient-to-r from-teal-50/70 via-emerald-50/40 to-white p-4.5 text-[12.5px] text-slate-700 shadow-2xs">
-        <div className="flex items-start gap-3">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-teal-600 text-white shadow-xs">
-            <Sparkles className="h-4.5 w-4.5" />
-          </div>
-          <div className="space-y-1">
-            <div className="font-semibold text-slate-900 text-[13px]">
-              Direct Gateway Reconciliation & T+1 Settlement Route
-            </div>
-            <p className="text-slate-600 leading-relaxed">
-              All daily proceeds collected via Razorpay, Pine Labs POS terminals, Paytm QR, and UPI
-              are automatically disbursed directly to your{" "}
-              <strong className="text-teal-900">
-                {primaryAccount ? `${primaryAccount.bankName} (${maskAccountNumber(primaryAccount.accountNumber)})` : "Primary Account"}
-              </strong>{" "}
-              every business day by 06:00 AM IST.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* 3. Bank Accounts Cards List */}
+      {/* 2. Bank Accounts Cards List */}
       <div className="space-y-4">
         <div className="flex items-center justify-between text-[12.5px] font-semibold text-slate-600 px-1">
           <span>Registered Settlement Accounts ({accounts.length})</span>

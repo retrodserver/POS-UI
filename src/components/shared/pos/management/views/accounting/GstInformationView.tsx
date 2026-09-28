@@ -1,216 +1,630 @@
-import { useState } from "react";
-import { ChevronDown, Save, X, CheckCircle2 } from "lucide-react";
+import { useState, useMemo } from "react";
+import {
+  Save,
+  CheckCircle2,
+  Building,
+  Percent,
+  FileCheck,
+  AlertCircle,
+  ShieldCheck,
+  Download,
+  Receipt,
+  FileSpreadsheet,
+} from "lucide-react";
 import { toast } from "sonner";
+import { DataTableHeader, DataTableFooter, type DataTableColumn } from "@/components/common";
+
+interface TaxSlabRecord {
+  id: string;
+  category: string;
+  hsnSac: string;
+  cgstRate: number;
+  sgstRate: number;
+  totalGst: number;
+  cessRate: number;
+  description: string;
+  status: "Active" | "Exempted";
+}
+
+const TAX_SLABS: TaxSlabRecord[] = [
+  {
+    id: "ts-1",
+    category: "Restaurant Dine-In (Food & Bev)",
+    hsnSac: "996331",
+    cgstRate: 2.5,
+    sgstRate: 2.5,
+    totalGst: 5.0,
+    cessRate: 0,
+    description: "Standard restaurant food supply without Input Tax Credit (ITC)",
+    status: "Active",
+  },
+  {
+    id: "ts-2",
+    category: "Liquor Sales (State VAT / Excise)",
+    hsnSac: "2203 / 2208",
+    cgstRate: 0,
+    sgstRate: 0,
+    totalGst: 0,
+    cessRate: 20.0,
+    description: "Covered under State Excise VAT (Outside Central GST purview)",
+    status: "Active",
+  },
+  {
+    id: "ts-3",
+    category: "Banquet & Event Catering",
+    hsnSac: "996334",
+    cgstRate: 9.0,
+    sgstRate: 9.0,
+    totalGst: 18.0,
+    cessRate: 0,
+    description: "Outdoor catering and banquet rental with Input Tax Credit eligibility",
+    status: "Active",
+  },
+  {
+    id: "ts-4",
+    category: "Room Tariff (> ₹7,500/night)",
+    hsnSac: "996311",
+    cgstRate: 9.0,
+    sgstRate: 9.0,
+    totalGst: 18.0,
+    cessRate: 0,
+    description: "Luxury suite room accommodation tariff",
+    status: "Active",
+  },
+  {
+    id: "ts-5",
+    category: "Packaged Confectionery Retail",
+    hsnSac: "190590",
+    cgstRate: 2.5,
+    sgstRate: 2.5,
+    totalGst: 5.0,
+    cessRate: 0,
+    description: "Packaged sweets, bread and confection retail",
+    status: "Active",
+  },
+  {
+    id: "ts-6",
+    category: "Direct Delivery / Takeaway Pack",
+    hsnSac: "996332",
+    cgstRate: 2.5,
+    sgstRate: 2.5,
+    totalGst: 5.0,
+    cessRate: 0,
+    description: "Online order takeaway food packaging",
+    status: "Active",
+  },
+];
 
 export function GstInformationView() {
-  const [hasGst, setHasGst] = useState<"Yes" | "No">("No");
-  const [gstNumber, setGstNumber] = useState("");
-  const [registeredName, setRegisteredName] = useState("HIGHWAY INN BAR & RESTAURANT");
+  const [hasGst, setHasGst] = useState<"Yes" | "No">("Yes");
+  const [gstNumber, setGstNumber] = useState("21AAAAA0000A1Z5");
+  const [registeredName, setRegisteredName] = useState("RETROD HOSPITALITY & RESORTS PVT LTD");
   const [registeredAddress, setRegisteredAddress] = useState(
-    "PLOT NO 1977 KHATA NO 304/102, KARADAGADIA, Angul, Angul, Odisha, 759132",
+    "PLOT NO 1977 KHATA NO 304/102, KARADAGADIA, Angul, Odisha, 759132"
   );
   const [state, setState] = useState("Odisha");
   const [city, setCity] = useState("Angul");
-  const [vatNumber, setVatNumber] = useState("");
-  const [pan, setPan] = useState("");
-  const [cin, setCin] = useState("");
-  const [location, setLocation] = useState("Angul");
+  const [vatNumber, setVatNumber] = useState("VAT-OD-2023-88192");
+  const [pan, setPan] = useState("AAAAA0000A");
+  const [cin, setCin] = useState("U55101OR2023PTC042891");
   const [zipCode, setZipCode] = useState("759132");
 
-  const handleSave = () => {
-    toast.success("GST and business tax details saved successfully!");
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+
+  // Form Validation
+  const errors = useMemo(() => {
+    const errs: Record<string, string> = {};
+
+    if (hasGst === "Yes") {
+      const gstinRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+      if (!gstNumber.trim()) {
+        errs.gstNumber = "GSTIN identification number is required.";
+      } else if (!gstinRegex.test(gstNumber.trim().toUpperCase())) {
+        errs.gstNumber = "Invalid GSTIN format (e.g. 21AAAAA0000A1Z5).";
+      }
+    }
+
+    if (!registeredName.trim()) {
+      errs.registeredName = "Registered legal business name is mandatory.";
+    } else if (registeredName.trim().length < 3) {
+      errs.registeredName = "Legal business name must be at least 3 characters.";
+    }
+
+    if (!registeredAddress.trim()) {
+      errs.registeredAddress = "Principal place of business address is required.";
+    } else if (registeredAddress.trim().length < 10) {
+      errs.registeredAddress = "Enter full registered address (min 10 characters).";
+    }
+
+    const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+    if (!pan.trim()) {
+      errs.pan = "Permanent Account Number (PAN) is required.";
+    } else if (!panRegex.test(pan.trim().toUpperCase())) {
+      errs.pan = "Invalid 10-character PAN format (e.g. AAAAA0000A).";
+    }
+
+    const pinRegex = /^[1-9][0-9]{5}$/;
+    if (!zipCode.trim()) {
+      errs.zipCode = "Postal PIN / Zip Code is required.";
+    } else if (!pinRegex.test(zipCode.trim())) {
+      errs.zipCode = "Enter a valid 6-digit Indian PIN code.";
+    }
+
+    return errs;
+  }, [hasGst, gstNumber, registeredName, registeredAddress, pan, zipCode]);
+
+  const isFormValid = Object.keys(errors).length === 0;
+
+  const handleBlur = (field: string) => {
+    setTouched((prev) => ({ ...prev, [field]: true }));
   };
 
+  const handleSave = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!isFormValid) {
+      setTouched({
+        gstNumber: true,
+        registeredName: true,
+        registeredAddress: true,
+        pan: true,
+        zipCode: true,
+      });
+      toast.error("Please fill all required mandatory fields correctly.");
+      return;
+    }
+
+    toast.success("GSTIN registration details and tax invoice headers saved successfully!");
+  };
+
+  // Tax Slabs Table
+  const [slabPage, setSlabPage] = useState(1);
+  const [slabPageSize, setSlabPageSize] = useState(5);
+  const [selectedSlabIds, setSelectedSlabIds] = useState<string[]>([]);
+  const [sortConfig, setSortConfig] = useState<{ colId: string; direction: "asc" | "desc" } | null>(null);
+
+  const slabColumns: DataTableColumn<TaxSlabRecord>[] = [
+    {
+      id: "category",
+      label: "Tax Category / Service Supply",
+      sortable: true,
+      defaultWidth: 220,
+      getValue: (r) => r.category,
+    },
+    {
+      id: "hsnSac",
+      label: "HSN / SAC",
+      sortable: true,
+      defaultWidth: 100,
+      getValue: (r) => r.hsnSac,
+    },
+    {
+      id: "cgstRate",
+      label: "CGST",
+      align: "right",
+      sortable: true,
+      defaultWidth: 70,
+      getValue: (r) => `${r.cgstRate}%`,
+    },
+    {
+      id: "sgstRate",
+      label: "SGST",
+      align: "right",
+      sortable: true,
+      defaultWidth: 70,
+      getValue: (r) => `${r.sgstRate}%`,
+    },
+    {
+      id: "totalGst",
+      label: "GST Rate",
+      align: "right",
+      sortable: true,
+      defaultWidth: 85,
+      getValue: (r) => `${r.totalGst}%`,
+    },
+    {
+      id: "description",
+      label: "Applicability Rules",
+      sortable: false,
+      defaultWidth: 200,
+      getValue: (r) => r.description,
+    },
+  ];
+
+  const sortedSlabs = useMemo(() => {
+    if (!sortConfig) return TAX_SLABS;
+    return [...TAX_SLABS].sort((a, b) => {
+      const field = sortConfig.colId as keyof TaxSlabRecord;
+      const aVal = a[field] ?? "";
+      const bVal = b[field] ?? "";
+      if (typeof aVal === "number" && typeof bVal === "number") {
+        return sortConfig.direction === "asc" ? aVal - bVal : bVal - aVal;
+      }
+      return sortConfig.direction === "asc"
+        ? String(aVal).localeCompare(String(bVal))
+        : String(bVal).localeCompare(String(aVal));
+    });
+  }, [sortConfig]);
+
+  const totalPages = Math.max(1, Math.ceil(sortedSlabs.length / slabPageSize));
+  const validPage = Math.min(slabPage, totalPages);
+  const paginatedSlabs = sortedSlabs.slice((validPage - 1) * slabPageSize, validPage * slabPageSize);
+
   return (
-    <div className="space-y-4 max-w-4xl">
-      {/* 1. Header matching Screenshot 4 */}
-      <div>
-        <h2 className="text-[18px] font-bold text-slate-900 tracking-tight">
-          Update GST Information
-        </h2>
+    <div className="w-full space-y-4">
+      {/* 1. Header */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 className="text-[18px] font-bold text-slate-900 tracking-tight">
+            GST & Statutory Business Tax Profile
+          </h2>
+          <p className="text-[12px] text-slate-500 mt-0.5">
+            Configure restaurant GSTIN registration, tax invoice legal headers, and live HSN/SAC rate slabs.
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-200 px-3 py-1 text-[12px] font-bold text-emerald-700">
+            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+            Verified GSTIN Active
+          </div>
+        </div>
       </div>
 
-      {/* 2. Main Form Card matching Screenshot 4 */}
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-5">
-        {/* Do you have GST No? */}
-        <div className="space-y-2">
-          <label className="text-[13px] font-bold text-slate-900">Do you have GST No?</label>
-          <div className="flex items-center gap-5">
-            <label className="flex items-center gap-2 text-[13px] text-slate-700 cursor-pointer">
-              <input
-                type="radio"
-                name="hasGst"
-                checked={hasGst === "Yes"}
-                onChange={() => setHasGst("Yes")}
-                className="h-4 w-4 text-teal-600 focus:ring-teal-500 cursor-pointer"
-              />
-              Yes
-            </label>
-            <label className="flex items-center gap-2 text-[13px] text-slate-700 cursor-pointer">
-              <input
-                type="radio"
-                name="hasGst"
-                checked={hasGst === "No"}
-                onChange={() => setHasGst("No")}
-                className="h-4 w-4 text-teal-600 focus:ring-teal-500 cursor-pointer"
-              />
-              No
-            </label>
+      {/* 2. Top Metric KPI Summary Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs flex items-center justify-between">
+          <div>
+            <p className="text-[11.5px] font-semibold text-slate-500 uppercase tracking-wider">GSTIN Status</p>
+            <h3 className="text-base font-bold font-mono text-slate-900 mt-1">
+              {hasGst === "Yes" ? "Regular Taxpayer" : "Unregistered"}
+            </h3>
+            <p className="text-[11px] text-teal-600 mt-0.5">State: 21 (Odisha)</p>
+          </div>
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-teal-50 text-teal-600">
+            <Building className="h-5 w-5" />
           </div>
         </div>
 
-        {hasGst === "Yes" && (
-          <div className="space-y-1.5 max-w-md">
-            <label className="text-[12.5px] font-semibold text-slate-800">GSTIN Number *</label>
-            <input
-              type="text"
-              placeholder="e.g. 21AAAAA0000A1Z5"
-              value={gstNumber}
-              onChange={(e) => setGstNumber(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-[13px] font-mono text-slate-800 focus:border-teal-500 focus:outline-none uppercase"
-            />
+        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs flex items-center justify-between">
+          <div>
+            <p className="text-[11.5px] font-semibold text-slate-500 uppercase tracking-wider">Restaurant GST Rate</p>
+            <h3 className="text-2xl font-bold font-mono text-slate-900 mt-1">5.0%</h3>
+            <p className="text-[11px] text-slate-400 mt-0.5">2.5% CGST + 2.5% SGST</p>
           </div>
-        )}
-
-        {/* Registered Name For Invoice */}
-        <div className="space-y-1.5">
-          <label className="text-[12.5px] font-semibold text-slate-800">
-            Registered Name For Invoice
-          </label>
-          <input
-            type="text"
-            value={registeredName}
-            onChange={(e) => setRegisteredName(e.target.value)}
-            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-[13px] text-slate-800 focus:border-teal-500 focus:outline-none"
-          />
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+            <Percent className="h-5 w-5" />
+          </div>
         </div>
 
-        {/* Registered Address For Invoice */}
-        <div className="space-y-1.5">
-          <label className="text-[12.5px] font-semibold text-slate-800">
-            Registered Address For Invoice
-          </label>
-          <textarea
-            rows={3}
-            value={registeredAddress}
-            onChange={(e) => setRegisteredAddress(e.target.value)}
-            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-[13px] text-slate-800 focus:border-teal-500 focus:outline-none"
-          />
+        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs flex items-center justify-between">
+          <div>
+            <p className="text-[11.5px] font-semibold text-slate-500 uppercase tracking-wider">State Liquor VAT</p>
+            <h3 className="text-2xl font-bold font-mono text-slate-900 mt-1">20.0%</h3>
+            <p className="text-[11px] text-amber-600 mt-0.5">FL-4 Bar Excise Levy</p>
+          </div>
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-50 text-amber-600">
+            <ShieldCheck className="h-5 w-5" />
+          </div>
         </div>
 
-        {/* State & City Dropdowns */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-1.5">
-            <label className="text-[12.5px] font-semibold text-slate-800">State</label>
-            <div className="relative">
-              <select
-                value={state}
-                onChange={(e) => setState(e.target.value)}
-                className="w-full appearance-none rounded-lg border border-slate-300 bg-white pl-3 pr-8 py-2 text-[13px] text-slate-800 focus:border-teal-500 focus:outline-none cursor-pointer"
-              >
-                <option value="Odisha">Odisha</option>
-                <option value="Maharashtra">Maharashtra</option>
-                <option value="Karnataka">Karnataka</option>
-                <option value="Delhi">Delhi</option>
-                <option value="Gujarat">Gujarat</option>
-                <option value="West Bengal">West Bengal</option>
-              </select>
-              <ChevronDown className="absolute right-2.5 top-3 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
+        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs flex items-center justify-between">
+          <div>
+            <p className="text-[11.5px] font-semibold text-slate-500 uppercase tracking-wider">GSTR Filing</p>
+            <h3 className="text-base font-bold font-mono text-slate-900 mt-1">GSTR-1 & 3B</h3>
+            <p className="text-[11px] text-slate-400 mt-0.5">Auto-Reconciled</p>
+          </div>
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-100 text-slate-600">
+            <FileCheck className="h-5 w-5" />
+          </div>
+        </div>
+      </div>
+
+      {/* 3. Two-Column Side-by-Side Layout: Left = GST Form, Right = Tax Slabs Table */}
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 items-start">
+        {/* LEFT COLUMN: GST Fill Form */}
+        <div className="xl:col-span-6 space-y-4">
+          <form onSubmit={handleSave} className="rounded-2xl border border-slate-300 bg-white p-5 shadow-xs space-y-4">
+            <div className="border-b border-slate-200 pb-3 flex items-center justify-between">
+              <div>
+                <h3 className="text-[15px] font-bold text-slate-900 flex items-center gap-2">
+                  <Receipt className="h-4 w-4 text-teal-600" />
+                  Statutory GST Registration Details
+                </h3>
+                <p className="text-[11.5px] text-slate-500">Legal entity information printed on tax receipts.</p>
+              </div>
             </div>
-          </div>
 
-          <div className="space-y-1.5">
-            <label className="text-[12.5px] font-semibold text-slate-800">City</label>
-            <div className="relative">
-              <select
-                value={city}
-                onChange={(e) => setCity(e.target.value)}
-                className="w-full appearance-none rounded-lg border border-slate-300 bg-white pl-3 pr-8 py-2 text-[13px] text-slate-800 focus:border-teal-500 focus:outline-none cursor-pointer"
-              >
-                <option value="Angul">Angul</option>
-                <option value="Bhubaneswar">Bhubaneswar</option>
-                <option value="Cuttack">Cuttack</option>
-                <option value="Rourkela">Rourkela</option>
-              </select>
-              <ChevronDown className="absolute right-2.5 top-3 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
+            {/* Do you have GST No? */}
+            <div className="space-y-1.5 bg-slate-50/70 p-3 rounded-xl border border-slate-200">
+              <label className="text-[12.5px] font-bold text-slate-900">
+                Do you have GSTIN Registration? <span className="text-rose-500 font-bold ml-0.5">*</span>
+              </label>
+              <div className="flex items-center gap-6 pt-1">
+                <label className="flex items-center gap-2 text-[12.5px] font-medium text-slate-700 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="hasGst"
+                    checked={hasGst === "Yes"}
+                    onChange={() => setHasGst("Yes")}
+                    className="h-4 w-4 text-teal-600 focus:ring-teal-500 cursor-pointer"
+                  />
+                  Yes (Regular GST Registered)
+                </label>
+                <label className="flex items-center gap-2 text-[12.5px] font-medium text-slate-700 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="hasGst"
+                    checked={hasGst === "No"}
+                    onChange={() => setHasGst("No")}
+                    className="h-4 w-4 text-teal-600 focus:ring-teal-500 cursor-pointer"
+                  />
+                  No (Exempted)
+                </label>
+              </div>
             </div>
-          </div>
+
+            {hasGst === "Yes" && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div className="space-y-1">
+                  <label className="text-[12px] font-semibold text-slate-800">
+                    GSTIN Number <span className="text-rose-500 font-bold ml-0.5">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    maxLength={15}
+                    placeholder="e.g. 21AAAAA0000A1Z5"
+                    value={gstNumber}
+                    onChange={(e) => setGstNumber(e.target.value.toUpperCase())}
+                    onBlur={() => handleBlur("gstNumber")}
+                    className={`w-full rounded-lg border bg-white px-3 py-1.5 text-[12.5px] font-mono font-bold uppercase text-slate-900 focus:outline-none ${
+                      touched.gstNumber && errors.gstNumber
+                        ? "border-rose-400 focus:border-rose-500"
+                        : "border-slate-300 focus:border-teal-500"
+                    }`}
+                  />
+                  {touched.gstNumber && errors.gstNumber && (
+                    <div className="flex items-center gap-1 text-[11px] font-medium text-rose-600">
+                      <AlertCircle className="h-3 w-3 shrink-0" />
+                      <span>{errors.gstNumber}</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[12px] font-semibold text-slate-800">
+                    PAN Number <span className="text-rose-500 font-bold ml-0.5">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    maxLength={10}
+                    placeholder="e.g. AAAAA0000A"
+                    value={pan}
+                    onChange={(e) => setPan(e.target.value.toUpperCase())}
+                    onBlur={() => handleBlur("pan")}
+                    className={`w-full rounded-lg border bg-white px-3 py-1.5 text-[12.5px] font-mono font-bold uppercase text-slate-900 focus:outline-none ${
+                      touched.pan && errors.pan
+                        ? "border-rose-400 focus:border-rose-500"
+                        : "border-slate-300 focus:border-teal-500"
+                    }`}
+                  />
+                  {touched.pan && errors.pan && (
+                    <div className="flex items-center gap-1 text-[11px] font-medium text-rose-600">
+                      <AlertCircle className="h-3 w-3 shrink-0" />
+                      <span>{errors.pan}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Registered Legal Name */}
+            <div className="space-y-1">
+              <label className="text-[12px] font-semibold text-slate-800">
+                Registered Legal Name For Invoice Header <span className="text-rose-500 font-bold ml-0.5">*</span>
+              </label>
+              <input
+                type="text"
+                value={registeredName}
+                onChange={(e) => setRegisteredName(e.target.value)}
+                onBlur={() => handleBlur("registeredName")}
+                className={`w-full rounded-lg border bg-white px-3 py-1.5 text-[12.5px] text-slate-900 focus:outline-none ${
+                  touched.registeredName && errors.registeredName
+                    ? "border-rose-400 focus:border-rose-500"
+                    : "border-slate-300 focus:border-teal-500"
+                }`}
+              />
+              {touched.registeredName && errors.registeredName && (
+                <div className="flex items-center gap-1 text-[11px] font-medium text-rose-600">
+                  <AlertCircle className="h-3 w-3 shrink-0" />
+                  <span>{errors.registeredName}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Registered Address */}
+            <div className="space-y-1">
+              <label className="text-[12px] font-semibold text-slate-800">
+                Principal Place of Business Registered Address <span className="text-rose-500 font-bold ml-0.5">*</span>
+              </label>
+              <textarea
+                rows={2}
+                value={registeredAddress}
+                onChange={(e) => setRegisteredAddress(e.target.value)}
+                onBlur={() => handleBlur("registeredAddress")}
+                className={`w-full rounded-lg border bg-white px-3 py-1.5 text-[12.5px] text-slate-900 focus:outline-none ${
+                  touched.registeredAddress && errors.registeredAddress
+                    ? "border-rose-400 focus:border-rose-500"
+                    : "border-slate-300 focus:border-teal-500"
+                }`}
+              />
+              {touched.registeredAddress && errors.registeredAddress && (
+                <div className="flex items-center gap-1 text-[11px] font-medium text-rose-600">
+                  <AlertCircle className="h-3 w-3 shrink-0" />
+                  <span>{errors.registeredAddress}</span>
+                </div>
+              )}
+            </div>
+
+            {/* State, City & PIN */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="space-y-1">
+                <label className="text-[12px] font-semibold text-slate-800">State</label>
+                <select
+                  value={state}
+                  onChange={(e) => setState(e.target.value)}
+                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-[12.5px] text-slate-900 focus:border-teal-500 focus:outline-none cursor-pointer"
+                >
+                  <option value="Odisha">Odisha (21)</option>
+                  <option value="Maharashtra">Maharashtra (27)</option>
+                  <option value="Karnataka">Karnataka (29)</option>
+                  <option value="Delhi">Delhi (07)</option>
+                  <option value="Gujarat">Gujarat (24)</option>
+                  <option value="West Bengal">West Bengal (19)</option>
+                </select>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[12px] font-semibold text-slate-800">City / District</label>
+                <input
+                  type="text"
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-[12.5px] text-slate-900 focus:border-teal-500 focus:outline-none"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[12px] font-semibold text-slate-800">
+                  PIN Code <span className="text-rose-500 font-bold ml-0.5">*</span>
+                </label>
+                <input
+                  type="text"
+                  maxLength={6}
+                  value={zipCode}
+                  onChange={(e) => setZipCode(e.target.value)}
+                  onBlur={() => handleBlur("zipCode")}
+                  className={`w-full rounded-lg border bg-white px-3 py-1.5 text-[12.5px] font-mono text-slate-900 focus:outline-none ${
+                    touched.zipCode && errors.zipCode
+                      ? "border-rose-400 focus:border-rose-500"
+                      : "border-slate-300 focus:border-teal-500"
+                  }`}
+                />
+                {touched.zipCode && errors.zipCode && (
+                  <div className="flex items-center gap-1 text-[11px] font-medium text-rose-600">
+                    <AlertCircle className="h-3 w-3 shrink-0" />
+                    <span>{errors.zipCode}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* State VAT & Corporate CIN */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <label className="text-[12px] font-semibold text-slate-800">State Liquor VAT / Excise No.</label>
+                <input
+                  type="text"
+                  placeholder="e.g. VAT-OD-2023-88192"
+                  value={vatNumber}
+                  onChange={(e) => setVatNumber(e.target.value)}
+                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-[12.5px] text-slate-900 focus:border-teal-500 focus:outline-none"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[12px] font-semibold text-slate-800">Corporate CIN / Reg No.</label>
+                <input
+                  type="text"
+                  placeholder="e.g. U55101OR2023PTC042891"
+                  value={cin}
+                  onChange={(e) => setCin(e.target.value)}
+                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-[12.5px] text-slate-900 focus:border-teal-500 focus:outline-none"
+                />
+              </div>
+            </div>
+
+            {/* Action Bar */}
+            <div className="border-t border-slate-100 pt-3 flex justify-end gap-2.5">
+              <button
+                type="button"
+                onClick={() => toast.info("Reverted to saved tax profile.")}
+                className="rounded-lg border border-slate-300 bg-white px-4 py-1.5 text-[12px] font-medium text-slate-700 hover:bg-slate-50 transition cursor-pointer"
+              >
+                Reset
+              </button>
+              <button
+                type="submit"
+                disabled={!isFormValid}
+                className={`flex items-center gap-1.5 rounded-lg px-5 py-1.5 text-[12px] font-bold transition shadow-xs ${
+                  isFormValid
+                    ? "bg-teal-600 text-white hover:bg-teal-700 cursor-pointer"
+                    : "bg-slate-200 text-slate-400 cursor-not-allowed"
+                }`}
+              >
+                <Save className="h-3.5 w-3.5" />
+                Save GST Profile
+              </button>
+            </div>
+          </form>
         </div>
 
-        {/* VAT, PAN, CIN */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="space-y-1.5">
-            <label className="text-[12.5px] font-semibold text-slate-800">
-              Vat Number (If Any)
-            </label>
-            <input
-              type="text"
-              value={vatNumber}
-              onChange={(e) => setVatNumber(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-[13px] text-slate-800 focus:border-teal-500 focus:outline-none"
+        {/* RIGHT COLUMN: HSN / SAC Tax Slabs & Rate Configuration Table */}
+        <div className="xl:col-span-6 space-y-3">
+          <div className="rounded-2xl border border-slate-300 bg-white shadow-xs overflow-hidden">
+            <div className="border-b border-slate-200 p-4 bg-slate-50/70 flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <h3 className="text-[15px] font-bold text-slate-900 flex items-center gap-2">
+                  <FileSpreadsheet className="h-4 w-4 text-teal-600" />
+                  HSN / SAC Tax Slabs & Rates
+                </h3>
+                <p className="text-[11.5px] text-slate-500">Preset tax slabs mapped to POS menu items & billing.</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => toast.success("Exporting tax slab rates...")}
+                className="flex items-center gap-1 rounded-lg border border-slate-300 bg-white px-3 py-1 text-[11.5px] font-medium text-slate-700 hover:bg-slate-50 transition cursor-pointer shadow-2xs"
+              >
+                <Download className="h-3 w-3 text-slate-500" />
+                Export Slabs
+              </button>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-[12px] border-collapse">
+                <DataTableHeader
+                  columns={slabColumns}
+                  data={sortedSlabs}
+                  selectable={false}
+                  sortConfig={sortConfig}
+                  onSortChange={setSortConfig}
+                  themeVariant="primary"
+                />
+                <tbody className="divide-y divide-slate-100">
+                  {paginatedSlabs.map((r) => (
+                    <tr key={r.id} className="hover:bg-slate-50/70 transition">
+                      <td className="px-4 py-3 font-semibold text-slate-900">{r.category}</td>
+                      <td className="px-3 py-3 font-mono text-slate-600 font-bold">{r.hsnSac}</td>
+                      <td className="px-3 py-3 text-right font-mono text-slate-800">{r.cgstRate}%</td>
+                      <td className="px-3 py-3 text-right font-mono text-slate-800">{r.sgstRate}%</td>
+                      <td className="px-3 py-3 text-right font-mono font-bold text-teal-700">{r.totalGst}%</td>
+                      <td className="px-3 py-3 text-slate-500 text-[11.5px]">{r.description}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <DataTableFooter
+              totalCount={sortedSlabs.length}
+              currentPage={validPage}
+              pageSize={slabPageSize}
+              onPageChange={setSlabPage}
+              onPageSizeChange={setSlabPageSize}
+              selectedCount={selectedSlabIds.length}
+              onClearSelection={() => setSelectedSlabIds([])}
+              itemName="tax slabs"
             />
           </div>
-
-          <div className="space-y-1.5">
-            <label className="text-[12.5px] font-semibold text-slate-800">PAN</label>
-            <input
-              type="text"
-              value={pan}
-              onChange={(e) => setPan(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-[13px] text-slate-800 focus:border-teal-500 focus:outline-none uppercase"
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="text-[12.5px] font-semibold text-slate-800">CIN</label>
-            <input
-              type="text"
-              value={cin}
-              onChange={(e) => setCin(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-[13px] text-slate-800 focus:border-teal-500 focus:outline-none"
-            />
-          </div>
-        </div>
-
-        {/* Location & Zip Code */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-1.5">
-            <label className="text-[12.5px] font-semibold text-slate-800">Location</label>
-            <input
-              type="text"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-[13px] text-slate-800 focus:border-teal-500 focus:outline-none"
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="text-[12.5px] font-semibold text-slate-800">Zip Code</label>
-            <input
-              type="text"
-              value={zipCode}
-              onChange={(e) => setZipCode(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-[13px] text-slate-800 focus:border-teal-500 focus:outline-none font-mono"
-            />
-          </div>
-        </div>
-
-        {/* 3. Bottom Action Bar matching Screenshot 4 */}
-        <div className="border-t border-slate-100 pt-4 flex justify-end gap-2.5">
-          <button
-            type="button"
-            onClick={() => toast.info("Cancelled changes")}
-            className="rounded-lg border border-slate-300 bg-white px-5 py-2 text-[12.5px] font-medium text-slate-700 hover:bg-slate-50 transition cursor-pointer"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            onClick={handleSave}
-            className="rounded-lg bg-teal-600 px-6 py-2 text-[12.5px] font-bold text-white shadow-2xs hover:bg-teal-700 transition cursor-pointer"
-          >
-            Save Changes
-          </button>
         </div>
       </div>
     </div>
