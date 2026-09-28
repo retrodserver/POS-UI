@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   Building2,
   Plus,
@@ -12,6 +12,7 @@ import {
   Sparkles,
   Landmark,
   AlertCircle,
+  Lock,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -85,7 +86,7 @@ export function BankDetailsView() {
   const [editingAccountId, setEditingAccountId] = useState<string | null>(null);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
-  // Form State - blank for fresh entry
+  // Form State
   const [formBankName, setFormBankName] = useState("");
   const [formCustomBank, setFormCustomBank] = useState("");
   const [formAccountHolder, setFormAccountHolder] = useState("");
@@ -96,17 +97,72 @@ export function BankDetailsView() {
   const [formBranchName, setFormBranchName] = useState("");
   const [formIsPrimary, setFormIsPrimary] = useState(false);
   const [formUpiVpa, setFormUpiVpa] = useState("");
-  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
-  const clearFieldError = (field: string) => {
-    if (formErrors[field]) {
-      setFormErrors((prev) => {
-        const next = { ...prev };
-        delete next[field];
-        return next;
-      });
-    }
+  // Touch tracking for real-time validation error rendering
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+
+  const markTouched = (field: string) => {
+    setTouched((prev) => ({ ...prev, [field]: true }));
   };
+
+  // Real-time field errors
+  const errors = useMemo(() => {
+    const errs: Record<string, string> = {};
+    const finalBank = formBankName === "Other" ? formCustomBank.trim() : formBankName;
+
+    // 1. Account Holder Legal Name
+    if (!formAccountHolder.trim()) {
+      errs.accountHolder = "Account holder legal name is required.";
+    } else if (formAccountHolder.trim().length < 3) {
+      errs.accountHolder = "Name must contain at least 3 characters.";
+    }
+
+    // 2. Bank Name
+    if (!formBankName) {
+      errs.bankName = "Please select a bank from the list.";
+    } else if (formBankName === "Other" && !formCustomBank.trim()) {
+      errs.bankName = "Please enter the full bank name.";
+    }
+
+    // 3. Account Type
+    if (!formAccountType) {
+      errs.accountType = "Please select the account type.";
+    }
+
+    // 4. Account Number
+    if (!formAccountNumber.trim()) {
+      errs.accountNumber = "Account number is required.";
+    } else if (!/^\d{8,18}$/.test(formAccountNumber.trim())) {
+      errs.accountNumber = "Account number must be between 8 and 18 digits.";
+    }
+
+    // 5. Confirm Account Number (must match account number)
+    if (!formConfirmAccountNumber.trim()) {
+      errs.confirmAccountNumber = "Please re-enter account number to confirm.";
+    } else if (formAccountNumber.trim() !== formConfirmAccountNumber.trim()) {
+      errs.confirmAccountNumber = "Account numbers do not match. Please ensure both fields are identical.";
+    }
+
+    // 6. IFSC Code
+    if (!formIfscCode.trim()) {
+      errs.ifscCode = "IFSC code is required.";
+    } else if (!/^[A-Z]{4}0[A-Z0-9]{6}$/.test(formIfscCode.trim().toUpperCase())) {
+      errs.ifscCode = "Invalid IFSC code format (e.g. HDFC0001248, 11 alphanumeric characters).";
+    }
+
+    return errs;
+  }, [
+    formAccountHolder,
+    formBankName,
+    formCustomBank,
+    formAccountType,
+    formAccountNumber,
+    formConfirmAccountNumber,
+    formIfscCode,
+  ]);
+
+  // Overall form validity — Submit button is strictly non-clickable if false
+  const isFormValid = Object.keys(errors).length === 0;
 
   const openAddModal = () => {
     setEditingAccountId(null);
@@ -120,7 +176,7 @@ export function BankDetailsView() {
     setFormBranchName("");
     setFormIsPrimary(accounts.length === 0);
     setFormUpiVpa("");
-    setFormErrors({});
+    setTouched({});
     setIsModalOpen(true);
   };
 
@@ -141,7 +197,15 @@ export function BankDetailsView() {
     setFormBranchName(account.branchName);
     setFormIsPrimary(account.isPrimary);
     setFormUpiVpa(account.upiVpa || "");
-    setFormErrors({});
+    // In edit mode, mark all touched
+    setTouched({
+      accountHolder: true,
+      bankName: true,
+      accountType: true,
+      accountNumber: true,
+      confirmAccountNumber: true,
+      ifscCode: true,
+    });
     setIsModalOpen(true);
   };
 
@@ -179,7 +243,7 @@ export function BankDetailsView() {
   const handleIfscLookup = (code: string) => {
     const clean = code.toUpperCase().trim();
     setFormIfscCode(clean);
-    clearFieldError("ifscCode");
+    markTouched("ifscCode");
     if (clean.length === 11 && !formBranchName) {
       if (clean.startsWith("HDFC")) {
         setFormBranchName("HDFC Indiranagar Branch, Bengaluru");
@@ -193,55 +257,23 @@ export function BankDetailsView() {
     }
   };
 
-  const validateForm = () => {
-    const errors: Record<string, string> = {};
-    const finalBank = formBankName === "Other" ? formCustomBank.trim() : formBankName;
-
-    if (!formAccountHolder.trim()) {
-      errors.accountHolder = "Account holder name is required.";
-    } else if (formAccountHolder.trim().length < 3) {
-      errors.accountHolder = "Name must be at least 3 characters.";
-    }
-
-    if (!finalBank) {
-      errors.bankName = "Please select or specify a bank name.";
-    }
-
-    if (!formAccountType) {
-      errors.accountType = "Please select an account type.";
-    }
-
-    if (!formAccountNumber.trim()) {
-      errors.accountNumber = "Account number is required.";
-    } else if (!/^\d{8,18}$/.test(formAccountNumber.trim())) {
-      errors.accountNumber = "Account number must contain 8 to 18 digits.";
-    }
-
-    if (!formConfirmAccountNumber.trim()) {
-      errors.confirmAccountNumber = "Please re-enter account number to confirm.";
-    } else if (formAccountNumber.trim() !== formConfirmAccountNumber.trim()) {
-      errors.confirmAccountNumber = "Account numbers do not match.";
-    }
-
-    if (!formIfscCode.trim()) {
-      errors.ifscCode = "IFSC code is required.";
-    } else if (!/^[A-Z]{4}0[A-Z0-9]{6}$/.test(formIfscCode.trim().toUpperCase())) {
-      errors.ifscCode = "Invalid IFSC code format (e.g. HDFC0001248).";
-    }
-
-    setFormErrors(errors);
-
-    if (Object.keys(errors).length > 0) {
-      toast.error("Please fill all mandatory fields marked with red star (*)");
-      return false;
-    }
-
-    return true;
-  };
-
   const handleSaveAccount = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validateForm()) return;
+
+    // Mark everything touched
+    setTouched({
+      accountHolder: true,
+      bankName: true,
+      accountType: true,
+      accountNumber: true,
+      confirmAccountNumber: true,
+      ifscCode: true,
+    });
+
+    if (!isFormValid) {
+      toast.error("Please resolve all errors before submitting.");
+      return;
+    }
 
     const resolvedBankName = formBankName === "Other" ? formCustomBank.trim() : formBankName;
 
@@ -558,20 +590,21 @@ export function BankDetailsView() {
                 type="text"
                 placeholder="Enter legal name (e.g. Retrod Hospitality Pvt Ltd)"
                 value={formAccountHolder}
+                onBlur={() => markTouched("accountHolder")}
                 onChange={(e) => {
                   setFormAccountHolder(e.target.value);
-                  clearFieldError("accountHolder");
+                  markTouched("accountHolder");
                 }}
                 className={`w-full rounded-xl border px-3.5 py-2 text-[13px] text-slate-800 focus:outline-none transition shadow-2xs ${
-                  formErrors.accountHolder
+                  touched.accountHolder && errors.accountHolder
                     ? "border-rose-400 bg-rose-50/20 focus:border-rose-500 focus:ring-1 focus:ring-rose-500"
                     : "border-slate-300 bg-white focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
                 }`}
               />
-              {formErrors.accountHolder && (
-                <div className="flex items-center gap-1 text-[11.5px] font-medium text-rose-600">
+              {touched.accountHolder && errors.accountHolder && (
+                <div className="flex items-center gap-1 text-[11.5px] font-medium text-rose-600 animate-in fade-in duration-150">
                   <AlertCircle className="h-3.5 w-3.5 shrink-0" />
-                  <span>{formErrors.accountHolder}</span>
+                  <span>{errors.accountHolder}</span>
                 </div>
               )}
             </div>
@@ -584,12 +617,13 @@ export function BankDetailsView() {
                 </label>
                 <select
                   value={formBankName}
+                  onBlur={() => markTouched("bankName")}
                   onChange={(e) => {
                     setFormBankName(e.target.value);
-                    clearFieldError("bankName");
+                    markTouched("bankName");
                   }}
                   className={`w-full rounded-xl border bg-white px-3 py-2 text-[13px] text-slate-800 focus:outline-none cursor-pointer shadow-2xs ${
-                    formErrors.bankName
+                    touched.bankName && errors.bankName
                       ? "border-rose-400 bg-rose-50/20 focus:border-rose-500 focus:ring-1 focus:ring-rose-500"
                       : "border-slate-300 focus:border-teal-500"
                   }`}
@@ -603,10 +637,10 @@ export function BankDetailsView() {
                     </option>
                   ))}
                 </select>
-                {formErrors.bankName && (
-                  <div className="flex items-center gap-1 text-[11.5px] font-medium text-rose-600">
+                {touched.bankName && errors.bankName && (
+                  <div className="flex items-center gap-1 text-[11.5px] font-medium text-rose-600 animate-in fade-in duration-150">
                     <AlertCircle className="h-3.5 w-3.5 shrink-0" />
-                    <span>{formErrors.bankName}</span>
+                    <span>{errors.bankName}</span>
                   </div>
                 )}
               </div>
@@ -617,12 +651,13 @@ export function BankDetailsView() {
                 </label>
                 <select
                   value={formAccountType}
+                  onBlur={() => markTouched("accountType")}
                   onChange={(e) => {
                     setFormAccountType(e.target.value);
-                    clearFieldError("accountType");
+                    markTouched("accountType");
                   }}
                   className={`w-full rounded-xl border bg-white px-3 py-2 text-[13px] text-slate-800 focus:outline-none cursor-pointer shadow-2xs ${
-                    formErrors.accountType
+                    touched.accountType && errors.accountType
                       ? "border-rose-400 bg-rose-50/20 focus:border-rose-500 focus:ring-1 focus:ring-rose-500"
                       : "border-slate-300 focus:border-teal-500"
                   }`}
@@ -636,10 +671,10 @@ export function BankDetailsView() {
                     </option>
                   ))}
                 </select>
-                {formErrors.accountType && (
-                  <div className="flex items-center gap-1 text-[11.5px] font-medium text-rose-600">
+                {touched.accountType && errors.accountType && (
+                  <div className="flex items-center gap-1 text-[11.5px] font-medium text-rose-600 animate-in fade-in duration-150">
                     <AlertCircle className="h-3.5 w-3.5 shrink-0" />
-                    <span>{formErrors.accountType}</span>
+                    <span>{errors.accountType}</span>
                   </div>
                 )}
               </div>
@@ -654,12 +689,13 @@ export function BankDetailsView() {
                   type="text"
                   placeholder="Enter full bank name"
                   value={formCustomBank}
+                  onBlur={() => markTouched("bankName")}
                   onChange={(e) => {
                     setFormCustomBank(e.target.value);
-                    clearFieldError("bankName");
+                    markTouched("bankName");
                   }}
                   className={`w-full rounded-xl border px-3.5 py-2 text-[13px] text-slate-800 focus:outline-none transition shadow-2xs ${
-                    formErrors.bankName
+                    touched.bankName && errors.bankName
                       ? "border-rose-400 bg-rose-50/20 focus:border-rose-500 focus:ring-1 focus:ring-rose-500"
                       : "border-slate-300 bg-white focus:border-teal-500"
                   }`}
@@ -677,20 +713,25 @@ export function BankDetailsView() {
                   type="password"
                   placeholder="Enter 8-18 digit account number"
                   value={formAccountNumber}
+                  onBlur={() => markTouched("accountNumber")}
                   onChange={(e) => {
                     setFormAccountNumber(e.target.value);
-                    clearFieldError("accountNumber");
+                    markTouched("accountNumber");
+                    // If confirm account is already non-empty, mark it touched to update matching feedback in real-time
+                    if (formConfirmAccountNumber.length > 0) {
+                      markTouched("confirmAccountNumber");
+                    }
                   }}
                   className={`w-full font-mono rounded-xl border px-3.5 py-2 text-[13px] text-slate-800 focus:outline-none transition shadow-2xs ${
-                    formErrors.accountNumber
+                    touched.accountNumber && errors.accountNumber
                       ? "border-rose-400 bg-rose-50/20 focus:border-rose-500 focus:ring-1 focus:ring-rose-500"
                       : "border-slate-300 bg-white focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
                   }`}
                 />
-                {formErrors.accountNumber && (
-                  <div className="flex items-center gap-1 text-[11.5px] font-medium text-rose-600">
+                {touched.accountNumber && errors.accountNumber && (
+                  <div className="flex items-center gap-1 text-[11.5px] font-medium text-rose-600 animate-in fade-in duration-150">
                     <AlertCircle className="h-3.5 w-3.5 shrink-0" />
-                    <span>{formErrors.accountNumber}</span>
+                    <span>{errors.accountNumber}</span>
                   </div>
                 )}
               </div>
@@ -704,20 +745,27 @@ export function BankDetailsView() {
                   type="text"
                   placeholder="Confirm account digits"
                   value={formConfirmAccountNumber}
+                  onBlur={() => markTouched("confirmAccountNumber")}
                   onChange={(e) => {
                     setFormConfirmAccountNumber(e.target.value);
-                    clearFieldError("confirmAccountNumber");
+                    markTouched("confirmAccountNumber");
                   }}
                   className={`w-full font-mono rounded-xl border px-3.5 py-2 text-[13px] text-slate-800 focus:outline-none transition shadow-2xs ${
-                    formErrors.confirmAccountNumber
+                    touched.confirmAccountNumber && errors.confirmAccountNumber
                       ? "border-rose-400 bg-rose-50/20 focus:border-rose-500 focus:ring-1 focus:ring-rose-500"
                       : "border-slate-300 bg-white focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
                   }`}
                 />
-                {formErrors.confirmAccountNumber && (
-                  <div className="flex items-center gap-1 text-[11.5px] font-medium text-rose-600">
-                    <AlertCircle className="h-3.5 w-3.5 shrink-0" />
-                    <span>{formErrors.confirmAccountNumber}</span>
+                {touched.confirmAccountNumber && errors.confirmAccountNumber && (
+                  <div className="flex items-start gap-1 text-[11.5px] font-medium text-rose-600 animate-in fade-in duration-150">
+                    <AlertCircle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
+                    <span>{errors.confirmAccountNumber}</span>
+                  </div>
+                )}
+                {touched.confirmAccountNumber && !errors.confirmAccountNumber && formConfirmAccountNumber.length > 0 && (
+                  <div className="flex items-center gap-1 text-[11.5px] font-medium text-emerald-600 animate-in fade-in duration-150">
+                    <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
+                    <span>Account numbers match</span>
                   </div>
                 )}
               </div>
@@ -737,17 +785,18 @@ export function BankDetailsView() {
                   placeholder="e.g. HDFC0001248"
                   maxLength={11}
                   value={formIfscCode}
+                  onBlur={() => markTouched("ifscCode")}
                   onChange={(e) => handleIfscLookup(e.target.value)}
                   className={`w-full font-mono uppercase rounded-xl border px-3.5 py-2 text-[13px] text-slate-800 focus:outline-none transition shadow-2xs ${
-                    formErrors.ifscCode
+                    touched.ifscCode && errors.ifscCode
                       ? "border-rose-400 bg-rose-50/20 focus:border-rose-500 focus:ring-1 focus:ring-rose-500"
                       : "border-slate-300 bg-white focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
                   }`}
                 />
-                {formErrors.ifscCode && (
-                  <div className="flex items-center gap-1 text-[11.5px] font-medium text-rose-600">
+                {touched.ifscCode && errors.ifscCode && (
+                  <div className="flex items-center gap-1 text-[11.5px] font-medium text-rose-600 animate-in fade-in duration-150">
                     <AlertCircle className="h-3.5 w-3.5 shrink-0" />
-                    <span>{formErrors.ifscCode}</span>
+                    <span>{errors.ifscCode}</span>
                   </div>
                 )}
               </div>
@@ -807,20 +856,40 @@ export function BankDetailsView() {
             </div>
 
             {/* Modal Actions */}
-            <DialogFooter className="pt-3 gap-2 sm:gap-0 border-t border-slate-100">
-              <button
-                type="button"
-                onClick={() => setIsModalOpen(false)}
-                className="rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-[13px] font-semibold text-slate-700 hover:bg-slate-50 transition cursor-pointer"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="rounded-xl bg-teal-600 px-5 py-2.5 text-[13px] font-semibold text-white hover:bg-teal-700 active:scale-[0.98] transition cursor-pointer shadow-sm shadow-teal-600/20"
-              >
-                {editingAccountId ? "Save Changes" : "Save & Verify Account"}
-              </button>
+            <DialogFooter className="pt-3 gap-2 sm:gap-0 border-t border-slate-100 flex items-center justify-between">
+              <div className="text-[11.5px] text-slate-400">
+                {!isFormValid ? (
+                  <span className="flex items-center gap-1 text-amber-600 font-medium">
+                    <Lock className="h-3 w-3" /> Fill all mandatory fields (*) to enable
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-1 text-emerald-600 font-medium">
+                    <CheckCircle2 className="h-3 w-3" /> All fields valid & ready
+                  </span>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-[13px] font-semibold text-slate-700 hover:bg-slate-50 transition cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={!isFormValid}
+                  title={!isFormValid ? "Please fill all mandatory fields correctly" : undefined}
+                  className={`rounded-xl px-5 py-2.5 text-[13px] font-semibold transition ${
+                    isFormValid
+                      ? "bg-teal-600 text-white hover:bg-teal-700 active:scale-[0.98] cursor-pointer shadow-sm shadow-teal-600/20"
+                      : "bg-slate-200 text-slate-400 cursor-not-allowed border border-slate-200 shadow-none"
+                  }`}
+                >
+                  {editingAccountId ? "Save Changes" : "Save & Verify Account"}
+                </button>
+              </div>
             </DialogFooter>
           </form>
         </DialogContent>
