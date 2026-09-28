@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   ShieldCheck,
   Building2,
@@ -20,8 +20,15 @@ import {
   AlertCircle,
   FileCheck2,
   Lock,
+  ChevronDown,
+  Search,
 } from "lucide-react";
 import { toast } from "sonner";
+import {
+  DataTableHeader,
+  DataTableFooter,
+  type DataTableColumn,
+} from "@/components/common";
 import {
   Dialog,
   DialogContent,
@@ -31,7 +38,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 
-interface KycDocument {
+export interface KycDocument {
   id: string;
   name: string;
   category: "Food Safety" | "Excise & Bar" | "Tax & Corporate" | "Municipal & Fire" | "Identity Proof";
@@ -123,6 +130,15 @@ export function KycDetailsView() {
   const [documents, setDocuments] = useState<KycDocument[]>(INITIAL_DOCUMENTS);
   const [copiedField, setCopiedField] = useState<string | null>(null);
 
+  // Table Filter & Pagination States
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedStatus, setSelectedStatus] = useState("All");
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [sortConfig, setSortConfig] = useState<{ colId: string; direction: "asc" | "desc" } | null>(null);
+
   // Upload Document Modal State
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [docType, setDocType] = useState("");
@@ -141,6 +157,122 @@ export function KycDetailsView() {
     toast.success("Copied to clipboard");
     setTimeout(() => setCopiedField(null), 2000);
   };
+
+  // Filtered & Sorted Documents for Table
+  const filteredDocuments = useMemo(() => {
+    return documents.filter((doc) => {
+      if (selectedCategory !== "All" && doc.category !== selectedCategory) return false;
+      if (selectedStatus !== "All" && doc.status !== selectedStatus) return false;
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase();
+        const matches =
+          doc.name.toLowerCase().includes(q) ||
+          doc.docNumber.toLowerCase().includes(q) ||
+          doc.issuingAuthority.toLowerCase().includes(q) ||
+          doc.category.toLowerCase().includes(q);
+        if (!matches) return false;
+      }
+      return true;
+    });
+  }, [documents, searchQuery, selectedCategory, selectedStatus]);
+
+  const sortedDocuments = useMemo(() => {
+    if (!sortConfig) return filteredDocuments;
+    return [...filteredDocuments].sort((a, b) => {
+      const field = sortConfig.colId as keyof KycDocument;
+      const aVal = a[field] ?? "";
+      const bVal = b[field] ?? "";
+      return sortConfig.direction === "asc"
+        ? String(aVal).localeCompare(String(bVal))
+        : String(bVal).localeCompare(String(aVal));
+    });
+  }, [filteredDocuments, sortConfig]);
+
+  const totalPages = Math.max(1, Math.ceil(sortedDocuments.length / pageSize));
+  const validPage = Math.min(currentPage, totalPages);
+  const paginatedDocuments = useMemo(() => {
+    const start = (validPage - 1) * pageSize;
+    return sortedDocuments.slice(start, start + pageSize);
+  }, [sortedDocuments, validPage, pageSize]);
+
+  const toggleSelectAll = () => {
+    if (selectedIds.length === sortedDocuments.length && sortedDocuments.length > 0) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(sortedDocuments.map((d) => d.id));
+    }
+  };
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
+  const columns: DataTableColumn<KycDocument>[] = [
+    {
+      id: "name",
+      label: "Document Name",
+      sortable: true,
+      filterable: true,
+      defaultWidth: 240,
+      getValue: (r) => r.name,
+    },
+    {
+      id: "category",
+      label: "Category",
+      sortable: true,
+      filterable: true,
+      defaultWidth: 150,
+      getValue: (r) => r.category,
+    },
+    {
+      id: "docNumber",
+      label: "License / Document No.",
+      sortable: true,
+      filterable: true,
+      defaultWidth: 190,
+      getValue: (r) => r.docNumber,
+    },
+    {
+      id: "issuingAuthority",
+      label: "Issuing Authority",
+      sortable: true,
+      defaultWidth: 230,
+      getValue: (r) => r.issuingAuthority,
+    },
+    {
+      id: "issuedOn",
+      label: "Issued Date",
+      sortable: true,
+      defaultWidth: 130,
+      getValue: (r) => r.issuedOn,
+    },
+    {
+      id: "validTill",
+      label: "Expiry / Validity",
+      sortable: true,
+      defaultWidth: 140,
+      getValue: (r) => r.validTill,
+    },
+    {
+      id: "status",
+      label: "Status",
+      sortable: true,
+      filterable: true,
+      align: "center",
+      defaultWidth: 130,
+      getValue: (r) => r.status,
+    },
+    {
+      id: "actions",
+      label: "Actions",
+      sortable: false,
+      filterable: false,
+      align: "right",
+      defaultWidth: 100,
+    },
+  ];
 
   const handleUploadSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -183,7 +315,7 @@ export function KycDetailsView() {
     };
 
     setDocuments((prev) => [newDoc, ...prev]);
-    toast.success(`${docType} uploaded and submitted for merchant compliance`);
+    toast.success(`${docType} uploaded and registered under KYC compliance`);
     setIsUploadOpen(false);
 
     // Reset Form
@@ -196,26 +328,26 @@ export function KycDetailsView() {
   };
 
   return (
-    <div className="space-y-6 max-w-5xl pb-12">
-      {/* 1. Header Section */}
-      <div className="flex flex-wrap items-center justify-between gap-4">
+    <div className="w-full space-y-5 pb-12">
+      {/* 1. Top Header */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <div className="flex items-center gap-2.5">
-            <h2 className="text-[20px] font-bold text-slate-900 tracking-tight">KYC & Compliance</h2>
+            <h2 className="text-[18px] font-bold text-slate-900 tracking-tight">KYC & Compliance Details</h2>
             <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-700 border border-emerald-200">
-              <ShieldCheck className="h-3.5 w-3.5" /> 100% Verified Merchant
+              <ShieldCheck className="h-3.5 w-3.5" /> Level-3 Verified
             </span>
           </div>
-          <p className="text-[13px] text-slate-500 mt-1">
-            Statutory business licenses, food safety certifications, and merchant identity verification.
+          <p className="text-[12.5px] text-slate-500 mt-0.5">
+            Merchant verification status, statutory operating licenses, and regulatory identity documentation.
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2">
           <button
             type="button"
-            onClick={() => toast.success("Downloading consolidated Compliance Pack PDF...")}
-            className="flex items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-3.5 py-2 text-[12.5px] font-semibold text-slate-700 hover:bg-slate-50 transition cursor-pointer shadow-2xs"
+            onClick={() => toast.success("Exporting consolidated compliance pack...")}
+            className="flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-[12.5px] font-medium text-slate-700 hover:bg-slate-50 transition cursor-pointer shadow-2xs"
           >
             <Download className="h-3.5 w-3.5 text-slate-500" /> Export Compliance Pack
           </button>
@@ -231,47 +363,49 @@ export function KycDetailsView() {
               setUploadErrors({});
               setIsUploadOpen(true);
             }}
-            className="flex items-center gap-2 rounded-xl bg-teal-600 px-4 py-2 text-[13px] font-semibold text-white hover:bg-teal-700 active:scale-[0.98] transition cursor-pointer shadow-sm shadow-teal-600/20"
+            className="flex items-center gap-1.5 rounded-lg bg-teal-600 px-4 py-2 text-[12.5px] font-semibold text-white hover:bg-teal-700 active:scale-[0.98] transition cursor-pointer shadow-xs"
           >
             <Plus className="h-4 w-4" /> Upload Document
           </button>
         </div>
       </div>
 
-      {/* 2. Main KYC Status Overview Banner */}
-      <div className="rounded-2xl border border-emerald-200/80 bg-gradient-to-r from-emerald-50/70 via-teal-50/40 to-white p-5 text-slate-800 shadow-xs">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex items-start gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-600 text-white shadow-sm shadow-emerald-600/25">
+      {/* 2. Top Banner Card: Verified Outlet Summary */}
+      <div className="rounded-2xl border border-slate-200 bg-white p-4.5 shadow-xs">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div className="flex items-center gap-3.5">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200">
               <ShieldCheck className="h-6 w-6" />
             </div>
-            <div className="space-y-1">
+            <div>
               <div className="flex flex-wrap items-center gap-2">
-                <h3 className="text-[16px] font-bold text-slate-900">
+                <span className="text-[15px] font-bold text-slate-900">
                   HIGHWAY INN BAR & RESTAURANT PVT. LTD.
-                </h3>
-                <span className="inline-flex items-center gap-1 rounded-md bg-emerald-100/70 px-2 py-0.5 text-[11px] font-bold text-emerald-800">
-                  Level-3 Enterprise KYC
+                </span>
+                <span className="inline-flex items-center rounded-md bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-700 border border-emerald-200">
+                  KYC Verified & Compliant
                 </span>
               </div>
-              <p className="text-[12.5px] text-slate-600 leading-relaxed">
-                All statutory documentation including Business PAN, FSSAI Food License (#12023999000142),
-                State Excise Bar License, and Municipal Health NOC are authenticated and compliant.
+              <p className="text-[12px] text-slate-500 mt-0.5">
+                Business PAN, FSSAI Food License (#12023999000142), State Excise Bar License (FL-4), and Health Trade NOC verified.
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3 self-start md:self-center shrink-0 border-t md:border-t-0 md:border-l border-slate-200/80 pt-3 md:pt-0 md:pl-5 text-right">
+          <div className="flex items-center gap-4 shrink-0 border-t lg:border-t-0 lg:border-l border-slate-200 pt-3 lg:pt-0 lg:pl-5">
             <div>
-              <div className="text-[11px] font-medium text-slate-400">KYC Verification Ref</div>
+              <div className="text-[11px] font-medium text-slate-400">KYC Reference</div>
               <div className="font-mono text-[13px] font-bold text-slate-800">KYC-2026-RET-8941</div>
-              <div className="text-[11px] text-emerald-600 font-medium mt-0.5">Next Audit: Jan 2027</div>
+            </div>
+            <div>
+              <div className="text-[11px] font-medium text-slate-400">Next Audit</div>
+              <div className="text-[12px] font-semibold text-emerald-600">Jan 2027</div>
             </div>
             <button
               type="button"
-              onClick={() => toast.info("Re-verification check initialized with registrar")}
-              className="p-2 text-slate-400 hover:text-teal-600 rounded-lg hover:bg-white/80 transition cursor-pointer"
-              title="Refresh Verification Status"
+              onClick={() => toast.info("Compliance status refreshed with central registrar.")}
+              className="p-1.5 text-slate-400 hover:text-teal-600 rounded-lg hover:bg-slate-50 transition cursor-pointer"
+              title="Refresh Verification"
             >
               <RefreshCw className="h-4 w-4" />
             </button>
@@ -279,176 +413,373 @@ export function KycDetailsView() {
         </div>
       </div>
 
-      {/* 3. Core Statutory License Cards */}
-      <div className="space-y-3">
-        <div className="text-[13px] font-bold text-slate-900 tracking-tight px-0.5">
-          Hospitality Operating Licenses & Clearances
+      {/* 3. Filter Bar for Compliance Table */}
+      <div className="rounded-2xl border border-slate-300 bg-white p-4 shadow-xs">
+        <div className="flex flex-wrap items-end gap-3">
+          <div className="space-y-1 flex-1 min-w-[220px]">
+            <label className="text-[11.5px] font-semibold text-slate-600">Search Document / License</label>
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Search by license no, authority, or document name..."
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="w-full rounded-lg border border-slate-300 bg-white pl-9 pr-3 py-1.5 text-[12.5px] text-slate-800 shadow-2xs focus:border-teal-500 focus:outline-none"
+              />
+              <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+            </div>
+          </div>
+
+          <div className="space-y-1 min-w-[150px]">
+            <label className="text-[11.5px] font-semibold text-slate-600">Category</label>
+            <div className="relative">
+              <select
+                value={selectedCategory}
+                onChange={(e) => {
+                  setSelectedCategory(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="w-full appearance-none rounded-lg border border-slate-300 bg-white pl-3 pr-8 py-1.5 text-[12.5px] text-slate-800 shadow-2xs focus:border-teal-500 focus:outline-none cursor-pointer"
+              >
+                <option value="All">All Categories</option>
+                <option value="Food Safety">Food Safety</option>
+                <option value="Excise & Bar">Excise & Bar</option>
+                <option value="Tax & Corporate">Tax & Corporate</option>
+                <option value="Municipal & Fire">Municipal & Fire</option>
+              </select>
+              <ChevronDown className="absolute right-2.5 top-2.5 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
+            </div>
+          </div>
+
+          <div className="space-y-1 min-w-[130px]">
+            <label className="text-[11.5px] font-semibold text-slate-600">Status</label>
+            <div className="relative">
+              <select
+                value={selectedStatus}
+                onChange={(e) => {
+                  setSelectedStatus(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="w-full appearance-none rounded-lg border border-slate-300 bg-white pl-3 pr-8 py-1.5 text-[12.5px] text-slate-800 shadow-2xs focus:border-teal-500 focus:outline-none cursor-pointer"
+              >
+                <option value="All">All Statuses</option>
+                <option value="Verified">Verified</option>
+                <option value="Expiring Soon">Expiring Soon</option>
+                <option value="Pending Review">Pending Review</option>
+              </select>
+              <ChevronDown className="absolute right-2.5 top-2.5 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => toast.info(`Found ${filteredDocuments.length} matching compliance records`)}
+              className="rounded-lg bg-teal-600 px-5 py-1.5 text-[12.5px] font-semibold text-white shadow-xs hover:bg-teal-700 transition cursor-pointer"
+            >
+              Search
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setSearchQuery("");
+                setSelectedCategory("All");
+                setSelectedStatus("All");
+                setCurrentPage(1);
+                toast.info("Showing all compliance documents");
+              }}
+              className="rounded-lg border border-slate-300 bg-white px-4 py-1.5 text-[12.5px] font-medium text-slate-700 shadow-2xs hover:bg-slate-50 transition cursor-pointer"
+            >
+              Show All
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* 4. Full Width Table with Attached DataTableHeader & DataTableFooter */}
+      <div className="rounded-2xl border border-slate-300 bg-white shadow-xs overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-[12.5px] border-collapse">
+            <DataTableHeader
+              columns={columns}
+              data={sortedDocuments}
+              selectable
+              isAllSelected={selectedIds.length === sortedDocuments.length && sortedDocuments.length > 0}
+              isSomeSelected={selectedIds.length > 0 && selectedIds.length < sortedDocuments.length}
+              onToggleSelectAll={toggleSelectAll}
+              sortConfig={sortConfig}
+              onSortChange={setSortConfig}
+              themeVariant="primary"
+            />
+            <tbody className="divide-y divide-slate-100">
+              {paginatedDocuments.map((doc) => (
+                <tr key={doc.id} className="hover:bg-slate-50/70 transition">
+                  <td className="w-12 px-3 py-3 text-center">
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.includes(doc.id)}
+                      onChange={() => toggleSelect(doc.id)}
+                      className="rounded border-slate-300 cursor-pointer text-teal-600 focus:ring-teal-500"
+                    />
+                  </td>
+                  <td className="px-3.5 py-3">
+                    <div className="flex items-center gap-2.5">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-teal-700 border border-slate-200">
+                        <FileText className="h-4 w-4" />
+                      </div>
+                      <div>
+                        <div className="font-semibold text-slate-900">{doc.name}</div>
+                        <div className="text-[11px] text-slate-400 font-mono">
+                          {doc.fileName} • {doc.fileSize}
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-3.5 py-3">
+                    <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-700">
+                      {doc.category}
+                    </span>
+                  </td>
+                  <td className="px-3.5 py-3">
+                    <div className="flex items-center gap-1.5 font-mono font-bold text-slate-800">
+                      <span>{doc.docNumber}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleCopy(doc.docNumber, `tbl-${doc.id}`)}
+                        className="p-0.5 text-slate-400 hover:text-teal-600 cursor-pointer"
+                        title="Copy License Number"
+                      >
+                        {copiedField === `tbl-${doc.id}` ? (
+                          <Check className="h-3 w-3 text-emerald-600" />
+                        ) : (
+                          <Copy className="h-3 w-3" />
+                        )}
+                      </button>
+                    </div>
+                  </td>
+                  <td className="px-3.5 py-3 text-slate-600 text-[12px]">{doc.issuingAuthority}</td>
+                  <td className="px-3.5 py-3 text-slate-500 font-mono text-[11.5px]">{doc.issuedOn}</td>
+                  <td className="px-3.5 py-3">
+                    <span className="font-semibold text-slate-800">{doc.validTill}</span>
+                  </td>
+                  <td className="px-3.5 py-3 text-center">
+                    <span
+                      className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-bold ${
+                        doc.status === "Verified"
+                          ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                          : doc.status === "Expiring Soon"
+                          ? "bg-amber-50 text-amber-700 border border-amber-200"
+                          : "bg-slate-100 text-slate-700 border border-slate-200"
+                      }`}
+                    >
+                      <CheckCircle2 className="h-3 w-3 text-emerald-600" />
+                      {doc.status}
+                    </span>
+                  </td>
+                  <td className="px-3.5 py-3 text-right">
+                    <div className="inline-flex items-center gap-1 text-slate-400">
+                      <button
+                        type="button"
+                        onClick={() => setViewingDoc(doc)}
+                        className="rounded-lg p-1.5 hover:bg-slate-100 hover:text-teal-600 transition cursor-pointer"
+                        title="Preview Certificate"
+                      >
+                        <Eye className="h-4 w-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => toast.success(`Downloading ${doc.fileName}...`)}
+                        className="rounded-lg p-1.5 hover:bg-slate-100 hover:text-slate-800 transition cursor-pointer"
+                        title="Download Certificate"
+                      >
+                        <Download className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <DataTableFooter
+          totalCount={sortedDocuments.length}
+          currentPage={validPage}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          onPageSizeChange={(sz) => {
+            setPageSize(sz);
+            setCurrentPage(1);
+          }}
+          selectedCount={selectedIds.length}
+          onClearSelection={() => setSelectedIds([])}
+          itemName="compliance documents"
+          onExport={(fmt) => toast.success(`Exporting compliance records as ${fmt.toUpperCase()}...`)}
+        />
+      </div>
+
+      {/* 5. Statutory Licenses Quick Summary Cards (Full Width Grid) */}
+      <div className="space-y-3 pt-2">
+        <div className="text-[13px] font-bold text-slate-900 tracking-tight px-0.5">
+          Hospitality Operating Licenses & Statutory Credentials
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Card 1: FSSAI License */}
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-2xs hover:border-slate-300 transition space-y-3.5">
+          <div className="rounded-2xl border border-slate-200 bg-white p-4.5 shadow-2xs space-y-3">
             <div className="flex items-start justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-orange-50 text-orange-600 border border-orange-100">
-                  <UtensilsCrossed className="h-4.5 w-4.5" />
+              <div className="flex items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-50 text-orange-600 border border-orange-100">
+                  <UtensilsCrossed className="h-4 w-4" />
                 </div>
                 <div>
-                  <h4 className="text-[13.5px] font-bold text-slate-900">FSSAI Food License</h4>
-                  <span className="text-[11px] text-slate-400 font-medium">Food Safety & Hygiene</span>
+                  <h4 className="text-[13px] font-bold text-slate-900">FSSAI Food License</h4>
+                  <span className="text-[11px] text-slate-400">Food Safety & Hygiene</span>
                 </div>
               </div>
-              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10.5px] font-bold text-emerald-700 border border-emerald-200">
+              <span className="inline-flex items-center gap-0.5 rounded-full bg-emerald-50 px-2 py-0.5 text-[10.5px] font-bold text-emerald-700 border border-emerald-200">
                 <CheckCircle2 className="h-3 w-3" /> Active
               </span>
             </div>
 
-            <div className="space-y-2 bg-slate-50/70 p-3 rounded-xl border border-slate-100 text-[12px]">
+            <div className="bg-slate-50/80 p-2.5 rounded-xl border border-slate-100 text-[11.5px] space-y-1">
               <div className="flex justify-between items-center">
-                <span className="text-slate-400 text-[11.5px]">License No.</span>
-                <div className="flex items-center gap-1 font-mono font-bold text-slate-800">
-                  <span>12023999000142</span>
-                  <button
-                    type="button"
-                    onClick={() => handleCopy("12023999000142", "fssai")}
-                    className="p-0.5 text-slate-400 hover:text-teal-600 cursor-pointer"
-                  >
-                    {copiedField === "fssai" ? (
-                      <Check className="h-3.5 w-3.5 text-emerald-600" />
-                    ) : (
-                      <Copy className="h-3.5 w-3.5" />
-                    )}
-                  </button>
-                </div>
+                <span className="text-slate-400">No.</span>
+                <span className="font-mono font-bold text-slate-800">12023999000142</span>
               </div>
-              <div className="flex justify-between items-center text-[11.5px]">
+              <div className="flex justify-between items-center">
                 <span className="text-slate-400">Valid Till</span>
                 <span className="font-semibold text-slate-700">24 Dec 2027</span>
               </div>
             </div>
 
-            <div className="flex items-center justify-between pt-0.5 text-[11.5px]">
-              <span className="text-slate-400 truncate max-w-[170px]">FBO - Restaurant & Dining</span>
-              <button
-                type="button"
-                onClick={() => setViewingDoc(documents[0])}
-                className="text-teal-600 hover:text-teal-700 font-semibold cursor-pointer inline-flex items-center gap-1"
-              >
-                View Certificate <ExternalLink className="h-3 w-3" />
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={() => setViewingDoc(documents[0])}
+              className="text-[11.5px] text-teal-600 hover:text-teal-700 font-semibold cursor-pointer inline-flex items-center gap-1"
+            >
+              View Certificate <ExternalLink className="h-3 w-3" />
+            </button>
           </div>
 
           {/* Card 2: Bar & Liquor License */}
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-2xs hover:border-slate-300 transition space-y-3.5">
+          <div className="rounded-2xl border border-slate-200 bg-white p-4.5 shadow-2xs space-y-3">
             <div className="flex items-start justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-purple-50 text-purple-600 border border-purple-100">
-                  <Wine className="h-4.5 w-4.5" />
+              <div className="flex items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-50 text-purple-600 border border-purple-100">
+                  <Wine className="h-4 w-4" />
                 </div>
                 <div>
-                  <h4 className="text-[13.5px] font-bold text-slate-900">Bar & Liquor License</h4>
-                  <span className="text-[11px] text-slate-400 font-medium">Excise FL-4 Category</span>
+                  <h4 className="text-[13px] font-bold text-slate-900">Bar & Liquor License</h4>
+                  <span className="text-[11px] text-slate-400">Excise FL-4 Category</span>
                 </div>
               </div>
-              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10.5px] font-bold text-emerald-700 border border-emerald-200">
+              <span className="inline-flex items-center gap-0.5 rounded-full bg-emerald-50 px-2 py-0.5 text-[10.5px] font-bold text-emerald-700 border border-emerald-200">
                 <CheckCircle2 className="h-3 w-3" /> Active
               </span>
             </div>
 
-            <div className="space-y-2 bg-slate-50/70 p-3 rounded-xl border border-slate-100 text-[12px]">
+            <div className="bg-slate-50/80 p-2.5 rounded-xl border border-slate-100 text-[11.5px] space-y-1">
               <div className="flex justify-between items-center">
-                <span className="text-slate-400 text-[11.5px]">Excise Reg No.</span>
-                <div className="flex items-center gap-1 font-mono font-bold text-slate-800">
-                  <span>EXC-OD-ANG-8921</span>
-                  <button
-                    type="button"
-                    onClick={() => handleCopy("EXC-OD-ANG-8921", "excise")}
-                    className="p-0.5 text-slate-400 hover:text-teal-600 cursor-pointer"
-                  >
-                    {copiedField === "excise" ? (
-                      <Check className="h-3.5 w-3.5 text-emerald-600" />
-                    ) : (
-                      <Copy className="h-3.5 w-3.5" />
-                    )}
-                  </button>
-                </div>
+                <span className="text-slate-400">No.</span>
+                <span className="font-mono font-bold text-slate-800">EXC-OD-ANG-8921</span>
               </div>
-              <div className="flex justify-between items-center text-[11.5px]">
+              <div className="flex justify-between items-center">
                 <span className="text-slate-400">Valid Till</span>
                 <span className="font-semibold text-slate-700">31 Mar 2027</span>
               </div>
             </div>
 
-            <div className="flex items-center justify-between pt-0.5 text-[11.5px]">
-              <span className="text-slate-400 truncate max-w-[170px]">State Excise Dept, Odisha</span>
-              <button
-                type="button"
-                onClick={() => setViewingDoc(documents[1])}
-                className="text-teal-600 hover:text-teal-700 font-semibold cursor-pointer inline-flex items-center gap-1"
-              >
-                View License <ExternalLink className="h-3 w-3" />
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={() => setViewingDoc(documents[1])}
+              className="text-[11.5px] text-teal-600 hover:text-teal-700 font-semibold cursor-pointer inline-flex items-center gap-1"
+            >
+              View License <ExternalLink className="h-3 w-3" />
+            </button>
           </div>
 
-          {/* Card 3: Fire Safety & Health NOC */}
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-2xs hover:border-slate-300 transition space-y-3.5">
+          {/* Card 3: Health Trade License */}
+          <div className="rounded-2xl border border-slate-200 bg-white p-4.5 shadow-2xs space-y-3">
             <div className="flex items-start justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-rose-50 text-rose-600 border border-rose-100">
-                  <Flame className="h-4.5 w-4.5" />
+              <div className="flex items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600 border border-blue-100">
+                  <Building2 className="h-4 w-4" />
                 </div>
                 <div>
-                  <h4 className="text-[13.5px] font-bold text-slate-900">Fire & Municipal NOC</h4>
-                  <span className="text-[11px] text-slate-400 font-medium">Public Safety Clearance</span>
+                  <h4 className="text-[13px] font-bold text-slate-900">Health Trade License</h4>
+                  <span className="text-[11px] text-slate-400">Eating House Clearance</span>
                 </div>
               </div>
-              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10.5px] font-bold text-emerald-700 border border-emerald-200">
+              <span className="inline-flex items-center gap-0.5 rounded-full bg-emerald-50 px-2 py-0.5 text-[10.5px] font-bold text-emerald-700 border border-emerald-200">
+                <CheckCircle2 className="h-3 w-3" /> Active
+              </span>
+            </div>
+
+            <div className="bg-slate-50/80 p-2.5 rounded-xl border border-slate-100 text-[11.5px] space-y-1">
+              <div className="flex justify-between items-center">
+                <span className="text-slate-400">No.</span>
+                <span className="font-mono font-bold text-slate-800">MOH-EHL-2026-4821</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-slate-400">Valid Till</span>
+                <span className="font-semibold text-slate-700">31 Mar 2027</span>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setViewingDoc(documents[4])}
+              className="text-[11.5px] text-teal-600 hover:text-teal-700 font-semibold cursor-pointer inline-flex items-center gap-1"
+            >
+              View Certificate <ExternalLink className="h-3 w-3" />
+            </button>
+          </div>
+
+          {/* Card 4: Fire Safety NOC */}
+          <div className="rounded-2xl border border-slate-200 bg-white p-4.5 shadow-2xs space-y-3">
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-rose-50 text-rose-600 border border-rose-100">
+                  <Flame className="h-4 w-4" />
+                </div>
+                <div>
+                  <h4 className="text-[13px] font-bold text-slate-900">Fire Safety NOC</h4>
+                  <span className="text-[11px] text-slate-400">Emergency & Fire Dept</span>
+                </div>
+              </div>
+              <span className="inline-flex items-center gap-0.5 rounded-full bg-emerald-50 px-2 py-0.5 text-[10.5px] font-bold text-emerald-700 border border-emerald-200">
                 <CheckCircle2 className="h-3 w-3" /> Certified
               </span>
             </div>
 
-            <div className="space-y-2 bg-slate-50/70 p-3 rounded-xl border border-slate-100 text-[12px]">
+            <div className="bg-slate-50/80 p-2.5 rounded-xl border border-slate-100 text-[11.5px] space-y-1">
               <div className="flex justify-between items-center">
-                <span className="text-slate-400 text-[11.5px]">NOC Ref No.</span>
-                <div className="flex items-center gap-1 font-mono font-bold text-slate-800">
-                  <span>FS-NOC-2026-991</span>
-                  <button
-                    type="button"
-                    onClick={() => handleCopy("FS-NOC-2026-991", "fire")}
-                    className="p-0.5 text-slate-400 hover:text-teal-600 cursor-pointer"
-                  >
-                    {copiedField === "fire" ? (
-                      <Check className="h-3.5 w-3.5 text-emerald-600" />
-                    ) : (
-                      <Copy className="h-3.5 w-3.5" />
-                    )}
-                  </button>
-                </div>
+                <span className="text-slate-400">No.</span>
+                <span className="font-mono font-bold text-slate-800">FS-NOC-2026-991</span>
               </div>
-              <div className="flex justify-between items-center text-[11.5px]">
+              <div className="flex justify-between items-center">
                 <span className="text-slate-400">Valid Till</span>
                 <span className="font-semibold text-slate-700">09 Feb 2027</span>
               </div>
             </div>
 
-            <div className="flex items-center justify-between pt-0.5 text-[11.5px]">
-              <span className="text-slate-400 truncate max-w-[170px]">State Fire & Emergency</span>
-              <button
-                type="button"
-                onClick={() => setViewingDoc(documents[5])}
-                className="text-teal-600 hover:text-teal-700 font-semibold cursor-pointer inline-flex items-center gap-1"
-              >
-                View NOC <ExternalLink className="h-3 w-3" />
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={() => setViewingDoc(documents[5])}
+              className="text-[11.5px] text-teal-600 hover:text-teal-700 font-semibold cursor-pointer inline-flex items-center gap-1"
+            >
+              View NOC <ExternalLink className="h-3 w-3" />
+            </button>
           </div>
         </div>
       </div>
 
-      {/* 4. Business Entity Identification & Authorized Signatory Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+      {/* 6. Business Entity & Authorized Signatory Cards (Full Width 2-Column Grid) */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 pt-1">
         {/* Business Entity Profile */}
         <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-2xs space-y-4">
           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
@@ -550,91 +881,7 @@ export function KycDetailsView() {
         </div>
       </div>
 
-      {/* 5. Document Vault Table */}
-      <div className="space-y-3">
-        <div className="flex items-center justify-between px-0.5">
-          <div className="text-[13px] font-bold text-slate-900 tracking-tight">
-            Compliance Document Repository ({documents.length})
-          </div>
-          <span className="text-[11.5px] text-slate-400">All certificates verified against central repositories</span>
-        </div>
-
-        <div className="rounded-2xl border border-slate-200 bg-white shadow-xs overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-[12.5px] border-collapse">
-              <thead>
-                <tr className="border-b border-slate-200 bg-slate-50/80 text-[11.5px] font-semibold text-slate-600 uppercase tracking-wider">
-                  <th className="px-4 py-3">Document Name</th>
-                  <th className="px-3.5 py-3">Category</th>
-                  <th className="px-3.5 py-3">License / Ref No.</th>
-                  <th className="px-3.5 py-3">Issuing Authority</th>
-                  <th className="px-3.5 py-3">Validity</th>
-                  <th className="px-3.5 py-3 text-center">Status</th>
-                  <th className="px-4 py-3 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {documents.map((doc) => (
-                  <tr key={doc.id} className="hover:bg-slate-50/60 transition">
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-2.5">
-                        <FileText className="h-4 w-4 text-teal-600 shrink-0" />
-                        <div>
-                          <div className="font-semibold text-slate-900">{doc.name}</div>
-                          <div className="text-[11px] text-slate-400 font-mono">
-                            {doc.fileName} • {doc.fileSize}
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-3.5 py-3">
-                      <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-700">
-                        {doc.category}
-                      </span>
-                    </td>
-                    <td className="px-3.5 py-3">
-                      <span className="font-mono font-medium text-slate-800">{doc.docNumber}</span>
-                    </td>
-                    <td className="px-3.5 py-3 text-slate-600 text-[12px]">{doc.issuingAuthority}</td>
-                    <td className="px-3.5 py-3">
-                      <div className="text-slate-800 font-medium">{doc.validTill}</div>
-                      <div className="text-[11px] text-slate-400">Issued {doc.issuedOn}</div>
-                    </td>
-                    <td className="px-3.5 py-3 text-center">
-                      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-bold text-emerald-700 border border-emerald-200">
-                        <CheckCircle2 className="h-3 w-3" />
-                        {doc.status}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <div className="inline-flex items-center gap-1 text-slate-400">
-                        <button
-                          type="button"
-                          onClick={() => setViewingDoc(doc)}
-                          className="rounded-lg p-1.5 hover:bg-slate-100 hover:text-teal-600 transition cursor-pointer"
-                          title="Preview Document"
-                        >
-                          <Eye className="h-4 w-4" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => toast.success(`Downloading ${doc.fileName}...`)}
-                          className="rounded-lg p-1.5 hover:bg-slate-100 hover:text-slate-800 transition cursor-pointer"
-                          title="Download Certificate"
-                        >
-                          <Download className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      {/* 6. Upload Document Modal */}
+      {/* 7. Upload Document Modal */}
       <Dialog open={isUploadOpen} onOpenChange={setIsUploadOpen}>
         <DialogContent className="max-w-lg p-0 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl">
           <div className="border-b border-slate-200 bg-slate-50/70 px-6 py-5">
@@ -878,7 +1125,7 @@ export function KycDetailsView() {
         </DialogContent>
       </Dialog>
 
-      {/* 7. View Document Preview Modal */}
+      {/* 8. View Document Preview Modal */}
       {viewingDoc && (
         <Dialog open={!!viewingDoc} onOpenChange={() => setViewingDoc(null)}>
           <DialogContent className="max-w-md p-0 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl">
