@@ -1,0 +1,51 @@
+name: Deploy POS UI
+
+on:
+  push:
+    branches:
+      - deploy
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up SSH agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.VM_SSH_KEY }}
+
+      - name: Add VM to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -p ${{ secrets.VM_PORT }} ${{ secrets.VM_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Sync files to VM
+        run: |
+          rsync -avz --delete \
+            --exclude='.git' --exclude='node_modules' --exclude='dist' --exclude='.output' \
+            --exclude='.env' --exclude='.env.local' --exclude='.wrangler' \
+            -e "ssh -p ${{ secrets.VM_PORT }}" \
+            ./ ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }}:/opt/retrod/POS-UI/
+
+      - name: Build and restart pos-ui
+        run: |
+          ssh -p ${{ secrets.VM_PORT }} ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} "
+            cd /opt/retrod/POS-UI &&
+            docker compose build pos-ui &&
+            docker compose up -d --force-recreate pos-ui &&
+            docker image prune -f
+          "
+
+      - name: Sync deploy branch to main
+        if: github.ref == 'refs/heads/main'
+        run: |
+          git push origin HEAD:refs/heads/deploy --force
