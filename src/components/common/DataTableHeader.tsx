@@ -687,8 +687,8 @@ export function DataTableHeader<T = any>({
                 col.align === "center"
                   ? "text-center"
                   : col.align === "right"
-                  ? "text-right"
-                  : "text-left",
+                    ? "text-right"
+                    : "text-left",
                 pinned.className,
                 autosizedColumns[colId]
                   ? "w-auto whitespace-nowrap"
@@ -716,8 +716,8 @@ export function DataTableHeader<T = any>({
                       enableColumnReorder && colId !== "actions"
                         ? `Drag to reorder · Click to sort by ${col.label}`
                         : col.sortable
-                        ? `Click to sort by ${col.label}`
-                        : undefined
+                          ? `Click to sort by ${col.label}`
+                          : undefined
                     }
                   >
                     <span className={theme.text}>{col.label}</span>
@@ -936,8 +936,8 @@ export function DataTableHeader<T = any>({
                               <span>No Pin</span>
                               {(!columnPins[colId] ||
                                 columnPins[colId] === "none") && (
-                                <Check className="h-3 w-3 text-primary" />
-                              )}
+                                  <Check className="h-3 w-3 text-primary" />
+                                )}
                             </DropdownMenuItem>
                           </DropdownMenuSubContent>
                         </DropdownMenuSub>
@@ -1446,7 +1446,7 @@ export function DataTableFooter({
   const effectiveTotalPages =
     typeof totalPages === "number" && !isNaN(totalPages)
       ? totalPages
-    : Math.max(1, Math.ceil((count || 0) / Math.max(1, pageSize)));
+      : Math.max(1, Math.ceil((count || 0) / Math.max(1, pageSize)));
 
   const handlePageSizeChange = (newSize: number) => {
     try {
@@ -1454,7 +1454,7 @@ export function DataTableFooter({
         localStorage.setItem(`retrod:${storageKey}:page-size`, String(newSize));
       }
       localStorage.setItem("retrod:table:page-size", String(newSize));
-    } catch {}
+    } catch { }
     onPageSizeChange?.(newSize);
   };
 
@@ -1571,12 +1571,11 @@ export function DataTableFooter({
               type="button"
               onClick={() => onPageChange(Math.max(1, currentPage - 1))}
               disabled={disabled || currentPage <= 1}
-              className="h-7 px-2.5 rounded-md border border-border bg-surface flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:bg-surface-2 hover:text-foreground disabled:opacity-40 disabled:pointer-events-none transition cursor-pointer shadow-2xs select-none"
+              className="h-7 w-7 rounded-md border border-border bg-surface flex items-center justify-center text-xs font-semibold text-muted-foreground hover:bg-surface-2 hover:text-foreground disabled:opacity-30 disabled:pointer-events-none transition cursor-pointer shadow-2xs select-none"
               title="Previous page"
               aria-label="Previous page"
             >
-              <ChevronLeft className="h-3.5 w-3.5" />
-              <span>Prev</span>
+              <ChevronLeft className="h-4 w-4" />
             </button>
 
             {pageNumbers.map((page, idx) =>
@@ -1609,12 +1608,11 @@ export function DataTableFooter({
               type="button"
               onClick={() => onPageChange(Math.min(effectiveTotalPages, currentPage + 1))}
               disabled={disabled || currentPage >= effectiveTotalPages}
-              className="h-7 px-2.5 rounded-md border border-border bg-surface flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:bg-surface-2 hover:text-foreground disabled:opacity-40 disabled:pointer-events-none transition cursor-pointer shadow-2xs select-none"
+              className="h-7 w-7 rounded-md border border-border bg-surface flex items-center justify-center text-xs font-semibold text-muted-foreground hover:bg-surface-2 hover:text-foreground disabled:opacity-30 disabled:pointer-events-none transition cursor-pointer shadow-2xs select-none"
               title="Next page"
               aria-label="Next page"
             >
-              <span>Next</span>
-              <ChevronRight className="h-3.5 w-3.5" />
+              <ChevronRight className="h-4 w-4" />
             </button>
           </div>
         )}
@@ -1625,6 +1623,105 @@ export function DataTableFooter({
 
 export const TablePagination = DataTableFooter;
 export type TablePaginationProps = DataTableFooterProps;
+
+export interface DataTableHeadingProps {
+  title?: string;
+  subtitle?: string;
+  description?: string;
+  columns?: DataTableColumn<any>[];
+  visibleColumns?: Record<string, boolean>;
+  onVisibleColumnsChange?: (cols: Record<string, boolean>) => void;
+  className?: string;
+  children?: React.ReactNode;
+  actions?: React.ReactNode;
+}
+
+export function DataTableHeading({
+  title,
+  subtitle,
+  description,
+  columns = [],
+  visibleColumns = {},
+  onVisibleColumnsChange,
+  className,
+  children,
+  actions,
+}: DataTableHeadingProps) {
+  const toggleColumnVisibility = (colId: string) => {
+    if (!onVisibleColumnsChange) return;
+    onVisibleColumnsChange({
+      ...visibleColumns,
+      [colId]: visibleColumns[colId] === false ? true : false,
+    });
+  };
+
+  return (
+    <div className={cn("flex flex-wrap items-start justify-between gap-3 pb-3", className)}>
+      <div>
+        {title && (
+          <h2 className="text-[20px] font-bold text-[#881337] dark:text-primary tracking-tight">
+            {title}
+          </h2>
+        )}
+        {subtitle && (
+          <div className="text-xs font-semibold text-text-secondary mt-0.5">
+            {subtitle}
+          </div>
+        )}
+        {description && (
+          <div className="text-[11.5px] text-text-secondary mt-0.5">
+            {description}
+          </div>
+        )}
+        {children}
+      </div>
+
+      <div className="flex items-center gap-2">
+        {actions}
+
+        {columns.length > 0 && onVisibleColumnsChange && (
+          <Popover>
+            <PopoverTrigger asChild>
+              <button
+                type="button"
+                className="flex items-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-1.5 text-xs font-semibold text-text-primary hover:bg-surface-2 transition cursor-pointer shadow-2xs"
+              >
+                <Columns className="w-3.5 h-3.5 text-primary" />
+                <span>Choose Columns</span>
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-56 p-3 shadow-lg rounded-xl" align="end">
+              <div className="space-y-2">
+                <div className="text-xs font-bold text-text-primary border-b border-border pb-1.5">
+                  Toggle Table Columns
+                </div>
+                <div className="max-h-60 overflow-y-auto space-y-1.5 pt-1">
+                  {columns.map((col) => {
+                    const colId = col.id || col.key;
+                    if (!colId) return null;
+                    const isChecked = visibleColumns[colId] !== false;
+                    return (
+                      <label
+                        key={colId}
+                        className="flex items-center gap-2 px-1.5 py-1 text-xs text-text-primary hover:bg-surface-2 rounded cursor-pointer select-none"
+                      >
+                        <Checkbox
+                          checked={isChecked}
+                          onCheckedChange={() => toggleColumnVisibility(colId)}
+                        />
+                        <span className="truncate">{col.label}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
+        )}
+      </div>
+    </div>
+  );
+}
 
 export interface DataTablePaginationProps {
   currentPage: number;
@@ -1663,7 +1760,7 @@ export function DataTablePagination({
         localStorage.setItem(`retrod:${storageKey}:page-size`, String(newSize));
       }
       localStorage.setItem("retrod:table:page-size", String(newSize));
-    } catch {}
+    } catch { }
     onPageSizeChange?.(newSize);
   };
 
@@ -1720,11 +1817,11 @@ export function DataTablePagination({
           type="button"
           onClick={() => onPageChange(Math.max(1, currentPage - 1))}
           disabled={disabled || currentPage <= 1}
-          className="h-7 px-2.5 rounded-md border border-slate-200 dark:border-border flex items-center gap-1 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-30 disabled:pointer-events-none transition cursor-pointer select-none"
+          className="h-7 w-7 rounded-md border border-slate-200 dark:border-border flex items-center justify-center text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-30 disabled:pointer-events-none transition cursor-pointer select-none"
+          title="Previous page"
           aria-label="Previous page"
         >
-          <ChevronLeft className="h-3.5 w-3.5" />
-          <span>Prev</span>
+          <ChevronLeft className="h-4 w-4" />
         </button>
         {pageNumbers.map((page, idx) =>
           typeof page === "number" ? (
@@ -1755,11 +1852,11 @@ export function DataTablePagination({
           type="button"
           onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
           disabled={disabled || currentPage >= totalPages}
-          className="h-7 px-2.5 rounded-md border border-slate-200 dark:border-border flex items-center gap-1 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-30 disabled:pointer-events-none transition cursor-pointer select-none"
+          className="h-7 w-7 rounded-md border border-slate-200 dark:border-border flex items-center justify-center text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-30 disabled:pointer-events-none transition cursor-pointer select-none"
+          title="Next page"
           aria-label="Next page"
         >
-          <span>Next</span>
-          <ChevronRight className="h-3.5 w-3.5" />
+          <ChevronRight className="h-4 w-4" />
         </button>
       </div>
     </div>
@@ -2072,10 +2169,10 @@ export function getTableBodyCellPinnedStyle({
   const effectiveBg = isSelected
     ? (selectedBgClass || "bg-primary/15 dark:bg-primary/25")
     : bgClass
-    ? bgClass
-    : isEven
-    ? "bg-slate-50 dark:bg-surface-2 group-hover:bg-slate-100 dark:group-hover:bg-surface-3"
-    : "bg-white dark:bg-surface group-hover:bg-slate-50 dark:group-hover:bg-surface-2";
+      ? bgClass
+      : isEven
+        ? "bg-slate-50 dark:bg-surface-2 group-hover:bg-slate-100 dark:group-hover:bg-surface-3"
+        : "bg-white dark:bg-surface group-hover:bg-slate-50 dark:group-hover:bg-surface-2";
 
   if (pin === "left") {
     let offset = selectable ? 48 : 0;
@@ -2165,7 +2262,7 @@ export function useTableColumnPreferences<T = any>(
         const parsed = parseInt(globalSaved, 10);
         if (!isNaN(parsed) && parsed > 0) return parsed;
       }
-    } catch {}
+    } catch { }
     return defaultPageSize;
   });
 
@@ -2174,7 +2271,7 @@ export function useTableColumnPreferences<T = any>(
     try {
       localStorage.setItem(`retrod:${storageKey}:page-size`, String(size));
       localStorage.setItem("retrod:table:page-size", String(size));
-    } catch {}
+    } catch { }
   };
 
   const [columnPins, setColumnPins] = useState<Record<string, "left" | "right" | "none">>(() => {
@@ -2185,7 +2282,7 @@ export function useTableColumnPreferences<T = any>(
         delete parsed.actions;
         return parsed;
       }
-    } catch {}
+    } catch { }
     return {};
   });
 
@@ -2193,7 +2290,7 @@ export function useTableColumnPreferences<T = any>(
     try {
       const saved = localStorage.getItem(`retrod:${storageKey}:column-widths`);
       if (saved) return JSON.parse(saved);
-    } catch {}
+    } catch { }
     const initial: Record<string, number> = {};
     defaultColumns.forEach((c) => {
       const id = c.id || c.key || "";
@@ -2213,7 +2310,7 @@ export function useTableColumnPreferences<T = any>(
     try {
       const saved = localStorage.getItem(`retrod:${storageKey}:column-order`);
       if (saved) return JSON.parse(saved);
-    } catch {}
+    } catch { }
     return defaultColumns.map((c) => c.id || c.key || "").filter(Boolean);
   });
 
@@ -2221,7 +2318,7 @@ export function useTableColumnPreferences<T = any>(
     try {
       const saved = localStorage.getItem(`retrod:${storageKey}:visible-columns`);
       if (saved) return JSON.parse(saved);
-    } catch {}
+    } catch { }
     const initial: Record<string, boolean> = {};
     defaultColumns.forEach((c) => {
       const id = c.id || c.key || "";
@@ -2234,28 +2331,28 @@ export function useTableColumnPreferences<T = any>(
     setVisibleColumns(updated);
     try {
       localStorage.setItem(`retrod:${storageKey}:visible-columns`, JSON.stringify(updated));
-    } catch {}
+    } catch { }
   };
 
   const handleColumnOrderChange = (newOrder: string[]) => {
     setColumnOrder(newOrder);
     try {
       localStorage.setItem(`retrod:${storageKey}:column-order`, JSON.stringify(newOrder));
-    } catch {}
+    } catch { }
   };
 
   const handleColumnWidthsChange = (updated: Record<string, number>) => {
     setColumnWidths(updated);
     try {
       localStorage.setItem(`retrod:${storageKey}:column-widths`, JSON.stringify(updated));
-    } catch {}
+    } catch { }
   };
 
   const handleColumnPinsChange = (updated: Record<string, "left" | "right" | "none">) => {
     setColumnPins(updated);
     try {
       localStorage.setItem(`retrod:${storageKey}:column-pins`, JSON.stringify(updated));
-    } catch {}
+    } catch { }
   };
 
   const orderedColumns = useMemo(() => {
@@ -2311,7 +2408,7 @@ export function useTableColumnPreferences<T = any>(
 
   const applyColumnFilters = (dataList: T[], customDistinctValues?: Record<string, string[]>): T[] => {
     if (!dataList || dataList.length === 0) return [];
-    
+
     // Compute distinct values if not provided
     const distinctMap: Record<string, Set<string>> = {};
     defaultColumns.forEach((col) => {

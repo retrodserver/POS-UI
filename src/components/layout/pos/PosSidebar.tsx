@@ -24,11 +24,40 @@ export function PosSidebar({
 }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
-  // Default closed: for the first time it opens with all sidebar tabs closed; users can click to open and check
-  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
+  // Auto-open groups that contain the currently active route
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(() => {
+    const initial: Record<string, boolean> = {};
+    POS_NAV_ITEMS.forEach((item) => {
+      if (item.children?.length) {
+        const isChildActive = item.children.some((c) =>
+          c.to
+            ? pathname === c.to || pathname.startsWith(`${c.to}/`)
+            : c.children?.some((sc) => sc.to && (pathname === sc.to || pathname.startsWith(`${sc.to}/`)))
+        );
+        if (isChildActive || (item.to && (pathname === item.to || pathname.startsWith(`${item.to}/`)))) {
+          initial[item.id] = true;
+        }
+      }
+    });
+    return initial;
+  });
 
-  // Default closed: always opens with no inside sections open; user can click dropdown to open
-  const [openFolders, setOpenFolders] = useState<Record<string, boolean>>({});
+  const [openFolders, setOpenFolders] = useState<Record<string, boolean>>(() => {
+    const initial: Record<string, boolean> = {};
+    POS_NAV_ITEMS.forEach((item) => {
+      item.children?.forEach((child) => {
+        if (child.children?.length) {
+          const isChildActive = child.children.some(
+            (sc) => sc.to && (pathname === sc.to || pathname.startsWith(`${sc.to}/`))
+          );
+          if (isChildActive) {
+            initial[child.id] = true;
+          }
+        }
+      });
+    });
+    return initial;
+  });
 
   const isLinkActive = (to?: string) => {
     if (!to || !pathname) return false;
@@ -105,7 +134,7 @@ export function PosSidebar({
                   className={cn(
                     "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-medium transition-all duration-150 cursor-pointer",
                     active
-                      ? "bg-teal-600 text-white shadow-sm font-semibold"
+                      ? "bg-primary text-white shadow-sm font-semibold"
                       : "text-slate-300 hover:bg-white/5 hover:text-white",
                   )}
                 >
@@ -139,12 +168,12 @@ export function PosSidebar({
                                 className={cn(
                                   "flex w-full items-center justify-between rounded-md px-2 py-1.5 text-[12px] font-semibold transition cursor-pointer",
                                   folderHasActive
-                                    ? "text-teal-300"
+                                    ? "text-primary font-bold"
                                     : "text-slate-300 hover:text-white hover:bg-white/5",
                                 )}
                               >
                                 <div className="flex items-center gap-2">
-                                  <Folder className="h-3.5 w-3.5 text-slate-400" />
+                                  <Folder className={cn("h-3.5 w-3.5", folderHasActive ? "text-primary" : "text-slate-400")} />
                                   <span>{node.label}</span>
                                 </div>
                                 {isFolderOpen ? (
@@ -175,7 +204,7 @@ export function PosSidebar({
                             className={cn(
                               "flex items-center rounded-md px-2 py-1 text-[11.5px] transition-all",
                               childActive
-                                ? "font-semibold text-teal-400 bg-white/5"
+                                ? "font-bold text-white bg-primary shadow-xs"
                                 : "text-slate-400 hover:text-slate-200 hover:bg-white/5",
                             )}
                           >
@@ -201,7 +230,7 @@ export function PosSidebar({
               className={cn(
                 "flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-medium transition-all duration-150",
                 active
-                  ? "bg-teal-600 text-white shadow-sm font-semibold"
+                  ? "bg-primary text-white shadow-sm font-bold"
                   : "text-slate-300 hover:bg-white/5 hover:text-white",
                 collapsed && "justify-center px-2",
               )}
@@ -226,7 +255,7 @@ export function PosSidebar({
               className={cn(
                 "flex items-center gap-3 rounded-lg px-3 py-2 text-[12.5px] font-medium transition-all",
                 active
-                  ? "bg-teal-600 text-white font-semibold"
+                  ? "bg-primary text-white font-bold"
                   : "text-slate-300 hover:bg-white/5 hover:text-white",
                 collapsed && "justify-center px-2",
               )}

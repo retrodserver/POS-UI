@@ -2,6 +2,7 @@ import { DataTableHeader } from "./DataTableHeader";
 
 export {
   DataTableHeader,
+  DataTableHeading,
   DataTableFooter,
   DataTableToolbar,
   DataTableFilterBar,
@@ -17,6 +18,7 @@ export {
 export type {
   DataTableColumn,
   DataTableHeaderProps,
+  DataTableHeadingProps,
   DataTableFooterProps,
   DataTableToolbarProps,
   DataTableFilterBarProps,

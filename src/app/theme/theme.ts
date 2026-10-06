@@ -27,8 +27,8 @@ export const APP_THEMES: {
   group: ThemeGroup;
   swatches: [string, string, string];
 }[] = [
-  { value: "light", label: "Light", group: "core", swatches: ["#C7346A", "#F5F7FA", "#111827"] },
-  { value: "dark", label: "Dark", group: "core", swatches: ["#D94C7F", "#1F2738", "#F4F5F8"] },
+  { value: "light", label: "Light", group: "core", swatches: ["#0f766e", "#f6f5f0", "#111827"] },
+  { value: "dark", label: "Dark", group: "core", swatches: ["#0d9488", "#1F2738", "#F4F5F8"] },
   {
     value: "graphite-blue-pro",
     label: "Graphite",
