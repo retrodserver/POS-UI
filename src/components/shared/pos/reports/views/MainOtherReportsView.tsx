@@ -1,8 +1,7 @@
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo } from "react";
 import {
   Star,
   Search,
-  Filter,
   Utensils,
   Calendar,
   Package,
@@ -10,19 +9,25 @@ import {
   Users,
   Percent,
   FileText,
-  ArrowRight,
   ArrowLeft,
-  SlidersHorizontal,
   Download,
   Printer,
   Columns,
-  Check,
   ChevronDown,
-  RefreshCw,
   TrendingUp,
   CreditCard,
   Receipt,
   Store,
+  Clock,
+  Coins,
+  ShieldAlert,
+  PieChart,
+  BarChart3,
+  LayoutGrid,
+  Truck,
+  Table2,
+  X,
+  ArrowUpRight,
 } from "lucide-react";
 import { toast } from "sonner";
 import { DataTableHeader, DataTableFooter, type DataTableColumn } from "@/components/common";
@@ -34,16 +39,20 @@ import {
 } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
 
-interface ReportCard {
+export interface ReportCard {
   id: string;
-  category: string;
+  category: "sales" | "items" | "cashier" | "taxes" | "discounts" | "operations";
+  categoryGroup: string;
   title: string;
   description: string;
+  icon: any;
+  iconColor: string; // e.g. "rose", "sky", "emerald", "amber", "indigo", "violet", "teal"
+  isNew?: boolean;
   isFavorite: boolean;
 }
 
 // ---------------------------------------------------------
-// DATASETS TAILORED FOR EACH REPORT TYPE
+// DATASETS TAILORED FOR EACH POS REPORT TYPE
 // ---------------------------------------------------------
 
 const DATASETS: Record<string, { columns: DataTableColumn<any>[]; data: any[] }> = {
@@ -235,22 +244,218 @@ const DATASETS: Record<string, { columns: DataTableColumn<any>[]; data: any[] }>
       { id: "5", customerName: "Ananya Roy", phone: "9845678901", segment: "New Guest", totalVisits: 2, lastVisit: "2026-08-25", lifetimeSpend: 3100, avgOrderValue: 1550 },
     ],
   },
+  "REP-10": {
+    // Hourly Sales & Peak Time Report
+    columns: [
+      { id: "timeSlot", label: "Time Window", sortable: true, getValue: (r) => r.timeSlot },
+      { id: "ordersCount", label: "Orders Placed", align: "right", sortable: true, getValue: (r) => String(r.ordersCount) },
+      { id: "totalCovers", label: "Guest Covers", align: "right", sortable: true, getValue: (r) => String(r.totalCovers) },
+      { id: "salesAmount", label: "Revenue (₹)", align: "right", sortable: true, getValue: (r) => `₹${r.salesAmount.toLocaleString()}` },
+      { id: "avgSpeed", label: "Avg Prep Time", align: "right", sortable: true, getValue: (r) => r.avgSpeed },
+    ],
+    data: [
+      { id: "1", timeSlot: "12:00 PM - 01:00 PM", ordersCount: 18, totalCovers: 42, salesAmount: 14800, avgSpeed: "14 mins" },
+      { id: "2", timeSlot: "01:00 PM - 02:00 PM (Lunch Peak)", ordersCount: 46, totalCovers: 112, salesAmount: 41200, avgSpeed: "19 mins" },
+      { id: "3", timeSlot: "02:00 PM - 03:30 PM", ordersCount: 22, totalCovers: 54, salesAmount: 18400, avgSpeed: "12 mins" },
+      { id: "4", timeSlot: "07:00 PM - 08:30 PM", ordersCount: 38, totalCovers: 92, salesAmount: 34500, avgSpeed: "16 mins" },
+      { id: "5", timeSlot: "08:30 PM - 10:30 PM (Dinner Peak)", ordersCount: 68, totalCovers: 174, salesAmount: 68900, avgSpeed: "22 mins" },
+      { id: "6", timeSlot: "10:30 PM - 11:30 PM", ordersCount: 14, totalCovers: 28, salesAmount: 11200, avgSpeed: "11 mins" },
+    ],
+  },
+  "REP-11": {
+    // Payment Mode & Settlement Reconciliation
+    columns: [
+      { id: "paymentMethod", label: "Payment Mode", sortable: true, getValue: (r) => r.paymentMethod },
+      { id: "txnCount", label: "Transactions", align: "right", sortable: true, getValue: (r) => String(r.txnCount) },
+      { id: "collectedAmount", label: "Collected (₹)", align: "right", sortable: true, getValue: (r) => `₹${r.collectedAmount.toLocaleString()}` },
+      { id: "processingFee", label: "MDR / Charges (₹)", align: "right", sortable: true, getValue: (r) => `₹${r.processingFee.toLocaleString()}` },
+      { id: "netBankDeposit", label: "Net Credited (₹)", align: "right", sortable: true, getValue: (r) => `₹${r.netBankDeposit.toLocaleString()}` },
+    ],
+    data: [
+      { id: "1", paymentMethod: "UPI (Google Pay / PhonePe / Paytm)", txnCount: 164, collectedAmount: 112400, processingFee: 0, netBankDeposit: 112400 },
+      { id: "2", paymentMethod: "Credit / Debit Cards (Pine Labs POS)", txnCount: 78, collectedAmount: 68900, processingFee: 1033.5, netBankDeposit: 67866.5 },
+      { id: "3", paymentMethod: "Cash Drawer Collection", txnCount: 54, collectedAmount: 36200, processingFee: 0, netBankDeposit: 36200 },
+      { id: "4", paymentMethod: "Zomato Online Settlement", txnCount: 38, collectedAmount: 28400, processingFee: 5112, netBankDeposit: 23288 },
+      { id: "5", paymentMethod: "Swiggy Online Settlement", txnCount: 31, collectedAmount: 22100, processingFee: 3978, netBankDeposit: 18122 },
+      { id: "6", paymentMethod: "Hotel Room Post (Guest Folio)", txnCount: 12, collectedAmount: 14200, processingFee: 0, netBankDeposit: 14200 },
+    ],
+  },
+  "REP-12": {
+    // GST Summary & Tax Audit
+    columns: [
+      { id: "taxType", label: "Tax Slab / Category", sortable: true, getValue: (r) => r.taxType },
+      { id: "rate", label: "Rate (%)", align: "right", sortable: true, getValue: (r) => `${r.rate}%` },
+      { id: "taxableAmount", label: "Taxable Value (₹)", align: "right", sortable: true, getValue: (r) => `₹${r.taxableAmount.toLocaleString()}` },
+      { id: "cgst", label: "CGST (₹)", align: "right", sortable: true, getValue: (r) => `₹${r.cgst.toLocaleString()}` },
+      { id: "sgst", label: "SGST (₹)", align: "right", sortable: true, getValue: (r) => `₹${r.sgst.toLocaleString()}` },
+      { id: "totalTax", label: "Total GST (₹)", align: "right", sortable: true, getValue: (r) => `₹${r.totalTax.toLocaleString()}` },
+    ],
+    data: [
+      { id: "1", taxType: "Food & Non-Alcoholic Beverages (AC / Non-AC)", rate: 5, taxableAmount: 215000, cgst: 5375, sgst: 5375, totalTax: 10750 },
+      { id: "2", taxType: "Alcohol & Beverages (VAT)", rate: 18, taxableAmount: 78500, cgst: 7065, sgst: 7065, totalTax: 14130 },
+      { id: "3", taxType: "Banquet Catering & Hall Rentals", rate: 18, taxableAmount: 95000, cgst: 8550, sgst: 8550, totalTax: 17100 },
+      { id: "4", taxType: "Packaged Mineral Water & MRP Goods", rate: 12, taxableAmount: 6400, cgst: 384, sgst: 384, totalTax: 768 },
+    ],
+  },
 };
 
-export function MainOtherReportsView() {
-  const [activeCategory, setActiveCategory] = useState<
-    | "favourite"
-    | "all_restaurant"
-    | "order_related"
-    | "item_related"
-    | "category_related"
-    | "customer_related"
-    | "discount_related"
-    | "others"
-  >("favourite");
+// ---------------------------------------------------------
+// ALL REPORT CATALOG DEFINITIONS
+// ---------------------------------------------------------
 
+const ALL_REPORTS: ReportCard[] = [
+  // 1. SALES & REVENUE REPORTS
+  {
+    id: "REP-01",
+    category: "sales",
+    categoryGroup: "SALES & REVENUE REPORTS — OVERVIEW",
+    title: "All Restaurant Sales Report",
+    description: "Total revenue and dining type sales breakdown across all your restaurants and banquet spaces.",
+    icon: Utensils,
+    iconColor: "rose",
+    isFavorite: true,
+  },
+  {
+    id: "REP-06",
+    category: "sales",
+    categoryGroup: "SALES & REVENUE REPORTS — OVERVIEW",
+    title: "Day-Wise Sales Trend",
+    description: "Daily revenue, bill counts, and average spend comparisons by day of week.",
+    icon: Calendar,
+    iconColor: "sky",
+    isFavorite: true,
+  },
+  {
+    id: "REP-10",
+    category: "sales",
+    categoryGroup: "SALES & REVENUE REPORTS — OVERVIEW",
+    title: "Hourly Peak Time Analysis",
+    description: "Hour-by-hour order traffic, guest covers, and peak lunch/dinner rush revenue metrics.",
+    icon: Clock,
+    iconColor: "emerald",
+    isFavorite: false,
+  },
+  {
+    id: "REP-11",
+    category: "sales",
+    categoryGroup: "SALES & REVENUE REPORTS — OVERVIEW",
+    title: "Payment Method Breakdown",
+    description: "Detailed reconciliation of UPI, Credit/Debit Cards, Cash, and Aggregator payout settlements.",
+    icon: CreditCard,
+    iconColor: "purple",
+    isNew: true,
+    isFavorite: false,
+  },
+
+  // 2. MENU & ITEM PERFORMANCE REPORTS
+  {
+    id: "REP-02",
+    category: "items",
+    categoryGroup: "OUTLET & MENU ITEM REPORTS — DISH PERFORMANCE",
+    title: "Outlet-Item Wise Sales Report",
+    description: "Consolidated sales summary of menu items sold with outlet row bifurcation and revenue.",
+    icon: Package,
+    iconColor: "rose",
+    isFavorite: true,
+  },
+  {
+    id: "REP-08",
+    category: "items",
+    categoryGroup: "OUTLET & MENU ITEM REPORTS — DISH PERFORMANCE",
+    title: "Category Contribution Analysis",
+    description: "Revenue share percentage and gross profit margin of appetizers, main course, bar, and desserts.",
+    icon: Tags,
+    iconColor: "sky",
+    isFavorite: false,
+  },
+
+  // 3. CASHIER & STAFF REPORTS
+  {
+    id: "REP-04",
+    category: "cashier",
+    categoryGroup: "BILLING & CASHIER REPORTS — SHIFTS & COVERS",
+    title: "Pax Sales Report: Biller Wise",
+    description: "Sales and cover counts managed by each cashier, captain, and biller app operator.",
+    icon: Users,
+    iconColor: "emerald",
+    isFavorite: false,
+  },
+
+  // 4. TAX & INVOICE REPORTS
+  {
+    id: "REP-03",
+    category: "taxes",
+    categoryGroup: "TAXES & COMPLIANCE REPORTS — INVOICES & GST",
+    title: "Invoice Report: All Restaurants",
+    description: "Master invoice register with tax totals, payment modes, table numbers, and settlement statuses.",
+    icon: Receipt,
+    iconColor: "purple",
+    isFavorite: true,
+  },
+  {
+    id: "REP-12",
+    category: "taxes",
+    categoryGroup: "TAXES & COMPLIANCE REPORTS — INVOICES & GST",
+    title: "GST Summary & Tax Audit",
+    description: "CGST, SGST, IGST, and VAT tax liability reports across food, beverages, and banquet halls.",
+    icon: Coins,
+    iconColor: "amber",
+    isNew: true,
+    isFavorite: false,
+  },
+
+  // 5. DISCOUNTS & ORDERS REPORTS
+  {
+    id: "REP-05",
+    category: "discounts",
+    categoryGroup: "DISCOUNTS & ORDERS REPORTS — CHANNELS & AUDIT",
+    title: "Order Report: Sub-Order Wise",
+    description: "Bifurcation of orders across AC Dining, Garden, Takeaway, Zomato, Swiggy, and Room Service.",
+    icon: Truck,
+    iconColor: "teal",
+    isFavorite: false,
+  },
+  {
+    id: "REP-07",
+    category: "discounts",
+    categoryGroup: "DISCOUNTS & ORDERS REPORTS — CHANNELS & AUDIT",
+    title: "Discount & Comp Audit Report",
+    description: "Summary of discounts provided across dine-in, takeaway, and aggregators with manager approvals.",
+    icon: Percent,
+    iconColor: "rose",
+    isFavorite: false,
+  },
+
+  // 6. OPERATIONS & CUSTOMER REPORTS
+  {
+    id: "REP-09",
+    category: "operations",
+    categoryGroup: "OPERATIONS & CUSTOMER REPORTS — ENGAGEMENT & LOGS",
+    title: "Customer Repeat Order Matrix",
+    description: "Identification of VIP repeat guests, average ticket spend, and visit frequencies.",
+    icon: Store,
+    iconColor: "sky",
+    isFavorite: false,
+  },
+];
+
+const CATEGORY_PILLS = [
+  { id: "all", label: "All reports" },
+  { id: "sales", label: "Sales & Revenue" },
+  { id: "items", label: "Outlet & Items" },
+  { id: "cashier", label: "Cashier & Shifts" },
+  { id: "taxes", label: "Tax & Invoices" },
+  { id: "discounts", label: "Discounts & Orders" },
+  { id: "operations", label: "Operations & Audit" },
+  { id: "favorites", label: "⭐ Favorites" },
+] as const;
+
+export function MainOtherReportsView() {
+  const [viewMode, setViewMode] = useState<"catalog" | "dashboard">("catalog");
+  const [activePill, setActivePill] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedReport, setSelectedReport] = useState<ReportCard | null>(null);
+  const [reportList, setReportList] = useState<ReportCard[]>(ALL_REPORTS);
 
   // ---------------------------------------------------------
   // DRILLDOWN REPORT VIEW STATE
@@ -264,151 +469,58 @@ export function MainOtherReportsView() {
   const [visibleColumns, setVisibleColumns] = useState<Record<string, boolean>>({});
   const [sortConfig, setSortConfig] = useState<{ colId: string; direction: "asc" | "desc" } | null>(null);
 
-  const categories = [
-    {
-      id: "favourite",
-      label: "Favourite",
-      icon: Star,
-      desc: "All reports which are marked as favorites to refer frequently",
-    },
-    {
-      id: "all_restaurant",
-      label: "All Restaurant Report",
-      icon: Utensils,
-      desc: "Get insights to all your restaurant & sales related activities",
-    },
-    {
-      id: "order_related",
-      label: "Order Related Reports",
-      icon: Calendar,
-      desc: "Detailed breakdown of orders, dining types, and time slots",
-    },
-    {
-      id: "item_related",
-      label: "Item Related Reports",
-      icon: Package,
-      desc: "Menu item sales volume, popularity, and modifiers",
-    },
-    {
-      id: "category_related",
-      label: "Category Related Reports",
-      icon: Tags,
-      desc: "Revenue generation by food and beverage categories",
-    },
-    {
-      id: "customer_related",
-      label: "Customer Related Reports",
-      icon: Users,
-      desc: "Customer retention, average ticket spend, and visit frequencies",
-    },
-    {
-      id: "discount_related",
-      label: "Discount Related Reports",
-      icon: Percent,
-      desc: "Manager comps, coupons, aggregator offers, and discount audits",
-    },
-    {
-      id: "others",
-      label: "Others Reports",
-      icon: FileText,
-      desc: "Taxes, biller metrics, cancelled orders, and shift audit logs",
-    },
-  ] as const;
+  const favoriteCount = useMemo(() => {
+    return reportList.filter((r) => r.isFavorite).length;
+  }, [reportList]);
 
-  const [reports, setReports] = useState<ReportCard[]>([
-    {
-      id: "REP-01",
-      category: "all_restaurant",
-      title: "All Restaurant Sales Report",
-      description: "Total sales of all your restaurant",
-      isFavorite: true,
-    },
-    {
-      id: "REP-02",
-      category: "item_related",
-      title: "Outlet-Item Wise Report (Row)",
-      description: "Consolidated Summary of Item sales with outlets in row format",
-      isFavorite: true,
-    },
-    {
-      id: "REP-03",
-      category: "all_restaurant",
-      title: "Invoice Report: All Restaurants",
-      description: "Total invoice of all your restaurants",
-      isFavorite: true,
-    },
-    {
-      id: "REP-04",
-      category: "order_related",
-      title: "Pax Sales Report: Biller Wise",
-      description: "Sales per pax made by each biller",
-      isFavorite: false,
-    },
-    {
-      id: "REP-05",
-      category: "order_related",
-      title: "Order Report: Sub-Order Wise",
-      description: "Proper bifurcation of orders based on its sub-order type",
-      isFavorite: false,
-    },
-    {
-      id: "REP-06",
-      category: "all_restaurant",
-      title: "All Restaurant Report: Day Wise",
-      description: "Total sales of all your restaurant per day",
-      isFavorite: true,
-    },
-    {
-      id: "REP-07",
-      category: "discount_related",
-      title: "Discount & Comp Audit Report",
-      description: "Summary of discounts provided across dine-in, takeaway, and aggregators",
-      isFavorite: false,
-    },
-    {
-      id: "REP-08",
-      category: "category_related",
-      title: "Category Contribution Analysis",
-      description: "Percentage contribution of appetizers, main course, beverages, and desserts",
-      isFavorite: false,
-    },
-    {
-      id: "REP-09",
-      category: "customer_related",
-      title: "Customer Repeat Order Matrix",
-      description: "Identification of VIP repeat guests and loyalty reward redemptions",
-      isFavorite: false,
-    },
-  ]);
-
-  const toggleFavorite = (id: string) => {
-    setReports((prev) => prev.map((r) => (r.id === id ? { ...r, isFavorite: !r.isFavorite } : r)));
-    toast.success("Favorite preference updated");
+  const toggleFavorite = (id: string, e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    setReportList((prev) =>
+      prev.map((r) => (r.id === id ? { ...r, isFavorite: !r.isFavorite } : r))
+    );
+    toast.success("Favorite status updated");
   };
 
-  const filteredReports = reports.filter((r) => {
-    if (activeCategory === "favourite" && !r.isFavorite) return false;
-    if (activeCategory !== "favourite" && r.category !== activeCategory) return false;
-    if (searchQuery && !r.title.toLowerCase().includes(searchQuery.toLowerCase())) return false;
-    return true;
-  });
+  // Filtered reports by search and active pill
+  const filteredReports = useMemo(() => {
+    return reportList.filter((r) => {
+      if (activePill === "favorites" && !r.isFavorite) return false;
+      if (activePill !== "all" && activePill !== "favorites" && r.category !== activePill) return false;
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase().trim();
+        const matchTitle = r.title.toLowerCase().includes(q);
+        const matchDesc = r.description.toLowerCase().includes(q);
+        const matchGroup = r.categoryGroup.toLowerCase().includes(q);
+        if (!matchTitle && !matchDesc && !matchGroup) return false;
+      }
+      return true;
+    });
+  }, [reportList, activePill, searchQuery]);
 
-  const currentCategoryMeta = categories.find((c) => c.id === activeCategory);
+  // Group filtered reports by categoryGroup
+  const groupedSections = useMemo(() => {
+    const groups: Record<string, ReportCard[]> = {};
+    filteredReports.forEach((r) => {
+      if (!groups[r.categoryGroup]) {
+        groups[r.categoryGroup] = [];
+      }
+      groups[r.categoryGroup].push(r);
+    });
+    return groups;
+  }, [filteredReports]);
 
   // ---------------------------------------------------------
   // DRILLDOWN REPORT COMPUTATIONS
   // ---------------------------------------------------------
   const currentReportConfig = useMemo(() => {
     if (!selectedReport) return null;
-    const cfg = DATASETS[selectedReport.id] || DATASETS["REP-01"];
-    return cfg;
+    return DATASETS[selectedReport.id] || DATASETS["REP-01"];
   }, [selectedReport]);
 
   const allColumns = useMemo(() => {
     return currentReportConfig?.columns || [];
   }, [currentReportConfig]);
 
-  // Initialize visible columns when report changes
   const handleOpenReport = (report: ReportCard) => {
     setSelectedReport(report);
     const cfg = DATASETS[report.id] || DATASETS["REP-01"];
@@ -431,7 +543,7 @@ export function MainOtherReportsView() {
     if (!currentReportConfig) return [];
     let rows = currentReportConfig.data;
 
-    // Date range filtering (if row has date)
+    // Date range filtering
     if (fromDate || toDate) {
       rows = rows.filter((r) => {
         if (!r.date && !r.timestamp && !r.lastVisit) return true;
@@ -442,14 +554,12 @@ export function MainOtherReportsView() {
       });
     }
 
-    // Global Search filtering
+    // Search filtering
     if (reportSearch.trim()) {
       const q = reportSearch.toLowerCase();
-      rows = rows.filter((r) => {
-        return Object.values(r).some((val) =>
-          String(val).toLowerCase().includes(q)
-        );
-      });
+      rows = rows.filter((r) =>
+        Object.values(r).some((val) => String(val).toLowerCase().includes(q))
+      );
     }
 
     // Sorting
@@ -473,25 +583,10 @@ export function MainOtherReportsView() {
     return rows;
   }, [currentReportConfig, fromDate, toDate, reportSearch, sortConfig]);
 
-  const totalPages = Math.ceil(reportDataset.length / pageSize) || 1;
   const paginatedReportData = useMemo(() => {
     const start = (page - 1) * pageSize;
     return reportDataset.slice(start, start + pageSize);
   }, [reportDataset, page, pageSize]);
-
-  const handleSelectAll = (checked: boolean) => {
-    if (checked) {
-      setSelectedIds(reportDataset.map((r) => r.id));
-    } else {
-      setSelectedIds([]);
-    }
-  };
-
-  const handleToggleRow = (id: string) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    );
-  };
 
   const handleExportExcel = () => {
     if (!selectedReport) return;
@@ -521,8 +616,27 @@ export function MainOtherReportsView() {
     }));
   };
 
+  // Helper for Pastel Icon Background styling
+  const getIconBadgeStyle = (color: string) => {
+    switch (color) {
+      case "rose":
+        return "bg-rose-50 text-rose-600 border border-rose-100";
+      case "sky":
+        return "bg-sky-50 text-sky-600 border border-sky-100";
+      case "emerald":
+        return "bg-emerald-50 text-emerald-600 border border-emerald-100";
+      case "purple":
+        return "bg-purple-50 text-purple-600 border border-purple-100";
+      case "amber":
+        return "bg-amber-50 text-amber-600 border border-amber-100";
+      case "teal":
+      default:
+        return "bg-teal-50 text-teal-700 border border-teal-100";
+    }
+  };
+
   // ---------------------------------------------------------
-  // RENDER: REPORT DRILLDOWN TABULAR VIEW
+  // RENDER: DRILLDOWN TABULAR VIEW
   // ---------------------------------------------------------
   if (selectedReport) {
     return (
@@ -534,7 +648,7 @@ export function MainOtherReportsView() {
               type="button"
               onClick={() => setSelectedReport(null)}
               className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-300 bg-white text-slate-700 shadow-2xs hover:bg-slate-50 hover:text-teal-600 transition cursor-pointer"
-              title="Back to Reports"
+              title="Back to Catalog"
             >
               <ArrowLeft className="h-4 w-4" />
             </button>
@@ -709,7 +823,7 @@ export function MainOtherReportsView() {
           </div>
         </div>
 
-        {/* Print Header banner (Only visible on paper print) */}
+        {/* Print Header banner */}
         <div className="hidden print:block mb-4 border-b border-slate-400 pb-2">
           <div className="flex items-center justify-between">
             <div>
@@ -765,8 +879,8 @@ export function MainOtherReportsView() {
                             <span
                               className={
                                 col.align === "right"
-                                  ? "font-mono font-medium text-slate-800"
-                                  : "text-slate-800 font-medium"
+                                    ? "font-mono font-medium text-slate-800"
+                                    : "text-slate-800 font-medium"
                               }
                             >
                               {col.getValue(row)}
@@ -807,122 +921,362 @@ export function MainOtherReportsView() {
   }
 
   // ---------------------------------------------------------
-  // RENDER: DEFAULT REPORTS CATALOG VIEW
+  // RENDER: REPORTS CATALOG & DASHBOARD (ALIGNED WITH PMS/POS DESIGN)
   // ---------------------------------------------------------
   return (
-    <div className="space-y-4">
-      <h2 className="text-[18px] font-bold text-slate-900 tracking-tight">Reports</h2>
-
-      <div className="flex flex-col lg:flex-row items-start gap-4">
-        {/* Left Category Panel matching Screenshots 2 & 3 */}
-        <div className="w-full lg:w-[260px] shrink-0 rounded-2xl border border-slate-200 bg-white shadow-xs overflow-hidden">
-          <div className="divide-y divide-slate-100 text-[13px]">
-            {categories.map((cat) => {
-              const Icon = cat.icon;
-              const isActive = activeCategory === cat.id;
-              return (
-                <button
-                  key={cat.id}
-                  type="button"
-                  onClick={() => setActiveCategory(cat.id)}
-                  className={`w-full text-left px-4 py-3 font-medium transition cursor-pointer flex items-center gap-3 ${
-                    isActive
-                      ? "border-l-4 border-teal-600 bg-teal-50/40 text-slate-900 font-bold"
-                      : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-                  }`}
-                >
-                  <Icon
-                    className={`h-4 w-4 shrink-0 ${
-                      isActive
-                        ? cat.id === "favourite"
-                          ? "text-amber-500 fill-amber-500"
-                          : "text-teal-600"
-                        : "text-slate-400"
-                    }`}
-                  />
-                  <span>{cat.label}</span>
-                </button>
-              );
-            })}
-          </div>
+    <div className="space-y-6">
+      {/* 1. Header Toolbar (Title + Subtitle + Search + View Mode Switcher) */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-[22px] font-extrabold text-slate-900 tracking-tight">
+            Reports & Graphs
+          </h1>
+          <p className="text-[13px] text-slate-500 font-medium mt-0.5">
+            Access operational, financial, and restaurant performance reports in one place.
+          </p>
         </div>
 
-        {/* Right Reports Grid matching Screenshots 2 & 3 */}
-        <div className="flex-1 w-full space-y-4">
-          {/* Top Search Filter matching Screenshot */}
-          <div className="relative">
-            <Search className="absolute left-3.5 top-3 h-4 w-4 text-slate-400 pointer-events-none" />
+        {/* Top-right Search and View Toggle Switcher */}
+        <div className="flex items-center gap-3">
+          <div className="relative min-w-[220px] sm:min-w-[260px]">
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400 pointer-events-none" />
             <input
               type="text"
-              placeholder="Search for reports here..."
+              placeholder="Search reports..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-xl border border-slate-300 bg-white pl-10 pr-10 py-2.5 text-[13px] text-slate-800 focus:border-teal-500 focus:outline-none shadow-2xs"
+              className="w-full rounded-xl border border-slate-300 bg-white pl-9 pr-8 py-2 text-[12.5px] text-slate-800 focus:border-teal-500 focus:outline-none shadow-2xs"
             />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                className="absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-600 cursor-pointer"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+
+          <div className="flex items-center rounded-xl border border-slate-300 bg-white p-1 shadow-2xs">
             <button
               type="button"
-              className="absolute right-3 top-2.5 p-1 rounded-md text-teal-600 hover:bg-teal-50"
-              title="Filter"
+              onClick={() => setViewMode("catalog")}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12.5px] font-bold transition cursor-pointer ${
+                viewMode === "catalog"
+                  ? "bg-teal-700 text-white shadow-xs"
+                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+              }`}
             >
-              <SlidersHorizontal className="h-4 w-4" />
+              <LayoutGrid className="h-3.5 w-3.5" />
+              <span>Catalog</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode("dashboard")}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12.5px] font-bold transition cursor-pointer ${
+                viewMode === "dashboard"
+                  ? "bg-teal-700 text-white shadow-xs"
+                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+              }`}
+            >
+              <BarChart3 className="h-3.5 w-3.5" />
+              <span>Dashboard</span>
             </button>
           </div>
-
-          {/* Subheader info matching Screenshot */}
-          <div>
-            <h3 className="text-[14px] font-bold text-slate-900">{currentCategoryMeta?.label}</h3>
-            <p className="text-[12px] text-slate-500 mt-0.5">{currentCategoryMeta?.desc}</p>
-          </div>
-
-          {/* Reports Grid matching Screenshot */}
-          {filteredReports.length === 0 ? (
-            <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center text-slate-400">
-              No reports found in this category.
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {filteredReports.map((r) => (
-                <div
-                  key={r.id}
-                  className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs flex flex-col justify-between space-y-4 hover:border-teal-300 hover:shadow-sm transition"
-                >
-                  <div className="space-y-1.5">
-                    <div className="flex items-start justify-between">
-                      <h4 className="text-[14px] font-bold text-slate-900">{r.title}</h4>
-                      <button
-                        type="button"
-                        onClick={() => toggleFavorite(r.id)}
-                        className="text-slate-300 hover:text-amber-500 transition cursor-pointer"
-                        title={r.isFavorite ? "Unfavorite" : "Favorite"}
-                      >
-                        <Star
-                          className={`h-4 w-4 ${
-                            r.isFavorite
-                              ? "fill-amber-400 text-amber-400"
-                              : "text-slate-300 hover:text-slate-400"
-                          }`}
-                        />
-                      </button>
-                    </div>
-                    <p className="text-[12px] text-slate-500 leading-relaxed">{r.description}</p>
-                  </div>
-
-                  <div className="border-t border-slate-100 pt-3 flex justify-end">
-                    <button
-                      type="button"
-                      onClick={() => handleOpenReport(r)}
-                      className="text-[12.5px] font-semibold text-teal-600 hover:text-teal-700 cursor-pointer inline-flex items-center gap-1"
-                    >
-                      View Details
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
         </div>
       </div>
+
+      {/* 2. Horizontal Filter Tabs / Category Pills */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-thin">
+        {CATEGORY_PILLS.map((pill) => {
+          const isActive = activePill === pill.id;
+          const label =
+            pill.id === "favorites" ? `⭐ Favorites (${favoriteCount})` : pill.label;
+
+          return (
+            <button
+              key={pill.id}
+              type="button"
+              onClick={() => setActivePill(pill.id)}
+              className={`px-4 py-1.5 rounded-full text-[12.5px] font-bold whitespace-nowrap transition-all cursor-pointer ${
+                isActive
+                  ? "bg-teal-700 text-white shadow-xs"
+                  : "bg-white border border-slate-200/90 text-slate-700 hover:bg-slate-50 hover:border-slate-300 shadow-2xs"
+              }`}
+            >
+              {label}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* 3. VIEW MODE: DASHBOARD ANALYTICS PREVIEW */}
+      {viewMode === "dashboard" && (
+        <div className="space-y-6 animate-in fade-in duration-200">
+          {/* KPI Strip */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="rounded-2xl border border-slate-200/80 bg-white p-4.5 shadow-2xs">
+              <div className="flex items-center justify-between">
+                <span className="text-[12px] font-bold uppercase tracking-wider text-slate-500">Gross Sales</span>
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal-50 text-teal-700 font-bold">
+                  <TrendingUp className="h-4 w-4" />
+                </span>
+              </div>
+              <div className="mt-2 text-[22px] font-extrabold text-slate-900">₹3,74,200</div>
+              <div className="text-[11.5px] text-emerald-600 font-semibold mt-1">↑ 12.4% vs last week</div>
+            </div>
+
+            <div className="rounded-2xl border border-slate-200/80 bg-white p-4.5 shadow-2xs">
+              <div className="flex items-center justify-between">
+                <span className="text-[12px] font-bold uppercase tracking-wider text-slate-500">Total Bills</span>
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-sky-50 text-sky-600 font-bold">
+                  <Receipt className="h-4 w-4" />
+                </span>
+              </div>
+              <div className="mt-2 text-[22px] font-extrabold text-slate-900">482</div>
+              <div className="text-[11.5px] text-slate-500 font-semibold mt-1">Avg 68 bills / day</div>
+            </div>
+
+            <div className="rounded-2xl border border-slate-200/80 bg-white p-4.5 shadow-2xs">
+              <div className="flex items-center justify-between">
+                <span className="text-[12px] font-bold uppercase tracking-wider text-slate-500">Avg Ticket Size</span>
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-50 text-purple-600 font-bold">
+                  <Coins className="h-4 w-4" />
+                </span>
+              </div>
+              <div className="mt-2 text-[22px] font-extrabold text-slate-900">₹776.35</div>
+              <div className="text-[11.5px] text-emerald-600 font-semibold mt-1">↑ ₹42.10 higher per bill</div>
+            </div>
+
+            <div className="rounded-2xl border border-slate-200/80 bg-white p-4.5 shadow-2xs">
+              <div className="flex items-center justify-between">
+                <span className="text-[12px] font-bold uppercase tracking-wider text-slate-500">Dine-In Volume</span>
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-rose-50 text-rose-600 font-bold">
+                  <Utensils className="h-4 w-4" />
+                </span>
+              </div>
+              <div className="mt-2 text-[22px] font-extrabold text-slate-900">58.2%</div>
+              <div className="text-[11.5px] text-slate-500 font-semibold mt-1">Dine-In & Banquet share</div>
+            </div>
+          </div>
+
+          {/* Quick Analytics Visuals */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            {/* Channel Breakdown Card */}
+            <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-2xs space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-[14px] font-bold text-slate-900">Channel Revenue Distribution</h3>
+                <button
+                  type="button"
+                  onClick={() => handleOpenReport(ALL_REPORTS[0])}
+                  className="text-[12px] font-bold text-teal-700 hover:underline flex items-center gap-1 cursor-pointer"
+                >
+                  <span>View Sales Report</span>
+                  <ArrowUpRight className="h-3.5 w-3.5" />
+                </button>
+              </div>
+
+              <div className="space-y-3 pt-1">
+                <div>
+                  <div className="flex justify-between text-xs font-semibold text-slate-700 mb-1">
+                    <span>Dine-In Restaurant</span>
+                    <span className="font-bold">₹1,82,400 (48.7%)</span>
+                  </div>
+                  <div className="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
+                    <div className="h-full bg-teal-600 rounded-full" style={{ width: "48.7%" }} />
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex justify-between text-xs font-semibold text-slate-700 mb-1">
+                    <span>Banquet & Hall Events</span>
+                    <span className="font-bold">₹1,15,000 (30.7%)</span>
+                  </div>
+                  <div className="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
+                    <div className="h-full bg-sky-600 rounded-full" style={{ width: "30.7%" }} />
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex justify-between text-xs font-semibold text-slate-700 mb-1">
+                    <span>Online Delivery (Zomato & Swiggy)</span>
+                    <span className="font-bold">₹48,200 (12.9%)</span>
+                  </div>
+                  <div className="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
+                    <div className="h-full bg-purple-600 rounded-full" style={{ width: "12.9%" }} />
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex justify-between text-xs font-semibold text-slate-700 mb-1">
+                    <span>Direct Counter Takeaway</span>
+                    <span className="font-bold">₹28,600 (7.7%)</span>
+                  </div>
+                  <div className="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
+                    <div className="h-full bg-amber-500 rounded-full" style={{ width: "7.7%" }} />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Top Selling Items Card */}
+            <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-2xs space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-[14px] font-bold text-slate-900">Top Moving Dishes</h3>
+                <button
+                  type="button"
+                  onClick={() => handleOpenReport(ALL_REPORTS[4])}
+                  className="text-[12px] font-bold text-teal-700 hover:underline flex items-center gap-1 cursor-pointer"
+                >
+                  <span>View Item Report</span>
+                  <ArrowUpRight className="h-3.5 w-3.5" />
+                </button>
+              </div>
+
+              <div className="divide-y divide-slate-100">
+                <div className="py-2.5 flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <span className="flex h-6 w-6 items-center justify-center rounded-md bg-teal-50 text-teal-800 font-bold text-[11px]">1</span>
+                    <div>
+                      <div className="text-[12.5px] font-bold text-slate-900">Murgh Dum Biryani (Handi)</div>
+                      <div className="text-[11px] text-slate-500">142 orders sold</div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-[12.5px] font-bold text-slate-900">₹68,160</div>
+                    <div className="text-[11px] text-emerald-600 font-semibold">High Margin</div>
+                  </div>
+                </div>
+
+                <div className="py-2.5 flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <span className="flex h-6 w-6 items-center justify-center rounded-md bg-teal-50 text-teal-800 font-bold text-[11px]">2</span>
+                    <div>
+                      <div className="text-[12.5px] font-bold text-slate-900">Paneer Butter Masala</div>
+                      <div className="text-[11px] text-slate-500">118 orders sold</div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-[12.5px] font-bold text-slate-900">₹42,480</div>
+                    <div className="text-[11px] text-emerald-600 font-semibold">Veg Best Seller</div>
+                  </div>
+                </div>
+
+                <div className="py-2.5 flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <span className="flex h-6 w-6 items-center justify-center rounded-md bg-teal-50 text-teal-800 font-bold text-[11px]">3</span>
+                    <div>
+                      <div className="text-[12.5px] font-bold text-slate-900">Tandoori Pomfret</div>
+                      <div className="text-[11px] text-slate-500">64 orders sold</div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-[12.5px] font-bold text-slate-900">₹41,600</div>
+                    <div className="text-[11px] text-emerald-600 font-semibold">Starters</div>
+                  </div>
+                </div>
+
+                <div className="py-2.5 flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <span className="flex h-6 w-6 items-center justify-center rounded-md bg-teal-50 text-teal-800 font-bold text-[11px]">4</span>
+                    <div>
+                      <div className="text-[12.5px] font-bold text-slate-900">Butter Garlic Naan</div>
+                      <div className="text-[11px] text-slate-500">410 pieces sold</div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-[12.5px] font-bold text-slate-900">₹30,750</div>
+                    <div className="text-[11px] text-emerald-600 font-semibold">Breads</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 4. VIEW MODE: STRUCTURED GROUPED REPORT CATALOG (EXACT ALIGNMENT WITH SCREENSHOT) */}
+      {viewMode === "catalog" && (
+        <div className="space-y-8">
+          {Object.keys(groupedSections).length === 0 ? (
+            <div className="rounded-2xl border border-slate-200 bg-white p-16 text-center text-slate-400 space-y-2">
+              <div className="text-[15px] font-bold text-slate-700">No reports found</div>
+              <p className="text-[12.5px] text-slate-400">
+                No reports matched "{searchQuery}" in the selected category.
+              </p>
+            </div>
+          ) : (
+            Object.entries(groupedSections).map(([groupTitle, cards]) => (
+              <div key={groupTitle} className="space-y-3">
+                {/* Section Category Title matching Screenshot */}
+                <h3 className="text-[11.5px] font-bold uppercase tracking-wider text-slate-500">
+                  {groupTitle}
+                </h3>
+
+                {/* 4-Column Responsive Grid of Report Cards matching Screenshot */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+                  {cards.map((report) => {
+                    const Icon = report.icon;
+                    return (
+                      <div
+                        key={report.id}
+                        onClick={() => handleOpenReport(report)}
+                        className="rounded-2xl border border-slate-200/90 bg-white p-4.5 shadow-2xs hover:shadow-md hover:border-teal-400 transition-all duration-150 cursor-pointer relative flex flex-col justify-between min-h-[155px] group"
+                      >
+                        {/* Card Top Row: Pastel Icon Badge + Optional 'NEW' Tag */}
+                        <div className="flex items-start justify-between">
+                          <div
+                            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl font-bold shadow-2xs ${getIconBadgeStyle(
+                              report.iconColor
+                            )}`}
+                          >
+                            <Icon className="h-5 w-5" />
+                          </div>
+
+                          {report.isNew && (
+                            <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[9.5px] font-extrabold uppercase tracking-wider text-emerald-800">
+                              NEW
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Card Middle: Title + Description */}
+                        <div className="mt-3 mb-2 flex-1">
+                          <h4 className="text-[13.5px] font-bold text-slate-900 group-hover:text-teal-700 transition-colors leading-snug">
+                            {report.title}
+                          </h4>
+                          <p className="text-[11.5px] text-slate-500 leading-relaxed line-clamp-2 mt-1">
+                            {report.description}
+                          </p>
+                        </div>
+
+                        {/* Card Bottom Row: Favorite Star Toggle */}
+                        <div className="flex items-center justify-end pt-1">
+                          <button
+                            type="button"
+                            onClick={(e) => toggleFavorite(report.id, e)}
+                            className="p-1 text-slate-300 hover:text-amber-400 transition-colors cursor-pointer"
+                            title={report.isFavorite ? "Remove from Favorites" : "Add to Favorites"}
+                          >
+                            <Star
+                              className={`h-4 w-4 ${
+                                report.isFavorite
+                                  ? "fill-amber-400 text-amber-400"
+                                  : "text-slate-300 hover:text-slate-400"
+                              }`}
+                            />
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      )}
     </div>
   );
 }
-
