@@ -7,6 +7,7 @@ import {
   DataTableSelectionBar,
   DataTableToolbar,
   getTableBodyCellPinnedStyle,
+  exportTableToExcel,
   exportTableToCsv,
   type DataTableColumn,
   type ThemeVariant,
@@ -451,7 +452,7 @@ export function PosDataGrid<T>({
       return;
     }
     const filename = typeof title === "string" ? title : "POS_Export";
-    exportTableToCsv(filename, columns, sortedData);
+    exportTableToExcel(filename, columns, sortedData);
   };
 
   return (

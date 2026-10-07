@@ -13,6 +13,7 @@ export {
   DataTablePagination,
   useTableColumnPreferences,
   getTableBodyCellPinnedStyle,
+  exportTableToExcel,
   exportTableToCsv,
 } from "./DataTableHeader";
 export type {

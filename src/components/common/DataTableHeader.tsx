@@ -1890,6 +1890,7 @@ export interface DataTableToolbarProps<T = any> {
   onColumnOrderChange?: (order: string[]) => void;
   storageKey?: string;
   onExport?: () => void;
+  onExportExcel?: () => void;
   onExportCsv?: () => void;
   exportLabel?: string;
   onPrint?: () => void;
@@ -1914,8 +1915,9 @@ export function DataTableToolbar<T = any>({
   onColumnOrderChange,
   storageKey,
   onExport,
+  onExportExcel,
   onExportCsv,
-  exportLabel = "Export",
+  exportLabel = "Export to Excel",
   onPrint,
   printLabel = "Print",
   totalCount,
@@ -1923,7 +1925,7 @@ export function DataTableToolbar<T = any>({
   actions,
   className,
 }: DataTableToolbarProps<T>) {
-  const exportHandler = onExportCsv || onExport;
+  const exportHandler = onExportExcel || onExportCsv || onExport;
 
   return (
     <div
@@ -2030,7 +2032,7 @@ export function DataTableToolbar<T = any>({
               type="button"
               onClick={exportHandler}
               className="inline-flex items-center gap-1.5 h-8 px-2.5 rounded-md border border-border bg-surface hover:bg-surface-2 text-xs font-semibold text-foreground transition-colors cursor-pointer shadow-xs"
-              title="Export data to Excel (.xlsx / .csv)"
+              title="Export formatted data to Excel (.xlsx)"
             >
               <Download className="h-3.5 w-3.5 text-muted-foreground" />
               <span>{exportLabel}</span>
@@ -2043,31 +2045,31 @@ export function DataTableToolbar<T = any>({
 }
 
 /**
- * Universal Export table data rows to Excel / CSV file download
+ * Universal Export table data rows to Excel
  * Supports all signatures:
- * - exportTableToCsv(data, "filename")
- * - exportTableToCsv("filename.csv", columns, data)
- * - exportTableToCsv("filename.csv", data)
+ * - exportTableToExcel(data, "filename")
+ * - exportTableToExcel("filename", columns, data)
+ * - exportTableToExcel("filename", data)
  */
-export function exportTableToCsv(arg1: any, arg2?: any, arg3?: any) {
+export function exportTableToExcel(arg1: any, arg2?: any, arg3?: any) {
   let filename = "Export";
   let rowsData: Record<string, any>[] = [];
   let customCols: DataTableColumn<any>[] | string[] | undefined = undefined;
 
   if (Array.isArray(arg1)) {
-    // Signature: exportTableToCsv(data, filename)
+    // Signature: exportTableToExcel(data, filename)
     rowsData = arg1;
     if (typeof arg2 === "string") filename = arg2;
   } else if (typeof arg1 === "string") {
     filename = arg1.replace(/\.csv$/i, "").replace(/\.xlsx$/i, "");
     if (Array.isArray(arg3)) {
-      // Signature: exportTableToCsv(filename, columns, data)
+      // Signature: exportTableToExcel(filename, columns, data)
       rowsData = arg3;
       if (Array.isArray(arg2)) {
         customCols = arg2;
       }
     } else if (Array.isArray(arg2)) {
-      // Signature: exportTableToCsv(filename, data)
+      // Signature: exportTableToExcel(filename, data)
       rowsData = arg2;
     }
   }
@@ -2117,6 +2119,9 @@ export function exportTableToCsv(arg1: any, arg2?: any, arg3?: any) {
     });
   }
 }
+
+/** Backward compatibility alias */
+export const exportTableToCsv = exportTableToExcel;
 
 /**
  * Reusable helper for calculating exact sticky left / right pin positioning on table body <td> cells

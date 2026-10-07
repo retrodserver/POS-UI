@@ -12,6 +12,7 @@ export {
   ChooseColumnsDialog,
   useTableColumnPreferences,
   getTableBodyCellPinnedStyle,
+  exportTableToExcel,
   exportTableToCsv,
 } from "@/components/common/DataTableHeader";
 export type {

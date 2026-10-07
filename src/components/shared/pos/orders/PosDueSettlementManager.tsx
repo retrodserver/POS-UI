@@ -246,7 +246,7 @@ export function PosDueSettlementManager() {
     );
   };
 
-  const handleExportCSV = () => {
+  const handleExportExcel = () => {
     const headers = [
       "Bill No",
       "Order Type",
@@ -346,11 +346,11 @@ export function PosDueSettlementManager() {
 
           <button
             type="button"
-            onClick={handleExportCSV}
+            onClick={handleExportExcel}
             className="flex h-8 items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 text-[11.5px] font-medium text-slate-700 hover:bg-slate-50 shadow-2xs transition cursor-pointer"
           >
             <FileSpreadsheet className="h-3.5 w-3.5 text-teal-700" />
-            <span>Export CSV</span>
+            <span>Export to Excel</span>
           </button>
         </div>
       </div>

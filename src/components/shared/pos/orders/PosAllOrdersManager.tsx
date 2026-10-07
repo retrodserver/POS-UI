@@ -362,7 +362,7 @@ export function PosAllOrdersManager() {
   };
 
   // Excel Export
-  const handleExportCSV = () => {
+  const handleExportExcel = () => {
     const headers = [
       "Order No",
       "Order Type",
@@ -707,7 +707,7 @@ export function PosAllOrdersManager() {
                   type="button"
                   onClick={() => {
                     setShowActionDropdown(false);
-                    handleExportCSV();
+                    handleExportExcel();
                   }}
                   className="flex w-full items-center rounded-md px-3 py-2 text-left text-[12px] text-slate-700 hover:bg-slate-50 cursor-pointer"
                 >
@@ -720,11 +720,11 @@ export function PosAllOrdersManager() {
           {/* Export Excel */}
           <button
             type="button"
-            onClick={handleExportCSV}
+            onClick={handleExportExcel}
             className="flex h-9 items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3.5 text-[12.5px] font-medium text-slate-700 hover:bg-slate-50 shadow-xs transition cursor-pointer"
           >
             <FileSpreadsheet className="h-4 w-4 text-emerald-600" />
-            <span>Export Excel</span>
+            <span>Export to Excel</span>
             <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
           </button>
         </div>

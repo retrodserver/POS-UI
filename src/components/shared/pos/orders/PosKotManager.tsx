@@ -142,7 +142,7 @@ export function PosKotManager() {
     });
   };
 
-  const handleExportCSV = () => {
+  const handleExportExcel = () => {
     const headers = [
       "KOT ID",
       "Order Type",
@@ -419,11 +419,11 @@ export function PosKotManager() {
 
           <button
             type="button"
-            onClick={handleExportCSV}
+            onClick={handleExportExcel}
             className="flex items-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-1.5 text-[11.5px] font-bold text-slate-700 hover:bg-surface-2 shadow-2xs transition cursor-pointer"
           >
             <FileSpreadsheet className="h-3.5 w-3.5 text-primary" />
-            <span>Export CSV</span>
+            <span>Export to Excel</span>
           </button>
         </div>
       </div>
