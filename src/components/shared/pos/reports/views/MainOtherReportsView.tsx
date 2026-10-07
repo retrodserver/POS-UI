@@ -854,7 +854,7 @@ export function MainOtherReportsView() {
         </div>
 
         {/* Print Header banner */}
-        <div className="hidden print:block mb-4 border-b-2 border-slate-900 pb-3">
+        <div className="hidden print:block mb-4 border-b-2 border-slate-900 pb-3 w-full">
           <div className="flex items-start justify-between">
             <div>
               <h1 className="text-xl font-black text-slate-900 tracking-wide uppercase">
@@ -894,8 +894,8 @@ export function MainOtherReportsView() {
             </p>
           </div>
         ) : (
-          <div className="rounded-2xl border border-slate-200 bg-white shadow-xs overflow-hidden print:border-none print:shadow-none print:rounded-none print:overflow-visible print:w-full">
-            <div className="overflow-x-auto print:overflow-visible print:w-full">
+          <div className="rounded-2xl border border-slate-200 bg-white shadow-xs overflow-hidden print:border-none print:shadow-none print:rounded-none print:overflow-visible print:w-full print:m-0 print:p-0">
+            <div className="overflow-x-auto print:overflow-visible print:w-full print:m-0 print:p-0">
               <table className="w-full text-left text-[13px] border-collapse print:w-full print:text-[11px]">
                 <DataTableHeader
                   columns={activeColumns}
@@ -948,7 +948,7 @@ export function MainOtherReportsView() {
                       {activeColumns.map((col) => (
                         <td
                           key={col.id}
-                          className={`py-1.5 px-2.5 text-[10.5px] align-middle print:border print:border-slate-300 ${
+                          className={`py-2 px-3 text-[11px] align-middle print:border print:border-slate-300 ${
                             col.align === "center"
                               ? "text-center"
                               : col.align === "right"
@@ -967,6 +967,12 @@ export function MainOtherReportsView() {
                   ))}
                 </tbody>
               </table>
+            </div>
+
+            {/* Print Document Footer */}
+            <div className="hidden print:flex items-center justify-between text-[10px] text-slate-500 pt-3 border-t border-slate-300 mt-4 w-full">
+              <span>Highway Inn Bar &amp; Restaurant &bull; Official Management Report</span>
+              <span>Generated on {new Date().toLocaleDateString()}</span>
             </div>
 
             <DataTableFooter

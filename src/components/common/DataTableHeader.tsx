@@ -722,21 +722,21 @@ export function DataTableHeader<T = any>({
                   >
                     <span className={theme.text}>{col.label}</span>
                     {columnPins[colId] && columnPins[colId] !== "none" && (
-                      <span title={`Pinned ${columnPins[colId]}`}>
+                      <span className="print:hidden" title={`Pinned ${columnPins[colId]}`}>
                         <Pin className="h-3 w-3 text-amber-300 dark:text-amber-400 fill-amber-300/40 shrink-0 rotate-45" />
                       </span>
                     )}
                     {isSorted && (
                       activeSortConfig?.direction === "asc" ? (
-                        <ArrowUp className="h-3.5 w-3.5 shrink-0 animate-in fade-in" />
+                        <ArrowUp className="h-3.5 w-3.5 shrink-0 animate-in fade-in print:hidden" />
                       ) : (
-                        <ArrowDown className="h-3.5 w-3.5 shrink-0 animate-in fade-in" />
+                        <ArrowDown className="h-3.5 w-3.5 shrink-0 animate-in fade-in print:hidden" />
                       )
                     )}
                   </div>
 
                   {/* Header Action Icons: Filter Popover + 3-Dots Menu */}
-                  <div className="flex items-center gap-0.5 shrink-0">
+                  <div className="flex items-center gap-0.5 shrink-0 print:hidden">
                     {/* 1. Filter Dropdown */}
                     {colId !== "actions" && col.filterable !== false && (
                       <Popover
