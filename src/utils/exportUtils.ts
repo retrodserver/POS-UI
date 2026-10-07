@@ -268,7 +268,24 @@ export function exportToExcel(
       ? sanitizedFilename
       : `${sanitizedFilename}.xlsx`;
 
-    XLSX.writeFile(wb, finalFilename);
+    // Generate binary XLSX buffer and trigger client-side download
+    const wbout = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+    const blob = new Blob([wbout], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8",
+    });
+
+    if (typeof window !== "undefined") {
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", finalFilename);
+      link.style.visibility = "hidden";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setTimeout(() => window.URL.revokeObjectURL(url), 1000);
+    }
+
     toast.success(`Exported ${rows.length} rows to ${finalFilename}`);
   } catch (error) {
     console.error("Failed to export Excel file:", error);
