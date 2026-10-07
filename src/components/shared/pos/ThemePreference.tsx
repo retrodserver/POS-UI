@@ -53,7 +53,7 @@ export function ThemePreference({ variant = "header" }: ThemePreferenceProps) {
           <button
             type="button"
             aria-label="Open appearance settings"
-            className="fixed bottom-5 right-5 z-40 flex h-12 w-12 items-center justify-center rounded-full border border-border bg-surface text-primary shadow-e3 transition hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
+            className="fixed bottom-5 right-5 z-40 flex h-12 w-12 items-center justify-center rounded-full border border-border bg-surface text-primary shadow-e3 transition hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 print:hidden"
           >
             <Palette className="h-5 w-5" />
           </button>

@@ -559,16 +559,80 @@
 }
 
 @media print {
-  body {
-    background: white !important;
-    color: black !important;
+  @page {
+    size: A4 landscape;
+    margin: 8mm 10mm;
   }
+
+  body, html {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    font-size: 11px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+
+  /* Hide non-printable navigation, sidebar, toolbars, buttons, and floating widgets */
   aside,
   header,
   nav,
-  .no-print {
+  button,
+  .no-print,
+  .fixed,
+  [data-radix-popper-content-wrapper],
+  [role="dialog"],
+  [role="tooltip"] {
     display: none !important;
   }
+
+  /* Clean up card containers and scroll wrappers for printing */
+  div, section, main {
+    overflow: visible !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    max-width: 100% !important;
+  }
+
+  /* Universal full-width table report styling */
+  table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    table-layout: auto !important;
+    page-break-inside: auto !important;
+    margin-top: 6px !important;
+  }
+
+  thead {
+    display: table-header-group !important;
+  }
+
+  tr {
+    page-break-inside: avoid !important;
+    page-break-after: auto !important;
+  }
+
+  th {
+    background-color: #f1f5f9 !important;
+    color: #0f172a !important;
+    font-weight: 700 !important;
+    font-size: 10.5px !important;
+    padding: 6px 8px !important;
+    border: 1px solid #cbd5e1 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.02em !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  td {
+    padding: 5px 8px !important;
+    border: 1px solid #e2e8f0 !important;
+    font-size: 10.5px !important;
+    color: #1e293b !important;
+  }
+
+  /* Support Menu specific print if triggered */
   #printable-menu-area,
   #printable-menu-area * {
     visibility: visible;
@@ -580,14 +644,10 @@
     width: 100% !important;
     max-width: 100% !important;
     margin: 0 !important;
-    padding: 12mm !important;
+    padding: 6mm !important;
     box-shadow: none !important;
     border: none !important;
     background: white !important;
     color: #0f172a !important;
-  }
-  @page {
-    size: A4 portrait;
-    margin: 8mm;
   }
 }

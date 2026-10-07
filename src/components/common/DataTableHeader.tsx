@@ -1492,7 +1492,7 @@ export function DataTableFooter({
   return (
     <div
       className={cn(
-        "flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 text-xs select-none font-sans transition-colors",
+        "flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 text-xs select-none font-sans transition-colors print:hidden",
         getContainerStyle(),
         className
       )}

@@ -828,22 +828,37 @@ export function MainOtherReportsView() {
         </div>
 
         {/* Print Header banner */}
-        <div className="hidden print:block mb-4 border-b border-slate-400 pb-2">
-          <div className="flex items-center justify-between">
+        <div className="hidden print:block mb-4 border-b-2 border-slate-900 pb-3">
+          <div className="flex items-start justify-between">
             <div>
-              <h1 className="text-xl font-bold text-slate-900">HIGHWAY INN BAR & RESTAURANT</h1>
-              <h2 className="text-sm font-semibold text-slate-700">{selectedReport.title}</h2>
+              <h1 className="text-xl font-black text-slate-900 tracking-wide uppercase">
+                HIGHWAY INN BAR &amp; RESTAURANT
+              </h1>
+              <h2 className="text-sm font-bold text-slate-800 mt-0.5 uppercase">
+                {selectedReport.title}
+              </h2>
             </div>
-            <div className="text-right text-xs text-slate-600">
-              <div>Period: {fromDate} to {toDate}</div>
-              <div>Generated on: {new Date().toLocaleString()}</div>
+            <div className="text-right text-[11px] text-slate-700 space-y-0.5">
+              <div>
+                <strong className="text-slate-900">Period:</strong> {fromDate} to {toDate}
+              </div>
+              <div>
+                <strong className="text-slate-900">Outlet:</strong>{" "}
+                {selectedOutlet === "ALL" ? "All Outlets" : selectedOutlet}
+              </div>
+              <div>
+                <strong className="text-slate-900">Generated:</strong> {new Date().toLocaleString()}
+              </div>
+              <div>
+                <strong className="text-slate-900">Total Records:</strong> {reportDataset.length}
+              </div>
             </div>
           </div>
         </div>
 
         {/* Tabular Data with DataTableHeader and DataTableFooter */}
         {reportDataset.length === 0 ? (
-          <div className="rounded-2xl border border-slate-200 bg-white p-20 text-center shadow-xs space-y-3">
+          <div className="rounded-2xl border border-slate-200 bg-white p-20 text-center shadow-xs space-y-3 print:hidden">
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-slate-50 text-slate-300">
               <Search className="h-8 w-8" />
             </div>
@@ -853,9 +868,9 @@ export function MainOtherReportsView() {
             </p>
           </div>
         ) : (
-          <div className="rounded-2xl border border-slate-200 bg-white shadow-xs overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-[13px] border-collapse">
+          <div className="rounded-2xl border border-slate-200 bg-white shadow-xs overflow-hidden print:border-none print:shadow-none print:rounded-none print:overflow-visible print:w-full">
+            <div className="overflow-x-auto print:overflow-visible print:w-full">
+              <table className="w-full text-left text-[13px] border-collapse print:w-full print:text-[11px]">
                 <DataTableHeader
                   columns={activeColumns}
                   data={reportDataset}
@@ -865,7 +880,9 @@ export function MainOtherReportsView() {
                   onVisibleColumnsChange={setVisibleColumns}
                   themeVariant="primary"
                 />
-                <tbody className="divide-y divide-slate-100">
+
+                {/* Screen Paginated Body */}
+                <tbody className="divide-y divide-slate-100 print:hidden">
                   {paginatedReportData.map((row) => (
                     <tr key={row.id} className="hover:bg-slate-50/70 transition">
                       {activeColumns.map((col) => (
@@ -883,8 +900,8 @@ export function MainOtherReportsView() {
                             <span
                               className={
                                 col.align === "right"
-                                    ? "font-mono font-medium text-slate-800"
-                                    : "text-slate-800 font-medium"
+                                  ? "font-mono font-medium text-slate-800"
+                                  : "text-slate-800 font-medium"
                               }
                             >
                               {col.getValue(row)}
@@ -897,10 +914,37 @@ export function MainOtherReportsView() {
                     </tr>
                   ))}
                 </tbody>
+
+                {/* Print Full Report Body (All records printed without pagination cutting) */}
+                <tbody className="hidden print:table-row-group divide-y divide-slate-300">
+                  {reportDataset.map((row, rIdx) => (
+                    <tr key={row.id || rIdx} className="print:border-b print:border-slate-300">
+                      {activeColumns.map((col) => (
+                        <td
+                          key={col.id}
+                          className={`py-1.5 px-2.5 text-[10.5px] align-middle print:border print:border-slate-300 ${
+                            col.align === "center"
+                              ? "text-center"
+                              : col.align === "right"
+                              ? "text-right font-mono font-medium"
+                              : "text-left"
+                          }`}
+                        >
+                          {col.getValue ? (
+                            col.getValue(row)
+                          ) : (
+                            String((row as any)[col.id || ""] || "")
+                          )}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
               </table>
             </div>
 
             <DataTableFooter
+              className="print:hidden"
               totalRecords={reportDataset.length}
               currentPage={page}
               pageSize={pageSize}
