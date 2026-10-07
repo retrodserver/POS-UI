@@ -600,7 +600,11 @@ export function MainOtherReportsView() {
       return formatted;
     });
 
-    exportToExcel(exportRows, `${selectedReport.title}_${fromDate}_to_${toDate}`);
+    exportToExcel(exportRows, `${selectedReport.title}_${fromDate}_to_${toDate}`, {
+      title: selectedReport.title,
+      dateRange: `${fromDate} to ${toDate}`,
+      subtitle: `Outlet: ${selectedOutlet === "ALL" ? "All Outlets" : selectedOutlet}`,
+    });
     toast.success(`Exported ${exportRows.length} records to Excel`);
   };
 

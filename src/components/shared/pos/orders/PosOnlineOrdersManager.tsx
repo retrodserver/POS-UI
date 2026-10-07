@@ -28,6 +28,8 @@ import {
 } from "@/hooks/queries/usePosOrders";
 import { dispatchNewOnlineOrder } from "@/services/posOrdersService";
 import type { OnlineOrderItem } from "@/types/posOrders";
+import { exportToExcel } from "@/utils/exportUtils";
+import { toast } from "sonner";
 import { PosDataGrid, type PosDataGridColumn } from "@/components/ui/data-grid";
 
 export function PosOnlineOrdersManager() {
@@ -202,39 +204,35 @@ export function PosOnlineOrdersManager() {
       "Outlet",
       "Order Type",
       "Rider Details",
-      "Customer",
+      "Customer Name",
       "Phone",
       "OTP",
-      "Date Time",
-      "Total",
+      "Date & Time",
+      "Total Amount",
       "Status",
     ];
     const rows = filteredRecords.map((r) => [
       r.orderNo,
       r.platform,
-      `"${r.outletName}"`,
-      `"${r.orderType}"`,
-      `"${r.riderDetails}"`,
-      `"${r.customerName}"`,
+      r.outletName,
+      r.orderType,
+      r.riderDetails,
+      r.customerName,
       r.customerPhone,
       r.otp,
-      `"${r.dateTime}"`,
-      `"${r.totalAmountFormatted}"`,
-      `"${r.statusDisplay}"`,
+      r.dateTime,
+      r.totalAmountFormatted,
+      r.statusDisplay,
     ]);
-    const csvContent =
-      "data:text/csv;charset=utf-8," +
-      [headers.join(","), ...rows.map((e) => e.join(","))].join("\n");
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute(
-      "download",
-      `Online_Orders_Export_${new Date().toISOString().slice(0, 10)}.csv`,
-    );
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+
+    exportToExcel({
+      filename: `Online_Aggregator_Orders_${new Date().toISOString().slice(0, 10)}`,
+      title: "Online Aggregators Orders Report (Swiggy & Zomato)",
+      subtitle: `Channel: ${channelFilter.toUpperCase()} | Range: ${selectedRange}`,
+      columns: headers,
+      rows,
+    });
+    toast.success(`Exported ${rows.length} online aggregator orders to Excel`);
   };
 
   const dateRanges = ["Today", "Yesterday", "Last 5 Days Orders", "Last 7 Days", "Last 30 Days"];

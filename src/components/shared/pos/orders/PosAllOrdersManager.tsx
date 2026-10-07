@@ -16,6 +16,8 @@ import { AreaChart, Area, XAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { useAllOrders } from "@/hooks/queries/usePosOrders";
 import type { AllOrderItem } from "@/types/posOrders";
 import { PosDataGrid, type PosDataGridColumn } from "@/components/ui/data-grid";
+import { exportToExcel } from "@/utils/exportUtils";
+import { toast } from "sonner";
 
 const EXTENDED_MOCK_RECORDS: (AllOrderItem & { tableNo?: string; customerPhone?: string })[] = [
   {
@@ -359,44 +361,43 @@ export function PosAllOrdersManager() {
     else setSelectedIds((prev) => prev.filter((i) => i !== id));
   };
 
-  // CSV Export
+  // Excel Export
   const handleExportCSV = () => {
     const headers = [
       "Order No",
       "Order Type",
       "Customer Name",
       "Assign To",
-      "Items",
-      "Amount",
-      "Tax",
+      "Items Summary",
+      "Base Amount",
+      "Tax Amount",
       "Grand Total",
-      "Payment",
+      "Payment Mode",
       "Status",
       "Created At",
     ];
     const rows = filteredRecords.map((r) => [
       r.orderNo,
-      `"${r.orderTypeDisplay}"`,
-      `"${r.customerName}"`,
-      `"${r.assignTo}"`,
-      `"${r.itemsSummary.replace(/"/g, '""')}"`,
-      `"${r.myAmountFormatted}"`,
-      `"${r.taxAmountFormatted}"`,
-      `"${r.grandTotalFormatted}"`,
+      r.orderTypeDisplay,
+      r.customerName,
+      r.assignTo,
+      r.itemsSummary,
+      r.myAmountFormatted,
+      r.taxAmountFormatted,
+      r.grandTotalFormatted,
       r.paymentMode,
       r.status,
-      `"${r.createdAt}"`,
+      r.createdAt,
     ]);
-    const csvContent =
-      "data:text/csv;charset=utf-8," +
-      [headers.join(","), ...rows.map((e) => e.join(","))].join("\n");
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `All_Orders_Export_${new Date().toISOString().slice(0, 10)}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+
+    exportToExcel({
+      filename: `All_Restaurant_Orders_${new Date().toISOString().slice(0, 10)}`,
+      title: "All Restaurant Orders & Billing Register",
+      subtitle: `Channel: ${channelFilter.toUpperCase()} | Status: ${statusFilter.toUpperCase()} | Range: ${selectedRange}`,
+      columns: headers,
+      rows,
+    });
+    toast.success(`Exported ${rows.length} order records to Excel`);
   };
 
   const dateRanges = [

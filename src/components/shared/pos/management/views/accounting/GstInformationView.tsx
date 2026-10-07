@@ -14,6 +14,7 @@ import {
 import { toast } from "sonner";
 import { DataTableHeader, DataTableFooter, type DataTableColumn } from "@/components/common";
 import { PosDataGrid } from "@/components/ui/data-grid";
+import { exportToExcel } from "@/utils/exportUtils";
 
 interface TaxSlabRecord {
   id: string;
@@ -589,7 +590,23 @@ export function GstInformationView() {
               </div>
               <button
                 type="button"
-                onClick={() => toast.success("Exporting tax slab rates...")}
+                onClick={() => {
+                  exportToExcel(
+                    TAX_SLABS.map((s) => ({
+                      Category: s.category,
+                      "HSN / SAC": s.hsnSac,
+                      "CGST (%)": `${s.cgstRate}%`,
+                      "SGST (%)": `${s.sgstRate}%`,
+                      "Total GST (%)": `${s.totalGst}%`,
+                      "Cess (%)": `${s.cessRate}%`,
+                      Description: s.description,
+                      Status: s.status,
+                    })),
+                    `GST_Tax_Slabs_Master_${new Date().toISOString().slice(0, 10)}`,
+                    { title: "GST HSN / SAC Tax Slabs Master Configuration" }
+                  );
+                  toast.success("Exported tax slab rates to Excel");
+                }}
                 className="flex items-center gap-1 rounded-lg border border-slate-300 bg-white px-3 py-1 text-[11.5px] font-medium text-slate-700 hover:bg-slate-50 transition cursor-pointer shadow-2xs"
               >
                 <Download className="h-3 w-3 text-slate-500" />

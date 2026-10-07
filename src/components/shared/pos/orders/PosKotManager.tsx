@@ -23,6 +23,7 @@ import {
 import { useKotOrders, useMarkKotPreparedMutation } from "@/hooks/queries/usePosOrders";
 import { PosDataGrid, type DataGridColumn } from "@/components/ui/data-grid";
 import { KpiCard, StatusBadge, Button } from "@/components/ui/Primitives";
+import { exportToExcel } from "@/utils/exportUtils";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -153,23 +154,22 @@ export function PosKotManager() {
     ];
     const rows = filteredRecords.map((k: any) => [
       k.kotId,
-      `"${k.orderType}"`,
-      `"${k.tableNo || 'N/A'}"`,
-      `"${k.customerName}"`,
-      `"${k.itemsText}"`,
+      k.orderType,
+      k.tableNo || "N/A",
+      k.customerName,
+      k.itemsText,
       k.currentStatus,
-      `"${k.createdAt}"`,
+      k.createdAt,
     ]);
-    const csvContent =
-      "data:text/csv;charset=utf-8," +
-      [headers.join(","), ...rows.map((e) => e.join(","))].join("\n");
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `KOT_KDS_Ledger_${new Date().toISOString().slice(0, 10)}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+
+    exportToExcel({
+      filename: `KOT_Kitchen_Ledger_${new Date().toISOString().slice(0, 10)}`,
+      title: "Kitchen Order Tickets (KOT) & KDS Report",
+      subtitle: `Station: ${stationFilter} | Status: ${statusFilter.toUpperCase()}`,
+      columns: headers,
+      rows,
+    });
+    toast.success(`Exported ${rows.length} KOT records to Excel`);
   };
 
   // DataGrid Columns for Table View

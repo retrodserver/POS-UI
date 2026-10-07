@@ -23,6 +23,7 @@ import {
 import { useDueBills, useSettleDueBillMutation } from "@/hooks/queries/usePosOrders";
 import { type DueBill } from "@/services/posOrdersService";
 import { PosDataGrid, type PosDataGridColumn } from "@/components/ui/data-grid/PosDataGrid";
+import { exportToExcel } from "@/utils/exportUtils";
 import { toast } from "sonner";
 
 export function PosDueSettlementManager() {
@@ -249,9 +250,9 @@ export function PosDueSettlementManager() {
     const headers = [
       "Bill No",
       "Order Type",
-      "Table/Room",
-      "Customer",
-      "Phone",
+      "Table / Room",
+      "Customer Name",
+      "Customer Phone",
       "Total Amount",
       "Paid Amount",
       "Due Amount",
@@ -261,9 +262,9 @@ export function PosDueSettlementManager() {
     ];
     const rows = filteredRecords.map((r) => [
       r.billNo,
-      `"${r.orderType}"`,
-      `"${r.tableOrRoom}"`,
-      `"${r.customerName}"`,
+      r.orderType,
+      r.tableOrRoom,
+      r.customerName,
       r.customerPhone,
       r.totalAmount,
       r.paidAmount,
@@ -272,19 +273,15 @@ export function PosDueSettlementManager() {
       r.daysOverdue,
       r.status,
     ]);
-    const csvContent =
-      "data:text/csv;charset=utf-8," +
-      [headers.join(","), ...rows.map((e) => e.join(","))].join("\n");
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute(
-      "download",
-      `Due_Settlement_Ledger_${new Date().toISOString().slice(0, 10)}.csv`,
-    );
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+
+    exportToExcel({
+      filename: `Due_Settlement_Ledger_${new Date().toISOString().slice(0, 10)}`,
+      title: "Due Settlements & Guest Ledger Report",
+      subtitle: `Range: ${selectedRange} | Status: ${statusFilter.toUpperCase()}`,
+      columns: headers,
+      rows,
+    });
+    toast.success(`Exported ${rows.length} due settlement records to Excel`);
   };
 
   const dateRanges = ["Today", "Yesterday", "This Week", "This Month", "Last 90 Days"];
