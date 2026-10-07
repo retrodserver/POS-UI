@@ -1,10 +1,13 @@
-import * as XLSX from "xlsx";
 import { toast } from "sonner";
 
 /**
- * Clean and robust Excel Export Engine for Retrod POS
- * Uses SheetJS to generate genuine .xlsx files with generous auto-calculated
- * column widths, title & metadata banners, and properly aligned numbers/currency.
+ * Universal Excel Export Engine for Retrod POS
+ * Generates beautifully styled spreadsheets with:
+ * - Luxury Teal (#0F766E) colored headings with bold white typography
+ * - Generous column widths (min 140pt - 220pt) preventing all '####' cutoff
+ * - Title and period metadata banner
+ * - Proper alignments (Currency right-aligned, Dates centered, Text left-aligned)
+ * - Soft alternating zebra striping and clean gridlines
  */
 
 export interface ExportToExcelOptions {
@@ -17,11 +20,6 @@ export interface ExportToExcelOptions {
   columns?: string[];
   rows?: (string | number | boolean | null | undefined)[][];
   summaryFooter?: (string | number | boolean | null | undefined)[];
-  secondarySummary?: {
-    title?: string;
-    columns: string[];
-    rows: (string | number | boolean | null | undefined)[][];
-  };
 }
 
 export interface ExportExtraOptions {
@@ -34,29 +32,32 @@ export interface ExportExtraOptions {
 }
 
 /**
- * Clean HTML tags, excess spaces, and sanitize cell values
+ * Clean HTML tags and special entities
  */
-export function cleanExportCell(val: any): string | number {
+export function cleanExportCell(val: any): string {
   if (val === null || val === undefined) return "";
-  if (typeof val === "number") return isNaN(val) ? "" : val;
   if (typeof val === "boolean") return val ? "Yes" : "No";
-
-  const str = String(val)
+  return String(val)
     .replace(/<[^>]*>?/gm, "")
     .replace(/&nbsp;/g, " ")
     .trim();
-
-  // If string is pure numeric (digits, decimals, negative) without currency symbols
-  if (/^-?\d+(\.\d+)?$/.test(str)) {
-    const num = parseFloat(str);
-    if (!isNaN(num)) return num;
-  }
-
-  return str;
 }
 
 /**
- * Check if a column represents monetary/currency data
+ * Escape HTML special chars
+ */
+function escapeHtml(val: any): string {
+  const s = cleanExportCell(val);
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+/**
+ * Check if a column represents monetary/currency values
  */
 function isCurrencyColumn(colName: string): boolean {
   const name = colName.toLowerCase();
@@ -66,11 +67,277 @@ function isCurrencyColumn(colName: string): boolean {
 }
 
 /**
- * Check if a column represents dates/time
+ * Check if a column represents date / timestamp
  */
 function isDateColumn(colName: string): boolean {
   const name = colName.toLowerCase();
   return ["date", "time", "created", "updated", "period", "expiry", "at", "timestamp"].some((kw) => name.includes(kw));
+}
+
+/**
+ * Check if a string is pure numeric
+ */
+function isNumeric(val: string): boolean {
+  if (!val) return false;
+  const cleaned = val.replace(/^[₹$€£\s,]+/, "").replace(/,/g, "").trim();
+  return cleaned !== "" && !isNaN(Number(cleaned));
+}
+
+/**
+ * Build rich HTML-Excel spreadsheet with colored headings and generous column spacing
+ */
+function buildHtmlSpreadsheet(options: ExportToExcelOptions): string {
+  const columns = options.columns && options.columns.length > 0 ? options.columns : ["Data"];
+  const rows = options.rows || [];
+  const sheetName = options.sheetName || "POS Report";
+  const title = options.title || options.filename || "Report Export";
+  const propertyName = options.propertyName || "RETROD LUXURY POS";
+  const summaryFooter = options.summaryFooter;
+  const colCount = Math.max(columns.length, 1);
+
+  // 1. Calculate Generous Column Widths (in points)
+  const colWidths: number[] = columns.map((colName) => {
+    let maxCharLen = colName.length;
+    for (let r = 0; r < rows.length; r++) {
+      const val = cleanExportCell(rows[r]?.[columns.indexOf(colName)]);
+      if (val.length > maxCharLen) maxCharLen = val.length;
+    }
+
+    let minWidth = 120;
+    if (isCurrencyColumn(colName)) {
+      minWidth = 145; // Ample width for large rupee values (e.g. ₹ 1,50,000.00)
+    } else if (isDateColumn(colName)) {
+      minWidth = 140; // Ample width for full date & time (e.g. 2026-09-02 14:30)
+    } else if (
+      colName.toLowerCase().includes("outlet") ||
+      colName.toLowerCase().includes("item") ||
+      colName.toLowerCase().includes("name") ||
+      colName.toLowerCase().includes("customer") ||
+      colName.toLowerCase().includes("description")
+    ) {
+      minWidth = 220; // Ample width for outlet names and dish titles
+    }
+
+    return Math.max(minWidth, Math.round(maxCharLen * 8.5 + 35));
+  });
+
+  const metaText = [
+    propertyName ? `Hotel: ${propertyName}` : "",
+    options.dateRange ? `Period: ${options.dateRange}` : "",
+    options.subtitle || "",
+    `Generated: ${new Date().toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    })}`,
+    `Total Records: ${rows.length}`,
+  ]
+    .filter(Boolean)
+    .join(" | ");
+
+  let html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<!--[if gte mso 9]>
+<xml>
+ <x:ExcelWorkbook>
+  <x:ExcelWorksheets>
+   <x:ExcelWorksheet>
+    <x:Name>${escapeHtml(sheetName.substring(0, 31))}</x:Name>
+    <x:WorksheetOptions>
+     <x:DisplayGridlines/>
+     <x:Print>
+      <x:ValidPrinterInfo/>
+     </x:Print>
+    </x:WorksheetOptions>
+   </x:ExcelWorksheet>
+  </x:ExcelWorksheets>
+ </x:ExcelWorkbook>
+</xml>
+<![endif]-->
+<style>
+  body {
+    font-family: Calibri, 'Segoe UI', Arial, sans-serif;
+    color: #1E293B;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    mso-displayed-decimal-separator: ".";
+    mso-displayed-thousand-separator: ",";
+  }
+  .title-row {
+    background-color: #0F766E;
+    color: #FFFFFF;
+    font-size: 14pt;
+    font-weight: bold;
+    text-align: center;
+    height: 38pt;
+    vertical-align: middle;
+    border: 1px solid #0D9488;
+    letter-spacing: 0.5px;
+  }
+  .meta-row {
+    background-color: #F0FDFA;
+    color: #0F766E;
+    font-size: 10pt;
+    font-weight: bold;
+    font-style: italic;
+    text-align: center;
+    height: 24pt;
+    vertical-align: middle;
+    border: 1px solid #CBD5E1;
+  }
+  th.col-header {
+    background-color: #0F766E;
+    color: #FFFFFF;
+    font-size: 11pt;
+    font-weight: bold;
+    text-align: center;
+    height: 30pt;
+    vertical-align: middle;
+    border: 1px solid #0D9488;
+    padding: 6px 12px;
+    white-space: normal;
+  }
+  td.cell-text {
+    border: 1px solid #CBD5E1;
+    font-size: 10.5pt;
+    padding: 6px 10px;
+    vertical-align: middle;
+    text-align: left;
+    mso-number-format: '\\@';
+  }
+  td.cell-date {
+    border: 1px solid #CBD5E1;
+    font-size: 10.5pt;
+    padding: 6px 10px;
+    vertical-align: middle;
+    text-align: center;
+    mso-number-format: '\\@';
+  }
+  td.cell-num {
+    border: 1px solid #CBD5E1;
+    font-size: 10.5pt;
+    padding: 6px 10px;
+    vertical-align: middle;
+    text-align: right;
+    mso-number-format: '#,##0';
+  }
+  td.cell-curr {
+    border: 1px solid #CBD5E1;
+    font-size: 10.5pt;
+    font-weight: bold;
+    color: #0F766E;
+    padding: 6px 10px;
+    vertical-align: middle;
+    text-align: right;
+    mso-number-format: '₹\\ #,##0.00';
+  }
+  .row-alt {
+    background-color: #F8FAFC;
+  }
+  .summary-row td {
+    background-color: #CCFBF1;
+    color: #0F766E;
+    font-size: 11pt;
+    font-weight: bold;
+    border: 2px solid #0F766E;
+    padding: 8px 10px;
+    vertical-align: middle;
+  }
+</style>
+</head>
+<body>
+<table>
+  <!-- Defined Generous Column Widths -->
+  <colgroup>
+`;
+
+  colWidths.forEach((w) => {
+    html += `    <col style="width: ${w}pt; min-width: ${w}pt;" width="${w}">\n`;
+  });
+
+  html += `  </colgroup>
+  <tbody>
+    <!-- Row 1: Merged Title Banner -->
+    <tr>
+      <td colspan="${colCount}" class="title-row">${escapeHtml(title.toUpperCase())}</td>
+    </tr>
+    <!-- Row 2: Metadata Subtitle -->
+    <tr>
+      <td colspan="${colCount}" class="meta-row">${escapeHtml(metaText)}</td>
+    </tr>
+    <!-- Row 3: Blank Spacer -->
+    <tr style="height: 10pt;">
+      <td colspan="${colCount}" style="border: none; height: 10pt;"></td>
+    </tr>
+    <!-- Row 4: Teal Column Headers -->
+    <tr>
+`;
+
+  columns.forEach((c) => {
+    html += `      <th class="col-header">${escapeHtml(c)}</th>\n`;
+  });
+
+  html += `    </tr>\n`;
+
+  // Row 5+: Data Rows
+  rows.forEach((row, rIdx) => {
+    const isAlt = rIdx % 2 === 1;
+    const rowClass = isAlt ? ' class="row-alt"' : "";
+    html += `    <tr${rowClass}>\n`;
+
+    columns.forEach((c, cIdx) => {
+      const rawVal = row[cIdx];
+      const val = cleanExportCell(rawVal);
+      const isCurr = isCurrencyColumn(c);
+      const isDate = isDateColumn(c);
+      const isNum = isNumeric(val);
+
+      if (isCurr && isNum) {
+        const numVal = parseFloat(val.replace(/^[₹$€£\s,]+/, "").replace(/,/g, ""));
+        html += `      <td class="cell-curr" style="mso-number-format: '₹\\ #,##0.00';">${isNaN(numVal) ? escapeHtml(val) : numVal.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>\n`;
+      } else if (isDate) {
+        html += `      <td class="cell-date">${escapeHtml(val)}</td>\n`;
+      } else if (isNum && !c.toLowerCase().includes("phone") && !c.toLowerCase().includes("id") && !c.toLowerCase().includes("token") && !c.toLowerCase().includes("code")) {
+        const numVal = parseFloat(val.replace(/,/g, ""));
+        html += `      <td class="cell-num">${isNaN(numVal) ? escapeHtml(val) : numVal.toLocaleString("en-IN")}</td>\n`;
+      } else {
+        html += `      <td class="cell-text">${escapeHtml(val)}</td>\n`;
+      }
+    });
+
+    html += `    </tr>\n`;
+  });
+
+  // Summary Footer (if present)
+  if (summaryFooter && summaryFooter.length > 0) {
+    html += `    <tr class="summary-row">\n`;
+    columns.forEach((c, cIdx) => {
+      const fVal = cleanExportCell(summaryFooter[cIdx]);
+      const isNum = isNumeric(fVal);
+      if (isNum && isCurrencyColumn(c)) {
+        const numVal = parseFloat(fVal.replace(/^[₹$€£\s,]+/, "").replace(/,/g, ""));
+        html += `      <td style="text-align: right; mso-number-format: '₹\\ #,##0.00';">${isNaN(numVal) ? escapeHtml(fVal) : numVal.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>\n`;
+      } else if (isNum) {
+        const numVal = parseFloat(fVal.replace(/,/g, ""));
+        html += `      <td style="text-align: right;">${isNaN(numVal) ? escapeHtml(fVal) : numVal.toLocaleString("en-IN")}</td>\n`;
+      } else {
+        html += `      <td style="text-align: left;">${escapeHtml(fVal)}</td>\n`;
+      }
+    });
+    html += `    </tr>\n`;
+  }
+
+  html += `  </tbody>
+</table>
+</body>
+</html>`;
+
+  return html;
 }
 
 /**
@@ -156,122 +423,15 @@ export function exportToExcel(
     }
 
     const filename = (opts.filename || "POS_Export").replace(/\.(csv|xlsx|xls)$/i, "");
-    const columns = opts.columns && opts.columns.length > 0 ? opts.columns : ["Data"];
-    const rows = opts.rows || [];
-
-    const aoa: (string | number)[][] = [];
-
-    // 1. Hotel / Brand Header
-    if (opts.propertyName) {
-      aoa.push([cleanExportCell(opts.propertyName)]);
-    }
-
-    // 2. Title Header
-    const titleText = opts.title || filename.replace(/[_]/g, " ").toUpperCase();
-    aoa.push([cleanExportCell(titleText.toUpperCase())]);
-
-    // 3. Metadata Bar (Date range, filters, generated timestamp)
-    const metaParts: string[] = [];
-    if (opts.dateRange) metaParts.push(`Period: ${opts.dateRange}`);
-    if (opts.subtitle) metaParts.push(opts.subtitle);
-    metaParts.push(
-      `Generated: ${new Date().toLocaleDateString("en-GB", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      })}`
-    );
-    aoa.push([metaParts.join(" | ")]);
-
-    // 4. Spacer row
-    aoa.push([]);
-
-    // 5. Column Headers
-    const headerRowIndex = aoa.length;
-    const cleanHeaders = columns.map((c) => String(cleanExportCell(c)));
-    aoa.push(cleanHeaders);
-
-    // 6. Data Rows
-    for (const row of rows) {
-      aoa.push(row.map(cleanExportCell));
-    }
-
-    // 7. Summary Footer (Totals)
-    if (opts.summaryFooter && opts.summaryFooter.length > 0) {
-      aoa.push(opts.summaryFooter.map(cleanExportCell));
-    }
-
-    // 8. Secondary Summary (if present)
-    if (opts.secondarySummary && opts.secondarySummary.columns.length > 0) {
-      aoa.push([]); // spacer row
-      if (opts.secondarySummary.title) {
-        aoa.push([cleanExportCell(opts.secondarySummary.title)]);
-      }
-      aoa.push(opts.secondarySummary.columns.map((c) => String(cleanExportCell(c))));
-      for (const sRow of opts.secondarySummary.rows) {
-        aoa.push(sRow.map(cleanExportCell));
-      }
-    }
-
-    // Create Worksheet from Array of Arrays
-    const ws = XLSX.utils.aoa_to_sheet(aoa);
-
-    // Calculate Generous Column Widths (wch) to prevent any '####' cutoff
-    const maxCols = Math.max(cleanHeaders.length, ...aoa.map((r) => r.length));
-    const colWidths: { wch: number }[] = [];
-
-    for (let c = 0; c < maxCols; c++) {
-      const colName = cleanHeaders[c] || `Col_${c}`;
-      let maxCharLen = colName.length;
-
-      for (let rIdx = headerRowIndex; rIdx < aoa.length; rIdx++) {
-        const cellVal = aoa[rIdx][c];
-        if (cellVal !== undefined && cellVal !== null) {
-          const len = String(cellVal).length;
-          if (len > maxCharLen) {
-            maxCharLen = len;
-          }
-        }
-      }
-
-      // Minimum safe width based on column nature
-      let minWch = 14;
-      if (isCurrencyColumn(colName)) {
-        minWch = 18; // Ample width for large rupee values (e.g. ₹ 1,50,000.00)
-      } else if (isDateColumn(colName)) {
-        minWch = 20; // Ample width for full date & time (e.g. 2026-09-02 14:30)
-      } else if (
-        colName.toLowerCase().includes("outlet") ||
-        colName.toLowerCase().includes("item") ||
-        colName.toLowerCase().includes("name") ||
-        colName.toLowerCase().includes("customer") ||
-        colName.toLowerCase().includes("description")
-      ) {
-        minWch = 26; // Ample width for outlet names and dish titles
-      }
-
-      const calculatedWidth = Math.max(minWch, maxCharLen + 5);
-      colWidths.push({ wch: calculatedWidth });
-    }
-
-    ws["!cols"] = colWidths;
-
-    // Create Workbook and save as native .xlsx
-    const wb = XLSX.utils.book_new();
-    const validSheetName = (opts.sheetName || "POS Data").replace(/[/\\?*:[\]]/g, "_").substring(0, 31);
-    XLSX.utils.book_append_sheet(wb, ws, validSheetName);
-
     const sanitizedFilename = filename.replace(/[/\\?%*:|"<>]/g, "_");
-    const finalFilename = sanitizedFilename.toLowerCase().endsWith(".xlsx")
-      ? sanitizedFilename
-      : `${sanitizedFilename}.xlsx`;
+    const finalFilename = `${sanitizedFilename}.xls`;
 
-    // Generate binary XLSX buffer and trigger client-side download
-    const wbout = XLSX.write(wb, { bookType: "xlsx", type: "array" });
-    const blob = new Blob([wbout], {
-      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8",
+    // Generate rich HTML-Excel spreadsheet
+    const htmlContent = buildHtmlSpreadsheet(opts);
+
+    // Create Blob with UTF-8 BOM so Excel opens with proper unicode/special characters (₹, symbols, etc.)
+    const blob = new Blob(["\uFEFF" + htmlContent], {
+      type: "application/vnd.ms-excel;charset=utf-8;",
     });
 
     if (typeof window !== "undefined") {
@@ -286,7 +446,8 @@ export function exportToExcel(
       setTimeout(() => window.URL.revokeObjectURL(url), 1000);
     }
 
-    toast.success(`Exported ${rows.length} rows to ${finalFilename}`);
+    const rowCount = opts.rows ? opts.rows.length : 0;
+    toast.success(`Exported ${rowCount} rows to ${finalFilename}`);
   } catch (error) {
     console.error("Failed to export Excel file:", error);
     toast.error("Failed to export Excel spreadsheet. Please try again.");

@@ -468,6 +468,7 @@ export function MainOtherReportsView() {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [visibleColumns, setVisibleColumns] = useState<Record<string, boolean>>({});
   const [sortConfig, setSortConfig] = useState<{ colId: string; direction: "asc" | "desc" } | null>(null);
+  const [selectedOutlet, setSelectedOutlet] = useState<string>("ALL");
 
   const favoriteCount = useMemo(() => {
     return reportList.filter((r) => r.isFavorite).length;
@@ -554,6 +555,14 @@ export function MainOtherReportsView() {
       });
     }
 
+    // Outlet filtering
+    if (selectedOutlet !== "ALL") {
+      rows = rows.filter((r) => {
+        const out = r.outlet || r.outletName || r.outlet_name || "";
+        return !out || out.toLowerCase().includes(selectedOutlet.toLowerCase()) || selectedOutlet.toLowerCase().includes(out.toLowerCase());
+      });
+    }
+
     // Search filtering
     if (reportSearch.trim()) {
       const q = reportSearch.toLowerCase();
@@ -581,7 +590,7 @@ export function MainOtherReportsView() {
     }
 
     return rows;
-  }, [currentReportConfig, fromDate, toDate, reportSearch, sortConfig]);
+  }, [currentReportConfig, fromDate, toDate, selectedOutlet, reportSearch, sortConfig]);
 
   const paginatedReportData = useMemo(() => {
     const start = (page - 1) * pageSize;
@@ -755,6 +764,23 @@ export function MainOtherReportsView() {
                   onChange={(e) => setToDate(e.target.value)}
                   className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-[12.5px] font-medium text-slate-800 shadow-2xs focus:border-teal-500 focus:outline-none cursor-pointer"
                 />
+              </div>
+
+              {/* Outlet Filter Dropdown */}
+              <div className="space-y-1">
+                <label className="text-[11.5px] font-semibold text-slate-600">Outlet</label>
+                <select
+                  value={selectedOutlet}
+                  onChange={(e) => {
+                    setSelectedOutlet(e.target.value);
+                    setPage(1);
+                  }}
+                  className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-[12.5px] font-medium text-slate-800 shadow-2xs focus:border-teal-500 focus:outline-none cursor-pointer"
+                >
+                  <option value="ALL">All Outlets</option>
+                  <option value="HIGHWAY INN BAR & RESTAURANT">Highway Inn Bar &amp; Restaurant</option>
+                  <option value="HIGHWAY INN BANQUET">Highway Inn Banquet</option>
+                </select>
               </div>
 
               {/* Quick Presets */}
