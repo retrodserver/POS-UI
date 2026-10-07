@@ -2054,7 +2054,7 @@ export function DataTableToolbar<T = any>({
 export function exportTableToExcel(arg1: any, arg2?: any, arg3?: any) {
   let filename = "Export";
   let rowsData: Record<string, any>[] = [];
-  let customCols: DataTableColumn<any>[] | string[] | undefined = undefined;
+  let customCols: DataTableColumn<any>[] | any[] | undefined = undefined;
 
   if (Array.isArray(arg1)) {
     // Signature: exportTableToExcel(data, filename)
@@ -2074,26 +2074,39 @@ export function exportTableToExcel(arg1: any, arg2?: any, arg3?: any) {
     }
   }
 
-  if (!rowsData || rowsData.length === 0) return;
-
   const todayStr = new Date().toISOString().split("T")[0];
   const title = filename.replace(/[_]/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
 
-  // Check if we have DataTableColumn definitions with custom formatters / accessors
-  if (customCols && Array.isArray(customCols) && customCols.length > 0 && typeof customCols[0] === "object" && ("getValue" in customCols[0] || "id" in customCols[0] || "label" in customCols[0])) {
-    const colDefs = customCols as DataTableColumn<any>[];
-    const validCols = colDefs.filter((c) => (c.id || (c as any).key) !== "actions");
-    const columns = validCols.map((c) => String(c.label || c.id || "Column"));
-    const rows = rowsData.map((row) =>
-      validCols.map((c) => {
-        if (c.getValue) {
-          const v = c.getValue(row);
-          return v !== undefined && v !== null ? v : "";
-        }
-        const k = (c.id || (c as any).key || "") as string;
-        return row[k] !== undefined && row[k] !== null ? row[k] : "";
-      })
-    );
+  // Check if we have DataTableColumn / DataGridColumn definitions
+  if (customCols && Array.isArray(customCols) && customCols.length > 0 && typeof customCols[0] === "object") {
+    const colDefs = customCols;
+    const validCols = colDefs.filter((c: any) => {
+      const colId = (c.id || c.key || c.accessorKey || "") as string;
+      return colId !== "actions" && colId !== "select" && colId !== "checkbox";
+    });
+
+    const columns = validCols.map((c: any) => {
+      if (typeof c.header === "string") return c.header;
+      if (typeof c.label === "string") return c.label;
+      if (c.header?.props?.children && typeof c.header.props.children === "string") return c.header.props.children;
+      return String(c.id || c.key || c.accessorKey || "Column");
+    });
+
+    const rows = rowsData.length > 0
+      ? rowsData.map((row) =>
+          validCols.map((c: any) => {
+            if (c.getValue) {
+              const v = c.getValue(row);
+              return v !== undefined && v !== null ? v : "";
+            }
+            if (c.accessorKey && row[c.accessorKey] !== undefined) {
+              return row[c.accessorKey];
+            }
+            const k = (c.id || c.key || "") as string;
+            return row[k] !== undefined && row[k] !== null ? row[k] : "";
+          })
+        )
+      : [columns.map(() => "No records to export")];
 
     exportToExcel({
       filename: `${filename}_${todayStr}`,
@@ -2104,7 +2117,10 @@ export function exportTableToExcel(arg1: any, arg2?: any, arg3?: any) {
     });
   } else if (customCols && Array.isArray(customCols) && typeof customCols[0] === "string") {
     const strCols = customCols as string[];
-    const rows = rowsData.map((row) => strCols.map((col) => row[col] ?? ""));
+    const rows = rowsData.length > 0
+      ? rowsData.map((row) => strCols.map((col) => row[col] ?? ""))
+      : [strCols.map(() => "No records to export")];
+
     exportToExcel({
       filename: `${filename}_${todayStr}`,
       sheetName: title.substring(0, 31),
@@ -2112,10 +2128,18 @@ export function exportTableToExcel(arg1: any, arg2?: any, arg3?: any) {
       columns: strCols,
       rows,
     });
-  } else {
+  } else if (rowsData && rowsData.length > 0) {
     exportToExcel(rowsData, `${filename}_${todayStr}`, {
       sheetName: title.substring(0, 31),
       title: `${title} — ${todayStr}`,
+    });
+  } else {
+    exportToExcel({
+      filename: `${filename}_${todayStr}`,
+      sheetName: title.substring(0, 31),
+      title: `${title} — ${todayStr}`,
+      columns: ["Data"],
+      rows: [["No records to export"]],
     });
   }
 }
