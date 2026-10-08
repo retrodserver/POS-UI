@@ -1,14 +1,18 @@
 import { useState, useMemo } from "react";
-import { Plus, RefreshCw, Eye, Edit2, Copy, Trash2, CheckCircle2, Download } from "lucide-react";
+import { Plus, RefreshCw, Eye, Edit2, Copy, Trash2, CheckCircle2, Download, X } from "lucide-react";
 import { toast } from "sonner";
 import { PosDataGrid, type PosDataGridColumn } from "@/components/ui/data-grid";
+import { AddBillerUserModal, type StaffUserFormData } from "./AddBillerUserModal";
 
-interface StaffUser {
+export interface StaffUser {
   id: string;
   name: string;
   username: string;
   userCode: string;
   status: boolean;
+  phone?: string;
+  email?: string;
+  billerGroup?: string;
 }
 
 export function BillerAppManagementView() {
@@ -21,39 +25,44 @@ export function BillerAppManagementView() {
   const [pageSize, setPageSize] = useState(10);
   const [sortConfig, setSortConfig] = useState<{ colId: string; direction: "asc" | "desc" } | null>(null);
 
+  // Modal states
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState<StaffUser | null>(null);
+  const [viewingUser, setViewingUser] = useState<StaffUser | null>(null);
+
   // 1. Biller Users (Screenshot 1)
   const [billerUsers, setBillerUsers] = useState<StaffUser[]>([
-    { id: "b-1", name: "Kailash", username: "kailash", userCode: "-", status: true },
-    { id: "b-2", name: "biller", username: "biller", userCode: "-", status: true },
+    { id: "b-1", name: "Kailash", username: "kailash", userCode: "-", phone: "9876543210", billerGroup: "Main Counter Cashiers", status: true },
+    { id: "b-2", name: "biller", username: "biller", userCode: "-", phone: "9876543211", billerGroup: "Main Counter Cashiers", status: true },
   ]);
 
   // 2. Captain Users (Screenshot 2)
   const [captainUsers, setCaptainUsers] = useState<StaffUser[]>([
-    { id: "c-1", name: "sanjiv", username: "sanjiv1", userCode: "9892", status: true },
-    { id: "c-2", name: "RAMESH", username: "RAMESH", userCode: "2536", status: true },
-    { id: "c-3", name: "SURYA", username: "SURYA", userCode: "1111", status: true },
-    { id: "c-4", name: "PAPI", username: "PAPI", userCode: "1536", status: true },
-    { id: "c-5", name: "papu", username: "papu", userCode: "1122", status: true },
-    { id: "c-6", name: "PUJA", username: "SONI", userCode: "2255", status: true },
-    { id: "c-7", name: "SOUMYA", username: "SOUMYA", userCode: "5588", status: true },
-    { id: "c-8", name: "SUJIT", username: "SUJIT", userCode: "5242", status: false },
+    { id: "c-1", name: "sanjiv", username: "sanjiv1", userCode: "9892", phone: "9892001122", billerGroup: "Floor Captains", status: true },
+    { id: "c-2", name: "RAMESH", username: "RAMESH", userCode: "2536", phone: "9892001123", billerGroup: "Floor Captains", status: true },
+    { id: "c-3", name: "SURYA", username: "SURYA", userCode: "1111", phone: "9892001124", billerGroup: "Floor Captains", status: true },
+    { id: "c-4", name: "PAPI", username: "PAPI", userCode: "1536", phone: "9892001125", billerGroup: "Floor Captains", status: true },
+    { id: "c-5", name: "papu", username: "papu", userCode: "1122", phone: "9892001126", billerGroup: "Floor Captains", status: true },
+    { id: "c-6", name: "PUJA", username: "SONI", userCode: "2255", phone: "9892001127", billerGroup: "Floor Captains", status: true },
+    { id: "c-7", name: "SOUMYA", username: "SOUMYA", userCode: "5588", phone: "9892001128", billerGroup: "Floor Captains", status: true },
+    { id: "c-8", name: "SUJIT", username: "SUJIT", userCode: "5242", phone: "9892001129", billerGroup: "Floor Captains", status: false },
   ]);
 
   // 3. Delivery Boy Users
   const [deliveryUsers, setDeliveryUsers] = useState<StaffUser[]>([
-    { id: "d-1", name: "Raju", username: "raju_delivery", userCode: "4011", status: true },
-    { id: "d-2", name: "Mohan", username: "mohan_del", userCode: "4022", status: true },
+    { id: "d-1", name: "Raju", username: "raju_delivery", userCode: "4011", phone: "9811002233", billerGroup: "Delivery Team", status: true },
+    { id: "d-2", name: "Mohan", username: "mohan_del", userCode: "4022", phone: "9811002234", billerGroup: "Delivery Team", status: true },
   ]);
 
   // 4. Waiter Users
   const [waiterUsers, setWaiterUsers] = useState<StaffUser[]>([
-    { id: "w-1", name: "Sunil", username: "sunil_waiter", userCode: "3001", status: true },
-    { id: "w-2", name: "Amit", username: "amit_steward", userCode: "3002", status: true },
+    { id: "w-1", name: "Sunil", username: "sunil_waiter", userCode: "3001", phone: "9822003344", billerGroup: "Service Stewards", status: true },
+    { id: "w-2", name: "Amit", username: "amit_steward", userCode: "3002", phone: "9822003345", billerGroup: "Service Stewards", status: true },
   ]);
 
   // 5. Order Acceptance App (Screenshot 3)
   const [orderAcceptanceUsers, setOrderAcceptanceUsers] = useState<StaffUser[]>([
-    { id: "oa-1", name: "orderapp", username: "orderapp", userCode: "-", status: true },
+    { id: "oa-1", name: "orderapp", username: "orderapp", userCode: "-", phone: "9833004455", billerGroup: "Order Acceptance Dispatchers", status: true },
   ]);
 
   const tabs = [
@@ -85,6 +94,108 @@ export function BillerAppManagementView() {
           : activeTab === "waiter"
             ? "Waiter"
             : "Order Acceptance App";
+
+  const existingUsernames = useMemo(
+    () => currentList.map((u) => u.username),
+    [currentList],
+  );
+
+  const toggleStatus = (id: string) => {
+    const updater = (list: StaffUser[]) =>
+      list.map((u) => (u.id === id ? { ...u, status: !u.status } : u));
+
+    if (activeTab === "biller") setBillerUsers(updater);
+    else if (activeTab === "captain") setCaptainUsers(updater);
+    else if (activeTab === "delivery_boy") setDeliveryUsers(updater);
+    else if (activeTab === "waiter") setWaiterUsers(updater);
+    else setOrderAcceptanceUsers(updater);
+
+    toast.success("User access status updated");
+  };
+
+  const handleDeleteUser = (id: string, name: string) => {
+    const updater = (list: StaffUser[]) => list.filter((u) => u.id !== id);
+    if (activeTab === "biller") setBillerUsers(updater);
+    else if (activeTab === "captain") setCaptainUsers(updater);
+    else if (activeTab === "delivery_boy") setDeliveryUsers(updater);
+    else if (activeTab === "waiter") setWaiterUsers(updater);
+    else setOrderAcceptanceUsers(updater);
+
+    toast.success(`User "${name}" removed from ${titleText} list`);
+  };
+
+  const handleCopyUser = (user: StaffUser) => {
+    const info = `Role: ${titleText}\nName: ${user.name}\nUsername: ${user.username}\nCode: ${user.userCode}\nMobile: ${user.phone || "-"}\nStatus: ${user.status ? "Active" : "Inactive"}`;
+    if (navigator?.clipboard?.writeText) {
+      navigator.clipboard.writeText(info);
+    }
+    toast.success(`Copied login credentials for ${user.name}`);
+  };
+
+  const handleSaveUser = (userData: StaffUserFormData) => {
+    if (userData.id) {
+      // Edit existing user
+      const updater = (list: StaffUser[]) =>
+        list.map((u) =>
+          u.id === userData.id
+            ? {
+                ...u,
+                name: userData.name,
+                username: userData.username,
+                userCode: userData.userCode,
+                status: userData.status,
+                phone: userData.phone,
+                email: userData.email,
+                billerGroup: userData.billerGroup,
+              }
+            : u,
+        );
+
+      if (activeTab === "biller") setBillerUsers(updater);
+      else if (activeTab === "captain") setCaptainUsers(updater);
+      else if (activeTab === "delivery_boy") setDeliveryUsers(updater);
+      else if (activeTab === "waiter") setWaiterUsers(updater);
+      else setOrderAcceptanceUsers(updater);
+
+      toast.success(`${titleText} "${userData.name}" updated successfully`);
+    } else {
+      // Add new user
+      const prefix =
+        activeTab === "biller"
+          ? "b"
+          : activeTab === "captain"
+            ? "c"
+            : activeTab === "delivery_boy"
+              ? "d"
+              : activeTab === "waiter"
+                ? "w"
+                : "oa";
+
+      const newUser: StaffUser = {
+        id: `${prefix}-${Date.now()}`,
+        name: userData.name,
+        username: userData.username,
+        userCode: userData.userCode,
+        status: userData.status,
+        phone: userData.phone,
+        email: userData.email,
+        billerGroup: userData.billerGroup,
+      };
+
+      const updater = (list: StaffUser[]) => [newUser, ...list];
+
+      if (activeTab === "biller") setBillerUsers(updater);
+      else if (activeTab === "captain") setCaptainUsers(updater);
+      else if (activeTab === "delivery_boy") setDeliveryUsers(updater);
+      else if (activeTab === "waiter") setWaiterUsers(updater);
+      else setOrderAcceptanceUsers(updater);
+
+      toast.success(`New ${titleText} "${newUser.name}" added successfully`);
+    }
+
+    setIsAddModalOpen(false);
+    setEditingUser(null);
+  };
 
   const columns: PosDataGridColumn<StaffUser>[] = useMemo(
     () => [
@@ -130,6 +241,7 @@ export function BillerAppManagementView() {
             className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
               row.status ? "bg-teal-600" : "bg-slate-300"
             }`}
+            title={`Click to ${row.status ? "deactivate" : "activate"}`}
           >
             <span
               className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
@@ -150,23 +262,26 @@ export function BillerAppManagementView() {
           <div className="flex items-center justify-end gap-1">
             <button
               type="button"
-              onClick={() => toast.info(`View details for ${row.name}`)}
+              onClick={() => setViewingUser(row)}
               className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-teal-600 transition cursor-pointer"
-              title="View"
+              title="View Details"
             >
               <Eye className="h-4 w-4" />
             </button>
             <button
               type="button"
-              onClick={() => toast.info(`Edit credentials for ${row.name}`)}
+              onClick={() => {
+                setEditingUser(row);
+                setIsAddModalOpen(true);
+              }}
               className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-teal-600 transition cursor-pointer"
-              title="Edit"
+              title="Edit Profile"
             >
               <Edit2 className="h-4 w-4" />
             </button>
             <button
               type="button"
-              onClick={() => toast.success(`Copied login credentials for ${row.name}`)}
+              onClick={() => handleCopyUser(row)}
               className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-teal-600 transition cursor-pointer"
               title="Copy Credentials"
             >
@@ -174,9 +289,9 @@ export function BillerAppManagementView() {
             </button>
             <button
               type="button"
-              onClick={() => toast.error(`Deleted user ${row.name}`)}
+              onClick={() => handleDeleteUser(row.id, row.name)}
               className="rounded-lg p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition cursor-pointer"
-              title="Delete"
+              title="Delete User"
             >
               <Trash2 className="h-4 w-4" />
             </button>
@@ -187,27 +302,14 @@ export function BillerAppManagementView() {
     [titleText],
   );
 
-  const toggleStatus = (id: string) => {
-    const updater = (list: StaffUser[]) =>
-      list.map((u) => (u.id === id ? { ...u, status: !u.status } : u));
-
-    if (activeTab === "biller") setBillerUsers(updater);
-    else if (activeTab === "captain") setCaptainUsers(updater);
-    else if (activeTab === "delivery_boy") setDeliveryUsers(updater);
-    else if (activeTab === "waiter") setWaiterUsers(updater);
-    else setOrderAcceptanceUsers(updater);
-
-    toast.success("User access status updated");
-  };
-
   return (
     <div className="space-y-4">
-      {/* 1. Dynamic Header matching Screenshots 1, 2, 3 */}
+      {/* 1. Dynamic Header matching Screenshots */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-[18px] font-bold text-slate-900 tracking-tight">{titleText}</h2>
 
         <div className="flex flex-wrap items-center gap-2.5">
-          {/* Order Acceptance specific badges (Screenshot 3) */}
+          {/* Order Acceptance specific badges */}
           {activeTab === "order_acceptance" && (
             <>
               <div className="flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-[12px] font-semibold text-emerald-700">
@@ -236,7 +338,10 @@ export function BillerAppManagementView() {
 
           <button
             type="button"
-            onClick={() => toast.info(`Create new ${titleText} profile`)}
+            onClick={() => {
+              setEditingUser(null);
+              setIsAddModalOpen(true);
+            }}
             className="flex items-center gap-1.5 rounded-lg bg-teal-600 px-4 py-1.5 text-[12.5px] font-semibold text-white shadow-2xs hover:bg-teal-700 transition cursor-pointer"
           >
             <Plus className="h-4 w-4" />
@@ -245,7 +350,7 @@ export function BillerAppManagementView() {
         </div>
       </div>
 
-      {/* 2. Tab Navigation Bar matching Screenshots 1, 2, 3 */}
+      {/* 2. Tab Navigation Bar */}
       <div className="border-b border-slate-200 flex flex-wrap gap-1">
         {tabs.map((tab) => (
           <button
@@ -281,6 +386,106 @@ export function BillerAppManagementView() {
         themeVariant="primary"
         itemName="users"
       />
+
+      {/* 4. Add / Edit User Form Modal with strict validations & mandatory markings */}
+      <AddBillerUserModal
+        isOpen={isAddModalOpen}
+        onClose={() => {
+          setIsAddModalOpen(false);
+          setEditingUser(null);
+        }}
+        onSave={handleSaveUser}
+        initialData={
+          editingUser
+            ? {
+                id: editingUser.id,
+                name: editingUser.name,
+                username: editingUser.username,
+                userCode: editingUser.userCode,
+                phone: editingUser.phone || "",
+                email: editingUser.email || "",
+                billerGroup: editingUser.billerGroup || "Main Counter Cashiers",
+                status: editingUser.status,
+              }
+            : null
+        }
+        roleTitle={titleText}
+        existingUsernames={existingUsernames}
+      />
+
+      {/* 5. Staff User Profile View Modal */}
+      {viewingUser && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4 animate-in fade-in duration-150"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setViewingUser(null);
+          }}
+        >
+          <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden animate-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4 bg-slate-50/80">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-teal-50 border border-teal-200 text-teal-700">
+                  <Eye className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="text-[15px] font-bold text-slate-900">{viewingUser.name}</h3>
+                  <p className="text-[12px] text-slate-500 font-mono">@{viewingUser.username}</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setViewingUser(null)}
+                className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-200 hover:text-slate-700 transition cursor-pointer"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="p-6 space-y-3.5 text-[13px]">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                <span className="text-slate-500">Role / Category</span>
+                <span className="font-semibold text-slate-900">{titleText}</span>
+              </div>
+              <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                <span className="text-slate-500">User Code (PIN)</span>
+                <span className="font-mono font-medium text-slate-800">{viewingUser.userCode || "-"}</span>
+              </div>
+              <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                <span className="text-slate-500">Mobile Number</span>
+                <span className="font-mono text-slate-800">{viewingUser.phone || "—"}</span>
+              </div>
+              <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                <span className="text-slate-500">Email Address</span>
+                <span className="text-slate-800">{viewingUser.email || "—"}</span>
+              </div>
+              <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                <span className="text-slate-500">Biller Group</span>
+                <span className="font-medium text-slate-800">{viewingUser.billerGroup || "Main Counter Cashiers"}</span>
+              </div>
+              <div className="flex items-center justify-between pt-1">
+                <span className="text-slate-500">Access Status</span>
+                <span
+                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
+                    viewingUser.status
+                      ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                      : "bg-slate-100 text-slate-600 border border-slate-200"
+                  }`}
+                >
+                  {viewingUser.status ? "Active Access" : "Inactive / Suspended"}
+                </span>
+              </div>
+            </div>
+            <div className="border-t border-slate-200 px-6 py-3 bg-slate-50 flex items-center justify-end">
+              <button
+                type="button"
+                onClick={() => setViewingUser(null)}
+                className="rounded-lg bg-teal-600 px-4 py-1.5 text-[12.5px] font-semibold text-white hover:bg-teal-700 transition cursor-pointer"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
