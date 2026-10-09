@@ -79,7 +79,7 @@ export function OutletFormView({ type }: OutletFormProps) {
               className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-[13px] text-slate-800 focus:border-teal-500 focus:outline-none"
             />
             <p className="text-[11.5px] text-slate-500">
-              You can not change the name of created outlet. Contact Petpooja support for help.
+              You can not change the name of created outlet. Contact Retrod support for help.
             </p>
           </div>
 
@@ -102,7 +102,7 @@ export function OutletFormView({ type }: OutletFormProps) {
               className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-[13px] text-slate-800 focus:border-teal-500 focus:outline-none"
             />
             <p className="text-[11.5px] text-slate-500">
-              Enter Email ID through which you will receive all communications from Petpooja.
+              Enter Email ID through which you will receive all communications from Retrod.
             </p>
           </div>
         </div>
@@ -575,7 +575,7 @@ export function OutletFormView({ type }: OutletFormProps) {
               <span className="text-rose-600 font-medium">
                 Note: You can add more than one with , separated.
               </span>{" "}
-              Provide a direct mobile number for Petpooja support to reach in case of any Point of
+              Provide a direct mobile number for Retrod support to reach in case of any Point of
               Sale related support. ( Comma separated if multiple )
             </p>
           </div>

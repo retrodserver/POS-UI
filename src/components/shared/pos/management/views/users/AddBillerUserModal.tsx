@@ -277,11 +277,10 @@ export function AddBillerUserModal({
                   value={formData.name}
                   onChange={(e) => handleNameChange(e.target.value)}
                   onBlur={() => handleBlur("name")}
-                  className={`w-full rounded-lg border bg-white px-3.5 py-2 text-[13px] text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 transition ${
-                    touched.name && currentErrors.name
-                      ? "border-rose-400 focus:border-rose-500 focus:ring-rose-200"
-                      : "border-slate-300 focus:border-teal-600 focus:ring-teal-100"
-                  }`}
+                  className={`w-full rounded-lg border bg-white px-3.5 py-2 text-[13px] text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 transition ${touched.name && currentErrors.name
+                    ? "border-rose-400 focus:border-rose-500 focus:ring-rose-200"
+                    : "border-slate-300 focus:border-teal-600 focus:ring-teal-100"
+                    }`}
                 />
               </div>
               {touched.name && currentErrors.name ? (
@@ -315,11 +314,10 @@ export function AddBillerUserModal({
                   value={formData.phone}
                   onChange={(e) => handlePhoneChange(e.target.value)}
                   onBlur={() => handleBlur("phone")}
-                  className={`w-full rounded-lg border bg-white pl-9 pr-3.5 py-2 text-[13px] font-mono text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 transition ${
-                    touched.phone && currentErrors.phone
-                      ? "border-rose-400 focus:border-rose-500 focus:ring-rose-200"
-                      : "border-slate-300 focus:border-teal-600 focus:ring-teal-100"
-                  }`}
+                  className={`w-full rounded-lg border bg-white pl-9 pr-3.5 py-2 text-[13px] font-mono text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 transition ${touched.phone && currentErrors.phone
+                    ? "border-rose-400 focus:border-rose-500 focus:ring-rose-200"
+                    : "border-slate-300 focus:border-teal-600 focus:ring-teal-100"
+                    }`}
                 />
               </div>
               {touched.phone && currentErrors.phone ? (
@@ -351,11 +349,10 @@ export function AddBillerUserModal({
                   value={formData.username}
                   onChange={(e) => handleUsernameChange(e.target.value)}
                   onBlur={() => handleBlur("username")}
-                  className={`w-full rounded-lg border bg-white pl-9 pr-3.5 py-2 text-[13px] font-mono text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 transition ${
-                    touched.username && currentErrors.username
-                      ? "border-rose-400 focus:border-rose-500 focus:ring-rose-200"
-                      : "border-slate-300 focus:border-teal-600 focus:ring-teal-100"
-                  }`}
+                  className={`w-full rounded-lg border bg-white pl-9 pr-3.5 py-2 text-[13px] font-mono text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 transition ${touched.username && currentErrors.username
+                    ? "border-rose-400 focus:border-rose-500 focus:ring-rose-200"
+                    : "border-slate-300 focus:border-teal-600 focus:ring-teal-100"
+                    }`}
                 />
               </div>
               {touched.username && currentErrors.username ? (
@@ -389,11 +386,10 @@ export function AddBillerUserModal({
                   value={formData.userCode}
                   onChange={(e) => handleUserCodeChange(e.target.value)}
                   onBlur={() => handleBlur("userCode")}
-                  className={`w-full rounded-lg border bg-white pl-9 pr-3.5 py-2 text-[13px] font-mono text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 transition ${
-                    touched.userCode && currentErrors.userCode
-                      ? "border-rose-400 focus:border-rose-500 focus:ring-rose-200"
-                      : "border-slate-300 focus:border-teal-600 focus:ring-teal-100"
-                  }`}
+                  className={`w-full rounded-lg border bg-white pl-9 pr-3.5 py-2 text-[13px] font-mono text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 transition ${touched.userCode && currentErrors.userCode
+                    ? "border-rose-400 focus:border-rose-500 focus:ring-rose-200"
+                    : "border-slate-300 focus:border-teal-600 focus:ring-teal-100"
+                    }`}
                 />
               </div>
               {touched.userCode && currentErrors.userCode ? (
@@ -428,11 +424,10 @@ export function AddBillerUserModal({
                     if (touched.email) setErrors(validate({ ...formData, email: e.target.value }));
                   }}
                   onBlur={() => handleBlur("email")}
-                  className={`w-full rounded-lg border bg-white pl-9 pr-3.5 py-2 text-[13px] text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 transition ${
-                    touched.email && currentErrors.email
-                      ? "border-rose-400 focus:border-rose-500 focus:ring-rose-200"
-                      : "border-slate-300 focus:border-teal-600 focus:ring-teal-100"
-                  }`}
+                  className={`w-full rounded-lg border bg-white pl-9 pr-3.5 py-2 text-[13px] text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 transition ${touched.email && currentErrors.email
+                    ? "border-rose-400 focus:border-rose-500 focus:ring-rose-200"
+                    : "border-slate-300 focus:border-teal-600 focus:ring-teal-100"
+                    }`}
                 />
               </div>
               {touched.email && currentErrors.email ? (
@@ -480,15 +475,13 @@ export function AddBillerUserModal({
                 <button
                   type="button"
                   onClick={() => setFormData((prev) => ({ ...prev, status: !prev.status }))}
-                  className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                    formData.status ? "bg-teal-600" : "bg-slate-300"
-                  }`}
+                  className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${formData.status ? "bg-teal-600" : "bg-slate-300"
+                    }`}
                   aria-pressed={formData.status}
                 >
                   <span
-                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                      formData.status ? "translate-x-5" : "translate-x-0"
-                    }`}
+                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${formData.status ? "translate-x-5" : "translate-x-0"
+                      }`}
                   />
                 </button>
                 <span className="text-[13px] font-medium text-slate-700">

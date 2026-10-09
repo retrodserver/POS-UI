@@ -64,8 +64,16 @@ import { Route as PosManagementUsersAdminGroupsRouteImport } from './routes/pos.
 import { Route as PosManagementOutletKitchenRouteImport } from './routes/pos.management.outlet.kitchen'
 import { Route as PosManagementOutletHoRouteImport } from './routes/pos.management.outlet.ho'
 import { Route as PosManagementMarketplaceSettingsRouteImport } from './routes/pos.management.marketplace.settings'
+import { Route as PosManagementLogsWithdrawalsRouteImport } from './routes/pos.management.logs.withdrawals'
 import { Route as PosManagementLogsSupportRouteImport } from './routes/pos.management.logs.support'
 import { Route as PosManagementLogsOnlineStoreRouteImport } from './routes/pos.management.logs.online-store'
+import { Route as PosManagementLogsOnlineItemsRouteImport } from './routes/pos.management.logs.online-items'
+import { Route as PosManagementLogsNotificationsRouteImport } from './routes/pos.management.logs.notifications'
+import { Route as PosManagementLogsMenuTriggerRouteImport } from './routes/pos.management.logs.menu-trigger'
+import { Route as PosManagementLogsExpensesRouteImport } from './routes/pos.management.logs.expenses'
+import { Route as PosManagementLogsClosingHoursRouteImport } from './routes/pos.management.logs.closing-hours'
+import { Route as PosManagementLogsCashTopupRouteImport } from './routes/pos.management.logs.cash-topup'
+import { Route as PosManagementLogsAutoAcceptRouteImport } from './routes/pos.management.logs.auto-accept'
 import { Route as PosManagementConfigurationSubOrderTypeRouteImport } from './routes/pos.management.configuration.sub-order-type'
 import { Route as PosManagementConfigurationOutletRouteImport } from './routes/pos.management.configuration.outlet'
 import { Route as PosManagementConfigurationFloorPlanRouteImport } from './routes/pos.management.configuration.floor-plan'
@@ -382,6 +390,12 @@ const PosManagementMarketplaceSettingsRoute =
     path: '/marketplace/settings',
     getParentRoute: () => PosManagementRoute,
   } as any)
+const PosManagementLogsWithdrawalsRoute =
+  PosManagementLogsWithdrawalsRouteImport.update({
+    id: '/logs/withdrawals',
+    path: '/logs/withdrawals',
+    getParentRoute: () => PosManagementRoute,
+  } as any)
 const PosManagementLogsSupportRoute =
   PosManagementLogsSupportRouteImport.update({
     id: '/logs/support',
@@ -392,6 +406,48 @@ const PosManagementLogsOnlineStoreRoute =
   PosManagementLogsOnlineStoreRouteImport.update({
     id: '/logs/online-store',
     path: '/logs/online-store',
+    getParentRoute: () => PosManagementRoute,
+  } as any)
+const PosManagementLogsOnlineItemsRoute =
+  PosManagementLogsOnlineItemsRouteImport.update({
+    id: '/logs/online-items',
+    path: '/logs/online-items',
+    getParentRoute: () => PosManagementRoute,
+  } as any)
+const PosManagementLogsNotificationsRoute =
+  PosManagementLogsNotificationsRouteImport.update({
+    id: '/logs/notifications',
+    path: '/logs/notifications',
+    getParentRoute: () => PosManagementRoute,
+  } as any)
+const PosManagementLogsMenuTriggerRoute =
+  PosManagementLogsMenuTriggerRouteImport.update({
+    id: '/logs/menu-trigger',
+    path: '/logs/menu-trigger',
+    getParentRoute: () => PosManagementRoute,
+  } as any)
+const PosManagementLogsExpensesRoute =
+  PosManagementLogsExpensesRouteImport.update({
+    id: '/logs/expenses',
+    path: '/logs/expenses',
+    getParentRoute: () => PosManagementRoute,
+  } as any)
+const PosManagementLogsClosingHoursRoute =
+  PosManagementLogsClosingHoursRouteImport.update({
+    id: '/logs/closing-hours',
+    path: '/logs/closing-hours',
+    getParentRoute: () => PosManagementRoute,
+  } as any)
+const PosManagementLogsCashTopupRoute =
+  PosManagementLogsCashTopupRouteImport.update({
+    id: '/logs/cash-topup',
+    path: '/logs/cash-topup',
+    getParentRoute: () => PosManagementRoute,
+  } as any)
+const PosManagementLogsAutoAcceptRoute =
+  PosManagementLogsAutoAcceptRouteImport.update({
+    id: '/logs/auto-accept',
+    path: '/logs/auto-accept',
     getParentRoute: () => PosManagementRoute,
   } as any)
 const PosManagementConfigurationSubOrderTypeRoute =
@@ -637,8 +693,16 @@ export interface FileRoutesByFullPath {
   '/pos/management/configuration/floor-plan': typeof PosManagementConfigurationFloorPlanRoute
   '/pos/management/configuration/outlet': typeof PosManagementConfigurationOutletRoute
   '/pos/management/configuration/sub-order-type': typeof PosManagementConfigurationSubOrderTypeRoute
+  '/pos/management/logs/auto-accept': typeof PosManagementLogsAutoAcceptRoute
+  '/pos/management/logs/cash-topup': typeof PosManagementLogsCashTopupRoute
+  '/pos/management/logs/closing-hours': typeof PosManagementLogsClosingHoursRoute
+  '/pos/management/logs/expenses': typeof PosManagementLogsExpensesRoute
+  '/pos/management/logs/menu-trigger': typeof PosManagementLogsMenuTriggerRoute
+  '/pos/management/logs/notifications': typeof PosManagementLogsNotificationsRoute
+  '/pos/management/logs/online-items': typeof PosManagementLogsOnlineItemsRoute
   '/pos/management/logs/online-store': typeof PosManagementLogsOnlineStoreRoute
   '/pos/management/logs/support': typeof PosManagementLogsSupportRoute
+  '/pos/management/logs/withdrawals': typeof PosManagementLogsWithdrawalsRoute
   '/pos/management/marketplace/settings': typeof PosManagementMarketplaceSettingsRoute
   '/pos/management/outlet/ho': typeof PosManagementOutletHoRoute
   '/pos/management/outlet/kitchen': typeof PosManagementOutletKitchenRoute
@@ -724,8 +788,16 @@ export interface FileRoutesByTo {
   '/pos/management/configuration/floor-plan': typeof PosManagementConfigurationFloorPlanRoute
   '/pos/management/configuration/outlet': typeof PosManagementConfigurationOutletRoute
   '/pos/management/configuration/sub-order-type': typeof PosManagementConfigurationSubOrderTypeRoute
+  '/pos/management/logs/auto-accept': typeof PosManagementLogsAutoAcceptRoute
+  '/pos/management/logs/cash-topup': typeof PosManagementLogsCashTopupRoute
+  '/pos/management/logs/closing-hours': typeof PosManagementLogsClosingHoursRoute
+  '/pos/management/logs/expenses': typeof PosManagementLogsExpensesRoute
+  '/pos/management/logs/menu-trigger': typeof PosManagementLogsMenuTriggerRoute
+  '/pos/management/logs/notifications': typeof PosManagementLogsNotificationsRoute
+  '/pos/management/logs/online-items': typeof PosManagementLogsOnlineItemsRoute
   '/pos/management/logs/online-store': typeof PosManagementLogsOnlineStoreRoute
   '/pos/management/logs/support': typeof PosManagementLogsSupportRoute
+  '/pos/management/logs/withdrawals': typeof PosManagementLogsWithdrawalsRoute
   '/pos/management/marketplace/settings': typeof PosManagementMarketplaceSettingsRoute
   '/pos/management/outlet/ho': typeof PosManagementOutletHoRoute
   '/pos/management/outlet/kitchen': typeof PosManagementOutletKitchenRoute
@@ -812,8 +884,16 @@ export interface FileRoutesById {
   '/pos/management/configuration/floor-plan': typeof PosManagementConfigurationFloorPlanRoute
   '/pos/management/configuration/outlet': typeof PosManagementConfigurationOutletRoute
   '/pos/management/configuration/sub-order-type': typeof PosManagementConfigurationSubOrderTypeRoute
+  '/pos/management/logs/auto-accept': typeof PosManagementLogsAutoAcceptRoute
+  '/pos/management/logs/cash-topup': typeof PosManagementLogsCashTopupRoute
+  '/pos/management/logs/closing-hours': typeof PosManagementLogsClosingHoursRoute
+  '/pos/management/logs/expenses': typeof PosManagementLogsExpensesRoute
+  '/pos/management/logs/menu-trigger': typeof PosManagementLogsMenuTriggerRoute
+  '/pos/management/logs/notifications': typeof PosManagementLogsNotificationsRoute
+  '/pos/management/logs/online-items': typeof PosManagementLogsOnlineItemsRoute
   '/pos/management/logs/online-store': typeof PosManagementLogsOnlineStoreRoute
   '/pos/management/logs/support': typeof PosManagementLogsSupportRoute
+  '/pos/management/logs/withdrawals': typeof PosManagementLogsWithdrawalsRoute
   '/pos/management/marketplace/settings': typeof PosManagementMarketplaceSettingsRoute
   '/pos/management/outlet/ho': typeof PosManagementOutletHoRoute
   '/pos/management/outlet/kitchen': typeof PosManagementOutletKitchenRoute
@@ -901,8 +981,16 @@ export interface FileRouteTypes {
     | '/pos/management/configuration/floor-plan'
     | '/pos/management/configuration/outlet'
     | '/pos/management/configuration/sub-order-type'
+    | '/pos/management/logs/auto-accept'
+    | '/pos/management/logs/cash-topup'
+    | '/pos/management/logs/closing-hours'
+    | '/pos/management/logs/expenses'
+    | '/pos/management/logs/menu-trigger'
+    | '/pos/management/logs/notifications'
+    | '/pos/management/logs/online-items'
     | '/pos/management/logs/online-store'
     | '/pos/management/logs/support'
+    | '/pos/management/logs/withdrawals'
     | '/pos/management/marketplace/settings'
     | '/pos/management/outlet/ho'
     | '/pos/management/outlet/kitchen'
@@ -988,8 +1076,16 @@ export interface FileRouteTypes {
     | '/pos/management/configuration/floor-plan'
     | '/pos/management/configuration/outlet'
     | '/pos/management/configuration/sub-order-type'
+    | '/pos/management/logs/auto-accept'
+    | '/pos/management/logs/cash-topup'
+    | '/pos/management/logs/closing-hours'
+    | '/pos/management/logs/expenses'
+    | '/pos/management/logs/menu-trigger'
+    | '/pos/management/logs/notifications'
+    | '/pos/management/logs/online-items'
     | '/pos/management/logs/online-store'
     | '/pos/management/logs/support'
+    | '/pos/management/logs/withdrawals'
     | '/pos/management/marketplace/settings'
     | '/pos/management/outlet/ho'
     | '/pos/management/outlet/kitchen'
@@ -1075,8 +1171,16 @@ export interface FileRouteTypes {
     | '/pos/management/configuration/floor-plan'
     | '/pos/management/configuration/outlet'
     | '/pos/management/configuration/sub-order-type'
+    | '/pos/management/logs/auto-accept'
+    | '/pos/management/logs/cash-topup'
+    | '/pos/management/logs/closing-hours'
+    | '/pos/management/logs/expenses'
+    | '/pos/management/logs/menu-trigger'
+    | '/pos/management/logs/notifications'
+    | '/pos/management/logs/online-items'
     | '/pos/management/logs/online-store'
     | '/pos/management/logs/support'
+    | '/pos/management/logs/withdrawals'
     | '/pos/management/marketplace/settings'
     | '/pos/management/outlet/ho'
     | '/pos/management/outlet/kitchen'
@@ -1482,6 +1586,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PosManagementMarketplaceSettingsRouteImport
       parentRoute: typeof PosManagementRoute
     }
+    '/pos/management/logs/withdrawals': {
+      id: '/pos/management/logs/withdrawals'
+      path: '/logs/withdrawals'
+      fullPath: '/pos/management/logs/withdrawals'
+      preLoaderRoute: typeof PosManagementLogsWithdrawalsRouteImport
+      parentRoute: typeof PosManagementRoute
+    }
     '/pos/management/logs/support': {
       id: '/pos/management/logs/support'
       path: '/logs/support'
@@ -1494,6 +1605,55 @@ declare module '@tanstack/react-router' {
       path: '/logs/online-store'
       fullPath: '/pos/management/logs/online-store'
       preLoaderRoute: typeof PosManagementLogsOnlineStoreRouteImport
+      parentRoute: typeof PosManagementRoute
+    }
+    '/pos/management/logs/online-items': {
+      id: '/pos/management/logs/online-items'
+      path: '/logs/online-items'
+      fullPath: '/pos/management/logs/online-items'
+      preLoaderRoute: typeof PosManagementLogsOnlineItemsRouteImport
+      parentRoute: typeof PosManagementRoute
+    }
+    '/pos/management/logs/notifications': {
+      id: '/pos/management/logs/notifications'
+      path: '/logs/notifications'
+      fullPath: '/pos/management/logs/notifications'
+      preLoaderRoute: typeof PosManagementLogsNotificationsRouteImport
+      parentRoute: typeof PosManagementRoute
+    }
+    '/pos/management/logs/menu-trigger': {
+      id: '/pos/management/logs/menu-trigger'
+      path: '/logs/menu-trigger'
+      fullPath: '/pos/management/logs/menu-trigger'
+      preLoaderRoute: typeof PosManagementLogsMenuTriggerRouteImport
+      parentRoute: typeof PosManagementRoute
+    }
+    '/pos/management/logs/expenses': {
+      id: '/pos/management/logs/expenses'
+      path: '/logs/expenses'
+      fullPath: '/pos/management/logs/expenses'
+      preLoaderRoute: typeof PosManagementLogsExpensesRouteImport
+      parentRoute: typeof PosManagementRoute
+    }
+    '/pos/management/logs/closing-hours': {
+      id: '/pos/management/logs/closing-hours'
+      path: '/logs/closing-hours'
+      fullPath: '/pos/management/logs/closing-hours'
+      preLoaderRoute: typeof PosManagementLogsClosingHoursRouteImport
+      parentRoute: typeof PosManagementRoute
+    }
+    '/pos/management/logs/cash-topup': {
+      id: '/pos/management/logs/cash-topup'
+      path: '/logs/cash-topup'
+      fullPath: '/pos/management/logs/cash-topup'
+      preLoaderRoute: typeof PosManagementLogsCashTopupRouteImport
+      parentRoute: typeof PosManagementRoute
+    }
+    '/pos/management/logs/auto-accept': {
+      id: '/pos/management/logs/auto-accept'
+      path: '/logs/auto-accept'
+      fullPath: '/pos/management/logs/auto-accept'
+      preLoaderRoute: typeof PosManagementLogsAutoAcceptRouteImport
       parentRoute: typeof PosManagementRoute
     }
     '/pos/management/configuration/sub-order-type': {
@@ -1807,8 +1967,16 @@ interface PosManagementRouteChildren {
   PosManagementConfigurationFloorPlanRoute: typeof PosManagementConfigurationFloorPlanRoute
   PosManagementConfigurationOutletRoute: typeof PosManagementConfigurationOutletRoute
   PosManagementConfigurationSubOrderTypeRoute: typeof PosManagementConfigurationSubOrderTypeRoute
+  PosManagementLogsAutoAcceptRoute: typeof PosManagementLogsAutoAcceptRoute
+  PosManagementLogsCashTopupRoute: typeof PosManagementLogsCashTopupRoute
+  PosManagementLogsClosingHoursRoute: typeof PosManagementLogsClosingHoursRoute
+  PosManagementLogsExpensesRoute: typeof PosManagementLogsExpensesRoute
+  PosManagementLogsMenuTriggerRoute: typeof PosManagementLogsMenuTriggerRoute
+  PosManagementLogsNotificationsRoute: typeof PosManagementLogsNotificationsRoute
+  PosManagementLogsOnlineItemsRoute: typeof PosManagementLogsOnlineItemsRoute
   PosManagementLogsOnlineStoreRoute: typeof PosManagementLogsOnlineStoreRoute
   PosManagementLogsSupportRoute: typeof PosManagementLogsSupportRoute
+  PosManagementLogsWithdrawalsRoute: typeof PosManagementLogsWithdrawalsRoute
   PosManagementMarketplaceSettingsRoute: typeof PosManagementMarketplaceSettingsRoute
   PosManagementOutletHoRoute: typeof PosManagementOutletHoRoute
   PosManagementOutletKitchenRoute: typeof PosManagementOutletKitchenRoute
@@ -1850,8 +2018,16 @@ const PosManagementRouteChildren: PosManagementRouteChildren = {
   PosManagementConfigurationOutletRoute: PosManagementConfigurationOutletRoute,
   PosManagementConfigurationSubOrderTypeRoute:
     PosManagementConfigurationSubOrderTypeRoute,
+  PosManagementLogsAutoAcceptRoute: PosManagementLogsAutoAcceptRoute,
+  PosManagementLogsCashTopupRoute: PosManagementLogsCashTopupRoute,
+  PosManagementLogsClosingHoursRoute: PosManagementLogsClosingHoursRoute,
+  PosManagementLogsExpensesRoute: PosManagementLogsExpensesRoute,
+  PosManagementLogsMenuTriggerRoute: PosManagementLogsMenuTriggerRoute,
+  PosManagementLogsNotificationsRoute: PosManagementLogsNotificationsRoute,
+  PosManagementLogsOnlineItemsRoute: PosManagementLogsOnlineItemsRoute,
   PosManagementLogsOnlineStoreRoute: PosManagementLogsOnlineStoreRoute,
   PosManagementLogsSupportRoute: PosManagementLogsSupportRoute,
+  PosManagementLogsWithdrawalsRoute: PosManagementLogsWithdrawalsRoute,
   PosManagementMarketplaceSettingsRoute: PosManagementMarketplaceSettingsRoute,
   PosManagementOutletHoRoute: PosManagementOutletHoRoute,
   PosManagementOutletKitchenRoute: PosManagementOutletKitchenRoute,

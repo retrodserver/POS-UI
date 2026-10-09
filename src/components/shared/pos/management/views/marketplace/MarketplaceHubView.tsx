@@ -31,7 +31,7 @@ export function MarketplaceHubView() {
     "Easy Operations",
     "CRM",
     "Customer Acquisition",
-    "Petpooja Loan",
+    "Retrod Capital",
   ];
 
   const integrationPills = [
@@ -44,13 +44,45 @@ export function MarketplaceHubView() {
     "Hardware",
   ];
 
-  const posPlanCards = [
-    { id: "p-1", name: "POS Subscription - Renewal", badge: null },
-    { id: "p-2", name: "Petpooja - Growth Plan", badge: "Growth" },
-    { id: "p-3", name: "Petpooja - Scale Plan", badge: "Scale" },
-    { id: "p-4", name: "Petpooja POS + Growth Plan", badge: "Growth" },
-    { id: "p-5", name: "Petpooja POS + Scale Plan", badge: "Scale" },
-  ];
+  const serviceCardsMap: Record<
+    string,
+    Array<{ id: string; name: string; badge?: string | null }>
+  > = {
+    "POS Plans": [
+      { id: "p-1", name: "Retrod POS - Renewal", badge: null },
+      { id: "p-2", name: "Retrod - Growth Plan", badge: "Growth" },
+      { id: "p-3", name: "Retrod - Scale Plan", badge: "Scale" },
+      { id: "p-4", name: "Retrod POS + Growth Plan", badge: "Growth" },
+      { id: "p-5", name: "Retrod POS + Scale Plan", badge: "Scale" },
+    ],
+    "Easy Operations": [
+      { id: "eo-1", name: "Retrod Captain App (Waiter)", badge: "Mobile" },
+      { id: "eo-2", name: "Retrod Kitchen Display (KDS)", badge: "Kitchen" },
+      { id: "eo-3", name: "Retrod Inventory & Recipe", badge: "Stock" },
+      { id: "eo-4", name: "Retrod Multi-Store Hub", badge: "HQ" },
+      { id: "eo-5", name: "Retrod QR Digital Menu", badge: "Dine-in" },
+    ],
+    CRM: [
+      { id: "crm-1", name: "Retrod Customer Loyalty", badge: "Rewards" },
+      { id: "crm-2", name: "Retrod WhatsApp & SMS Bot", badge: "Campaigns" },
+      { id: "crm-3", name: "Retrod Customer Feedback", badge: "Reviews" },
+      { id: "crm-4", name: "Retrod Membership Wallet", badge: "Prepaid" },
+    ],
+    "Customer Acquisition": [
+      { id: "ca-1", name: "Retrod Direct Online Store", badge: "0% Comm" },
+      { id: "ca-2", name: "Retrod Google Order Sync", badge: "Search" },
+      { id: "ca-3", name: "Retrod Social Ordering", badge: "Social" },
+      { id: "ca-4", name: "Retrod Scan & Pay Table QR", badge: "Instant" },
+    ],
+    "Retrod Capital": [
+      { id: "rc-1", name: "Retrod Growth Capital", badge: "Instant" },
+      { id: "rc-2", name: "Retrod Working Capital Loan", badge: "Low Interest" },
+      { id: "rc-3", name: "Retrod Equipment Financing", badge: "Asset" },
+      { id: "rc-4", name: "Retrod Merchant Advance", badge: "Flexi-Pay" },
+    ],
+  };
+
+  const currentServiceCards = serviceCardsMap[activeServicePill] || serviceCardsMap["POS Plans"];
 
   const onlineOrderCards = [
     { id: "o-1", name: "Zomato", color: "bg-rose-600 text-white", label: "zomato" },
@@ -60,7 +92,7 @@ export function MarketplaceHubView() {
     { id: "o-5", name: "Airmenus", color: "bg-slate-900 text-white", label: "Airmenus" },
     {
       id: "o-6",
-      name: "Petpooja Aggregation - ONDC",
+      name: "Retrod Aggregation - ONDC",
       color: "bg-slate-700 text-white",
       label: "ONDC",
     },
@@ -231,13 +263,16 @@ export function MarketplaceHubView() {
           <div>
             <h3 className="text-[17px] font-bold text-slate-900">{activeServicePill}</h3>
             <p className="text-[12.5px] text-slate-500">
-              Don&apos;t miss out on all the benefits & features of your subscription. Renew your
-              plan today!
+              {activeServicePill === "POS Plans"
+                ? "Don't miss out on all the benefits & features of your Retrod subscription. Renew or upgrade your plan today!"
+                : activeServicePill === "Retrod Capital"
+                  ? "Fast, flexible financing and working capital tailored specifically for Retrod restaurant partners."
+                  : `Supercharge your restaurant operations with Retrod's ${activeServicePill} suite.`}
             </p>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-            {posPlanCards.map((card) => (
+            {currentServiceCards.map((card) => (
               <div
                 key={card.id}
                 onClick={() => toast.info(`Viewing details for ${card.name}`)}

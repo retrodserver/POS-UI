@@ -36,7 +36,7 @@ export function OutletConfigurationHubView() {
     },
     {
       title: "Contact Details",
-      desc: "Configure contact details of your's and your staff details to reach by Petpooja team.",
+      desc: "Configure contact details of you and your staff to be reached by the Retrod team.",
       icon: PhoneCall,
       bgColor: "bg-teal-50 text-teal-700 border border-teal-200",
       to: "/pos/management/configuration/outlet",
