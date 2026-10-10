@@ -1477,7 +1477,7 @@ export function DataTableFooter({
   const getContainerStyle = () => {
     switch (themeVariant) {
       case "primary":
-        return "border-t border-primary/20 bg-primary/5 text-foreground";
+        return "border-t border-border bg-surface-2/40 text-text-primary";
       case "dark":
       case "slate":
         return "border-t border-slate-800 bg-slate-950 text-slate-200";
@@ -2200,8 +2200,8 @@ export function getTableBodyCellPinnedStyle({
     : bgClass
       ? bgClass
       : isEven
-        ? "bg-slate-50 dark:bg-surface-2 group-hover:bg-slate-100 dark:group-hover:bg-surface-3"
-        : "bg-white dark:bg-surface group-hover:bg-slate-50 dark:group-hover:bg-surface-2";
+        ? "bg-surface-2/60 group-hover:bg-surface-2"
+        : "bg-surface group-hover:bg-surface-2/40";
 
   if (pin === "left") {
     let offset = selectable ? 48 : 0;

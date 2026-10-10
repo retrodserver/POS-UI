@@ -191,7 +191,7 @@ export function MenuTriggerLogsView() {
   ];
 
   return (
-    <div className="space-y-5 max-w-7xl">
+    <div className="space-y-5 w-full">
       {/* Header */}
       <div>
         <h2 className="text-[20px] font-extrabold text-slate-900 tracking-tight flex items-center gap-2">

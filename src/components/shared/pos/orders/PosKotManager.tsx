@@ -165,7 +165,7 @@ export function PosKotManager() {
     exportToExcel({
       filename: `KOT_Kitchen_Ledger_${new Date().toISOString().slice(0, 10)}`,
       title: "Kitchen Order Tickets (KOT) & KDS Report",
-      subtitle: `Station: ${stationFilter} | Status: ${statusFilter.toUpperCase()}`,
+      subtitle: `Station: ${stationFilter} | Order Type: ${orderType}`,
       columns: headers,
       rows,
     });

@@ -393,7 +393,7 @@ export function PosAllOrdersManager() {
     exportToExcel({
       filename: `All_Restaurant_Orders_${new Date().toISOString().slice(0, 10)}`,
       title: "All Restaurant Orders & Billing Register",
-      subtitle: `Channel: ${channelFilter.toUpperCase()} | Status: ${statusFilter.toUpperCase()} | Range: ${selectedRange}`,
+      subtitle: `Type: ${appliedFilters.orderType} | Status: ${appliedFilters.status} | Range: ${selectedRange}`,
       columns: headers,
       rows,
     });

@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { Palette } from "lucide-react";
+import { useMemo, useState, useEffect } from "react";
+import { Palette, Check, RotateCcw } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -17,26 +17,34 @@ import {
   type AppTheme,
   type ThemeGroup,
 } from "@/app/theme/theme";
-import { cn } from "@/lib/cn";
+import { cn } from "@/lib/utils";
 
 const GROUP_ORDER: ThemeGroup[] = ["core", "professional", "signature", "accessibility"];
 
-type ThemePreferenceProps = {
-  /** Render as header icon button (default) or floating FAB. */
-  variant?: "header" | "fab";
-};
+interface ThemePreferenceProps {
+  /** Render as header icon button, floating FAB, or full inline view in Settings. */
+  variant?: "header" | "fab" | "inline";
+}
 
 export function ThemePreference({ variant = "header" }: ThemePreferenceProps) {
   const [open, setOpen] = useState(false);
   const [theme, setTheme] = useState<AppTheme>(() => readSavedTheme());
 
-  const grouped = useMemo(() => {
-    return GROUP_ORDER.map((group) => ({
-      group,
-      label: APP_THEME_GROUP_LABELS[group],
-      themes: APP_THEMES.filter((t) => t.group === group),
-    })).filter((g) => g.themes.length > 0);
+  // Keep local state in sync with external theme changes (across tabs / components)
+  useEffect(() => {
+    const handleThemeChange = (e: Event) => {
+      const customEvent = e as CustomEvent<{ theme: AppTheme }>;
+      if (customEvent.detail?.theme) {
+        setTheme(customEvent.detail.theme);
+      }
+    };
+    window.addEventListener("retrod:theme:change", handleThemeChange);
+    return () => window.removeEventListener("retrod:theme:change", handleThemeChange);
   }, []);
+
+  const selected = useMemo(() => {
+    return APP_THEMES.find((t) => t.value === theme) ?? APP_THEMES[0];
+  }, [theme]);
 
   function selectTheme(next: AppTheme) {
     setTheme(next);
@@ -44,7 +52,28 @@ export function ThemePreference({ variant = "header" }: ThemePreferenceProps) {
     persistTheme(next);
   }
 
-  const selected = APP_THEMES.find((t) => t.value === theme) ?? APP_THEMES[0];
+  function handleResetDefault() {
+    selectTheme("light");
+  }
+
+  // Inline view for Settings page
+  if (variant === "inline") {
+    return (
+      <div className="space-y-4 max-w-lg">
+        <CompactThemeList currentTheme={theme} onSelect={selectTheme} />
+        <div className="pt-2">
+          <button
+            type="button"
+            onClick={handleResetDefault}
+            className="flex items-center gap-1.5 text-xs text-text-secondary hover:text-text-primary px-3 py-1.5 rounded-lg border border-border hover:bg-surface-2 transition cursor-pointer"
+          >
+            <RotateCcw className="h-3.5 w-3.5" />
+            <span>Reset to Default (Light)</span>
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -53,92 +82,141 @@ export function ThemePreference({ variant = "header" }: ThemePreferenceProps) {
           <button
             type="button"
             aria-label="Open appearance settings"
-            className="fixed bottom-5 right-5 z-40 flex h-12 w-12 items-center justify-center rounded-full border border-border bg-surface text-primary shadow-e3 transition hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 print:hidden"
+            title={`Appearance: ${selected.label} (Click to change)`}
+            className="group fixed bottom-5 right-5 z-40 flex h-11 w-11 items-center justify-center rounded-full border border-border bg-surface text-primary shadow-e2 transition-transform duration-200 hover:scale-105 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 print:hidden cursor-pointer"
           >
-            <Palette className="h-5 w-5" />
+            <Palette className="h-5 w-5 text-primary transition-transform duration-200 group-hover:rotate-45" />
           </button>
         ) : (
           <button
             type="button"
             aria-label="Appearance and theme"
-            title="Appearance"
-            className="rounded-md p-2 text-text-secondary hover:bg-surface-2 hover:text-text-primary"
+            title={`Appearance: ${selected.label}`}
+            className="relative flex h-9 items-center gap-1.5 rounded-lg border border-border bg-surface px-2.5 text-xs font-semibold text-text-primary hover:bg-surface-2 transition cursor-pointer shadow-xs"
           >
-            <Palette className="h-4 w-4" />
+            <Palette className="h-4 w-4 text-primary" />
+            <span className="hidden sm:inline-block max-w-[90px] truncate">{selected.label}</span>
           </button>
         )}
       </SheetTrigger>
 
-      <SheetContent side="right" className="flex w-full flex-col gap-0 sm:max-w-md">
-        <SheetHeader className="border-b border-border pb-4 text-left">
-          <SheetTitle className="font-display text-lg">Appearance</SheetTitle>
-          <SheetDescription>
-            Choose a color theme for Retrod POS. Preference is saved on this device.
-          </SheetDescription>
-          <div className="mt-3 flex items-center gap-2 rounded-md border border-border bg-surface-2/50 px-3 py-2">
-            <SwatchDots colors={selected.swatches} />
-            <div className="min-w-0">
-              <p className="text-[12px] font-medium text-text-primary">{selected.label}</p>
-              <p className="text-[11px] text-text-secondary">
-                {APP_THEME_GROUP_LABELS[selected.group]} · active
-              </p>
+      <SheetContent
+        side="right"
+        className="flex w-full flex-col gap-0 border-l border-border bg-surface text-text-primary shadow-2xl sm:max-w-sm p-0"
+      >
+        {/* Simple Compact Header */}
+        <SheetHeader className="border-b border-border px-4 py-3 text-left bg-surface">
+          <div className="flex items-center gap-2">
+            <div className="flex h-7 w-7 items-center justify-center rounded-md border border-primary/20 bg-primary/10 text-primary">
+              <Palette className="h-3.5 w-3.5" />
+            </div>
+            <div>
+              <SheetTitle className="text-xs font-bold text-text-primary leading-tight">
+                Appearance & Themes
+              </SheetTitle>
+              <SheetDescription className="text-[10.5px] text-text-secondary">
+                Select a color theme for Retrod POS
+              </SheetDescription>
             </div>
           </div>
         </SheetHeader>
 
-        <div className="flex-1 space-y-5 overflow-y-auto py-4">
-          {grouped.map(({ group, label, themes }) => (
-            <section key={group}>
-              <h3 className="label-uppercase mb-2 px-1 text-text-secondary">{label}</h3>
-              <div className="grid grid-cols-1 gap-2">
-                {themes.map((option) => {
-                  const active = option.value === theme;
-                  return (
-                    <button
-                      key={option.value}
-                      type="button"
-                      onClick={() => selectTheme(option.value)}
-                      className={cn(
-                        "flex items-center gap-3 rounded-lg border px-3 py-2.5 text-left transition",
-                        active
-                          ? "border-primary bg-primary-tint shadow-e1"
-                          : "border-border bg-surface hover:border-border-strong hover:bg-surface-2",
-                      )}
-                    >
-                      <SwatchDots colors={option.swatches} />
-                      <div className="min-w-0 flex-1">
-                        <p className="text-[13px] font-medium text-text-primary">{option.label}</p>
-                        <p className="truncate font-mono text-[10px] text-text-secondary">
-                          {option.value}
-                        </p>
-                      </div>
-                      {active ? (
-                        <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-medium text-primary-foreground">
-                          On
-                        </span>
-                      ) : null}
-                    </button>
-                  );
-                })}
-              </div>
-            </section>
-          ))}
+        {/* Compact Single-Line Color List */}
+        <div className="flex-1 overflow-y-auto p-3 space-y-3">
+          <CompactThemeList currentTheme={theme} onSelect={selectTheme} />
+        </div>
+
+        {/* Footer */}
+        <div className="border-t border-border px-3 py-2.5 flex items-center justify-between bg-surface shrink-0">
+          <button
+            type="button"
+            onClick={handleResetDefault}
+            className="flex items-center gap-1.5 text-[11px] text-text-secondary hover:text-text-primary px-2 py-1 rounded-md hover:bg-surface-2 transition cursor-pointer"
+          >
+            <RotateCcw className="h-3 w-3" />
+            <span>Reset to Default</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setOpen(false)}
+            className="px-3 py-1 text-xs font-semibold rounded-md bg-primary text-primary-foreground shadow-xs transition hover:bg-primary-pressed cursor-pointer"
+          >
+            Done
+          </button>
         </div>
       </SheetContent>
     </Sheet>
   );
 }
 
-function SwatchDots({ colors }: { colors: [string, string, string] }) {
+/** Small, simple 1-line per color list grouped by category */
+function CompactThemeList({
+  currentTheme,
+  onSelect,
+}: {
+  currentTheme: AppTheme;
+  onSelect: (theme: AppTheme) => void;
+}) {
   return (
-    <span className="flex shrink-0 -space-x-1.5" aria-hidden>
-      {colors.map((color) => (
-        <span
-          key={color}
-          className="h-5 w-5 rounded-full border border-border-strong/40 shadow-e1"
-          style={{ backgroundColor: color }}
-        />
-      ))}
-    </span>
+    <div className="space-y-3">
+      {GROUP_ORDER.map((group) => {
+        const groupThemes = APP_THEMES.filter((t) => t.group === group);
+        if (groupThemes.length === 0) return null;
+
+        return (
+          <div key={group} className="space-y-1">
+            {/* Category label */}
+            <div className="px-2 text-[10px] font-bold uppercase tracking-wider text-text-disabled">
+              {APP_THEME_GROUP_LABELS[group]}
+            </div>
+
+            {/* One line per theme */}
+            <div className="space-y-1">
+              {groupThemes.map((option) => {
+                const isActive = option.value === currentTheme;
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => onSelect(option.value)}
+                    className={cn(
+                      "flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-xs font-medium transition cursor-pointer border",
+                      isActive
+                        ? "bg-primary/10 border-primary/30 text-text-primary font-bold shadow-2xs"
+                        : "border-transparent text-text-primary hover:bg-surface-2",
+                    )}
+                  >
+                    {/* Left: Swatch dot & Label */}
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <span
+                        className="h-4 w-4 rounded-full border border-black/15 shadow-2xs shrink-0"
+                        style={{ backgroundColor: option.swatches[0] }}
+                      />
+                      <span className="truncate text-[12.5px]">{option.label}</span>
+                    </div>
+
+                    {/* Right: 4-dot preview palette & active check */}
+                    <div className="flex items-center gap-2 shrink-0">
+                      <div className="flex items-center -space-x-1" aria-hidden>
+                        {option.swatches.map((color, idx) => (
+                          <span
+                            key={idx}
+                            className="h-2.5 w-2.5 rounded-full border border-surface shadow-2xs"
+                            style={{ backgroundColor: color }}
+                          />
+                        ))}
+                      </div>
+                      <div className="w-4 h-4 flex items-center justify-center">
+                        {isActive && <Check className="h-3.5 w-3.5 text-primary stroke-[2.5]" />}
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })}
+    </div>
   );
 }

@@ -88,6 +88,11 @@ function RootShell({ children }: { children: React.ReactNode }) {
     <html lang="en">
       <head>
         <HeadContent />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem("retrod:pms:theme")||"light";var el=document.documentElement;el.setAttribute("data-theme",t);el.classList.remove("dark","theme-rose-indigo-premium","theme-emerald-gold-luxury","theme-ocean-cyan-modern","theme-sunset-amber","theme-graphite-blue-pro","theme-forest-slate-executive","theme-royal-plum-business","theme-copper-night","theme-high-contrast");if(t==="dark"){el.classList.add("dark");el.style.colorScheme="dark";}else if(t!=="light"){el.classList.add("theme-"+t);el.style.colorScheme="light";}else{el.style.colorScheme="light";}}catch(e){}})();`,
+          }}
+        />
       </head>
       <body>
         {children}

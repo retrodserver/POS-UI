@@ -604,8 +604,8 @@ export function PosDataGrid<T>({
                       isSelected
                         ? "bg-primary/10 hover:bg-primary/15 dark:bg-primary/20"
                         : isEven
-                        ? "bg-slate-50/50 dark:bg-surface-2/40 hover:bg-slate-100/70 dark:hover:bg-surface-3/60"
-                        : "bg-surface hover:bg-slate-50/80 dark:hover:bg-surface-2/80",
+                        ? "bg-surface-2/40 hover:bg-surface-2/70"
+                        : "bg-surface hover:bg-surface-2/30",
                       onRowClick && "cursor-pointer"
                     )}
                   >
@@ -617,7 +617,7 @@ export function PosDataGrid<T>({
                           isSelected
                             ? "bg-primary/15 dark:bg-primary/25"
                             : isEven
-                            ? "bg-slate-50/95 dark:bg-surface-2"
+                            ? "bg-surface-2/60"
                             : "bg-surface"
                         )}
                         onClick={(e) => handleToggleRow(row, index, e)}

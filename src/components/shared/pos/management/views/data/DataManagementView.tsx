@@ -4,7 +4,7 @@ import { toast } from "sonner";
 
 export function DataManagementView() {
   return (
-    <div className="space-y-4 max-w-4xl">
+    <div className="space-y-4 w-full">
       <div>
         <h2 className="text-[18px] font-bold text-slate-900 tracking-tight">Data Management</h2>
         <p className="text-[12.5px] text-slate-500 mt-0.5">

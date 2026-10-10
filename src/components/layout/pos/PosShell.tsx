@@ -6,11 +6,15 @@ import { OnlineOrderAlertModal } from "@/components/shared/pos/orders/OnlineOrde
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 
-const SIDEBAR_WIDTH = 240;
+const SIDEBAR_EXPANDED_WIDTH = 240;
+const SIDEBAR_COLLAPSED_WIDTH = 68;
 
 export function PosShell({ children }: { children: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [desktopCollapsed, setDesktopCollapsed] = useState(false);
   const isMobile = useIsMobile();
+
+  const sidebarWidth = isMobile ? 0 : desktopCollapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_EXPANDED_WIDTH;
 
   return (
     <div
@@ -31,24 +35,28 @@ export function PosShell({ children }: { children: React.ReactNode }) {
       {/* Fixed sidebar — stays put while main content scrolls */}
       <div
         className={cn(
-          "fixed left-0 top-0 z-50 h-dvh transition-transform duration-200 print:hidden",
+          "fixed left-0 top-0 z-50 h-dvh transition-all duration-200 print:hidden",
           isMobile && !mobileOpen ? "-translate-x-full" : "translate-x-0",
         )}
-        style={{ width: SIDEBAR_WIDTH }}
+        style={{ width: isMobile ? SIDEBAR_EXPANDED_WIDTH : sidebarWidth }}
       >
         <PosSidebar
-          collapsed={false}
+          collapsed={!isMobile && desktopCollapsed}
           onNavigate={isMobile ? () => setMobileOpen(false) : undefined}
         />
       </div>
 
       {/* Content column offset by sidebar width on desktop */}
       <div
-        className="flex min-h-dvh min-w-0 flex-col bg-[#f6f5f0] print:!m-0 print:!p-0 print:!w-full print:!min-h-0 print:!bg-white"
-        style={{ marginLeft: isMobile ? 0 : SIDEBAR_WIDTH }}
+        className="flex min-h-dvh min-w-0 flex-col bg-background text-text-primary transition-all duration-200 print:!m-0 print:!p-0 print:!w-full print:!min-h-0 print:!bg-white"
+        style={{ marginLeft: sidebarWidth }}
       >
         <div className="print:hidden">
-          <PosTopBar onOpenMobileNav={isMobile ? () => setMobileOpen(true) : undefined} />
+          <PosTopBar
+            onOpenMobileNav={isMobile ? () => setMobileOpen(true) : undefined}
+            onToggleSidebar={() => setDesktopCollapsed((prev) => !prev)}
+            sidebarCollapsed={desktopCollapsed}
+          />
         </div>
         <main className="flex-1 min-w-0 p-2.5 sm:p-3.5 lg:p-4 overflow-x-auto pb-[env(safe-area-inset-bottom)] print:!m-0 print:!p-0 print:!w-full print:!overflow-visible">
           {children}

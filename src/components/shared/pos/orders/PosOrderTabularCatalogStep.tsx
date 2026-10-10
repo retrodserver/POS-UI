@@ -12,6 +12,7 @@ import {
   Percent,
   Tag,
   Barcode,
+  Receipt,
 } from "lucide-react";
 import type { BillingMenuItem, BillingCategory } from "@/types/posBilling";
 import { MOCK_MENU_ITEMS, BILLING_CATEGORIES } from "../billing/mockBillingData";

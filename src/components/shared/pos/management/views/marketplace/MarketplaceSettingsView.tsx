@@ -15,7 +15,7 @@ export function MarketplaceSettingsView() {
   };
 
   return (
-    <div className="space-y-4 max-w-5xl">
+    <div className="space-y-4 w-full">
       {/* 1. Header matching Screenshot 3 */}
       <div>
         <h2 className="text-[18px] font-bold text-slate-900 tracking-tight">

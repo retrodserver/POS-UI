@@ -21,67 +21,105 @@ export const APP_THEME_GROUP_LABELS: Record<ThemeGroup, string> = {
   accessibility: "Accessibility",
 };
 
-export const APP_THEMES: {
+export interface ThemeDefinition {
   value: AppTheme;
   label: string;
   group: ThemeGroup;
-  swatches: [string, string, string];
-}[] = [
-  { value: "light", label: "Light", group: "core", swatches: ["#0f766e", "#f6f5f0", "#111827"] },
-  { value: "dark", label: "Dark", group: "core", swatches: ["#0d9488", "#1F2738", "#F4F5F8"] },
+  tagline: string;
+  description: string;
+  isDark?: boolean;
+  swatches: [string, string, string, string]; // [primary, background, sidebar, accent]
+}
+
+export const APP_THEMES: ThemeDefinition[] = [
+  {
+    value: "light",
+    label: "Light",
+    group: "core",
+    tagline: "Daylight Contrast",
+    description: "Crisp neutral canvas engineered for high-glare daytime counters.",
+    swatches: ["#0f766e", "#f6f5f0", "#0b192c", "#f0fdfa"],
+  },
+  {
+    value: "dark",
+    label: "Dark",
+    group: "core",
+    tagline: "Midnight Dimmed",
+    description: "Low-strain dark palette ideal for evening dinner service & dimly-lit bars.",
+    isDark: true,
+    swatches: ["#0d9488", "#121824", "#090e17", "#1c2638"],
+  },
   {
     value: "graphite-blue-pro",
     label: "Graphite",
     group: "professional",
-    swatches: ["#3F4F7D", "#EFF2F7", "#1F2A44"],
+    tagline: "Executive Slate",
+    description: "Refined corporate slate blue designed for quick-service and enterprise.",
+    swatches: ["#3F4F7D", "#EFF2F7", "#182236", "#dbe4f0"],
   },
   {
     value: "forest-slate-executive",
     label: "Forest",
     group: "professional",
-    swatches: ["#2F6A54", "#EEF4F1", "#1F3D31"],
+    tagline: "Evergreen Sage",
+    description: "Deep botanical green providing a calm, organic restaurant ambiance.",
+    swatches: ["#24664e", "#EEF4F1", "#10261d", "#d1fae5"],
   },
   {
     value: "royal-plum-business",
     label: "Royal",
     group: "professional",
-    swatches: ["#5B3A7B", "#F2EEF8", "#281A3E"],
+    tagline: "Imperial Velvet",
+    description: "Regal nocturnal plum crafted for fine dining establishments & banquets.",
+    swatches: ["#5B3A7B", "#F2EEF8", "#180f24", "#ede4f7"],
   },
   {
     value: "copper-night",
     label: "Copper",
     group: "professional",
-    swatches: ["#B87333", "#26201C", "#F5E8D9"],
+    tagline: "Burnished Bronze",
+    description: "Warm champagne canvas paired with rich copper and espresso accents.",
+    swatches: ["#b86524", "#fbf7f2", "#1c140e", "#fdf5ec"],
   },
   {
     value: "rose-indigo-premium",
     label: "Rose Indigo",
     group: "signature",
-    swatches: ["#A3265F", "#F8EEF5", "#2D1E3E"],
+    tagline: "Couture Magenta",
+    description: "Sophisticated couture berry suited for boutique bistros and cocktail cafés.",
+    swatches: ["#A3265F", "#F8EEF5", "#1f1024", "#fce7f3"],
   },
   {
     value: "emerald-gold-luxury",
     label: "Emerald Gold",
     group: "signature",
-    swatches: ["#2F7E61", "#F5F8F2", "#D4AF37"],
+    tagline: "Prestige Jade",
+    description: "Opulent emerald green with warm gold undertones for luxury hospitality.",
+    swatches: ["#1f7052", "#F5F8F2", "#0d241b", "#fef08a"],
   },
   {
     value: "ocean-cyan-modern",
     label: "Ocean Cyan",
     group: "signature",
-    swatches: ["#2E6E8E", "#F1F7FA", "#0EA5B8"],
+    tagline: "Coastal Azure",
+    description: "Vibrant marine cyan bringing a fresh, modern energy to coastal dining.",
+    swatches: ["#18708c", "#F1F7FA", "#0a1926", "#cffafe"],
   },
   {
     value: "sunset-amber",
     label: "Sunset Amber",
     group: "signature",
-    swatches: ["#B86B2D", "#FFF8F2", "#6A3A14"],
+    tagline: "Golden Dusk",
+    description: "Warm roasted dusk amber tailored for microbreweries and artisan bakeries.",
+    swatches: ["#b8621b", "#FFF8F2", "#24150b", "#fef3c7"],
   },
   {
     value: "high-contrast",
     label: "High Contrast",
     group: "accessibility",
-    swatches: ["#2C3E8F", "#FFFFFF", "#0B0F1A"],
+    tagline: "WCAG Maximum",
+    description: "Ultra-high visibility deep black borders with vivid royal blue highlights.",
+    swatches: ["#1d3b9e", "#FFFFFF", "#05070d", "#dbeafe"],
   },
 ];
 
@@ -103,15 +141,24 @@ export function applyTheme(theme: AppTheme) {
   const root = document.documentElement;
   root.classList.remove(...THEME_CLASSES);
 
+  const matched = APP_THEMES.find((t) => t.value === theme);
+  const isDark = theme === "dark" || Boolean(matched?.isDark);
+
   if (theme === "dark") {
     root.classList.add("dark");
-    return;
-  }
-  if (theme === "light") {
-    return;
+  } else if (theme !== "light") {
+    root.classList.add(`theme-${theme}`);
+    if (isDark) {
+      root.classList.add("dark");
+    }
   }
 
-  root.classList.add(`theme-${theme}`);
+  root.setAttribute("data-theme", theme);
+  root.style.colorScheme = isDark ? "dark" : "light";
+
+  try {
+    window.dispatchEvent(new CustomEvent("retrod:theme:change", { detail: { theme, isDark } }));
+  } catch {}
 }
 
 export function readSavedTheme(): AppTheme {

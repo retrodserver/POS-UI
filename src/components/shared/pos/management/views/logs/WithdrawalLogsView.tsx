@@ -189,7 +189,7 @@ export function WithdrawalLogsView() {
   ];
 
   return (
-    <div className="space-y-5 max-w-7xl">
+    <div className="space-y-5 w-full">
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>

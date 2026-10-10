@@ -66,11 +66,11 @@ export function DeviceMappingView() {
         label: "Device Name & Hardware Model",
         sortable: true,
         filterable: true,
-        defaultWidth: 260,
+        defaultWidth: 280,
         getValue: (r) => r.name,
         cell: ({ row }) => (
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-teal-50 text-teal-700 border border-teal-200 shrink-0">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20 shrink-0">
               {row.type === "Desktop" ? (
                 <Monitor className="h-4 w-4" />
               ) : row.type === "Tablet" ? (
@@ -79,7 +79,7 @@ export function DeviceMappingView() {
                 <Tv className="h-4 w-4" />
               )}
             </div>
-            <div className="font-bold text-[13.5px] text-slate-900">{row.name}</div>
+            <div className="font-bold text-[13.5px] text-text-primary">{row.name}</div>
           </div>
         ),
       },
@@ -90,7 +90,7 @@ export function DeviceMappingView() {
         filterable: true,
         defaultWidth: 140,
         getValue: (r) => r.type,
-        cell: ({ row }) => <span className="font-semibold text-slate-700">{row.type}</span>,
+        cell: ({ row }) => <span className="font-semibold text-text-primary">{row.type}</span>,
       },
       {
         id: "ip",
@@ -99,7 +99,7 @@ export function DeviceMappingView() {
         filterable: true,
         defaultWidth: 160,
         getValue: (r) => r.ip,
-        cell: ({ row }) => <span className="font-mono text-[12.5px] text-slate-600">{row.ip}</span>,
+        cell: ({ row }) => <span className="font-mono text-[12.5px] text-text-secondary">{row.ip}</span>,
       },
       {
         id: "status",
@@ -110,7 +110,7 @@ export function DeviceMappingView() {
         defaultWidth: 130,
         getValue: (r) => r.status,
         cell: ({ row }) => (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-200">
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> {row.status}
           </span>
         ),
@@ -119,9 +119,9 @@ export function DeviceMappingView() {
         id: "pairedDate",
         label: "Paired Date",
         sortable: true,
-        defaultWidth: 140,
+        defaultWidth: 150,
         getValue: (r) => r.pairedDate,
-        cell: ({ row }) => <span className="text-slate-500 font-mono text-[12px]">{row.pairedDate}</span>,
+        cell: ({ row }) => <span className="text-text-secondary font-mono text-[12px]">{row.pairedDate}</span>,
       },
       {
         id: "actions",
@@ -131,11 +131,11 @@ export function DeviceMappingView() {
         align: "right",
         defaultWidth: 120,
         cell: ({ row }) => (
-          <div className="inline-flex items-center gap-1.5 text-slate-400">
+          <div className="inline-flex items-center gap-1.5 text-text-disabled">
             <button
               type="button"
               onClick={() => toast.success(`Pinging device at ${row.ip}...`)}
-              className="p-1.5 rounded-lg hover:text-teal-600 hover:bg-slate-100 transition cursor-pointer"
+              className="p-1.5 rounded-lg hover:text-primary hover:bg-surface-2 transition cursor-pointer"
               title="Ping Device"
             >
               <RefreshCw className="h-3.5 w-3.5" />
@@ -146,7 +146,7 @@ export function DeviceMappingView() {
                 setDevices((prev) => prev.filter((d) => d.id !== row.id));
                 toast.success(`Unpaired device ${row.name}`);
               }}
-              className="p-1.5 rounded-lg hover:text-red-600 hover:bg-slate-100 transition cursor-pointer"
+              className="p-1.5 rounded-lg hover:text-destructive hover:bg-surface-2 transition cursor-pointer"
               title="Unpair Device"
             >
               <Trash2 className="h-3.5 w-3.5" />
@@ -159,11 +159,11 @@ export function DeviceMappingView() {
   );
 
   return (
-    <div className="space-y-4 max-w-5xl">
+    <div className="space-y-4 w-full">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-[18px] font-bold text-slate-900 tracking-tight">Device Mapping</h2>
-          <p className="text-[12.5px] text-slate-500 mt-0.5">
+          <h2 className="text-[18px] font-bold text-text-primary tracking-tight">Device Mapping</h2>
+          <p className="text-[12.5px] text-text-secondary mt-0.5">
             Authorized POS hardware, Captain Android/iOS tablets, and kitchen display screen
             bindings.
           </p>
@@ -172,7 +172,7 @@ export function DeviceMappingView() {
         <button
           type="button"
           onClick={() => toast.info("Pair New Device via OTP")}
-          className="flex items-center gap-1.5 rounded-lg bg-teal-600 px-4 py-2 text-[12.5px] font-semibold text-white hover:bg-teal-700 transition cursor-pointer shadow-xs"
+          className="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-[12.5px] font-semibold text-primary-foreground hover:bg-primary-pressed transition cursor-pointer shadow-xs"
         >
           <Plus className="h-4 w-4" /> Pair Device
         </button>

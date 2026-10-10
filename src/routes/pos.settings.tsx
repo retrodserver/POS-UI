@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { Store, Sliders, Receipt, Printer, Settings as SettingsIcon } from "lucide-react";
+import { Store, Sliders, Receipt, Printer, Settings as SettingsIcon, Palette } from "lucide-react";
 import { OutletsManagementView } from "@/components/shared/pos/settings/OutletsManagementView";
 import { PosPanel } from "@/components/shared/pos/PosPanel";
+import { ThemePreference } from "@/components/shared/pos/ThemePreference";
 
 export const Route = createFileRoute("/pos/settings")({
   head: () => ({ meta: [{ title: "Settings — Retrod POS" }] }),
@@ -10,12 +11,13 @@ export const Route = createFileRoute("/pos/settings")({
 });
 
 function PosSettingsPage() {
-  const [activeTab, setActiveTab] = useState<"outlets" | "system" | "billing" | "printers">(
+  const [activeTab, setActiveTab] = useState<"outlets" | "appearance" | "system" | "billing" | "printers">(
     "outlets",
   );
 
   const tabs = [
     { id: "outlets" as const, label: "Outlets & Virtual Outlets", icon: Store },
+    { id: "appearance" as const, label: "Appearance & Themes", icon: Palette },
     { id: "system" as const, label: "POS System Settings", icon: SettingsIcon },
     { id: "billing" as const, label: "Receipt & Invoice Setup", icon: Receipt },
     { id: "printers" as const, label: "Printers & Terminals", icon: Printer },
@@ -24,20 +26,20 @@ function PosSettingsPage() {
   return (
     <div className="p-4 sm:p-6 lg:p-7 space-y-6 max-w-7xl mx-auto">
       {/* Page Header */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
         <div>
-          <h1 className="text-[20px] font-bold text-slate-900 tracking-tight">
+          <h1 className="text-[20px] font-bold text-text-primary tracking-tight">
             Settings & Outlet Configuration
           </h1>
-          <p className="text-[13px] text-slate-500 mt-0.5">
-            Configure restaurant identity, virtual cloud kitchen brands, receipts, and terminal
+          <p className="text-[13px] text-text-secondary mt-0.5">
+            Configure restaurant identity, virtual cloud kitchen brands, color themes, receipts, and terminal
             preferences.
           </p>
         </div>
       </div>
 
       {/* Tabs Navigation */}
-      <div className="flex items-center gap-2 border-b border-slate-200 overflow-x-auto pb-px">
+      <div className="flex items-center gap-2 border-b border-border overflow-x-auto pb-px">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -48,11 +50,11 @@ function PosSettingsPage() {
               onClick={() => setActiveTab(tab.id)}
               className={`flex items-center gap-2 px-4 py-2.5 text-[13px] font-bold border-b-2 transition cursor-pointer shrink-0 ${
                 isActive
-                  ? "border-teal-600 text-teal-700 bg-teal-50/40 rounded-t-lg"
-                  : "border-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-t-lg"
+                  ? "border-primary text-primary bg-primary-tint rounded-t-lg shadow-2xs"
+                  : "border-transparent text-text-secondary hover:text-text-primary hover:bg-surface-2 rounded-t-lg"
               }`}
             >
-              <Icon className={`h-4 w-4 ${isActive ? "text-teal-600" : "text-slate-400"}`} />
+              <Icon className={`h-4 w-4 ${isActive ? "text-primary" : "text-text-secondary"}`} />
               <span>{tab.label}</span>
             </button>
           );
@@ -61,6 +63,19 @@ function PosSettingsPage() {
 
       {/* Tab Content */}
       {activeTab === "outlets" && <OutletsManagementView />}
+
+      {activeTab === "appearance" && (
+        <div className="space-y-4">
+          <PosPanel
+            title="Appearance & Terminal Color Themes"
+            hint="Personalize your Retrod POS workspace. Choose from 11 curated color themes saved on this device."
+          >
+            <div className="p-4 sm:p-5">
+              <ThemePreference variant="inline" />
+            </div>
+          </PosPanel>
+        </div>
+      )}
 
       {activeTab === "system" && (
         <div className="space-y-4">
