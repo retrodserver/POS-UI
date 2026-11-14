@@ -322,9 +322,6 @@ export function PosUserRolesView() {
           <h1 className="text-[20px] sm:text-[22px] font-bold text-slate-900 tracking-tight leading-tight">
             User Roles & Permissions
           </h1>
-          <p className="text-[11px] text-slate-500">
-            Define POS staff roles, grant granular terminal access, and manage operational privileges.
-          </p>
         </div>
 
         <Button

@@ -38,6 +38,7 @@ interface TableFloorPlanProps {
   onOpenSeatGuest?: () => void;
   onOpenTakeOrder?: (tableId?: string) => void;
   onSwitchTable?: (reservation: ReservationItem) => void;
+  onSwitchOccupiedTable?: (table: RestaurantTable) => void;
   onSeatReservation?: (tableId: string, reservationId?: string) => void;
   stats?: TableManagementStats;
   onRefresh?: () => void;
@@ -61,6 +62,7 @@ export function TableFloorPlan({
   onOpenSeatGuest,
   onOpenTakeOrder,
   onSwitchTable,
+  onSwitchOccupiedTable,
   onSeatReservation,
   stats,
   onDeleteArea,
@@ -458,6 +460,7 @@ export function TableFloorPlan({
                 onSelectReserved={onSelectReserved}
                 onSelectTable={onSelectTable}
                 onDeleteTable={onDeleteTable}
+                onSwitchOccupiedTable={onSwitchOccupiedTable}
               />
             ))}
           </div>

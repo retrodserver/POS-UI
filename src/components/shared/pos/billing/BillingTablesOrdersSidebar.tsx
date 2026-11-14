@@ -445,7 +445,7 @@ export function BillingTablesOrdersSidebar({
               type="button"
               onClick={onToggleCollapse}
               title="Collapse Tables & Orders Panel"
-              className="p-1.5 rounded-lg text-slate-400 hover:text-primary hover:bg-primary/10 transition cursor-pointer shrink-0"
+              className="p-1.5 rounded-lg text-slate-800 hover:text-black hover:bg-primary/10 transition cursor-pointer shrink-0"
             >
               <ChevronLeft className="h-4 w-4" />
             </button>
@@ -461,11 +461,11 @@ export function BillingTablesOrdersSidebar({
             <DropdownMenuTrigger asChild>
               <button
                 type="button"
-                className="h-8 px-2.5 py-1 text-xs font-semibold bg-white border border-slate-200 rounded-lg text-slate-700 hover:border-slate-300 flex items-center gap-1.5 shadow-2xs transition cursor-pointer max-w-[150px] truncate"
+                className="h-8 px-2.5 py-1 text-xs font-semibold bg-white border border-slate-200 rounded-lg text-slate-800 hover:border-slate-300 flex items-center gap-1.5 shadow-2xs transition cursor-pointer max-w-[150px] truncate"
               >
-                <MapPin className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                <MapPin className="h-3.5 w-3.5 text-slate-800 shrink-0" />
                 <span className="truncate">{selectedZone === "All Zones" ? "Zones" : selectedZone}</span>
-                <ChevronDown className="h-3 w-3 text-slate-400 shrink-0 ml-auto" />
+                <ChevronDown className="h-3 w-3 text-slate-800 shrink-0 ml-auto" />
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="w-44 text-xs font-medium">
@@ -540,7 +540,7 @@ export function BillingTablesOrdersSidebar({
               className={`p-1.5 rounded-lg transition cursor-pointer ${
                 viewMode === "grid"
                   ? "bg-primary text-primary-foreground shadow-2xs"
-                  : "text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+                  : "text-slate-900 hover:text-black hover:bg-slate-100"
               }`}
             >
               <LayoutGrid className="h-3.5 w-3.5" />
@@ -554,7 +554,7 @@ export function BillingTablesOrdersSidebar({
               className={`p-1.5 rounded-lg transition cursor-pointer ${
                 viewMode === "list"
                   ? "bg-primary text-primary-foreground shadow-2xs"
-                  : "text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+                  : "text-slate-900 hover:text-black hover:bg-slate-100"
               }`}
             >
               <List className="h-3.5 w-3.5" />

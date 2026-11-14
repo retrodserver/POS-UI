@@ -1,5 +1,5 @@
 import React from "react";
-import { Users, Clock, CalendarCheck, Plus } from "lucide-react";
+import { Users, Clock, CalendarCheck, Plus, ArrowLeftRight } from "lucide-react";
 import type { RestaurantTable, ReservationItem } from "@/types/posTables";
 
 interface TableCardItemProps {
@@ -7,6 +7,7 @@ interface TableCardItemProps {
   onSelectReserved: (table: RestaurantTable, reservation?: ReservationItem) => void;
   onSelectTable: (table: RestaurantTable) => void;
   onDeleteTable?: (tableId: string) => void;
+  onSwitchOccupiedTable?: (table: RestaurantTable) => void;
 }
 
 /**
@@ -52,6 +53,7 @@ export function TableCardItem({
   onSelectReserved,
   onSelectTable,
   onDeleteTable,
+  onSwitchOccupiedTable,
 }: TableCardItemProps) {
   const { status, capacity, tableNumber, activeReservation, activeOrder } = table;
 
@@ -225,9 +227,25 @@ export function TableCardItem({
                 {activeOrder?.orderNumber ? `Order #${activeOrder.orderNumber}` : "1 active order"}
               </div>
             </div>
-            <div className="flex items-center gap-1 text-[10.5px] font-semibold text-orange-800 shrink-0">
-              <Clock className="w-3 h-3 text-orange-600 shrink-0" />
-              <span>{formatElapsed(activeOrder?.elapsedMinutes || 0)}</span>
+            <div className="flex items-center gap-1.5 shrink-0">
+              <div className="flex items-center gap-1 text-[10.5px] font-semibold text-orange-800">
+                <Clock className="w-3 h-3 text-orange-600 shrink-0" />
+                <span>{formatElapsed(activeOrder?.elapsedMinutes || 0)}</span>
+              </div>
+              {onSwitchOccupiedTable && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onSwitchOccupiedTable(table);
+                  }}
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white border border-amber-300 text-amber-950 text-[10px] font-bold hover:bg-amber-100 transition shadow-2xs cursor-pointer ml-1"
+                  title={`Switch table for ${table.tableNumber}`}
+                >
+                  <ArrowLeftRight className="w-2.5 h-2.5 text-amber-700" />
+                  <span>Switch</span>
+                </button>
+              )}
             </div>
           </>
         ) : status === "reserved" ? (

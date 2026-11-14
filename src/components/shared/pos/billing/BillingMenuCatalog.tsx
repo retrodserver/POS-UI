@@ -163,6 +163,30 @@ export function BillingMenuCatalog({
     <div className="flex flex-col h-full overflow-hidden rounded-2xl border border-border/80 bg-surface shadow-e1">
       {/* Toolbar */}
       <div className="shrink-0 space-y-2.5 border-b border-border/70 bg-linear-to-b from-surface-2/80 to-surface px-3 py-3">
+        {/* Meal-Time Tabs: All, Breakfast, Lunch, Dinner - Aligned in middle with distinct background */}
+        <div className="flex justify-center w-full">
+          <div className="inline-flex items-center gap-1 bg-emerald-50/70 p-1 rounded-xl border border-emerald-200/80 shadow-2xs">
+            {(["All", "Breakfast", "Lunch", "Dinner"] as const).map((meal) => {
+              const active = selectedMealTime === meal;
+              return (
+                <button
+                  key={meal}
+                  type="button"
+                  onClick={() => (onSelectMealTime ? onSelectMealTime(meal) : setInternalMealTime(meal))}
+                  className={cn(
+                    "flex items-center gap-1 px-3.5 py-1 rounded-lg text-xs font-bold transition whitespace-nowrap cursor-pointer",
+                    active
+                      ? "bg-primary text-primary-foreground shadow-xs"
+                      : "text-slate-700 hover:text-slate-900 hover:bg-white/90",
+                  )}
+                >
+                  <span>{meal}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         <div className="flex flex-wrap items-center gap-2.5">
           <div className="relative min-w-[200px] flex-1">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-text-secondary/70" />
@@ -215,30 +239,6 @@ export function BillingMenuCatalog({
           </div>
         </div>
 
-        {/* Meal-Time Tabs: All, Breakfast, Lunch, Dinner */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 scrollbar-none">
-          <div className="flex items-center gap-1 bg-slate-100/90 p-1 rounded-xl border border-border shrink-0">
-            {(["All", "Breakfast", "Lunch", "Dinner"] as const).map((meal) => {
-              const active = selectedMealTime === meal;
-              return (
-                <button
-                  key={meal}
-                  type="button"
-                  onClick={() => (onSelectMealTime ? onSelectMealTime(meal) : setInternalMealTime(meal))}
-                  className={cn(
-                    "flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-bold transition whitespace-nowrap cursor-pointer",
-                    active
-                      ? "bg-primary text-primary-foreground shadow-xs"
-                      : "text-slate-600 hover:text-slate-900 hover:bg-white/80",
-                  )}
-                >
-                  <span>{meal}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
         {/* Categories: rounded-lg border border-border (no circular corners) */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 scrollbar-none">
           {allCategories.map((cat) => {
@@ -262,15 +262,15 @@ export function BillingMenuCatalog({
         </div>
       </div>
 
-      {/* Excel Table Format for Dishes with Column Lines and Centered Data */}
+      {/* Excel Table Format for Dishes with Theme-Colored Header and Left-Aligned Dishes */}
       <div className="min-h-0 flex-1 overflow-x-auto overflow-y-auto p-2 sm:p-2.5">
-        <table className="w-full min-w-[520px] excel-format border-collapse border border-border text-center">
+        <table className="w-full min-w-[520px] excel-format border-collapse border border-border">
           <thead>
-            <tr className="bg-slate-100/90 text-[11px] font-bold uppercase tracking-wider text-slate-800">
-              <th className="py-2 px-3 border-r border-b border-border text-center">Dish</th>
-              <th className="py-2 px-3 border-r border-b border-border text-center w-36">Portion</th>
-              <th className="py-2 px-3 border-r border-b border-border text-center w-28">Price</th>
-              <th className="py-2 px-3 border-b border-border text-center w-28">Action</th>
+            <tr className="bg-primary text-primary-foreground text-[11px] font-bold uppercase tracking-wider">
+              <th className="py-2.5 px-3 border-r border-b border-primary-tint/30 text-left">Dish</th>
+              <th className="py-2.5 px-3 border-r border-b border-primary-tint/30 text-center w-36">Portion</th>
+              <th className="py-2.5 px-3 border-r border-b border-primary-tint/30 text-center w-28">Price</th>
+              <th className="py-2.5 px-3 border-b border-primary-tint/30 text-center w-28">Action</th>
             </tr>
           </thead>
           <tbody>
@@ -303,8 +303,8 @@ export function BillingMenuCatalog({
                     )}
                   >
                     {/* Dish Name, Image, Diet & Code */}
-                    <td className="py-2 px-3 border-r border-b border-border text-center">
-                      <div className="flex items-center justify-center gap-2.5 max-w-sm mx-auto">
+                    <td className="py-2 px-3 border-r border-b border-border text-left">
+                      <div className="flex items-center gap-2.5">
                         <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-lg border border-border bg-surface-2 shadow-2xs">
                           {hasImage ? (
                             <img

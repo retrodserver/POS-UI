@@ -302,12 +302,12 @@ export function PosAllOrdersManager() {
       "Order No",
       "Order Type",
       "Guest Name",
-      "Assign To",
+      "Taken By",
       "Items Summary",
-      "Base Amount",
+      "Order Amount",
       "Tax Amount",
-      "Grand Total",
-      "Payment Mode",
+      "Total Amount",
+      "Payment Method",
       "Status",
       "Created At",
     ];
@@ -345,12 +345,12 @@ export function PosAllOrdersManager() {
       { header: "ORDER NO", align: "left" as const },
       { header: "ORDER TYPE", align: "left" as const },
       { header: "GUEST NAME", align: "left" as const },
-      { header: "ASSIGN TO", align: "left" as const },
+      { header: "TAKEN BY", align: "left" as const },
       { header: "ITEMS SUMMARY", align: "left" as const },
-      { header: "BASE (₹)", align: "right" as const },
+      { header: "ORDER AMOUNT (₹)", align: "right" as const },
       { header: "TAX (₹)", align: "right" as const },
-      { header: "TOTAL (₹)", align: "right" as const },
-      { header: "PAYMENT MODE", align: "center" as const },
+      { header: "TOTAL AMOUNT (₹)", align: "right" as const },
+      { header: "PAYMENT METHOD", align: "center" as const },
       { header: "STATUS", align: "center" as const },
       { header: "DATE & TIME", align: "center" as const },
     ];
@@ -434,7 +434,7 @@ export function PosAllOrdersManager() {
       },
       {
         id: "assignTo",
-        header: "Assign To",
+        header: "Taken By",
         accessorKey: "assignTo",
         enableSorting: true,
         enableFiltering: true,
@@ -456,7 +456,7 @@ export function PosAllOrdersManager() {
       },
       {
         id: "myAmountFormatted",
-        header: "My Amount (₹)",
+        header: "Order Amount (₹)",
         accessorKey: "myAmountFormatted",
         align: "right",
         enableSorting: true,
@@ -492,7 +492,7 @@ export function PosAllOrdersManager() {
       },
       {
         id: "grandTotalFormatted",
-        header: "Grand Total (₹)",
+        header: "Total Amount (₹)",
         accessorKey: "grandTotalFormatted",
         align: "right",
         enableSorting: true,
@@ -504,7 +504,7 @@ export function PosAllOrdersManager() {
       },
       {
         id: "paymentMode",
-        header: "Payment",
+        header: "Payment Method",
         accessorKey: "paymentMode",
         enableSorting: true,
         enableFiltering: true,
@@ -657,10 +657,10 @@ export function PosAllOrdersManager() {
           </div>
         </div>
 
-        {/* Right: Grand Total + Export */}
+        {/* Right: Total Amount + Export */}
         <div className="flex flex-wrap items-center gap-2">
           <div className="text-[13px] font-bold text-slate-900">
-            Grand Total :{" "}
+            Total Amount :{" "}
             <span className="text-teal-700">
               {filteredGrandTotal}
             </span>
@@ -960,11 +960,11 @@ export function PosAllOrdersManager() {
                   <span className="truncate font-medium text-slate-800">{order.customerName}</span>
                 </div>
                 <div className="flex justify-between gap-2">
-                  <span className="text-slate-500">Assign To</span>
+                  <span className="text-slate-500">Taken By</span>
                   <span className="truncate text-slate-700">{order.assignTo}</span>
                 </div>
                 <div className="flex justify-between gap-2">
-                  <span className="text-slate-500">Payment</span>
+                  <span className="text-slate-500">Payment Method</span>
                   <span className="font-medium text-slate-800">{order.paymentMode}</span>
                 </div>
                 <div className="flex justify-between gap-2">
@@ -1040,7 +1040,7 @@ export function PosAllOrdersManager() {
                 <span className="font-semibold text-slate-800">{viewingOrder.assignTo}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-500">Payment Mode:</span>
+                <span className="text-slate-500">Payment Method:</span>
                 <span className="font-semibold text-slate-800">{viewingOrder.paymentMode}</span>
               </div>
               <div className="flex justify-between">
@@ -1069,7 +1069,7 @@ export function PosAllOrdersManager() {
                   <span>{viewingOrder.discountAmountFormatted}</span>
                 </div>
                 <div className="flex justify-between text-[15px] font-bold text-slate-900 pt-2 border-t border-slate-100">
-                  <span>Grand Total:</span>
+                  <span>Total Amount:</span>
                   <span className="text-teal-700">{viewingOrder.grandTotalFormatted}</span>
                 </div>
               </div>

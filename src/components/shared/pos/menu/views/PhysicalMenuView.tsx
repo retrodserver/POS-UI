@@ -629,10 +629,6 @@ export function PhysicalMenuView({ onBack }: { onBack?: () => void }) {
             <h2 className="text-[14px] sm:text-[15px] font-bold text-slate-900 flex items-center gap-2 leading-tight">
               Live Menu Generator & Print Studio
             </h2>
-            <p className="text-[11.5px] text-slate-500 leading-tight mt-0.5">
-              Auto-format and print physical menus for{" "}
-              <span className="font-semibold text-slate-800">{activeOutlet.name}</span>
-            </p>
           </div>
         </div>
 

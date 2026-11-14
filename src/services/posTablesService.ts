@@ -1432,6 +1432,97 @@ export const posTablesService = {
     return updatedRes;
   },
 
+  switchOccupiedTable: async (
+    fromTableId: string,
+    toTableId: string,
+  ): Promise<{ sourceTable: RestaurantTable; targetTable: RestaurantTable }> => {
+    const effectiveOutlet =
+      scopedOutletId ||
+      (typeof window !== "undefined" ? localStorage.getItem("retrod_pos_active_outlet_id") : null) ||
+      undefined;
+
+    const tables = await posTablesService.getTables();
+    const sourceTable = tables.find((t) => t.id === fromTableId);
+    if (!sourceTable) throw new Error("Source table not found");
+
+    const targetTable = tables.find((t) => t.id === toTableId);
+    if (!targetTable) throw new Error("Target table not found");
+
+    if (targetTable.id === sourceTable.id) {
+      throw new Error("Target table must be different from current table");
+    }
+
+    if (targetTable.status === "occupied") {
+      throw new Error(`Target table ${targetTable.tableNumber} is already occupied. Choose an available table.`);
+    }
+
+    const orderToMove = sourceTable.activeOrder;
+    const resToMove = sourceTable.activeReservation;
+
+    // Patch backend table statuses if live backend is connected
+    if (isBackendOutletId(sourceTable.id)) {
+      await patchTableStatus(sourceTable.id, "VACANT", {
+        active_order_id: null,
+        active_waiter_name: "",
+        notes: "",
+      }).catch(() => {});
+    }
+
+    if (isBackendOutletId(targetTable.id)) {
+      await patchTableStatus(targetTable.id, "OCCUPIED", {
+        active_order_id:
+          orderToMove?.orderId && isBackendOutletId(orderToMove.orderId) ? orderToMove.orderId : undefined,
+        active_waiter_name: orderToMove?.serverName || resToMove?.customerName || "Captain",
+        notes: `Dine-in moved from ${sourceTable.tableNumber}`,
+      }).catch(() => {});
+    }
+
+    // If there is an active reservation linked, move reservation table too
+    if (resToMove) {
+      await posTablesService.switchReservationTable(resToMove.id, targetTable.id).catch(() => {});
+    }
+
+    // Update in-memory / local tables store
+    const updatedSource: RestaurantTable = {
+      ...sourceTable,
+      status: "vacant",
+      activeOrder: undefined,
+      activeReservation: undefined,
+      currentGuests: 0,
+    };
+
+    const updatedTarget: RestaurantTable = {
+      ...targetTable,
+      status: "occupied",
+      activeOrder: orderToMove,
+      activeReservation: resToMove
+        ? {
+            ...resToMove,
+            tableId: targetTable.id,
+            tableNumber: targetTable.tableNumber,
+          }
+        : undefined,
+      currentGuests: sourceTable.currentGuests || targetTable.capacity,
+    };
+
+    // Update local storage
+    const stored = getStoredTables(effectiveOutlet);
+    const updatedStored = stored.map((t) => {
+      if (t.id === fromTableId) return updatedSource;
+      if (t.id === toTableId) return updatedTarget;
+      return t;
+    });
+    saveStoredTables(effectiveOutlet, updatedStored);
+
+    store().tables = store().tables.map((t) => {
+      if (t.id === fromTableId) return updatedSource;
+      if (t.id === toTableId) return updatedTarget;
+      return t;
+    });
+
+    return { sourceTable: updatedSource, targetTable: updatedTarget };
+  },
+
   cancelReservation: async (reservationId: string): Promise<void> => {
     const effectiveOutlet =
       scopedOutletId ||

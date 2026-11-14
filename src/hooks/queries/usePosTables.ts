@@ -282,6 +282,32 @@ export function useSwitchTableMutation() {
   });
 }
 
+export function useSwitchOccupiedTableMutation() {
+  const { outletId, highwayDemo } = useOutletScopedTables();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ fromTableId, toTableId }: { fromTableId: string; toTableId: string }) => {
+      setTablesOutletScope(outletId, highwayDemo);
+      return posTablesService.switchOccupiedTable(fromTableId, toTableId);
+    },
+    onSuccess: ({ sourceTable, targetTable }) => {
+      queryClient.invalidateQueries({ queryKey: POS_TABLES_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: POS_RESERVATIONS_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: POS_TABLE_STATS_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: ["pos", "orders"] });
+      queryClient.invalidateQueries({ queryKey: ["pos", "current-orders"] });
+      toast.success(`Dine-in switched from ${sourceTable.tableNumber} to ${targetTable.tableNumber}`);
+    },
+    onError: (err: unknown) => {
+      const message =
+        (err as { message?: string })?.message ||
+        (err as { data?: { detail?: string } })?.data?.detail ||
+        "Could not switch table";
+      toast.error(String(message));
+    },
+  });
+}
+
 export function useVacateTableMutation() {
   const { outletId, highwayDemo } = useOutletScopedTables();
   const queryClient = useQueryClient();

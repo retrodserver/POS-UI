@@ -268,9 +268,6 @@ export function PosUsersView() {
           <h1 className="text-[20px] sm:text-[22px] font-bold text-slate-900 tracking-tight leading-tight">
             Users
           </h1>
-          <p className="text-[11px] text-slate-500">
-            Manage POS staff accounts, assign operational roles, and set terminal PINs.
-          </p>
         </div>
 
         <div className="flex items-center gap-2">

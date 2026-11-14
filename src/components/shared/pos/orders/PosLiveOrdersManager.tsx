@@ -181,9 +181,6 @@ export function PosLiveOrdersManager() {
                 Live Feed
               </span>
             </div>
-            <p className="text-[11px] text-slate-500">
-              Real-time status tracking, Gantt lifecycle timelines & floor tables
-            </p>
           </div>
         </div>
 
@@ -354,9 +351,6 @@ export function PosLiveOrdersManager() {
                   <h2 className="text-[13.5px] font-bold text-slate-900">
                     Live Order Process Stage Timeline
                   </h2>
-                  <p className="text-[11px] text-slate-500">
-                    Step-by-step progress tracker with stage checkpoints & fast action
-                  </p>
                 </div>
                 {/* 2-3 Color Legend */}
                 <div className="flex items-center gap-3 text-[11px] font-semibold text-slate-600">

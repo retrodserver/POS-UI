@@ -1103,7 +1103,6 @@ export function OtherReportsView() {
                   {selectedReport.categoryLabel}
                 </span>
               </div>
-              <p className="text-[12px] text-slate-500 mt-0.5">{selectedReport.desc}</p>
             </div>
           </div>
 
@@ -1496,11 +1495,6 @@ export function OtherReportsView() {
         <h3 className="text-[14px] font-bold text-slate-900">
           {tabs.find((t) => t.id === activeTab)?.label}
         </h3>
-        <p className="text-[12.5px] text-slate-500 mt-0.5">
-          {activeTab === "bookmarked"
-            ? "This section shows all the reports you've bookmarked for easy and frequent access."
-            : `Detailed analytical reports and ledgers for ${tabs.find((t) => t.id === activeTab)?.label}.`}
-        </p>
       </div>
 
       {/* Cards Grid */}

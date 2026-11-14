@@ -127,9 +127,6 @@ export function PosRoomServiceManager() {
                 <h1 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight leading-none">
                   Room Orders
                 </h1>
-                <p className="text-xs text-foreground/70 mt-0.5">
-                  Guest room orders, butler dispatch queue, and PMS folio billing.
-                </p>
               </div>
             </div>
           </div>

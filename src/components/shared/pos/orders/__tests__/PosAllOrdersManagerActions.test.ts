@@ -29,5 +29,13 @@ describe("PosAllOrdersManager Standardization & Actions", () => {
     expect(sourceCode).toContain('viewMode === "table"');
     expect(sourceCode).toContain("bg-primary text-primary-foreground");
   });
+
+  it("standardizes Order History column names: Taken By, Payment Method, Order Amount, Total Amount", () => {
+    expect(sourceCode).toContain('header: "Taken By"');
+    expect(sourceCode).toContain('header: "Payment Method"');
+    expect(sourceCode).toContain('header: "Order Amount (₹)"');
+    expect(sourceCode).toContain('header: "Total Amount (₹)"');
+    expect(sourceCode).not.toContain('header: "Assign To"');
+  });
 });
 

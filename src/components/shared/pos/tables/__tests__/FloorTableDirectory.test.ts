@@ -42,5 +42,19 @@ describe("Floor & Table Directory and Persistence", () => {
     expect(content).toContain("saveStoredAreas");
     expect(content).toContain("getStoredTables");
     expect(content).toContain("saveStoredTables");
+    expect(content).toContain("switchOccupiedTable");
+  });
+
+  it("Take Order and SwitchTableModal support switching occupied dine-in tables", () => {
+    const takeOrderFilePath = path.resolve(__dirname, "../../PosTakeOrderManager.tsx");
+    const content = fs.readFileSync(takeOrderFilePath, "utf-8");
+    expect(content).toContain("switchModalTable");
+    expect(content).toContain("useSwitchOccupiedTableMutation");
+    expect(content).toContain("onSwitchOccupiedTable");
+
+    const modalFilePath = path.resolve(__dirname, "../SwitchTableModal.tsx");
+    const modalContent = fs.readFileSync(modalFilePath, "utf-8");
+    expect(modalContent).toContain("table?: RestaurantTable");
+    expect(modalContent).toContain("Switch Dine-In Table");
   });
 });

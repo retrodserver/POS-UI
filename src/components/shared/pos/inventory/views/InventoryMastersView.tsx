@@ -107,9 +107,6 @@ export function InventoryMastersView() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="text-[18px] font-bold text-slate-900 tracking-tight">Stock Setup</h2>
-          <p className="text-[12.5px] text-slate-500 mt-0.5">
-            Configure raw ingredients, suppliers, units of measurement, and recipe linkages.
-          </p>
         </div>
 
         <button

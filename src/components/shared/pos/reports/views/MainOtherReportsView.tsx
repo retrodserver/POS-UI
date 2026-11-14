@@ -725,7 +725,6 @@ export function MainOtherReportsView() {
                   {selectedReport.id}
                 </span>
               </div>
-              <p className="text-[12px] text-slate-500 mt-0.5">{selectedReport.description}</p>
             </div>
           </div>
 
@@ -1066,9 +1065,6 @@ export function MainOtherReportsView() {
           <h1 className="text-[20px] sm:text-[22px] font-bold text-slate-900 tracking-tight leading-tight">
             Reports & Graphs
           </h1>
-          <p className="text-[11px] text-slate-500 font-medium">
-            Access operational, financial, and restaurant performance reports in one place.
-          </p>
         </div>
 
         {/* Top-right Search and View Toggle Switcher */}

@@ -613,9 +613,6 @@ export function PosHelpGuideBook() {
             <h1 className="text-[18px] sm:text-[20px] font-bold text-slate-900 leading-tight">
               Retrod POS Operating Manual
             </h1>
-            <p className="text-[11px] text-slate-500">
-              Interactive 3D Handbook for Hoteliers & Cashiers
-            </p>
           </div>
         </div>
 

@@ -19,6 +19,7 @@ import {
   useDeleteTableMutation,
   useCreateTableOrderMutation,
   useUpdateTableOrderMutation,
+  useSwitchOccupiedTableMutation,
 } from "@/hooks/queries/usePosTables";
 import {
   useRoomServiceOrders,
@@ -73,6 +74,7 @@ export function PosTakeOrderManager() {
   const [wizardTableId, setWizardTableId] = useState<string | undefined>(undefined);
   const [bookingTableId, setBookingTableId] = useState<string | undefined>(undefined);
   const [switchModalReservation, setSwitchModalReservation] = useState<ReservationItem | null>(null);
+  const [switchModalTable, setSwitchModalTable] = useState<RestaurantTable | null>(null);
 
   // Table queries & mutations
   const { data: diningAreas = [] } = useDiningAreas();
@@ -94,6 +96,7 @@ export function PosTakeOrderManager() {
   const deleteTableMutation = useDeleteTableMutation();
   const createTableOrderMutation = useCreateTableOrderMutation();
   const updateTableOrderMutation = useUpdateTableOrderMutation();
+  const switchOccupiedTableMutation = useSwitchOccupiedTableMutation();
 
   // ===================== ROOM SERVICE STATE =====================
   const [selectedRoomOrder, setSelectedRoomOrder] = useState<RoomServiceOrder | null>(null);
@@ -423,6 +426,7 @@ export function PosTakeOrderManager() {
               setIsTakeOrderWizardOpen(true);
             }}
             onSwitchTable={(res) => setSwitchModalReservation(res)}
+            onSwitchOccupiedTable={(tbl) => setSwitchModalTable(tbl)}
             onSeatReservation={(tableId, resId) => {
               seatGuestsMutation.mutate({ tableId, reservationId: resId });
               setWizardTableId(tableId);
@@ -579,6 +583,20 @@ export function PosTakeOrderManager() {
           isPending={switchTableMutation.isPending}
           onConfirmSwitch={(rId, nId) =>
             switchTableMutation.mutate({ reservationId: rId, newTableId: nId })
+          }
+        />
+      )}
+
+      {/* Switch Occupied Dine-in Table Modal */}
+      {switchModalTable && (
+        <SwitchTableModal
+          isOpen={!!switchModalTable}
+          onClose={() => setSwitchModalTable(null)}
+          table={switchModalTable}
+          tables={allTables}
+          isPending={switchOccupiedTableMutation.isPending}
+          onConfirmSwitchTable={(fromTableId, toTableId) =>
+            switchOccupiedTableMutation.mutate({ fromTableId, toTableId })
           }
         />
       )}

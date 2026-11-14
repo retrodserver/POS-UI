@@ -62,6 +62,30 @@ describe("POS Billing UI Standardization", () => {
     // Sold out button styling
     expect(content).toContain("Sold Out");
     expect(content).toContain("border-rose-600");
+
+    // Theme colored Dish, Portion, Price, Action table header
+    expect(content).toContain("bg-primary text-primary-foreground");
+    expect(content).toContain("text-left");
+
+    // Top-centered meal tabs with distinct container
+    expect(content).toContain("flex justify-center w-full");
+    expect(content).toContain("bg-emerald-50/70");
+  });
+
+  it("BillingTablesOrdersSidebar styles inactive view switcher icons in crisp dark/black", () => {
+    const sidebarPath = path.resolve(__dirname, "../BillingTablesOrdersSidebar.tsx");
+    const content = fs.readFileSync(sidebarPath, "utf-8");
+
+    expect(content).toContain('text-slate-900 hover:text-black hover:bg-slate-100');
+  });
+
+  it("Global styles use soft canvas background #f8fafc matching PMS reference", () => {
+    const stylesPath = path.resolve(__dirname, "../../../../../styles.css");
+    const content = fs.readFileSync(stylesPath, "utf-8");
+
+    expect(content).toContain("--background: #f8fafc;");
+    expect(content).toContain("--color-slate-50: #f8fafc;");
+    expect(content).toContain("--color-slate-100: #f1f5f9;");
   });
 
   it("PosKotManager has Kitchen Orders heading matching sidebar navigation", () => {
