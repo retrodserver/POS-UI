@@ -10,7 +10,6 @@ import {
 } from "@/hooks/queries/usePosInventory";
 import {
   Plus,
-  Star,
   Check,
   Trash2,
   FolderTree,
@@ -38,6 +37,7 @@ import {
 import type { StockItem } from "@/types/posInventory";
 import { fuzzyFilter } from "@/utils/fuzzySearch";
 import { formatDateIndian, compareDates } from "@/utils/dateUtils";
+import { StockDeleteConfirmModal } from "../modals/StockDeleteConfirmModal";
 
 const STANDARD_UNITS = [
   "Kg",
@@ -295,6 +295,8 @@ export function RawMaterialsManagementView() {
     );
   };
 
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
+
   const toggleFavorite = (id: string) => {
     const row = items.find((it) => it.id === id);
     patchItem.mutate({ id, data: { isFavorite: !row?.isFavorite } });
@@ -382,7 +384,6 @@ export function RawMaterialsManagementView() {
     { id: "pricePerUnit", label: "PRICE / UNIT", sortable: true },
     { id: "isReturnable", label: "RETURNABLE", align: "center", sortable: true },
     { id: "expiryDate", label: "EXPIRY DATE", sortable: true },
-    { id: "isFavorite", label: "FAVOURITE", align: "center" },
     { id: "isActive", label: "STATUS", align: "center", sortable: true },
     { id: "actions", label: "ACTIONS", align: "right" },
   ];
@@ -612,20 +613,6 @@ export function RawMaterialsManagementView() {
                       <td className="px-4 py-3 text-center">
                         <button
                           type="button"
-                          onClick={() => toggleFavorite(row.id)}
-                          className={`p-1.5 rounded-md transition cursor-pointer ${
-                            row.isFavorite
-                              ? "text-amber-500 hover:text-amber-600 bg-amber-50"
-                              : "text-slate-400 hover:text-slate-700 hover:bg-slate-100"
-                          }`}
-                          title={row.isFavorite ? "Remove from favourites" : "Mark as favourite"}
-                        >
-                          <Star className={`h-4 w-4 ${row.isFavorite ? "fill-amber-400 text-amber-500" : ""}`} />
-                        </button>
-                      </td>
-                      <td className="px-4 py-3 text-center">
-                        <button
-                          type="button"
                           onClick={() => toggleActive(row.id)}
                           className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold transition cursor-pointer ${
                             row.isActive
@@ -655,7 +642,7 @@ export function RawMaterialsManagementView() {
                           </button>
                           <button
                             type="button"
-                            onClick={() => handleDelete(row.id)}
+                            onClick={() => setDeleteTarget({ id: row.id, name: row.name })}
                             className="flex items-center justify-center h-7 w-7 rounded-lg border border-slate-300 bg-white hover:border-rose-500 hover:bg-rose-50/60 shadow-2xs transition cursor-pointer"
                             title="Delete Item"
                           >
@@ -1057,6 +1044,31 @@ export function RawMaterialsManagementView() {
         </div>,
         document.body,
       )}
+
+      {/* Delete Confirmation Modal */}
+      <StockDeleteConfirmModal
+        open={Boolean(deleteTarget)}
+        onOpenChange={(open) => {
+          if (!open) setDeleteTarget(null);
+        }}
+        title="Delete Raw Material"
+        itemName={deleteTarget?.name}
+        description={
+          deleteTarget ? (
+            <>
+              Are you sure you want to permanently delete raw material{" "}
+              <span className="font-semibold text-slate-900">"{deleteTarget.name}"</span>?
+              This will remove the item from raw materials inventory and stock reports.
+            </>
+          ) : undefined
+        }
+        onConfirm={() => {
+          if (deleteTarget) {
+            handleDelete(deleteTarget.id);
+            setDeleteTarget(null);
+          }
+        }}
+      />
     </div>
   );
 }

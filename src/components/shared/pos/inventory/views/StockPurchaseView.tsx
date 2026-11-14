@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { ColorActionView, ColorActionDelete } from "@/components/common/ColorActionIcons";
+import { StockDeleteConfirmModal } from "../modals/StockDeleteConfirmModal";
 import { cn } from "@/lib/utils";
 import { exportToExcel } from "@/utils/exportUtils";
 import { ExportToExcelButton } from "@/components/ui/ExportToExcelButton";
@@ -61,6 +62,7 @@ import {
 import { INVENTORY_QUERY_KEYS, useStockItems } from "@/hooks/queries/usePosInventory";
 import { useOutletContext } from "@/context/PosOutletContext";
 import { useQueryClient } from "@tanstack/react-query";
+import { PurchaseReturnView } from "./PurchaseReturnView";
 
 const formatToYmd = (date: Date): string => {
   const y = date.getFullYear();
@@ -83,10 +85,20 @@ const formatToDmy = (str?: string): string => {
   return `${parts[2].padStart(2, "0")}-${parts[1].padStart(2, "0")}-${parts[0]}`;
 };
 
-export function StockPurchaseView() {
+export function StockPurchaseView({
+  initialTab = "purchases",
+}: {
+  initialTab?: "purchases" | "returns";
+} = {}) {
   const { activeOutlet } = useOutletContext();
   const { data: stockItems = [] } = useStockItems();
   const queryClient = useQueryClient();
+  const [activeTab, setActiveTab] = useState<"purchases" | "returns">(initialTab);
+
+  useEffect(() => {
+    setActiveTab(initialTab);
+  }, [initialTab]);
+
   const [purchases, setPurchases] = useState<UnifiedPurchaseDto[]>([]);
   const [vendors, setVendors] = useState<PurchaseVendor[]>([]);
   const [loading, setLoading] = useState(true);
@@ -154,13 +166,12 @@ export function StockPurchaseView() {
     actions: true,
   });
 
-  // Tab View: Purchases (Bills) vs Purchase Orders
-  const [activeTab, setActiveTab] = useState<"purchases" | "orders">("purchases");
-
   // Modals state
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [paymentModalInvoice, setPaymentModalInvoice] = useState<UnifiedPurchaseDto | null>(null);
   const [detailsModalInvoice, setDetailsModalInvoice] = useState<UnifiedPurchaseDto | null>(null);
+  const [deleteVendorTarget, setDeleteVendorTarget] = useState<PurchaseVendor | null>(null);
+  const [deletePurchaseTarget, setDeletePurchaseTarget] = useState<UnifiedPurchaseDto | null>(null);
 
   // Vendor Management Modal State
   const [isVendorModalOpen, setIsVendorModalOpen] = useState(false);
@@ -189,6 +200,8 @@ export function StockPurchaseView() {
   const [formPaidAmount, setFormPaidAmount] = useState("");
   const [formPaymentMethod, setFormPaymentMethod] = useState("Cash");
   const [formTax, setFormTax] = useState("0");
+  const [formTaxType, setFormTaxType] = useState<"flat" | "percent">("flat");
+  const [formTaxRate, setFormTaxRate] = useState("5");
   const [formNotes, setFormNotes] = useState("");
   const [formItems, setFormItems] = useState<PurchaseLineItem[]>([
     { stockItemId: "", name: "", quantity: 1, unit: "Kg", unitPrice: 0, lineTotal: 0 },
@@ -471,7 +484,6 @@ export function StockPurchaseView() {
   };
 
   const handleDeleteVendor = async (vendor: PurchaseVendor) => {
-    if (!window.confirm(`Are you sure you want to remove vendor "${vendor.name}"?`)) return;
     try {
       await posPurchasesService.deleteVendor(vendor.id);
       setVendors((prev) => prev.filter((v) => v.id !== vendor.id));
@@ -494,6 +506,8 @@ export function StockPurchaseView() {
     setFormPaidAmount("");
     setFormPaymentMethod("Cash");
     setFormTax("0");
+    setFormTaxType("flat");
+    setFormTaxRate("5");
     setFormNotes("");
     setFormItems([{ stockItemId: "", sku: "", name: "", quantity: 1, unit: "Kg", unitPrice: 0, lineTotal: 0 }]);
     setIsAddOpen(true);
@@ -535,7 +549,10 @@ export function StockPurchaseView() {
 
   const formCalculations = useMemo(() => {
     const subtotal = formItems.reduce((acc, it) => acc + (it.lineTotal || 0), 0);
-    const tax = parseFloat(formTax) || 0;
+    const tax =
+      formTaxType === "percent"
+        ? Math.round(subtotal * (parseFloat(formTaxRate) || 0)) / 100
+        : parseFloat(formTax) || 0;
     const total = Math.round((subtotal + tax) * 100) / 100;
     let paid = 0;
     if (formPaymentStatus === "Done") {
@@ -547,7 +564,7 @@ export function StockPurchaseView() {
     }
     const due = Math.max(0, Math.round((total - paid) * 100) / 100);
     return { subtotal, tax, total, paid, due };
-  }, [formItems, formTax, formPaymentStatus, formPaidAmount]);
+  }, [formItems, formTax, formTaxType, formTaxRate, formPaymentStatus, formPaidAmount]);
 
   const handlePaymentStatusChange = (status: "Done" | "Pending" | "Partial") => {
     setFormPaymentStatus(status);
@@ -626,7 +643,6 @@ export function StockPurchaseView() {
   };
 
   const handleDeletePurchase = async (p: UnifiedPurchaseDto) => {
-    if (!window.confirm(`Delete purchase invoice ${p.invoiceNo}?`)) return;
     try {
       await posPurchasesService.deletePurchase(p.id);
       setPurchases((prev) => prev.filter((item) => item.id !== p.id));
@@ -674,42 +690,87 @@ export function StockPurchaseView() {
 
   return (
     <div className="space-y-6">
-      {/* 1. Top Header with Title, Date Presets & Primary Action */}
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2.5">
-            <h2 className="text-[20px] font-bold text-slate-900 tracking-tight">Purchase Entry</h2>
-            <span className="rounded-full bg-teal-50 border border-teal-200 px-2.5 py-0.5 text-[11px] font-semibold text-teal-700">
-              {filteredPurchases.length} Invoices
-            </span>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2.5">
-          <ExportToExcelButton
-            onClick={handleExportExcel}
-            className="h-9 px-4 rounded-xl text-[12.5px]"
-          />
-
-          <button
-            type="button"
-            onClick={() => setIsVendorModalOpen(true)}
-            className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-[12.5px] font-semibold text-slate-700 shadow-2xs hover:bg-slate-50 hover:border-slate-300 transition cursor-pointer"
+      {/* Tab Switcher: Purchases vs Purchase Returns */}
+      <div className="flex items-center gap-1.5 border-b border-slate-200 pb-2">
+        <button
+          type="button"
+          onClick={() => setActiveTab("purchases")}
+          className={cn(
+            "flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-bold transition cursor-pointer",
+            activeTab === "purchases"
+              ? "bg-teal-600 text-white shadow-xs"
+              : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+          )}
+        >
+          <ShoppingCart className="h-4 w-4" />
+          <span>Purchases</span>
+          <span
+            className={cn(
+              "px-2 py-0.5 rounded-full text-[11px] font-bold ml-1",
+              activeTab === "purchases"
+                ? "bg-white/20 text-white"
+                : "bg-slate-200 text-slate-700"
+            )}
           >
-            <Building2 className="h-4 w-4 text-teal-600" />
-            Vendors
-          </button>
+            {purchases.length}
+          </span>
+        </button>
 
-          <button
-            type="button"
-            onClick={handleOpenAdd}
-            className="flex items-center gap-1.5 rounded-xl bg-teal-600 px-4 py-2 text-[12.5px] font-semibold text-white shadow-sm hover:bg-teal-700 transition cursor-pointer"
-          >
-            <Plus className="h-4 w-4" />
-            Add Purchase
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={() => setActiveTab("returns")}
+          className={cn(
+            "flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-bold transition cursor-pointer",
+            activeTab === "returns"
+              ? "bg-teal-600 text-white shadow-xs"
+              : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+          )}
+        >
+          <PackageCheck className="h-4 w-4" />
+          <span>Purchase Returns</span>
+        </button>
       </div>
+
+      {activeTab === "returns" ? (
+        <PurchaseReturnView />
+      ) : (
+        <>
+          {/* 1. Top Header with Title, Date Presets & Primary Action */}
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2.5">
+                <h2 className="text-[20px] font-bold text-slate-900 tracking-tight">Purchase Entry</h2>
+                <span className="rounded-full bg-teal-50 border border-teal-200 px-2.5 py-0.5 text-[11px] font-semibold text-teal-700">
+                  {filteredPurchases.length} Invoices
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2.5">
+              <ExportToExcelButton
+                onClick={handleExportExcel}
+                className="h-9 px-4 rounded-xl text-[12.5px]"
+              />
+
+              <button
+                type="button"
+                onClick={() => setIsVendorModalOpen(true)}
+                className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-[12.5px] font-semibold text-slate-700 shadow-2xs hover:bg-slate-50 hover:border-slate-300 transition cursor-pointer"
+              >
+                <Building2 className="h-4 w-4 text-teal-600" />
+                Vendors
+              </button>
+
+              <button
+                type="button"
+                onClick={handleOpenAdd}
+                className="flex items-center gap-1.5 rounded-xl bg-teal-600 px-4 py-2 text-[12.5px] font-semibold text-white shadow-sm hover:bg-teal-700 transition cursor-pointer"
+              >
+                <Plus className="h-4 w-4" />
+                Add Purchase
+              </button>
+            </div>
+          </div>
 
       {/* 2. Date Range Filter Bar (PMS Style: dd-MM-yyyy, button & border styling, slide-to-choose) */}
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-3.5 shadow-2xs">
@@ -1047,7 +1108,7 @@ export function StockPurchaseView() {
                             </button>
                             <button
                               type="button"
-                              onClick={() => handleDeletePurchase(p)}
+                              onClick={() => setDeletePurchaseTarget(p)}
                               title="Delete Purchase"
                               className="flex items-center justify-center h-7 w-7 rounded-lg border border-black bg-white hover:bg-black/5 shadow-2xs transition cursor-pointer"
                             >
@@ -1078,6 +1139,8 @@ export function StockPurchaseView() {
           itemName="purchases"
         />
       </div>
+        </>
+      )}
 
       {/* 6. Record Payment Modal */}
       {paymentModalInvoice && (
@@ -1451,18 +1514,69 @@ export function StockPurchaseView() {
                       </span>
                     </div>
 
-                    <div className="flex items-center justify-between">
-                      <span className="text-slate-600 font-medium">GST / Tax:</span>
-                      <div className="flex items-center gap-1">
-                        <span className="text-slate-500 font-mono text-[11px]">₹</span>
-                        <input
-                          type="number"
-                          step="any"
-                          min="0"
-                          value={formTax}
-                          onChange={(e) => setFormTax(e.target.value)}
-                          className="w-24 rounded-lg border border-slate-200 bg-white px-2 py-0.5 text-right font-mono text-[12px] text-slate-800 focus:border-teal-500 focus:outline-none"
-                        />
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-slate-600 font-medium">GST / Tax:</span>
+                        <div className="flex items-center gap-1.5">
+                          {/* Tax mode toggle: % vs Flat (₹) */}
+                          <div className="flex rounded-md border border-slate-200 bg-slate-100 p-0.5 text-[11px] font-bold">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setFormTaxType("percent");
+                              }}
+                              className={`px-1.5 py-0.5 rounded cursor-pointer transition ${
+                                formTaxType === "percent"
+                                  ? "bg-white text-teal-700 shadow-2xs"
+                                  : "text-slate-500 hover:text-slate-800"
+                              }`}
+                            >
+                              %
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setFormTaxType("flat");
+                              }}
+                              className={`px-1.5 py-0.5 rounded cursor-pointer transition ${
+                                formTaxType === "flat"
+                                  ? "bg-white text-teal-700 shadow-2xs"
+                                  : "text-slate-500 hover:text-slate-800"
+                              }`}
+                            >
+                              ₹ Flat
+                            </button>
+                          </div>
+
+                          {formTaxType === "percent" ? (
+                            <div className="flex items-center gap-1">
+                              <input
+                                type="number"
+                                step="any"
+                                min="0"
+                                value={formTaxRate}
+                                onChange={(e) => setFormTaxRate(e.target.value)}
+                                className="w-16 rounded-lg border border-slate-200 bg-white px-2 py-0.5 text-right font-mono text-[12px] text-slate-800 focus:border-teal-500 focus:outline-none"
+                              />
+                              <span className="text-slate-500 font-mono text-[11px]">%</span>
+                              <span className="text-[11px] text-slate-500 font-mono pl-1">
+                                (₹{formCalculations.tax.toFixed(2)})
+                              </span>
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-1">
+                              <span className="text-slate-500 font-mono text-[11px]">₹</span>
+                              <input
+                                type="number"
+                                step="any"
+                                min="0"
+                                value={formTax}
+                                onChange={(e) => setFormTax(e.target.value)}
+                                className="w-24 rounded-lg border border-slate-200 bg-white px-2 py-0.5 text-right font-mono text-[12px] text-slate-800 focus:border-teal-500 focus:outline-none"
+                              />
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
 
@@ -1923,7 +2037,7 @@ export function StockPurchaseView() {
                         <div className="flex items-center gap-2 self-end sm:self-center">
                           <button
                             type="button"
-                            onClick={() => handleDeleteVendor(v)}
+                            onClick={() => setDeleteVendorTarget(v)}
                             className="flex items-center gap-1 rounded-xl p-2 text-rose-500 hover:bg-rose-50 hover:text-rose-700 transition cursor-pointer"
                             title={`Remove vendor ${v.name}`}
                           >
@@ -1958,6 +2072,55 @@ export function StockPurchaseView() {
         </div>,
         document.body,
       )}
+
+      {/* Delete Purchase Invoice Confirmation Modal */}
+      <StockDeleteConfirmModal
+        open={Boolean(deletePurchaseTarget)}
+        onOpenChange={(open) => {
+          if (!open) setDeletePurchaseTarget(null);
+        }}
+        title="Delete Purchase Invoice"
+        itemName={deletePurchaseTarget?.invoiceNo}
+        description={
+          deletePurchaseTarget ? (
+            <>
+              Are you sure you want to permanently delete purchase invoice{" "}
+              <span className="font-semibold text-slate-900">"{deletePurchaseTarget.invoiceNo}"</span> from{" "}
+              <span className="font-semibold text-slate-900">{deletePurchaseTarget.vendor}</span>?
+            </>
+          ) : undefined
+        }
+        onConfirm={() => {
+          if (deletePurchaseTarget) {
+            handleDeletePurchase(deletePurchaseTarget);
+            setDeletePurchaseTarget(null);
+          }
+        }}
+      />
+
+      {/* Delete Vendor Confirmation Modal */}
+      <StockDeleteConfirmModal
+        open={Boolean(deleteVendorTarget)}
+        onOpenChange={(open) => {
+          if (!open) setDeleteVendorTarget(null);
+        }}
+        title="Remove Vendor"
+        itemName={deleteVendorTarget?.name}
+        description={
+          deleteVendorTarget ? (
+            <>
+              Are you sure you want to remove vendor{" "}
+              <span className="font-semibold text-slate-900">"{deleteVendorTarget.name}"</span>?
+            </>
+          ) : undefined
+        }
+        onConfirm={() => {
+          if (deleteVendorTarget) {
+            handleDeleteVendor(deleteVendorTarget);
+            setDeleteVendorTarget(null);
+          }
+        }}
+      />
     </div>
   );
 }
